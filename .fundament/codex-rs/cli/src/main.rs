@@ -451,8 +451,8 @@ struct ForkCommand {
 #[derive(Debug, Parser)]
 struct QuickCommand {
     /// The prompt/question to send. If omitted, reads from stdin.
-    #[arg(value_name = "PROMPT", value_hint = clap::ValueHint::Other)]
-    prompt: Option<String>,
+    #[arg(value_name = "PROMPT", value_hint = clap::ValueHint::Other, trailing_var_arg = true)]
+    prompt: Vec<String>,
 
     /// Model to use (e.g., openrouter/free, openrouter/auto).
     #[arg(long = "model", short = 'm', value_name = "MODEL")]
@@ -461,6 +461,10 @@ struct QuickCommand {
     /// Enable JSON output.
     #[arg(long = "json", default_value_t = false)]
     json: bool,
+
+    /// Allow running outside a Git repository.
+    #[arg(long = "skip-git-repo-check", default_value_t = false)]
+    skip_git_repo_check: bool,
 
     #[clap(flatten)]
     config_overrides: CliConfigOverrides,
@@ -1622,6 +1626,7 @@ async fn cli_main(
             prompt,
             model,
             json,
+            skip_git_repo_check,
             mut config_overrides,
         })) => {
             reject_remote_mode_for_subcommand(
@@ -1633,16 +1638,22 @@ async fn cli_main(
             if let Some(m) = model {
                 config_overrides.raw_overrides.push(format!("model={}", m));
             }
-            let mut args = vec!["codex".to_string(), "exec".to_string()];
-            if json {
-                args.push("--json".to_string());
-            }
-            if let Some(p) = prompt {
-                args.push(p);
-            }
-            let mut exec_cli = ExecCli::try_parse_from(args)?;
-            exec_cli.config_overrides = config_overrides;
-            exec_cli.json = json;
+            // Build ExecCli directly to avoid clap parsing issues with spaces in prompt
+            let mut exec_cli = codex_exec::Cli {
+                command: None,
+                strict_config: config_overrides.raw_overrides.iter().any(|s| s.starts_with("strict-config")),
+                shared: Default::default(),
+                skip_git_repo_check,
+                ephemeral: false,
+                ignore_user_config: false,
+                ignore_rules: false,
+                output_schema: None,
+                config_overrides,
+                color: Default::default(),
+                json,
+                last_message_file: None,
+                prompt: if prompt.is_empty() { None } else { Some(prompt.join(" ")) },
+            };
             codex_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
         Some(Subcommand::Model(ModelCommand {
