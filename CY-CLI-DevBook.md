@@ -31,6 +31,31 @@
    на CY-CLI (патч `out/extension.js`, путь к бинарнику).
 6. [ ] Реализация первых быстрых методов.
 
+## Как расширение Codex спавнит бинарник (ключ к переключению на CY-CLI)
+- В `out/extension.js` (минифицированно) есть `Hxe(t,e)` — спавн codex-процесса:
+  ```
+  Hxe(t,e){ ... let i=cI(t), a=process.env.PATH+sep+joinPath(t, Mf()).fsPath,
+       c={...process.env,...n,PATH:a,RUST_LOG:"warn",CODEX_INTERNAL_ORIGINATOR_OVERRIDE:kf},
+       u=(0,pb.spawn)(i, e, {stdio:["pipe","pipe","pipe"],env:c}); ... }
+  ```
+- Путь к бинарнику определяется функцией `cI(t,e)`:
+  ```js
+  function cI(t,e){
+    let r=Nn("cliExecutable");
+    if (r && r.trim().length>0) return r;          // <-- пользовательский бинарник!
+    let n=Mf(e), o=(e??process.platform)==="win32"?"codex.exe":"codex";
+    return Os.Uri.joinPath(t, `${n}/${o}`).fsPath;  // extensionUri/bin/<platform>/codex
+  }
+  ```
+- **ВЫВОД:** расширение официально поддерживает подмену бинарника настрайкой
+  `chatgpt.cliExecutable` (package.json: `type:["string","null"]`, `default:null`,
+  `scope:"application"`, `restricted:true` — dev-only ключ). Достаточно собрать CY-CLI
+  и прописать путь в user settings.json; extension спавнит его как app-server.
+- Реальные args спавна: `["-c","features.code_mode_host=true","app-server","--analytics-default-enabled"]`.
+  env: `PATH+=ext bin dir`, `RUST_LOG=warn`, `CODEX_INTERNAL_ORIGINATOR_OVERRIDE`, опционально `CODEX_HOME`.
+  WSL fallback отдельно (`wsl.exe`).
+- Это НЕ требует патчить extension.js — настройка уже есть в расширении.
+
 ## Ключевые знания о Codex CLI (из исследования)
 - Системный бинарник: `codex` (`codex-cli 0.148.0`), `~/.local/bin/codex`.
 - Установленное расширение: `/Users/imac/.vscode/extensions/openai.chatgpt-26.814.41407-darwin-x64`
@@ -50,8 +75,10 @@
   Команды: `initialize`, `config/read`, `model/list`, `config/batchWrite`, `thread/...` (см. `tools/` в `/Volumes/Work/CY/structured/codex-openrouter/`).
 
 ## Открытые вопросы
-- [ ] Какие именно "очень быстрые методы" нужны? (список уточнить: например `cy <mesс>`?
+- [x] По какому каналу расширение беседует с бинарником: спавнит как app-server (stdio
+  tty + JSON-Lines), адрес бинарника — `chatgpt.cliExecutable` (настройка расширения).
+- [ ] Какие именно "очень быстрые методы" нужны? (список уточнить: e.g. `cy <mesс>`?
   прототип-less? fast resume? батч-обработка файлов? пайплайны CLI?)
-- [ ] По какому каналу расширение беседует с бинарником: расширение спавнит свой
-  `codex` (какой путь?) и в каком режиме (stdio vs WS)?
 - [ ] Публиковать ли CY-CLI как npm-пакет или только repo + bin symlink.
+- [ ] Сборка: новая версия CY-CLI — это форк codex-rs (Rust) или обёртка (thin wrapper)
+  поверх бинарника codex? (fundament = Rust workspace, `codex-cli/` реэкспортирует.)
