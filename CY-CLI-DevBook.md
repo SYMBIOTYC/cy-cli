@@ -42,19 +42,29 @@
 - **Шаг 2:** новые подкоманды в `cli/src/main.rs` `enum Subcommand`:
   - `cy q "<промпт>"` — быстрый вопрос (однократный проход агента, стриминг вывода); ✅
   - `cy m <model>` / `cy ls` — модели (читает `model_catalog_json`, config.toml); ✅
-  - `cy r [id]` / `cy hist` — resume/история сессий;
-  - `cy b "<инструкция>" [файлы...]` — батч-обработка (параллельные проходы, вывод сводки).
-- **Шаг 3:** начать новый TUI-модуль (например `tui/src/ncview/`) с NC/VC/PIE-раскладкой:
-  - **4 панели** (PIE Commander): левый/правый + верхний/нижний или квадранты;
-  - layout на ratatui: 4 `Layout` зоны + командная строка + статус-бар;
-  - привязать F1–F10, Tab, стрелки; не трогать существующий `chatwidget` — фундамент рабочий.
+  - `cy r [id]` / `cy hist` — resume/история сессий; ✅
+  - `cy b "<инструкция>" [файлы...]` — батч-обработка (параллельные проходы, вывод сводки). ✅
+- **Шаг 3:** новый TUI-модуль `tui/src/ncview/mod.rs` с NC/VC/PIE-раскладкой:
+  - **4 панели** (PIE Commander): top-left (файлы/сессии), top-right (агент), bottom-left (модели), bottom-right (логи);
+  - layout на ratatui: 4 `Layout` зоны + командная строка + статус-бар + F-ключи;
+  - F1–F10, Tab, стрелки, командная строка внизу;
+  - `cy tui` / `cy nc` запускает 4-панельный интерфейс; не трогает существующий `chatwidget`.
 - **Шаг 4:** собрать CY-CLI; переключить расширение: `chatgpt.cliExecutable` → путь к `cy`.
 
 ## Сборка / инструменты
 - Rust 1.97.1, cargo 1.97.1 (Homebrew). Гигантский workspace (~150 крейтов).
 - `just` НЕ установлен (brew install just — медленный, время ожидания вышло); для форка не критично.
 - Первая сборка `cargo build --bin codex` запущена в фоне (PID 80222, лог /tmp/cycli-build.log) —
-  проверять `tail /tmp/cycli-build.log` и `ps aux | grep -c "[c]argo build"`.
+  проверять `tail /tmp/cycli-build.log` и `ps aux | grep -c "[c]argo build"`. ✅ Собралось за ~8 мин.
+- **CY-CLI собрался успешно** (`cargo build --bin cy` ~3 мин после базового билда):
+  - Бинарь: `.fundament/codex-rs/target/debug/cy` (100MB);
+  - Новые подкоманды: `cy q`, `cy m`, `cy ls`, `cy hist`, `cy b`, `cy tui` / `cy nc`;
+  - Тесты:
+    - `cy m` → показывает текущую модель (`nvidia/nemotron-3-super-120b-a12b:free`);
+    - `cy ls` → выводит 7 openrouter моделей из каталога;
+    - `cy q "What is 2+2?"` → работает (стримит ответ);
+    - `cy b "test"` → парсит git status файлы;
+    - `cy tui` → запускает 4-панельный TUI (F1-F10, Tab, командная строка).
 
 ## Ключевые знания о Codex CLI (из исследования)
 
