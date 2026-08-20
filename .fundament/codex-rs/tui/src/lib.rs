@@ -101,6 +101,7 @@ mod app_event_sender;
 mod app_info;
 mod app_server_approval_conversions;
 mod app_server_session;
+pub mod ncview;
 mod approval_events;
 mod ascii_animation;
 mod bottom_pane;

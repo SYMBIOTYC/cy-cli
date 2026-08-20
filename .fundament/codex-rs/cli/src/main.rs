@@ -247,6 +247,10 @@ enum Subcommand {
 
     /// Inspect feature flags.
     Features(FeaturesCli),
+
+    /// Launch the NC/VC/PIE Commander 4-panel TUI.
+    #[clap(visible_alias = "nc")]
+    Tui,
 }
 
 #[derive(Debug, Parser)]
@@ -2066,6 +2070,9 @@ async fn cli_main(
             run_exec_server_command(cmd, &arg0_paths, &root_config_overrides, strict_config)
                 .await?;
         }
+        Some(Subcommand::Tui) => {
+            codex_tui::ncview::run_ncview().await?;
+        }
         Some(Subcommand::Features(FeaturesCli { sub })) => match sub {
             FeaturesSubcommand::List => {
                 reject_remote_mode_for_subcommand(
@@ -2728,7 +2735,8 @@ fn unsupported_subcommand_name_for_strict_config(
         | Some(Subcommand::Model(_))
         | Some(Subcommand::ListModels(_))
         | Some(Subcommand::History(_))
-        | Some(Subcommand::Batch(_)) => None,
+        | Some(Subcommand::Batch(_))
+        | Some(Subcommand::Tui) => None,
         Some(Subcommand::AppServer(app_server)) if app_server.subcommand.is_none() => None,
         Some(Subcommand::AppServer(app_server)) => {
             Some(app_server_subcommand_name(app_server.subcommand.as_ref()))
