@@ -59,10 +59,12 @@
 - **CY-CLI собрался успешно** (`cargo build --bin cy` ~3 мин после базового билда):
   - Бинарь: `.fundament/codex-rs/target/debug/cy` (100MB);
   - Новые подкоманды: `cy q`, `cy m`, `cy ls`, `cy hist`, `cy b`, `cy tui` / `cy nc`;
-  - Тесты:
+  - **Тесты пройдены:**
     - `cy m` → показывает текущую модель (`nvidia/nemotron-3-super-120b-a12b:free`);
+    - `cy m openrouter/auto` → устанавливает модель (пишет в `~/.codex/config.toml`);
     - `cy ls` → выводит 7 openrouter моделей из каталога;
-    - `cy q "What is 2+2?"` → работает (стримит ответ);
+    - `cy q --skip-git-repo-check "What is 2+2?"` → стриминг ответа "The sum of 2 + 2 is 4.";
+    - `cy q --skip-git-repo-check --model openrouter/auto "What is the capital of France?"` → переопределяет модель на лету;
     - `cy b "test"` → парсит git status файлы;
     - `cy tui` → запускает 4-панельный TUI (F1-F10, Tab, командная строка).
 
