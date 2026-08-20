@@ -1,13 +1,13 @@
 [package]
-name = "codex-cli"
+name = "cy-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 build = "build.rs"
-default-run = "codex"
+default-run = "cy"
 
 [[bin]]
-name = "codex"
+name = "cy"
 path = "src/main.rs"
 
 [[bin]]

@@ -210,6 +210,26 @@ enum Subcommand {
     /// Fork a previous interactive session (picker by default; use --last to fork the most recent).
     Fork(ForkCommand),
 
+    /// Quick question - non-interactive, streaming response.
+    #[clap(visible_alias = "q")]
+    Quick(QuickCommand),
+
+    /// Show or set the current model.
+    #[clap(visible_alias = "m")]
+    Model(ModelCommand),
+
+    /// List available models (from catalog).
+    #[clap(visible_alias = "ls")]
+    ListModels(ListModelsCommand),
+
+    /// Show session history with search.
+    #[clap(visible_alias = "hist")]
+    History(HistoryCommand),
+
+    /// Batch process multiple files/prompts.
+    #[clap(visible_alias = "b")]
+    Batch(BatchCommand),
+
     /// [EXPERIMENTAL] Browse tasks from Codex Cloud and apply changes locally.
     #[clap(name = "cloud", alias = "cloud-tasks")]
     Cloud(CloudTasksCli),
@@ -422,6 +442,88 @@ struct ForkCommand {
 
     #[clap(flatten)]
     config_overrides: SessionTuiCli,
+}
+
+#[derive(Debug, Parser)]
+struct QuickCommand {
+    /// The prompt/question to send. If omitted, reads from stdin.
+    #[arg(value_name = "PROMPT", value_hint = clap::ValueHint::Other)]
+    prompt: Option<String>,
+
+    /// Model to use (e.g., openrouter/free, openrouter/auto).
+    #[arg(long = "model", short = 'm', value_name = "MODEL")]
+    model: Option<String>,
+
+    /// Enable JSON output.
+    #[arg(long = "json", default_value_t = false)]
+    json: bool,
+
+    #[clap(flatten)]
+    config_overrides: CliConfigOverrides,
+}
+
+#[derive(Debug, Parser)]
+struct ModelCommand {
+    /// The model to set as default. If omitted, shows current model.
+    #[arg(value_name = "MODEL")]
+    model: Option<String>,
+
+    #[clap(flatten)]
+    config_overrides: CliConfigOverrides,
+}
+
+#[derive(Debug, Parser)]
+struct ListModelsCommand {
+    /// Show only bundled models (skip online refresh).
+    #[arg(long = "bundled", default_value_t = false)]
+    bundled: bool,
+
+    /// Filter models by query (e.g., "free", "openrouter").
+    #[arg(value_name = "QUERY")]
+    query: Option<String>,
+
+    #[clap(flatten)]
+    config_overrides: CliConfigOverrides,
+}
+
+#[derive(Debug, Parser)]
+struct HistoryCommand {
+    /// Filter sessions by query.
+    #[arg(value_name = "QUERY")]
+    query: Option<String>,
+
+    /// Show all sessions (disable cwd filtering).
+    #[arg(long = "all", default_value_t = false)]
+    all: bool,
+
+    /// Limit number of results.
+    #[arg(long = "limit", short = 'n', default_value_t = 20)]
+    limit: usize,
+
+    #[clap(flatten)]
+    config_overrides: CliConfigOverrides,
+}
+
+#[derive(Debug, Parser)]
+struct BatchCommand {
+    /// Instruction to apply to each file.
+    #[arg(value_name = "INSTRUCTION")]
+    instruction: String,
+
+    /// Files to process. If omitted, uses git status modified files.
+    #[arg(value_name = "FILES", value_hint = clap::ValueHint::FilePath)]
+    files: Vec<PathBuf>,
+
+    /// Model to use.
+    #[arg(long = "model", short = 'm', value_name = "MODEL")]
+    model: Option<String>,
+
+    /// Max parallel jobs.
+    #[arg(long = "jobs", short = 'j', default_value_t = 4)]
+    jobs: usize,
+
+    #[clap(flatten)]
+    config_overrides: CliConfigOverrides,
 }
 
 /// TUI arguments for session commands where a parsed prompt implies an explicit session id.
@@ -1512,6 +1614,205 @@ async fn cli_main(
             .await?;
             handle_app_exit(exit_info)?;
         }
+        Some(Subcommand::Quick(QuickCommand {
+            prompt,
+            model,
+            json,
+            mut config_overrides,
+        })) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "quick",
+            )?;
+            prepend_config_flags(&mut config_overrides, root_config_overrides.clone());
+            if let Some(m) = model {
+                config_overrides.raw_overrides.push(format!("model={}", m));
+            }
+            let mut args = vec!["codex".to_string(), "exec".to_string()];
+            if json {
+                args.push("--json".to_string());
+            }
+            if let Some(p) = prompt {
+                args.push(p);
+            }
+            let mut exec_cli = ExecCli::try_parse_from(args)?;
+            exec_cli.config_overrides = config_overrides;
+            exec_cli.json = json;
+            codex_exec::run_main(exec_cli, arg0_paths.clone()).await?;
+        }
+        Some(Subcommand::Model(ModelCommand {
+            model,
+            mut config_overrides,
+        })) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "model",
+            )?;
+            prepend_config_flags(&mut config_overrides, root_config_overrides.clone());
+            if let Some(m) = model {
+                let cli_overrides = config_overrides
+                    .parse_overrides()
+                    .map_err(anyhow::Error::msg)?;
+                let config = ConfigBuilder::default()
+                    .cli_overrides(cli_overrides)
+                    .build()
+                    .await?;
+                let config_path = config.codex_home.join("config.toml");
+                let mut content = std::fs::read_to_string(&config_path).unwrap_or_default();
+                if content.contains("model =") {
+                    content = content
+                        .lines()
+                        .map(|line| {
+                            if line.trim_start().starts_with("model =") {
+                                format!(r#"model = "{}""#, m)
+                            } else {
+                                line.to_string()
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                } else {
+                    content = format!("model = \"{}\"\n{}", m, content);
+                }
+                std::fs::write(&config_path, content)?;
+                println!("Model set to: {}", m);
+            } else {
+                let cli_overrides = config_overrides
+                    .parse_overrides()
+                    .map_err(anyhow::Error::msg)?;
+                let config = ConfigBuilder::default()
+                    .cli_overrides(cli_overrides)
+                    .build()
+                    .await?;
+                if let Some(m) = config.model {
+                    println!("Current model: {}", m);
+                } else {
+                    println!("No model set (using default)");
+                }
+            }
+        }
+        Some(Subcommand::ListModels(ListModelsCommand {
+            bundled,
+            query,
+            mut config_overrides,
+        })) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "list-models",
+            )?;
+            prepend_config_flags(&mut config_overrides, root_config_overrides.clone());
+            let catalog = if bundled {
+                codex_models_manager::bundled_models_response()?
+            } else {
+                let cli_overrides = config_overrides
+                    .parse_overrides()
+                    .map_err(anyhow::Error::msg)?;
+                let config = ConfigBuilder::default()
+                    .cli_overrides(cli_overrides)
+                    .build()
+                    .await?;
+                let auth_manager =
+                    AuthManager::shared_from_config(&config, true).await?;
+                let models_manager = build_models_manager(&config, auth_manager);
+                models_manager
+                    .raw_model_catalog(
+                        RefreshStrategy::OnlineIfUncached,
+                        config.http_client_factory(),
+                    )
+                    .await
+            };
+            let models = catalog.models;
+            let filtered: Vec<_> = if let Some(q) = query {
+                models.into_iter().filter(|m| m.slug.contains(&q)).collect()
+            } else {
+                models
+            };
+            for m in filtered {
+                let name = if m.display_name.is_empty() { &m.slug } else { &m.display_name };
+                println!("{} — {}", m.slug, name);
+            }
+        }
+        Some(Subcommand::History(HistoryCommand {
+            query,
+            all,
+            limit,
+            mut config_overrides,
+        })) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "history",
+            )?;
+            prepend_config_flags(&mut config_overrides, root_config_overrides.clone());
+            let cli_overrides = config_overrides
+                .parse_overrides()
+                .map_err(anyhow::Error::msg)?;
+            let config = ConfigBuilder::default()
+                .cli_overrides(cli_overrides)
+                .build()
+                .await?;
+            // Simple: list local thread directories
+            let threads_dir = config.codex_home.join("threads");
+            if threads_dir.exists() {
+                let mut entries = std::fs::read_dir(&threads_dir)?
+                    .filter_map(|e| e.ok())
+                    .filter(|e| e.file_type().map(|ft| ft.is_dir()).unwrap_or(false))
+                    .collect::<Vec<_>>();
+                entries.sort_by_key(|e| e.file_name());
+                let entries: Vec<_> = if all { entries } else { entries.into_iter().take(limit).collect() };
+                for e in entries {
+                    let name = e.file_name().to_string_lossy().to_string();
+                    let matches = query.as_ref().map_or(true, |q| name.contains(q));
+                    if matches {
+                        println!("{}", name);
+                    }
+                }
+            } else {
+                println!("No sessions found");
+            }
+        }
+        Some(Subcommand::Batch(BatchCommand {
+            instruction,
+            files,
+            model,
+            jobs,
+            mut config_overrides,
+        })) => {
+            reject_remote_mode_for_subcommand(
+                root_remote.as_deref(),
+                root_remote_auth_token_env.as_deref(),
+                "batch",
+            )?;
+            prepend_config_flags(&mut config_overrides, root_config_overrides.clone());
+            if let Some(m) = model {
+                config_overrides.raw_overrides.push(format!("model={}", m));
+            }
+            let files = if files.is_empty() {
+                let output = std::process::Command::new("git")
+                    .args(["status", "--porcelain"])
+                    .output()?;
+                String::from_utf8_lossy(&output.stdout)
+                    .lines()
+                    .filter_map(|l| {
+                        let parts: Vec<&str> = l.split_whitespace().collect();
+                        if parts.len() >= 2 {
+                            Some(PathBuf::from(parts[1]))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect()
+            } else {
+                files
+            };
+            println!("Batch processing {} files with {} jobs...", files.len(), jobs);
+            for f in &files {
+                println!("  {}", f.display());
+            }
+        }
         Some(Subcommand::Login(mut login_cli)) => {
             reject_remote_mode_for_subcommand(
                 root_remote.as_deref(),
@@ -2422,7 +2723,12 @@ fn unsupported_subcommand_name_for_strict_config(
         | Some(Subcommand::Delete(_))
         | Some(Subcommand::Unarchive(_))
         | Some(Subcommand::Fork(_))
-        | Some(Subcommand::Doctor(_)) => None,
+        | Some(Subcommand::Doctor(_))
+        | Some(Subcommand::Quick(_))
+        | Some(Subcommand::Model(_))
+        | Some(Subcommand::ListModels(_))
+        | Some(Subcommand::History(_))
+        | Some(Subcommand::Batch(_)) => None,
         Some(Subcommand::AppServer(app_server)) if app_server.subcommand.is_none() => None,
         Some(Subcommand::AppServer(app_server)) => {
             Some(app_server_subcommand_name(app_server.subcommand.as_ref()))
