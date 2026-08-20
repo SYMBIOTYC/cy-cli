@@ -69,9 +69,12 @@ use crate::plugin_cmd::PluginSubcommand;
 use crate::queue_cmd::QueueCommand;
 use crate::remote_control_cmd::RemoteControlCommand;
 use doctor::DoctorCommand;
+use codex_state::log_db;
+use codex_rollout::state_db;
 use state_db_recovery as local_state_db;
 
 use codex_config::LoaderOverrides;
+use codex_config::NoopThreadConfigLoader;
 use codex_core::build_models_manager;
 use codex_core::config::Config;
 use codex_core::config::ConfigBuilder;
@@ -82,6 +85,11 @@ use codex_core::config::edit::ConfigEditsBuilder;
 use codex_core::config::find_codex_home;
 use codex_core::config::load_config_toml_with_layer_stack;
 use codex_core::config::resolve_profile_v2_config_path;
+use codex_app_server::in_process::{start, InProcessStartArgs};
+use codex_app_server_protocol::{ThreadListParams, ThreadListCwdFilter, ThreadSortKey, InitializeParams, ClientInfo, ThreadListResponse, RequestId, ClientRequest};
+use codex_protocol::protocol::SessionSource;
+use codex_exec_server::{EnvironmentManager, ExecServerRuntimePaths};
+use codex_feedback::CodexFeedback;
 use codex_features::FEATURES;
 use codex_features::Stage;
 use codex_features::is_known_feature_key;
@@ -1769,25 +1777,117 @@ async fn cli_main(
                 .cli_overrides(cli_overrides)
                 .build()
                 .await?;
-            // Simple: list local thread directories
-            let threads_dir = config.codex_home.join("threads");
-            if threads_dir.exists() {
-                let mut entries = std::fs::read_dir(&threads_dir)?
-                    .filter_map(|e| e.ok())
-                    .filter(|e| e.file_type().map(|ft| ft.is_dir()).unwrap_or(false))
-                    .collect::<Vec<_>>();
-                entries.sort_by_key(|e| e.file_name());
-                let entries: Vec<_> = if all { entries } else { entries.into_iter().take(limit).collect() };
-                for e in entries {
-                    let name = e.file_name().to_string_lossy().to_string();
-                    let matches = query.as_ref().map_or(true, |q| name.contains(q));
-                    if matches {
-                        println!("{}", name);
+
+            // Start embedded app-server and query thread list
+            let arg0_paths = Arg0DispatchPaths::default();
+            let codex_home = find_codex_home()?;
+            let prepared_environment_manager = EnvironmentManager::prepare_from_codex_home(&codex_home).await?;
+            let current_exe = std::env::current_exe()?;
+            let runtime_paths = ExecServerRuntimePaths::new(current_exe, None)?;
+            let environment_manager = prepared_environment_manager.build(
+                Some(runtime_paths),
+                config.http_client_factory(),
+            )?;
+            let state_db = state_db::try_init(&config).await.map(Some).map_err(|err| {
+                std::io::Error::other(format!("Failed to init state db: {err}"))
+            })?;
+            let log_db = state_db.clone().map(log_db::start);
+
+            let initialize = InitializeParams {
+                client_info: ClientInfo {
+                    name: "cy-cli".to_string(),
+                    title: Some("CY-CLI".to_string()),
+                    version: env!("CARGO_PKG_VERSION").to_string(),
+                },
+                ..Default::default()
+            };
+
+            let app_server_handle = start(InProcessStartArgs {
+                arg0_paths: arg0_paths.clone(),
+                config: Arc::new(config.clone()),
+                cli_overrides: config_overrides.raw_overrides.iter().cloned()
+                    .filter_map(|s| {
+                        let parts: Vec<&str> = s.splitn(2, '=').collect();
+                        if parts.len() == 2 {
+                            let key = parts[0].to_string();
+                            let value = parts[1].parse().ok()?;
+                            Some((key, value))
+                        } else { None }
+                    })
+                    .collect(),
+                loader_overrides: LoaderOverrides::default(),
+                strict_config: false,
+                cloud_config_bundle: codex_cloud_config::cloud_config_bundle_loader_for_storage(
+                    config.auth_config(),
+                    /*enable_codex_api_key_env*/ false,
+                )
+                .await?,
+                feedback: CodexFeedback::default(),
+                log_db,
+                state_db,
+                environment_manager: Arc::new(environment_manager),
+                config_warnings: vec![],
+                session_source: SessionSource::Cli,
+                enable_codex_api_key_env: true,
+                initialize,
+                channel_capacity: 1000,
+                thread_config_loader: Arc::new(NoopThreadConfigLoader),
+            }).await?;
+
+            let app_server = app_server_handle;
+            let params = ThreadListParams {
+                cursor: None,
+                limit: Some(limit as u32),
+                sort_key: Some(ThreadSortKey::UpdatedAt),
+                cwd: if all { None } else { Some(ThreadListCwdFilter::One(config.cwd.to_string_lossy().to_string())) },
+                sort_direction: None,
+                model_providers: None,
+                source_kinds: None,
+                archived: None,
+                section_id: None,
+                project_id: None,
+                use_state_db_only: false,
+                search_term: None,
+                parent_thread_id: None,
+                ancestor_thread_id: None,
+            };
+
+            let request = ClientRequest::ThreadList {
+                request_id: RequestId::String("cy-hist".to_string()),
+                params,
+            };
+
+            match app_server.request(request).await {
+                Ok(response) => {
+                    // response is Result<Value, JSONRPCErrorError>
+                    match response {
+                        Ok(value) => {
+                            match serde_json::from_value::<ThreadListResponse>(value) {
+                                Ok(response) => {
+                                    for thread in response.data {
+                                        let name = thread.name.as_deref().unwrap_or("unnamed");
+                                        let matches = query.as_ref().map_or(true, |q| name.contains(q));
+                                        if matches {
+                                            println!("{} — {} — {}", thread.id, name, thread.updated_at);
+                                        }
+                                    }
+                                }
+                                Err(_) => {
+                                    eprintln!("Error parsing thread list response");
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            eprintln!("Error listing sessions: {:?}", e);
+                        }
                     }
                 }
-            } else {
-                println!("No sessions found");
+                Err(e) => {
+                    eprintln!("Error listing sessions: {:?}", e);
+                }
             }
+
+            let _ = app_server.shutdown().await;
         }
         Some(Subcommand::Batch(BatchCommand {
             instruction,
@@ -1823,9 +1923,42 @@ async fn cli_main(
             } else {
                 files
             };
-            println!("Batch processing {} files with {} jobs...", files.len(), jobs);
-            for f in &files {
-                println!("  {}", f.display());
+            if files.is_empty() {
+                println!("No files to process.");
+            } else {
+                let cy_exe = std::env::current_exe()?;
+                let semaphore = Arc::new(tokio::sync::Semaphore::new(jobs.max(1)));
+                let mut handles = Vec::new();
+                for file in files {
+                    let permit = semaphore.clone().acquire_owned().await?;
+                    let cy_exe = cy_exe.clone();
+                    let instruction = instruction.clone();
+                    handles.push(tokio::spawn(async move {
+                        let content = tokio::fs::read_to_string(&file).await?;
+                        let prompt = format!("{}\n\nFile: {}\n---\n{}", instruction, file.display(), content);
+                        let output = tokio::process::Command::new(&cy_exe)
+                            .args(["q", "--skip-git-repo-check", &prompt])
+                            .output()
+                            .await?;
+                        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+                        drop(permit);
+                        anyhow::Ok((file, output.status.success(), stdout, stderr))
+                    }));
+                }
+                for handle in handles {
+                    let (file, success, stdout, stderr) = handle.await??;
+                    println!("=== {} ===", file.display());
+                    if !stdout.is_empty() {
+                        print!("{}", stdout);
+                    }
+                    if !stderr.is_empty() {
+                        eprint!("{}", stderr);
+                    }
+                    if !success {
+                        println!("[FAILED]");
+                    }
+                }
             }
         }
         Some(Subcommand::Login(mut login_cli)) => {

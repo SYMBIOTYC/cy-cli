@@ -17,11 +17,12 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
-    style::{Color, Modifier, Style, Stylize},
+    style::{Color, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Widget},
-    Frame,
 };
+use ratatui::prelude::Stylize;
+use std::io::IsTerminal;
 
 /// 4-panel layout manager for CY-CLI TUI
 pub struct NcView {
@@ -45,18 +46,38 @@ enum PanelContent {
     Logs { lines: Vec<String> },
 }
 
+impl PanelContent {
+    fn new_file_tree() -> Self {
+        let cwd = std::env::current_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default();
+        let entries = Self::read_dir(&cwd);
+        Self::FileTree { cwd, entries, selected: 0 }
+    }
+
+    fn read_dir(path: &str) -> Vec<String> {
+        let mut entries = Vec::new();
+        if let Ok(read_dir) = std::fs::read_dir(path) {
+            for entry in read_dir.flatten() {
+                let name = entry.file_name().to_string_lossy().to_string();
+                if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                    entries.push(format!("{}/", name));
+                } else {
+                    entries.push(name);
+                }
+            }
+        }
+        entries.sort();
+        entries
+    }
+}
+
 impl Default for NcView {
     fn default() -> Self {
         Self {
-            focused_panel: 1, // Start in agent output panel
+            focused_panel: 1,
             panels: [
-                PanelContent::FileTree {
-                    cwd: std::env::current_dir()
-                        .map(|p| p.to_string_lossy().to_string())
-                        .unwrap_or_default(),
-                    entries: vec![],
-                    selected: 0,
-                },
+                PanelContent::new_file_tree(),
                 PanelContent::AgentOutput {
                     lines: vec!["Welcome to CY-CLI".to_string(), "Press F1 for help".to_string()],
                 },
@@ -121,14 +142,22 @@ impl NcView {
                 }
             }
             KeyCode::Char(c) => {
-                self.cmd_buffer.push(c);
-            }
-            KeyCode::Backspace => {
-                self.cmd_buffer.pop();
+                if self.focused_panel != 0 || !self.cmd_buffer.is_empty() {
+                    self.cmd_buffer.push(c);
+                }
             }
             KeyCode::Enter => {
-                if !self.cmd_buffer.trim().is_empty() {
+                if self.focused_panel == 0 {
+                    self.enter_selected();
+                } else if !self.cmd_buffer.trim().is_empty() {
                     self.execute_command();
+                }
+            }
+            KeyCode::Backspace => {
+                if self.focused_panel == 0 && self.cmd_buffer.is_empty() {
+                    self.go_up();
+                } else {
+                    self.cmd_buffer.pop();
                 }
             }
             KeyCode::Esc => {
@@ -175,7 +204,9 @@ impl NcView {
         match parts[0] {
             "q" | "quick" => {
                 if parts.len() > 1 {
-                    self.add_agent_output(&format!("Quick: {}", parts[1..].join(" ")));
+                    let prompt = parts[1..].join(" ");
+                    self.add_agent_output(&format!("> {}", prompt));
+                    self.run_quick_sync(&prompt);
                 }
             }
             "m" | "model" => {
@@ -228,6 +259,34 @@ impl NcView {
         }
     }
 
+    fn run_quick_sync(&mut self, prompt: &str) {
+        let cy_exe = match std::env::current_exe() {
+            Ok(exe) => exe,
+            Err(_) => {
+                self.add_agent_output("Error: cannot find cy executable");
+                return;
+            }
+        };
+        let output = match std::process::Command::new(&cy_exe)
+            .args(["q", "--skip-git-repo-check", prompt])
+            .output()
+        {
+            Ok(o) => o,
+            Err(_) => {
+                self.add_agent_output("Error: failed to spawn cy q");
+                return;
+            }
+        };
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        for line in stdout.lines() {
+            self.add_agent_output(line);
+        }
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        for line in stderr.lines() {
+            self.add_agent_output(&format!("[err] {}", line));
+        }
+    }
+
     fn add_log(&mut self, line: &str) {
         if let PanelContent::Logs { lines } = &mut self.panels[3] {
             lines.push(line.to_string());
@@ -238,6 +297,35 @@ impl NcView {
         if let PanelContent::ModelConfig { current, .. } = &mut self.panels[2] {
             *current = model.to_string();
             self.add_agent_output(&format!("Model set to: {}", model));
+        }
+    }
+
+    fn enter_selected(&mut self) {
+        if let PanelContent::FileTree { cwd, entries, selected } = &mut self.panels[0] {
+            if *selected < entries.len() {
+                let entry = &entries[*selected];
+                let path = std::path::Path::new(cwd).join(entry.trim_end_matches('/'));
+                if entry.ends_with('/') && path.is_dir() {
+                    *cwd = path.to_string_lossy().to_string();
+                    *entries = PanelContent::read_dir(cwd);
+                    *selected = 0;
+                    self.status = format!("Entered: {}", cwd);
+                } else if path.is_file() {
+                    self.status = format!("File: {}", path.display());
+                    self.add_agent_output(&format!("Selected file: {}", path.display()));
+                }
+            }
+        }
+    }
+
+    fn go_up(&mut self) {
+        if let PanelContent::FileTree { cwd, entries, selected } = &mut self.panels[0] {
+            if let Some(parent) = std::path::Path::new(cwd).parent() {
+                *cwd = parent.to_string_lossy().to_string();
+                *entries = PanelContent::read_dir(cwd);
+                *selected = 0;
+                self.status = format!("Up: {}", cwd);
+            }
         }
     }
 
@@ -420,6 +508,10 @@ pub async fn run_ncview() -> anyhow::Result<()> {
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     };
     use ratatui::Terminal;
+
+    if !std::io::stdout().is_terminal() {
+        anyhow::bail!("TUI requires a terminal (TTY). Use the command-line subcommands instead.");
+    }
 
     enable_raw_mode()?;
     let mut stdout = std::io::stdout();

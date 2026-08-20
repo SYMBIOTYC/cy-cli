@@ -5284,6 +5284,7 @@ dependencies = [
  "codex-execpolicy",
  "codex-extension-api",
  "codex-features",
+ "codex-feedback",
  "codex-git-attribution",
  "codex-git-utils",
  "codex-history",
