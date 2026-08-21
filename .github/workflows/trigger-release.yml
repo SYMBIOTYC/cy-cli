@@ -1,0 +1,28 @@
+name: Trigger Public Release Build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    name: Trigger build in public repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger repository_dispatch to cy-cli-releases
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PUBLIC_REPO_PAT }}
+          repository: SYMBIOTYC/cy-cli-releases
+          event-type: release-build
+          client-payload: |
+            {
+              "tag": "${{ github.ref_name }}",
+              "private_repo": "${{ github.repository }}",
+              "commit": "${{ github.sha }}"
+            }
