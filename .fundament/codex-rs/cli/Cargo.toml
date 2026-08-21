@@ -31,6 +31,8 @@ codex-app-server = { workspace = true }
 codex-app-server-daemon = { workspace = true }
 codex-app-server-protocol = { workspace = true }
 codex-app-server-test-client = { workspace = true }
+codex-exec-server = { workspace = true }
+codex-feedback = { workspace = true }
 codex-arg0 = { workspace = true }
 codex-api = { workspace = true }
 codex-chatgpt = { workspace = true }
@@ -44,7 +46,6 @@ codex-history = { workspace = true }
 codex-home = { workspace = true }
 codex-http-client = { workspace = true }
 codex-exec = { workspace = true }
-codex-exec-server = { workspace = true }
 codex-execpolicy = { workspace = true }
 codex-extension-api = { workspace = true }
 codex-features = { workspace = true }
