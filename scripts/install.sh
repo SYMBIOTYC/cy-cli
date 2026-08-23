@@ -4,7 +4,7 @@ set -euo pipefail
 # CY-CLI Installer
 # Detects OS/arch, downloads the right binary, installs to ~/.local/bin
 
-REPO="vladleopold/cy-cli"
+REPO="SYMBIOTYC/cy-cli"
 INSTALL_DIR="${CY_INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="cy"
 

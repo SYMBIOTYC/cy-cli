@@ -10,13 +10,13 @@
 
 ```bash
 # Install (macOS / Linux)
-curl -fsSL https://raw.githubusercontent.com/vladleopold/cy-cli/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/SYMBIOTYC/cy-cli/main/scripts/install.sh | bash
 
 # Install (Windows PowerShell)
-irm https://raw.githubusercontent.com/vladleopold/cy-cli/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/SYMBIOTYC/cy-cli/main/scripts/install.ps1 | iex
 
 # Or download binary from GitHub Releases
-# https://github.com/vladleopold/cy-cli/releases
+# https://github.com/SYMBIOTYC/cy-cli/releases
 ```
 
 ## Building from source
@@ -46,7 +46,7 @@ Releases are built automatically via GitHub Actions for:
 - `aarch64-apple-darwin`
 - `x86_64-pc-windows-msvc`
 
-Artifacts are published to [GitHub Releases](https://github.com/vladleopold/cy-cli/releases).
+Artifacts are published to [GitHub Releases](https://github.com/SYMBIOTYC/cy-cli/releases).
 
 ## License
 

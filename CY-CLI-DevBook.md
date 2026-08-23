@@ -159,3 +159,9 @@
 - [ ] Публиковать ли CY-CLI как npm-пакет или только repo + bin symlink.
 - [ ] Сборка: новая версия CY-CLI — это форк codex-rs (Rust) или обёртка (thin wrapper)
   поверх бинарника codex? (fundament = Rust workspace, `codex-cli/` реэкспортирует.)
+## Session update (2026-08-23)
+- `/Applications/CY-CLI-intel.app` is bundled CY-CLI (`com.symbiotyc.cy-cli`) and must not be used as the source of truth; repo `SYMBIOTYC/cy-cli` is the single source of truth.
+- macOS quarantine/Gatekeeper can block the app bundle from launching even after removal; do not treat the app bundle as the latest working version.
+- Verified working local build remains `.fundament/codex-rs/target/release/cy` on macOS (`x86_64-apple-darwin`, ~374 MB).
+- To launch the app-bundled binary in a forced Terminal session: `arch -x86_64 /Applications/CY-CLI-intel.app/Contents/MacOS/cy ...`.
+- Planned next: reapply product fixes in repo, rebuild, release, install via repo scripts, and verify installed `cy` works.
