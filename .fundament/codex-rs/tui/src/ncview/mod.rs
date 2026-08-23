@@ -14,6 +14,7 @@
 //! └─────────────────────────────────────────────────────────────┘
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::terminal::set_title as crossterm_set_title;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -23,6 +24,7 @@ use ratatui::{
 };
 use ratatui::prelude::Stylize;
 use std::io::IsTerminal;
+use uuid::Uuid;
 
 /// 4-panel layout manager for CY-CLI TUI
 pub struct NcView {
@@ -36,6 +38,10 @@ pub struct NcView {
     status: String,
     /// Show help
     show_help: bool,
+    /// Last emitted terminal title to avoid redundant writes.
+    last_title: Option<String>,
+    /// Chat identifier shown in the terminal title and agent panel.
+    chat_id: String,
 }
 
 #[derive(Debug, Clone)]
@@ -92,7 +98,22 @@ impl Default for NcView {
             cmd_buffer: String::new(),
             status: "Ready".to_string(),
             show_help: false,
+            last_title: None,
+            chat_id: Self::default_chat_id(),
         }
+    }
+
+    fn default_chat_id() -> String {
+        std::env::var("CY_CHAT_ID")
+            .ok()
+            .filter(|s| !s.trim().is_empty())
+            .or_else(|| std::env::var("THREAD_ID").ok().filter(|s| !s.trim().is_empty()))
+            .or_else(|| {
+                std::env::var("CODEX_THREAD_ID")
+                    .ok()
+                    .filter(|s| !s.trim().is_empty())
+            })
+            .unwrap_or_else(|| Uuid::new_v4().to_string())
     }
 }
 
@@ -173,6 +194,34 @@ impl NcView {
             _ => {}
         }
         true
+    }
+
+    fn current_chat_id(&self) -> Option<&str> {
+        if self.chat_id.is_empty() { return None; }
+        Some(self.chat_id.as_str())
+    }
+
+    fn sync_terminal_title(&mut self) {
+        let chat_id = self.current_chat_id();
+        let mut title = String::from("CY");
+        if let Some(chat_id) = chat_id {
+            title.push_str(" | chat: ");
+            title.push_str(chat_id);
+        }
+        title.push_str(" | Commander");
+        if !self.cmd_buffer.is_empty() {
+            title.push_str(" | input");
+        }
+
+        if self.last_title.as_deref() == Some(title.as_str()) {
+            return;
+        }
+
+        if let Err(err) = crossterm_set_title(&title) {
+            tracing::debug!(error = %err, "failed to set ncview terminal title");
+        } else {
+            self.last_title = Some(title);
+        }
     }
 
     fn navigate_panel(&mut self, delta: i32) {
@@ -497,6 +546,10 @@ impl Widget for &NcView {
         Paragraph::new(fkeys)
             .style(Style::default().bg(Color::Black))
             .render(fkey_area, buf);
+
+        Paragraph::new(format!("chat: {} | {}", ncview.chat_id, ncview.status))
+            .style(Style::default().bg(Color::DarkGray).fg(Color::LightCyan))
+            .render(chunks[3], buf);
     }
 }
 
@@ -520,9 +573,13 @@ pub async fn run_ncview() -> anyhow::Result<()> {
     let mut terminal = Terminal::new(backend)?;
 
     let mut ncview = NcView::default();
+    if let PanelContent::AgentOutput { lines } = &mut ncview.panels[1] {
+        lines.insert(0, format!("chat: {}", ncview.chat_id));
+    }
     let mut running = true;
 
     while running {
+        ncview.sync_terminal_title();
         terminal.draw(|f| {
             f.render_widget(&ncview, f.area());
         })?;

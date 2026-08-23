@@ -1209,7 +1209,10 @@ async fn cli_main(
 
     let open_agents_overview = matches!(&subcommand, Some(Subcommand::Agents(_)));
     match subcommand {
-        None | Some(Subcommand::Agents(_)) => {
+        None => {
+            codex_tui::ncview::run_ncview().await?;
+        }
+        Some(Subcommand::Agents(_)) => {
             if open_agents_overview {
                 if !root_config_overrides.raw_overrides.is_empty()
                     || root_strict_config
