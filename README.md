@@ -10,13 +10,13 @@
 
 ```bash
 # Install (macOS / Linux)
-curl -fsSL https://raw.githubusercontent.com/SYMBIOTYC/cy-cli/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/SYMBIOTYC/CY-CLI-releases/main/install-v2.sh | bash
 
 # Install (Windows PowerShell)
-irm https://raw.githubusercontent.com/SYMBIOTYC/cy-cli/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/SYMBIOTYC/CY-CLI-releases/main/install-v2.ps1 | iex
 
 # Or download binary from GitHub Releases
-# https://github.com/SYMBIOTYC/cy-cli/releases
+# https://github.com/SYMBIOTYC/CY-CLI-releases/releases
 ```
 
 ## Building from source

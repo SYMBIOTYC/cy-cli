@@ -3,7 +3,7 @@
 
 param(
     [string]$InstallDir = "$env:USERPROFILE\.cy\bin",
-    [string]$Repo = "SYMBIOTYC/cy-cli"
+    [string]$Repo = "SYMBIOTYC/CY-CLI-releases"
 )
 
 $ErrorActionPreference = "Stop"
