@@ -5,6 +5,13 @@ CY_INSTALL_DIR="${CY_INSTALL_DIR:-${HOME}/.local/share/cy}"
 CY_BIN_DIR="${CY_INSTALL_DIR}/bin"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# If invoked as CY, bypass the bridge and launch the release binary directly.
+if [ "$(basename "$0")" = "CY" ]; then
+  if [ -x "${REPO_ROOT}/.fundament/codex-rs/target/release/cy" ]; then
+    exec "${REPO_ROOT}/.fundament/codex-rs/target/release/cy" "$@"
+  fi
+fi
+
 mkdir -p "${CY_BIN_DIR}"
 
 find_cy() {
