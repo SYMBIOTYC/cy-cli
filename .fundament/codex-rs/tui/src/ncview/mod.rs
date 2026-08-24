@@ -14,7 +14,7 @@
 //! └─────────────────────────────────────────────────────────────┘
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use crossterm::terminal::set_title as crossterm_set_title;
+use crossterm::terminal::SetTitle;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -23,6 +23,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Widget},
 };
 use ratatui::prelude::Stylize;
+use std::io::{self, Write};
 use std::io::IsTerminal;
 use uuid::Uuid;
 
@@ -217,7 +218,11 @@ impl NcView {
             return;
         }
 
-        if let Err(err) = crossterm_set_title(&title) {
+        if let Err(err) = io::stdout().write_all(b"\x1B]0;") {
+            tracing::debug!(error = %err, "failed to set ncview terminal title");
+        } else if let Err(err) = io::stdout().write_all(title.as_bytes()) {
+            tracing::debug!(error = %err, "failed to set ncview terminal title");
+        } else if let Err(err) = io::stdout().write_all(b"\x07") {
             tracing::debug!(error = %err, "failed to set ncview terminal title");
         } else {
             self.last_title = Some(title);
@@ -547,7 +552,7 @@ impl Widget for &NcView {
             .style(Style::default().bg(Color::Black))
             .render(fkey_area, buf);
 
-        Paragraph::new(format!("chat: {} | {}", ncview.chat_id, ncview.status))
+        Paragraph::new(format!("chat: {} | {}", self.chat_id, self.status))
             .style(Style::default().bg(Color::DarkGray).fg(Color::LightCyan))
             .render(chunks[3], buf);
     }
