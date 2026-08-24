@@ -100,10 +100,12 @@ impl Default for NcView {
             status: "Ready".to_string(),
             show_help: false,
             last_title: None,
-            chat_id: Self::default_chat_id(),
+            chat_id: NcView::default_chat_id(),
         }
     }
+}
 
+impl NcView {
     fn default_chat_id() -> String {
         std::env::var("CY_CHAT_ID")
             .ok()
