@@ -14,7 +14,6 @@
 //! └─────────────────────────────────────────────────────────────┘
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
-use crossterm::terminal::SetTitle;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
