@@ -1,6 +1,29 @@
 {
   "models": [
     {
+      "slug": "cy/i1a",
+      "display_name": "CY i1a",
+      "supported_reasoning_levels": [],
+      "shell_type": "shell_command",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 0,
+      "truncation_policy": {
+        "mode": "tokens",
+        "limit": 10000
+      },
+      "support_verbosity": false,
+      "experimental_supported_tools": [],
+      "model_messages": {
+        "instructions_template": "You are CY i1a, a helpful AI assistant.",
+        "instructions_variables": {
+          "personality_default": "",
+          "personality_friendly": "",
+          "personality_pragmatic": ""
+        }
+      }
+    },
+    {
       "slug": "gpt-5.6-sol",
       "prefer_websockets": true,
       "support_verbosity": true,
