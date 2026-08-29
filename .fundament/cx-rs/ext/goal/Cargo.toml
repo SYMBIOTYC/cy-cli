@@ -1,0 +1,37 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-goal-extension"
+version.workspace = true
+
+[lib]
+name = "cx_goal_extension"
+path = "src/lib.rs"
+test = false
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-analytics = { workspace = true }
+cx-core = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-otel = { workspace = true }
+cx-protocol = { workspace = true }
+cx-rollout = { workspace = true }
+cx-state = { workspace = true }
+cx-tools = { workspace = true }
+cx-utils-template = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+tracing = { workspace = true }
+
+[dev-dependencies]
+anyhow = { workspace = true }
+chrono = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

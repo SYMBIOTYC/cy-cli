@@ -19,10 +19,10 @@ from openai_codex import AsyncCodex
 
 
 async def main() -> None:
-    async with AsyncCodex(config=runtime_config()) as codex:
-        print("Server:", server_label(codex.metadata))
+    async with AsyncCodex(config=runtime_config()) as cx:
+        print("Server:", server_label(cx.metadata))
 
-        thread = await codex.thread_start(
+        thread = await cx.thread_start(
             model="gpt-5.4", config={"model_reasoning_effort": "high"}
         )
         result = await thread.run("Say hello in one sentence.")

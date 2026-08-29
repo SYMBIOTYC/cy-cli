@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "cx-experimental-api-macros",
+    crate_name = "cx_experimental_api_macros",
+    proc_macro = True,
+)

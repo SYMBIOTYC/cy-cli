@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "app-server-daemon",
+    crate_name = "cx_app_server_daemon",
+)

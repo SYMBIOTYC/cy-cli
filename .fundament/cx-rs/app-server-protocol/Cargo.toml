@@ -1,0 +1,55 @@
+[package]
+name = "cx-app-server-protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "cx_app_server_protocol"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+cx-experimental-api-macros = { workspace = true }
+cx-app-server-protocol-noop-macros = { workspace = true }
+cx-extension-items = { workspace = true }
+cx-history = { workspace = true }
+cx-protocol = { workspace = true }
+cx-rollout = { workspace = true }
+cx-secrets = { workspace = true }
+cx-shell-command = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+strum_macros = { workspace = true }
+thiserror = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "server",
+] }
+inventory = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v7"] }
+zstd = { workspace = true }
+
+[dev-dependencies]
+anyhow = { workspace = true }
+cx-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "base64",
+    "macros",
+    "schemars",
+    "server",
+] }
+schemars = { workspace = true }
+similar = { workspace = true }
+tempfile = { workspace = true }
+ts-rs = { workspace = true }

@@ -22,12 +22,12 @@ class _AsyncLoginOwner(Protocol):
     _client: AsyncCodexClient
 
     async def _ensure_initialized(self) -> None:
-        """Ensure the owning SDK client has a live Codex connection."""
+        """Ensure the owning SDK client has a live CX connection."""
         ...
 
 
 def start_chatgpt_login(client: CodexClient) -> ChatgptLoginHandle:
-    """Start browser ChatGPT login and return the handle for that attempt."""
+    """Start browser gt login and return the handle for that attempt."""
     response = client.account_login_start(
         LoginAccountParams(
             root=ChatgptLoginAccountParams(type="chatgpt"),
@@ -35,7 +35,7 @@ def start_chatgpt_login(client: CodexClient) -> ChatgptLoginHandle:
     )
     response_root = response.root
     if not isinstance(response_root, ChatgptLoginAccountResponse):
-        raise RuntimeError(f"unexpected ChatGPT login response: {response_root!r}")
+        raise RuntimeError(f"unexpected gt login response: {response_root!r}")
     return ChatgptLoginHandle(
         client,
         response_root.login_id,
@@ -44,7 +44,7 @@ def start_chatgpt_login(client: CodexClient) -> ChatgptLoginHandle:
 
 
 async def async_start_chatgpt_login(owner: _AsyncLoginOwner) -> AsyncChatgptLoginHandle:
-    """Start async browser ChatGPT login and return that attempt's handle."""
+    """Start async browser gt login and return that attempt's handle."""
     response = await owner._client.account_login_start(
         LoginAccountParams(
             root=ChatgptLoginAccountParams(type="chatgpt"),
@@ -52,7 +52,7 @@ async def async_start_chatgpt_login(owner: _AsyncLoginOwner) -> AsyncChatgptLogi
     )
     response_root = response.root
     if not isinstance(response_root, ChatgptLoginAccountResponse):
-        raise RuntimeError(f"unexpected ChatGPT login response: {response_root!r}")
+        raise RuntimeError(f"unexpected gt login response: {response_root!r}")
     return AsyncChatgptLoginHandle(
         owner,
         response_root.login_id,
@@ -61,7 +61,7 @@ async def async_start_chatgpt_login(owner: _AsyncLoginOwner) -> AsyncChatgptLogi
 
 
 def start_device_code_login(client: CodexClient) -> DeviceCodeLoginHandle:
-    """Start device-code ChatGPT login and return the handle for that attempt."""
+    """Start device-code gt login and return the handle for that attempt."""
     response = client.account_login_start(
         LoginAccountParams(
             root=ChatgptDeviceCodeLoginAccountParams(type="chatgptDeviceCode"),
@@ -81,7 +81,7 @@ def start_device_code_login(client: CodexClient) -> DeviceCodeLoginHandle:
 async def async_start_device_code_login(
     owner: _AsyncLoginOwner,
 ) -> AsyncDeviceCodeLoginHandle:
-    """Start async device-code ChatGPT login and return that attempt's handle."""
+    """Start async device-code gt login and return that attempt's handle."""
     response = await owner._client.account_login_start(
         LoginAccountParams(
             root=ChatgptDeviceCodeLoginAccountParams(type="chatgptDeviceCode"),
@@ -100,7 +100,7 @@ async def async_start_device_code_login(
 
 @dataclass(slots=True)
 class ChatgptLoginHandle:
-    """Live browser-login attempt returned by `Codex.login_chatgpt()`."""
+    """Live browser-login attempt returned by `CX.login_chatgpt()`."""
 
     _client: CodexClient
     login_id: str
@@ -117,7 +117,7 @@ class ChatgptLoginHandle:
 
 @dataclass(slots=True)
 class DeviceCodeLoginHandle:
-    """Live device-code login attempt returned by `Codex.login_chatgpt_device_code()`."""
+    """Live device-code login attempt returned by `CX.login_chatgpt_device_code()`."""
 
     _client: CodexClient
     login_id: str

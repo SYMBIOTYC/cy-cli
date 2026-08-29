@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "context-fragments",
+    crate_name = "cx_context_fragments",
+)

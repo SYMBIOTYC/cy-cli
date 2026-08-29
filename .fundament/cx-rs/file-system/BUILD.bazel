@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "file-system",
+    crate_name = "cx_file_system",
+)

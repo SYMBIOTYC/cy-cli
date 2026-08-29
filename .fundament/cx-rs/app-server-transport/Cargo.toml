@@ -1,0 +1,64 @@
+[package]
+name = "cx-app-server-transport"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "cx_app_server_transport"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+    "ws",
+] }
+base64 = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+cx-api = { workspace = true }
+cx-app-server-protocol = { workspace = true }
+cx-core = { workspace = true }
+cx-login = { workspace = true }
+cx-model-provider = { workspace = true }
+cx-state = { workspace = true }
+cx-uds = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-rustls-provider = { workspace = true }
+constant_time_eq = { workspace = true }
+futures = { workspace = true }
+gethostname = { workspace = true }
+hmac = { workspace = true }
+httpdate = { workspace = true }
+jsonwebtoken = { workspace = true }
+owo-colors = { workspace = true, features = ["supports-colors"] }
+rand = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+] }
+tokio-tungstenite = { workspace = true }
+tokio-util = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+url = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[dev-dependencies]
+chrono = { workspace = true }
+cx-config = { workspace = true }
+cx-protocol = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }

@@ -1,0 +1,166 @@
+[package]
+name = "cx-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+autobins = false
+
+[[bin]]
+name = "cx-tui"
+path = "src/main.rs"
+
+[[bin]]
+name = "md-events"
+path = "src/bin/md-events.rs"
+
+[lib]
+name = "cx_tui"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+clap = { workspace = true, features = ["derive"] }
+cx-ansi-escape = { workspace = true }
+cx-app-server-client = { workspace = true }
+cx-app-server-protocol = { workspace = true }
+cx-arg0 = { workspace = true }
+cx-install-context = { workspace = true }
+cx-cloud-config = { workspace = true }
+cx-config = { workspace = true }
+cx-connectors = { workspace = true }
+cx-core-plugins = { workspace = true }
+cx-history = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-features = { workspace = true }
+cx-feedback = { workspace = true }
+cx-file-search = { workspace = true }
+cx-git-utils = { workspace = true }
+cx-http-client = { workspace = true }
+cx-login = { workspace = true }
+cx-message-history = { workspace = true }
+cx-model-provider = { workspace = true }
+cx-model-provider-info = { workspace = true }
+cx-models-manager = { workspace = true }
+cx-otel = { workspace = true }
+cx-plugin = { workspace = true }
+cx-protocol = { workspace = true }
+cx-rollout = { workspace = true }
+cx-sandboxing = { workspace = true }
+cx-shell-command = { workspace = true }
+cx-state = { workspace = true }
+cx-terminal-detection = { workspace = true }
+cx-utils-approval-presets = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-cli = { workspace = true }
+cx-utils-elapsed = { workspace = true }
+cx-utils-fuzzy-match = { workspace = true }
+cx-utils-home-dir = { workspace = true }
+cx-utils-oss = { workspace = true }
+cx-utils-path = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+cx-utils-plugins = { workspace = true }
+cx-utils-sandbox-summary = { workspace = true }
+cx-utils-sleep-inhibitor = { workspace = true }
+cx-utils-string = { workspace = true }
+color-eyre = { workspace = true }
+crossterm = { workspace = true, features = ["bracketed-paste", "event-stream"] }
+derive_more = { workspace = true, features = ["is_variant"] }
+diffy = { workspace = true }
+dirs = { workspace = true }
+dunce = { workspace = true }
+image = { workspace = true, features = ["jpeg", "png", "gif", "webp"] }
+itertools = { workspace = true }
+lazy_static = { workspace = true }
+pathdiff = { workspace = true }
+pulldown-cmark = { workspace = true }
+rand = { workspace = true }
+ratatui = { workspace = true, features = [
+    "scrolling-regions",
+    "unstable-backend-writer",
+    "unstable-rendered-line-info",
+    "unstable-widget-ref",
+] }
+ratatui-macros = { workspace = true }
+regex-lite = { workspace = true }
+rmcp = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["preserve_order"] }
+sha2 = { workspace = true }
+shlex = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+supports-color = { workspace = true }
+tempfile = { workspace = true }
+textwrap = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+    "test-util",
+    "time",
+] }
+tokio-stream = { workspace = true, features = ["sync"] }
+toml = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+tracing-appender = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+syntect = "5"
+two-face = { version = "0.5", default-features = false, features = ["syntect-default-onig"] }
+unicode-segmentation = { workspace = true }
+unicode-width = { workspace = true }
+url = { workspace = true }
+urlencoding = { workspace = true }
+webbrowser = { workspace = true }
+uuid = { workspace = true }
+
+cx-windows-sandbox = { workspace = true }
+tokio-util = { workspace = true, features = ["time"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+which = { workspace = true }
+windows-sys = { version = "0.52", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Console",
+    "Win32_System_IO",
+    "Win32_System_Pipes",
+    "Win32_System_Threading",
+] }
+winsplit = "0.1"
+
+# Clipboard support via `arboard` is not available on Android/Termux.
+# Only include it for non-Android targets so the crate builds on Android.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+arboard = { workspace = true }
+
+
+[dev-dependencies]
+app_test_support = { workspace = true }
+cx-mcp = { workspace = true }
+core_test_support = { workspace = true }
+cx-utils-cargo-bin = { workspace = true }
+assert_matches = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+futures = { workspace = true }
+http = { workspace = true }
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+rand = { workspace = true }
+serial_test = { workspace = true }
+tokio-tungstenite = { workspace = true }
+vt100 = { workspace = true }
+uuid = { workspace = true }
+wiremock = { workspace = true }

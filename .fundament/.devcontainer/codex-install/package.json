@@ -1,9 +1,9 @@
 {
-  "name": "codex-devcontainer-install",
+  "name": "cx-devcontainer-install",
   "private": true,
-  "description": "Locked Codex CLI install boundary for the secure devcontainer.",
+  "description": "Locked CX CLI install boundary for the secure devcontainer.",
   "dependencies": {
-    "@openai/codex": "0.121.0"
+    "@openai/cx": "0.121.0"
   },
   "engines": {
     "node": ">=22",

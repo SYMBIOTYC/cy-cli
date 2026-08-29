@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "config",
+    compile_data = ["defaults.toml"],
+    crate_name = "cx_config",
+)

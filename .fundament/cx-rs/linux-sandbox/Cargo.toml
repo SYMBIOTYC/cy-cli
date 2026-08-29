@@ -1,0 +1,46 @@
+[package]
+name = "cx-linux-sandbox"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "cx-linux-sandbox"
+path = "src/main.rs"
+
+[lib]
+name = "cx_linux_sandbox"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+clap = { workspace = true, features = ["derive"] }
+cx-install-context = { workspace = true }
+cx-network-proxy = { workspace = true }
+cx-process-hardening = { workspace = true }
+cx-protocol = { workspace = true }
+cx-sandboxing = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+globset = { workspace = true }
+landlock = { workspace = true }
+libc = { workspace = true }
+seccompiler = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+url = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dev-dependencies]
+cx-core = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }

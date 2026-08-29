@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "apply-patch",
+    crate_name = "cx_apply_patch",
+)

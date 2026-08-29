@@ -1,0 +1,29 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-extension-api"
+version.workspace = true
+
+[lib]
+name = "cx_extension_api"
+path = "src/lib.rs"
+test = false
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-config = { workspace = true }
+cx-context-fragments = { workspace = true }
+cx-exec-server-protocol = { workspace = true }
+cx-mcp = { workspace = true }
+cx-protocol = { workspace = true }
+cx-tools = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

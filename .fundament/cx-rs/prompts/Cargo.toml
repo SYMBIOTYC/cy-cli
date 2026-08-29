@@ -1,0 +1,25 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-prompts"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "cx_prompts"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+cx-context-fragments = { workspace = true }
+cx-git-utils = { workspace = true }
+cx-execpolicy = { workspace = true }
+cx-protocol = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-template = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

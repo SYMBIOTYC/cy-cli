@@ -1,0 +1,9 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "rmcp-client",
+    crate_name = "cx_rmcp_client",
+    extra_binaries = [
+        "//cx-rs/cli:cx",
+    ],
+)

@@ -1,0 +1,55 @@
+[package]
+name = "core_test_support"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+assert_cmd = { workspace = true }
+base64 = { workspace = true }
+cx-arg0 = { workspace = true }
+cx-config = { workspace = true }
+cx-core = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-home = { workspace = true }
+cx-features = { workspace = true }
+cx-hooks = { workspace = true }
+cx-login = { workspace = true }
+cx-model-provider-info = { workspace = true }
+cx-models-manager = { workspace = true }
+cx-protocol = { workspace = true }
+cx-thread-store = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-cargo-bin = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+ctor = { workspace = true }
+futures = { workspace = true }
+notify = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+regex-lite = { workspace = true }
+serde_json = { workspace = true }
+similar = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["net", "test-util", "time"] }
+tokio-tungstenite = { workspace = true }
+tracing = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+tracing-subscriber = { workspace = true }
+walkdir = { workspace = true }
+wiremock = { workspace = true }
+shlex = { workspace = true }
+zstd = { workspace = true }
+
+[dev-dependencies]
+cx-http-client = { workspace = true }
+pretty_assertions = { workspace = true }

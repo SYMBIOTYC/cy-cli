@@ -1,0 +1,33 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-core-api"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "cx_core_api"
+path = "src/lib.rs"
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-app-server-protocol = { workspace = true }
+cx-arg0 = { workspace = true }
+cx-analytics = { workspace = true }
+cx-config = { workspace = true }
+cx-core = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-home = { workspace = true }
+cx-history = { workspace = true }
+cx-image-generation-extension = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-features = { workspace = true }
+cx-login = { workspace = true }
+cx-model-provider-info = { workspace = true }
+cx-models-manager = { workspace = true }
+cx-protocol = { workspace = true }
+cx-state = { workspace = true }
+cx-utils-absolute-path = { workspace = true }

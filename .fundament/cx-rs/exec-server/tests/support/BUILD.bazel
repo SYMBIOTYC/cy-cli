@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "support",
+    crate_name = "cx_exec_server_test_support",
+    crate_srcs = glob(["*.rs"]),
+)

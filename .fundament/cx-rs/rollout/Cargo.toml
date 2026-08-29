@@ -1,0 +1,52 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-rollout"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "cx_rollout"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+cx-extension-items = { workspace = true }
+cx-file-search = { workspace = true }
+cx-git-utils = { workspace = true }
+cx-history = { workspace = true }
+cx-otel = { workspace = true }
+cx-protocol = { workspace = true }
+cx-state = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-path = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+time = { workspace = true, features = [
+    "formatting",
+    "local-offset",
+    "macros",
+    "parsing",
+] }
+tokio = { workspace = true, features = [
+    "fs",
+    "io-util",
+    "macros",
+    "process",
+    "rt",
+    "sync",
+    "time",
+] }
+tracing = { workspace = true }
+uuid = { workspace = true }
+zstd = { workspace = true }
+
+[dev-dependencies]
+cx-utils-absolute-path = { workspace = true }
+pretty_assertions = { workspace = true }

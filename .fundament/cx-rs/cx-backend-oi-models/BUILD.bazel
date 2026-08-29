@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "cx-backend-oi-models",
+    crate_name = "cx_backend_oi_models",
+)

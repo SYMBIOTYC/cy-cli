@@ -1,0 +1,38 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-mcp-extension"
+version.workspace = true
+
+[lib]
+name = "cx_mcp_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-core = { workspace = true }
+cx-core-plugins = { workspace = true }
+cx-config = { workspace = true }
+cx-connectors = { workspace = true }
+cx-connectors-extension = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-features = { workspace = true }
+cx-mcp = { workspace = true }
+cx-plugin = { workspace = true }
+cx-protocol = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, features = ["sync"] }
+
+[dev-dependencies]
+cx-login = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

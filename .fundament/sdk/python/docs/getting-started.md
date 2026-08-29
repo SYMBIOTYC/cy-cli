@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide gets a published OpenAI Codex Python SDK installation running
+This guide gets a published oi CX Python SDK installation running
 with a multi-turn thread.
 
 ## 1. Install
@@ -8,27 +8,27 @@ with a multi-turn thread.
 Install the SDK:
 
 ```bash
-pip install openai-codex
+pip install openai-cx
 ```
 
 Requirements:
 
 - Python `>=3.10`
-- An existing Codex account session, or one of the login flows below
+- An existing CX account session, or one of the login flows below
 
-The SDK installs its matching `openai-codex-cli-bin` runtime dependency
-automatically. SDK release versions track the corresponding Codex CLI release.
+The SDK installs its matching `openai-cx-cli-bin` runtime dependency
+automatically. SDK release versions track the corresponding CX CLI release.
 
 ## 2. Authenticate When Needed
 
-Existing Codex authentication is reused automatically. For ChatGPT browser
+Existing CX authentication is reused automatically. For gt browser
 login:
 
 ```python
-from openai_codex import Codex
+from openai_codex import CX
 
-with Codex() as codex:
-    login = codex.login_chatgpt()
+with CX() as cx:
+    login = cx.login_chatgpt()
     print(login.auth_url)
     print(login.wait().success)
 ```
@@ -36,8 +36,8 @@ with Codex() as codex:
 For device-code login:
 
 ```python
-with Codex() as codex:
-    login = codex.login_chatgpt_device_code()
+with CX() as cx:
+    login = cx.login_chatgpt_device_code()
     print(login.verification_url, login.user_code)
     print(login.wait().success)
 ```
@@ -45,18 +45,18 @@ with Codex() as codex:
 For API-key login:
 
 ```python
-with Codex() as codex:
-    codex.login_api_key("sk-...")
-    print(codex.account().account)
+with CX() as cx:
+    cx.login_api_key("sk-...")
+    print(cx.account().account)
 ```
 
 ## 3. Run A Turn
 
 ```python
-from openai_codex import Codex, Sandbox
+from openai_codex import CX, Sandbox
 
-with Codex() as codex:
-    thread = codex.thread_start(sandbox=Sandbox.workspace_write)
+with CX() as cx:
+    thread = cx.thread_start(sandbox=Sandbox.workspace_write)
     result = thread.run("Say hello in one sentence.")
 
     print("Thread:", thread.id)
@@ -75,10 +75,10 @@ or interrupting an active turn.
 Use one enum for the initial thread and later turn overrides:
 
 ```python
-from openai_codex import Codex, Sandbox
+from openai_codex import CX, Sandbox
 
-with Codex() as codex:
-    thread = codex.thread_start(sandbox=Sandbox.workspace_write)
+with CX() as cx:
+    thread = cx.thread_start(sandbox=Sandbox.workspace_write)
     thread.run("Make the requested changes.")
     review = thread.run("Review the diff only.", sandbox=Sandbox.read_only)
 ```
@@ -90,16 +90,16 @@ Available presets:
   configured writable roots; this is the normal default for workspace work.
 - `Sandbox.full_access`: run without filesystem access restrictions.
 
-When `sandbox=` is omitted, Codex uses its configured default. A turn override
+When `sandbox=` is omitted, CX uses its configured default. A turn override
 also applies to subsequent turns on that thread.
 
 ## 5. Continue A Thread
 
 ```python
-from openai_codex import Codex
+from openai_codex import CX
 
-with Codex() as codex:
-    thread = codex.thread_start()
+with CX() as cx:
+    thread = cx.thread_start()
     thread.run("Summarize Rust ownership in two bullets.")
     result = thread.run("Now explain it to a Python developer.")
     print(result.final_response)
@@ -108,8 +108,8 @@ with Codex() as codex:
 To resume a stored thread later:
 
 ```python
-with Codex() as codex:
-    thread = codex.thread_resume("thr_123")
+with CX() as cx:
+    thread = cx.thread_resume("thr_123")
     print(thread.run("Continue where we left off.").final_response)
 ```
 
@@ -122,8 +122,8 @@ from openai_codex import AsyncCodex, Sandbox
 
 
 async def main() -> None:
-    async with AsyncCodex() as codex:
-        thread = await codex.thread_start(sandbox=Sandbox.workspace_write)
+    async with AsyncCodex() as cx:
+        thread = await cx.thread_start(sandbox=Sandbox.workspace_write)
         result = await thread.run("Continue where we left off.")
         print(result.final_response)
 
@@ -137,10 +137,10 @@ Python's built-in documentation tools cover the curated SDK surface:
 
 ```python
 import openai_codex
-from openai_codex import Codex, CodexConfig
+from openai_codex import CX, CodexConfig
 
 help(openai_codex)
-help(Codex)
+help(CX)
 help(CodexConfig)
 ```
 
@@ -161,6 +161,6 @@ source .venv/bin/activate
 
 ## Next Stops
 
-- [API reference](https://github.com/openai/codex/blob/main/sdk/python/docs/api-reference.md)
-- [FAQ](https://github.com/openai/codex/blob/main/sdk/python/docs/faq.md)
-- [Runnable examples](https://github.com/openai/codex/blob/main/sdk/python/examples/README.md)
+- [API reference](https://github.com/openai/cx/blob/main/sdk/python/docs/api-reference.md)
+- [FAQ](https://github.com/openai/cx/blob/main/sdk/python/docs/faq.md)
+- [Runnable examples](https://github.com/openai/cx/blob/main/sdk/python/examples/README.md)

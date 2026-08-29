@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "prompts",
+    compile_data = glob(["templates/**"]),
+    crate_name = "cx_prompts",
+)

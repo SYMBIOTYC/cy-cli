@@ -5,7 +5,7 @@ import json
 
 from app_server_harness import AppServerHarness
 
-from openai_codex import Codex, CodexConfig
+from openai_codex import CX, CodexConfig
 from openai_codex.generated.v2_all import (
     ChatgptAuthTokensLoginAccountParams,
     LoginAccountParams,
@@ -24,9 +24,9 @@ def test_api_key_login_authenticates_follow_up_model_requests(tmp_path) -> None:
     with AppServerHarness(tmp_path, requires_openai_auth=True) as harness:
         harness.responses.enqueue_assistant_message("api key auth", response_id="api-key-auth")
 
-        with Codex(config=_app_server_config(harness)) as codex:
-            codex.login_api_key("sk-sdk-login-test")
-            result = codex.thread_start().run("prove api key auth")
+        with CX(config=_app_server_config(harness)) as cx:
+            cx.login_api_key("sk-sdk-login-test")
+            result = cx.thread_start().run("prove api key auth")
             request = harness.responses.single_request()
 
     assert {
@@ -39,14 +39,14 @@ def test_api_key_login_authenticates_follow_up_model_requests(tmp_path) -> None:
 
 
 def test_chatgpt_token_login_authenticates_follow_up_model_requests(tmp_path) -> None:
-    """ChatGPT token handoff should authorize later Responses requests with that token."""
+    """gt token handoff should authorize later Responses requests with that token."""
     account_id = "workspace-sdk-chatgpt"
 
     def _encode(payload: dict[str, object]) -> str:
         raw = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
         return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
 
-    # App-server parses claims from the access token before persisting external ChatGPT auth.
+    # App-server parses claims from the access token before persisting external gt auth.
     header = _encode({"alg": "none", "typ": "JWT"})
     claims = _encode(
         {
@@ -65,8 +65,8 @@ def test_chatgpt_token_login_authenticates_follow_up_model_requests(tmp_path) ->
             response_id="chatgpt-token-auth",
         )
 
-        with Codex(config=_app_server_config(harness)) as codex:
-            login = codex._client.account_login_start(
+        with CX(config=_app_server_config(harness)) as cx:
+            login = cx._client.account_login_start(
                 LoginAccountParams(
                     root=ChatgptAuthTokensLoginAccountParams(
                         access_token=access_token,
@@ -76,7 +76,7 @@ def test_chatgpt_token_login_authenticates_follow_up_model_requests(tmp_path) ->
                     )
                 )
             )
-            result = codex.thread_start().run("prove chatgpt token auth")
+            result = cx.thread_start().run("prove chatgpt token auth")
             request = harness.responses.single_request()
 
     assert {

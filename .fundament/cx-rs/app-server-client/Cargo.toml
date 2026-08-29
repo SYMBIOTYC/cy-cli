@@ -1,0 +1,40 @@
+[package]
+name = "cx-app-server-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "cx_app_server_client"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-app-server = { workspace = true }
+cx-app-server-protocol = { workspace = true }
+cx-arg0 = { workspace = true }
+cx-config = { workspace = true }
+cx-core = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-feedback = { workspace = true }
+cx-protocol = { workspace = true }
+cx-uds = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-rustls-provider = { workspace = true }
+futures = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["sync", "time", "rt"] }
+tokio-tungstenite = { workspace = true }
+toml = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

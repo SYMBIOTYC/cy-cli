@@ -1,13 +1,13 @@
-"""Python SDK for running Codex workflows.
+"""Python SDK for running CX workflows.
 
-Start with :class:`Codex` for synchronous applications or
+Start with :class:`CX` for synchronous applications or
 :class:`AsyncCodex` for async applications. Most programs create a thread and
 run a turn::
 
-    from openai_codex import Codex, Sandbox
+    from openai_codex import CX, Sandbox
 
-    with Codex() as codex:
-        thread = codex.thread_start(sandbox=Sandbox.workspace_write)
+    with CX() as cx:
+        thread = cx.thread_start(sandbox=Sandbox.workspace_write)
         result = thread.run("Describe this project.")
         print(result.final_response)
 """
@@ -21,7 +21,7 @@ from .api import (
     AsyncThread,
     AsyncTurnHandle,
     ChatgptLoginHandle,
-    Codex,
+    CX,
     DeviceCodeLoginHandle,
     ImageInput,
     Input,
@@ -56,7 +56,7 @@ from .retry import retry_on_overload
 __all__ = [
     "__version__",
     "CodexConfig",
-    "Codex",
+    "CX",
     "AsyncCodex",
     "ApprovalMode",
     "Sandbox",

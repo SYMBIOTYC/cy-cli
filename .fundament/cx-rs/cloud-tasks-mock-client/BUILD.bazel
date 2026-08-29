@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "cloud-tasks-mock-client",
+    crate_name = "cx_cloud_tasks_mock_client",
+)

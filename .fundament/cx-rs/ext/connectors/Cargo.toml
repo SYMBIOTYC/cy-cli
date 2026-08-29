@@ -1,0 +1,24 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-connectors-extension"
+version.workspace = true
+
+[lib]
+name = "cx_connectors_extension"
+path = "src/lib.rs"
+doctest = false
+test = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-connectors = { workspace = true }
+cx-core-plugins = { workspace = true }
+cx-file-system = { workspace = true }
+cx-plugin = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

@@ -64,7 +64,7 @@ from .retry import retry_on_overload
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 ApprovalHandler = Callable[[str, JsonObject | None], JsonObject]
-RUNTIME_PKG_NAME = "openai-codex-cli-bin"
+RUNTIME_PKG_NAME = "openai-cx-cli-bin"
 _GOAL_START_TIMEOUT_S = 30.0
 
 
@@ -108,22 +108,22 @@ def _params_dict(
     raise TypeError(f"Expected generated params model or dict, got {type(params).__name__}")
 
 
-def _installed_codex_path() -> Path:
+def _installed_cx_path() -> Path:
     try:
-        from codex_cli_bin import bundled_codex_path
+        from cx_cli_bin import bundled_cx_path
     except ImportError as exc:
         raise FileNotFoundError(
-            "Unable to locate the pinned Codex runtime. Install the published SDK build "
-            f"with its {RUNTIME_PKG_NAME} dependency, or set CodexConfig.codex_bin "
+            "Unable to locate the pinned CX runtime. Install the published SDK build "
+            f"with its {RUNTIME_PKG_NAME} dependency, or set CodexConfig.cx_bin "
             "explicitly."
         ) from exc
 
-    return bundled_codex_path()
+    return bundled_cx_path()
 
 
-def _installed_codex_path_dirs() -> tuple[Path, ...]:
+def _installed_cx_path_dirs() -> tuple[Path, ...]:
     try:
-        from codex_cli_bin import bundled_path_dir
+        from cx_cli_bin import bundled_path_dir
     except (ImportError, AttributeError):
         return ()
 
@@ -162,55 +162,55 @@ def _path_env_key(env: dict[str, str]) -> str:
 
 @dataclass(frozen=True)
 class CodexBinResolverOps:
-    installed_codex_path: Callable[[], Path]
+    installed_cx_path: Callable[[], Path]
     path_exists: Callable[[Path], bool]
 
 
-def _default_codex_bin_resolver_ops() -> CodexBinResolverOps:
+def _default_cx_bin_resolver_ops() -> CodexBinResolverOps:
     return CodexBinResolverOps(
-        installed_codex_path=_installed_codex_path,
+        installed_cx_path=_installed_cx_path,
         path_exists=lambda path: path.exists(),
     )
 
 
-def resolve_codex_bin(config: "CodexConfig", ops: CodexBinResolverOps) -> Path:
-    if config.codex_bin is not None:
-        codex_bin = Path(config.codex_bin)
-        if not ops.path_exists(codex_bin):
+def resolve_cx_bin(config: "CodexConfig", ops: CodexBinResolverOps) -> Path:
+    if config.cx_bin is not None:
+        cx_bin = Path(config.cx_bin)
+        if not ops.path_exists(cx_bin):
             raise FileNotFoundError(
-                f"Codex binary not found at {codex_bin}. Set CodexConfig.codex_bin "
+                f"CX binary not found at {cx_bin}. Set CodexConfig.cx_bin "
                 "to a valid binary path."
             )
-        return codex_bin
+        return cx_bin
 
-    return ops.installed_codex_path()
+    return ops.installed_cx_path()
 
 
-def _resolve_codex_bin(config: "CodexConfig") -> Path:
-    return resolve_codex_bin(config, _default_codex_bin_resolver_ops())
+def _resolve_cx_bin(config: "CodexConfig") -> Path:
+    return resolve_cx_bin(config, _default_cx_bin_resolver_ops())
 
 
 @dataclass(slots=True)
 class CodexConfig:
-    """Configuration for launching and identifying the local Codex runtime.
+    """Configuration for launching and identifying the local CX runtime.
 
-    Most callers can use ``Codex()`` without configuration. Set ``codex_bin``
-    only when intentionally using a specific local Codex executable.
+    Most callers can use ``CX()`` without configuration. Set ``cx_bin``
+    only when intentionally using a specific local CX executable.
     """
 
-    codex_bin: str | None = None
+    cx_bin: str | None = None
     launch_args_override: tuple[str, ...] | None = None
     config_overrides: tuple[str, ...] = ()
     cwd: str | None = None
     env: dict[str, str] | None = None
-    client_name: str = "codex_python_sdk"
-    client_title: str = "Codex Python SDK"
+    client_name: str = "cx_python_sdk"
+    client_title: str = "CX Python SDK"
     client_version: str = SDK_VERSION
     experimental_api: bool = True
 
 
 class CodexClient:
-    """Synchronous typed JSON-RPC client for `codex app-server` over stdio."""
+    """Synchronous typed JSON-RPC client for `cx app-server` over stdio."""
 
     def __init__(
         self,
@@ -243,10 +243,10 @@ class CodexClient:
         if self.config.launch_args_override is not None:
             args = list(self.config.launch_args_override)
         else:
-            codex_bin = _resolve_codex_bin(self.config)
-            if self.config.codex_bin is None:
-                path_dirs = _installed_codex_path_dirs()
-            args = [str(codex_bin)]
+            cx_bin = _resolve_cx_bin(self.config)
+            if self.config.cx_bin is None:
+                path_dirs = _installed_cx_path_dirs()
+            args = [str(cx_bin)]
             for kv in self.config.config_overrides:
                 args.extend(["--config", kv])
             args.extend(["app-server", "--listen", "stdio://"])
@@ -835,19 +835,19 @@ class CodexClient:
 
     def _write_message(self, payload: JsonObject) -> None:
         if self._proc is None or self._proc.stdin is None:
-            raise TransportClosedError("Codex process is not running")
+            raise TransportClosedError("CX process is not running")
         with self._lock:
             self._proc.stdin.write(json.dumps(payload) + "\n")
             self._proc.stdin.flush()
 
     def _read_message(self) -> dict[str, JsonValue]:
         if self._proc is None or self._proc.stdout is None:
-            raise TransportClosedError("Codex process is not running")
+            raise TransportClosedError("CX process is not running")
 
         line = self._proc.stdout.readline()
         if not line:
             raise TransportClosedError(
-                f"Codex process closed stdout. stderr_tail={self._stderr_tail()[:2000]}"
+                f"CX process closed stdout. stderr_tail={self._stderr_tail()[:2000]}"
             )
 
         try:
@@ -860,5 +860,5 @@ class CodexClient:
         return message
 
 
-def default_codex_home() -> str:
-    return str(Path.home() / ".codex")
+def default_cx_home() -> str:
+    return str(Path.home() / ".cx")

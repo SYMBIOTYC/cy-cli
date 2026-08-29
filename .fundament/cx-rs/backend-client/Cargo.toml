@@ -1,0 +1,31 @@
+[package]
+name = "cx-backend-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+http = { workspace = true }
+url = { workspace = true }
+cx-backend-oi-models = { path = "../cx-backend-oi-models" }
+cx-api = { workspace = true }
+cx-http-client = { workspace = true }
+cx-login = { workspace = true }
+cx-model-provider = { workspace = true }
+cx-protocol = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = "1"
+tokio = { workspace = true, features = ["macros", "rt"] }
+wiremock = { workspace = true }

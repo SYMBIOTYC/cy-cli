@@ -1,0 +1,42 @@
+[package]
+name = "cx-external-agent-migration"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+doctest = false
+name = "cx_external_agent_migration"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono = { workspace = true }
+cx-analytics = { workspace = true }
+cx-config = { workspace = true }
+cx-core = { workspace = true }
+cx-core-plugins = { workspace = true }
+cx-hooks = { workspace = true }
+cx-login = { workspace = true }
+cx-memories-write = { workspace = true }
+cx-otel = { workspace = true }
+cx-plugin = { workspace = true }
+cx-protocol = { workspace = true }
+cx-rollout = { workspace = true }
+cx-thread-store = { workspace = true }
+cx-utils-output-truncation = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+sha2 = { workspace = true }
+toml = { workspace = true }
+tokio = { workspace = true, features = ["rt", "sync"] }
+tracing = { workspace = true }
+
+[dev-dependencies]
+cx-app-server-protocol = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

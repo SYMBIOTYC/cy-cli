@@ -15,9 +15,9 @@ from openai_codex import AsyncCodex
 
 
 async def main() -> None:
-    async with AsyncCodex(config=runtime_config()) as codex:
-        print("server:", server_label(codex.metadata))
-        models = await codex.models()
+    async with AsyncCodex(config=runtime_config()) as cx:
+        print("server:", server_label(cx.metadata))
+        models = await cx.models()
         print("models.count:", len(models.data))
         print("models:", ", ".join(model.id for model in models.data[:5]))
 

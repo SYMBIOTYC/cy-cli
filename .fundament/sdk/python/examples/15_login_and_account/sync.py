@@ -9,15 +9,15 @@ from _bootstrap import ensure_local_sdk_src, runtime_config
 
 ensure_local_sdk_src()
 
-from openai_codex import Codex
+from openai_codex import CX
 
-with Codex(config=runtime_config()) as codex:
+with CX(config=runtime_config()) as cx:
     # Browser login returns a live handle. Open `auth_url` and call `wait()`
     # in a real app; this example cancels immediately so it stays non-blocking.
-    login = codex.login_chatgpt()
+    login = cx.login_chatgpt()
     canceled = login.cancel()
     completed = login.wait()
-    account = codex.account()
+    account = cx.account()
 
     print("login.id:", login.login_id)
     print("login.auth_url:", login.auth_url)

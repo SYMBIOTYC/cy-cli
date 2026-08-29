@@ -1,0 +1,33 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-memories-extension"
+version.workspace = true
+
+[lib]
+name = "cx_memories_extension"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-core = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-features = { workspace = true }
+cx-otel = { workspace = true }
+cx-tools = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-output-truncation = { workspace = true }
+cx-utils-template = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["fs", "macros"] }

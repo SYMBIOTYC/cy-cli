@@ -1,0 +1,31 @@
+[package]
+name = "cx-gt"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+cx-connectors = { workspace = true }
+cx-core = { workspace = true }
+cx-git-utils = { workspace = true }
+cx-http-client = { workspace = true }
+cx-login = { workspace = true }
+cx-model-provider = { workspace = true }
+cx-plugin = { workspace = true }
+cx-utils-cli = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+
+[dev-dependencies]
+cx-utils-cargo-bin = { workspace = true }
+pretty_assertions = { workspace = true }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+
+[lib]
+doctest = false

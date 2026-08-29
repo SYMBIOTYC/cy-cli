@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "exec-server-protocol",
+    crate_name = "cx_exec_server_protocol",
+)

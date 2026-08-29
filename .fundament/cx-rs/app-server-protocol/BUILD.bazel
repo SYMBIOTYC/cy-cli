@@ -1,0 +1,11 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "app-server-protocol",
+    compile_data = glob(["schema/precomputed/**"]),
+    crate_name = "cx_app_server_protocol",
+    test_data_extra = glob(
+        ["schema/**"],
+        allow_empty = True,
+    ),
+)

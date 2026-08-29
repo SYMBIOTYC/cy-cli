@@ -1,0 +1,26 @@
+
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-utils-plugins"
+version.workspace = true
+
+[lib]
+doctest = false
+name = "cx_utils_plugins"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-exec-server = { workspace = true }
+cx-exec-server-protocol = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["macros", "rt"] }

@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "protocol",
+    compile_data = glob(["src/prompts/**/*.md"]),
+    crate_name = "cx_protocol",
+)

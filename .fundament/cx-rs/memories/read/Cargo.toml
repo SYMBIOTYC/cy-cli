@@ -1,0 +1,21 @@
+[package]
+edition.workspace = true
+license.workspace = true
+name = "cx-memories-read"
+version.workspace = true
+
+[lib]
+name = "cx_memories_read"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cx-protocol = { workspace = true }
+cx-shell-command = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

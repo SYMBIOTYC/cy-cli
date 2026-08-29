@@ -13,12 +13,12 @@ from _bootstrap import (
 
 ensure_local_sdk_src()
 
-from openai_codex import Codex
+from openai_codex import CX
 
-with Codex(config=runtime_config()) as codex:
-    print("Server:", server_label(codex.metadata))
+with CX(config=runtime_config()) as cx:
+    print("Server:", server_label(cx.metadata))
 
-    thread = codex.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
+    thread = cx.thread_start(model="gpt-5.4", config={"model_reasoning_effort": "high"})
     result = thread.run("Say hello in one sentence.")
     print("Items:", len(result.items))
     print("Text:", result.final_response)

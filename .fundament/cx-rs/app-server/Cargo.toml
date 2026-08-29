@@ -1,0 +1,146 @@
+[package]
+name = "cx-app-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "cx-app-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "cx-app-server-test-notify-capture"
+path = "src/bin/notify_capture.rs"
+
+[[bin]]
+name = "exec-server"
+path = "src/bin/exec_server.rs"
+
+[lib]
+name = "cx_app_server"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+    "ws",
+] }
+cx-analytics = { workspace = true }
+cx-agent-extension = { workspace = true }
+cx-arg0 = { workspace = true }
+cx-cloud-config = { workspace = true }
+cx-mode = { workspace = true }
+cx-config = { workspace = true }
+cx-connectors = { workspace = true }
+cx-core = { workspace = true }
+cx-core-plugins = { workspace = true }
+cx-diagnostics = { workspace = true }
+cx-home = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-extension-api = { workspace = true }
+cx-external-agent-migration = { workspace = true }
+cx-features = { workspace = true }
+cx-goal-extension = { workspace = true }
+cx-git-attribution = { workspace = true }
+cx-guardian-v2 = { workspace = true }
+cx-git-utils = { workspace = true }
+cx-file-watcher = { workspace = true }
+cx-hooks = { workspace = true }
+cx-http-client = { workspace = true }
+cx-otel = { workspace = true }
+cx-plugin = { workspace = true }
+cx-shell-command = { workspace = true }
+cx-skills = { workspace = true }
+cx-skills-extension = { workspace = true }
+cx-utils-cli = { workspace = true }
+cx-utils-pty = { workspace = true }
+cx-backend-client = { workspace = true }
+cx-file-search = { workspace = true }
+cx-gt = { workspace = true }
+cx-login = { workspace = true }
+cx-image-generation-extension = { workspace = true }
+cx-memories-extension = { workspace = true }
+cx-web-search-extension = { workspace = true }
+cx-memories-write = { workspace = true }
+cx-mcp = { workspace = true }
+cx-mcp-extension = { workspace = true }
+cx-model-provider = { workspace = true }
+cx-models-manager = { workspace = true }
+cx-protocol = { workspace = true }
+cx-queue-extension = { workspace = true }
+cx-app-server-protocol = { workspace = true }
+cx-app-server-transport = { workspace = true }
+cx-feedback = { workspace = true }
+cx-rmcp-client = { workspace = true }
+cx-rollout = { workspace = true }
+cx-sandboxing = { workspace = true }
+cx-state = { workspace = true }
+cx-thread-store = { workspace = true }
+cx-tools = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-json-to-toml = { workspace = true }
+cx-utils-path-uri = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+futures = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+toml = { workspace = true }
+toml_edit = { workspace = true }
+tokio = { workspace = true, features = [
+    "io-std",
+    "macros",
+    "process",
+    "rt-multi-thread",
+    "signal",
+] }
+tokio-util = { workspace = true }
+tracing = { workspace = true, features = ["log"] }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt", "json"] }
+url = { workspace = true }
+uuid = { workspace = true, features = ["serde", "v7"] }
+
+[target.'cfg(windows)'.dependencies]
+cx-windows-sandbox = { workspace = true }
+
+[dev-dependencies]
+app_test_support = { workspace = true }
+axum = { workspace = true, default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+] }
+base64 = { workspace = true }
+cx-model-provider-info = { workspace = true }
+cx-utils-cargo-bin = { workspace = true }
+core_test_support = { workspace = true }
+flate2 = { workspace = true }
+hmac = { workspace = true }
+http = { workspace = true }
+opentelemetry = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+pretty_assertions = { workspace = true }
+rmcp = { workspace = true, default-features = false, features = [
+    "elicitation",
+    "server",
+    "transport-streamable-http-server",
+] }
+serial_test = { workspace = true }
+shlex = { workspace = true }
+tar = { workspace = true }
+test-case = "3.3.1"
+tokio-tungstenite = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+wiremock = { workspace = true }

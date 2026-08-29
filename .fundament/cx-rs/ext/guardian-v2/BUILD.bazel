@@ -1,0 +1,7 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "guardian-v2",
+    compile_data = ["src/async_scorer/classifier_instructions.md"],
+    crate_name = "cx_guardian_v2",
+)

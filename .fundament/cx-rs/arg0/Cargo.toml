@@ -1,0 +1,33 @@
+[package]
+name = "cx-arg0"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "cx_arg0"
+path = "src/lib.rs"
+doctest = false
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+cx-apply-patch = { workspace = true }
+cx-exec-server = { workspace = true }
+cx-install-context = { workspace = true }
+cx-linux-sandbox = { workspace = true }
+cx-sandboxing = { workspace = true }
+cx-shell-escalation = { workspace = true }
+cx-utils-absolute-path = { workspace = true }
+cx-utils-home-dir = { workspace = true }
+dotenvy = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+
+[target.'cfg(windows)'.dependencies]
+cx-windows-sandbox = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }

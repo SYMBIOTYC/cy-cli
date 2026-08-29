@@ -72,8 +72,8 @@ from .generated.v2_all import (
 from .models import InitializeResponse, JsonObject, Notification
 
 
-class Codex:
-    """Synchronous client for creating threads and running Codex turns.
+class CX:
+    """Synchronous client for creating threads and running CX turns.
 
     The client starts its runtime connection during construction. Use it as a
     context manager so resources are closed promptly.
@@ -88,7 +88,7 @@ class Codex:
             self._client.close()
             raise
 
-    def __enter__(self) -> "Codex":
+    def __enter__(self) -> "CX":
         return self
 
     def __exit__(self, _exc_type, _exc, _tb) -> None:
@@ -102,7 +102,7 @@ class Codex:
         self._client.close()
 
     def login_api_key(self, api_key: str) -> None:
-        """Authenticate Codex with an API key."""
+        """Authenticate CX with an API key."""
         self._client.account_login_start(
             LoginAccountParams(
                 root=ApiKeyLoginAccountParams(
@@ -113,22 +113,22 @@ class Codex:
         )
 
     def login_chatgpt(self) -> ChatgptLoginHandle:
-        """Start browser-based ChatGPT login and return its live handle."""
+        """Start browser-based gt login and return its live handle."""
         return start_chatgpt_login(self._client)
 
     def login_chatgpt_device_code(self) -> DeviceCodeLoginHandle:
-        """Start device-code ChatGPT login and return its live handle."""
+        """Start device-code gt login and return its live handle."""
         return start_device_code_login(self._client)
 
     def account(self, *, refresh_token: bool = False) -> GetAccountResponse:
-        """Read the current Codex account state."""
+        """Read the current CX account state."""
         return self._client.account_read(GetAccountParams(refresh_token=refresh_token))
 
     def logout(self) -> None:
-        """Clear the current Codex account session."""
+        """Clear the current CX account session."""
         self._client.account_logout()
 
-    # BEGIN GENERATED: Codex.flat_methods
+    # BEGIN GENERATED: CX.flat_methods
     def thread_start(
         self,
         *,
@@ -147,7 +147,7 @@ class Codex:
         session_start_source: ThreadStartSource | None = None,
         thread_source: ThreadSource | None = None,
     ) -> Thread:
-        """Create a new Codex conversation thread."""
+        """Create a new CX conversation thread."""
         approval_policy, approvals_reviewer = _approval_mode_settings(approval_mode)
         params = ThreadStartParams(
             approval_policy=approval_policy,
@@ -279,15 +279,15 @@ class Codex:
         unarchived = self._client.thread_unarchive(thread_id)
         return Thread(self._client, unarchived.thread.id)
 
-    # END GENERATED: Codex.flat_methods
+    # END GENERATED: CX.flat_methods
 
     def models(self, *, include_hidden: bool = False) -> ModelListResponse:
-        """List available models reported by Codex."""
+        """List available models reported by CX."""
         return self._client.model_list(include_hidden=include_hidden)
 
 
 class AsyncCodex:
-    """Async mirror of :class:`Codex`.
+    """Async mirror of :class:`CX`.
 
     Prefer ``async with AsyncCodex()`` so initialization and shutdown are
     explicit and paired. The async client initializes lazily on context entry
@@ -339,7 +339,7 @@ class AsyncCodex:
         self._initialized = False
 
     async def login_api_key(self, api_key: str) -> None:
-        """Authenticate Codex with an API key."""
+        """Authenticate CX with an API key."""
         await self._ensure_initialized()
         await self._client.account_login_start(
             LoginAccountParams(
@@ -351,22 +351,22 @@ class AsyncCodex:
         )
 
     async def login_chatgpt(self) -> AsyncChatgptLoginHandle:
-        """Start browser-based ChatGPT login and return its live handle."""
+        """Start browser-based gt login and return its live handle."""
         await self._ensure_initialized()
         return await async_start_chatgpt_login(self)
 
     async def login_chatgpt_device_code(self) -> AsyncDeviceCodeLoginHandle:
-        """Start device-code ChatGPT login and return its live handle."""
+        """Start device-code gt login and return its live handle."""
         await self._ensure_initialized()
         return await async_start_device_code_login(self)
 
     async def account(self, *, refresh_token: bool = False) -> GetAccountResponse:
-        """Read the current Codex account state."""
+        """Read the current CX account state."""
         await self._ensure_initialized()
         return await self._client.account_read(GetAccountParams(refresh_token=refresh_token))
 
     async def logout(self) -> None:
-        """Clear the current Codex account session."""
+        """Clear the current CX account session."""
         await self._ensure_initialized()
         await self._client.account_logout()
 
@@ -389,7 +389,7 @@ class AsyncCodex:
         session_start_source: ThreadStartSource | None = None,
         thread_source: ThreadSource | None = None,
     ) -> AsyncThread:
-        """Create a new Codex conversation thread."""
+        """Create a new CX conversation thread."""
         await self._ensure_initialized()
         approval_policy, approvals_reviewer = _approval_mode_settings(approval_mode)
         params = ThreadStartParams(

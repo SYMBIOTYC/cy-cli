@@ -1,0 +1,6 @@
+load("//:defs.bzl", "cx_rust_crate")
+
+cx_rust_crate(
+    name = "mcp-server",
+    crate_name = "cx_mcp_server",
+)
