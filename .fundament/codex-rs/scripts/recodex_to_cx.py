@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 """
 SYMBIOTYC CY-CLI rebranding tracker.
-Replaces 'codex' with 'cx' or 'CY' in modified files on-the-fly.
+Replaces 'codex' with 'cx', 'OpenAI' with 'oi', 'ChatGPT' with 'gt' in modified files on-the-fly.
 """
 
 import re
 import sys
 from pathlib import Path
 
-# Files modified in the current change set
+# Script is at .fundament/codex-rs/scripts/recodex_to_cx.py
+# repo_root for file paths is .fundament/codex-rs/
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+# Files modified in the current change set (relative to REPO_ROOT)
 MODIFIED_FILES = [
-    ".fundament/codex-rs/model-provider-info/src/lib.rs",
-    ".fundament/codex-rs/core/src/config/mod.rs",
-    ".fundament/codex-rs/models-manager/models.json",
+    "model-provider-info/src/lib.rs",
+    "core/src/config/mod.rs",
+    "models-manager/models.json",
 ]
 
 REPLACEMENTS = [
+    # Brand replacements
+    (r'\bOpenAI\b', 'oi', 'Replace OpenAI with oi'),
+    (r'\bChatGPT\b', 'gt', 'Replace ChatGPT with gt'),
     # (pattern, replacement, description)
     (r'\bcodex\b', 'cx', 'Replace standalone "codex" with "cx"'),
     (r'\bCodex\b', 'CX', 'Replace standalone "Codex" with "CX"'),
@@ -66,14 +73,12 @@ def rebrand_file(path: Path):
     return False
 
 def main():
-    repo_root = Path(__file__).resolve().parent.parent
-    
     print("SYMBIOTYC CY-CLI rebranding tracker")
     print("=" * 50)
     
     changed = []
     for rel_path in MODIFIED_FILES:
-        full_path = repo_root / rel_path
+        full_path = REPO_ROOT / rel_path
         if full_path.exists():
             if rebrand_file(full_path):
                 changed.append(rel_path)

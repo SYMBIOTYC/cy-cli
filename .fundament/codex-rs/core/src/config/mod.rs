@@ -9,121 +9,121 @@ use crate::unified_exec::MIN_EMPTY_YIELD_TIME_MS;
 use crate::windows_sandbox::WindowsSandboxLevelExt;
 use crate::windows_sandbox::resolve_windows_sandbox_mode;
 use crate::windows_sandbox::resolve_windows_sandbox_private_desktop;
-use codex_config::CloudConfigBundleLoader;
-use codex_config::ConfigLayerSource;
-use codex_config::ConfigLayerStack;
-use codex_config::ConfigRequirements;
-use codex_config::ConfigRequirementsToml;
-use codex_config::ConstrainedWithSource;
-use codex_config::FeatureRequirementsToml;
-use codex_config::ManagedAuthPolicy;
-use codex_config::McpServerRequirement;
-use codex_config::PluginRequirementsToml;
-use codex_config::ProfileV2Name;
-use codex_config::ResidencyRequirement;
-use codex_config::SandboxModeRequirement;
-use codex_config::Sourced;
-use codex_config::ThreadConfigLoader;
-use codex_config::config_toml::ConfigToml;
-use codex_config::config_toml::DEFAULT_PROJECT_DOC_MAX_BYTES;
-use codex_config::config_toml::ProjectConfig;
-use codex_config::config_toml::RealtimeAudioConfig;
-use codex_config::config_toml::RealtimeConfig;
-use codex_config::config_toml::ThreadStoreToml;
-use codex_config::config_toml::validate_model_providers;
-use codex_config::loader::load_config_layers_state;
-use codex_config::loader::project_trust_key;
-use codex_config::permissions_toml::PermissionProfileToml;
-use codex_config::permissions_toml::PermissionsToml;
-use codex_config::sandbox_mode_requirement_for_permission_profile;
-use codex_config::types::ApprovalsReviewer;
-use codex_config::types::AuthCredentialsStoreMode;
-use codex_config::types::AuthKeyringBackendKind;
-use codex_config::types::History;
-use codex_config::types::McpServerConfig;
-use codex_config::types::McpServerDisabledReason;
-use codex_config::types::MemoriesConfig;
-use codex_config::types::ModelAvailabilityNuxConfig;
-use codex_config::types::Notice;
-use codex_config::types::OAuthCredentialsStoreMode;
-use codex_config::types::ResumeCwdMode;
-use codex_config::types::SessionPickerViewMode;
-use codex_config::types::ToolSuggestConfig;
-use codex_config::types::ToolSuggestDisabledTool;
-use codex_config::types::ToolSuggestDiscoverable;
-use codex_config::types::TuiKeymap;
-use codex_config::types::TuiNotificationSettings;
-use codex_config::types::TuiPetAnchor;
-use codex_config::types::UriBasedFileOpener;
-use codex_config::types::WindowsSandboxModeToml;
-use codex_core_plugins::PluginLoadOutcome;
-use codex_core_plugins::PluginsConfigInput;
-use codex_exec_server::ExecutorFileSystem;
-use codex_exec_server::LOCAL_FS;
-use codex_exec_server::ReadFileOptions;
-use codex_features::CodeModeConfigToml;
-use codex_features::CurrentTimeReminderConfigToml;
-use codex_features::CurrentTimeReminderDeliveryMode;
-use codex_features::CurrentTimeSource;
-use codex_features::Feature;
-use codex_features::FeatureConfigSource;
-use codex_features::FeatureOverrides;
-use codex_features::FeatureToml;
-use codex_features::Features;
-use codex_features::FeaturesToml;
-use codex_features::MultiAgentV2ConfigToml;
-use codex_features::NetworkProxyConfigToml;
-use codex_features::TokenBudgetConfigToml;
-use codex_git_utils::resolve_root_git_project_for_trust;
-use codex_http_client::HttpClientFactory;
-use codex_http_client::OutboundProxyPolicy;
-use codex_install_context::InstallContext;
-use codex_login::AuthManagerConfig;
-use codex_login::AuthRouteConfig;
-use codex_mcp::McpConfig;
-use codex_mcp::McpPluginAttribution;
-use codex_mcp::McpProtocolMode;
-use codex_mcp::McpServerRegistration;
-use codex_mcp::ResolvedMcpCatalog;
-use codex_memories_read::memory_root;
-use codex_model_provider::ProviderCapabilities;
-use codex_model_provider_info::LEGACY_OLLAMA_CHAT_PROVIDER_ID;
-use codex_model_provider_info::ModelProviderInfo;
-use codex_model_provider_info::OLLAMA_CHAT_PROVIDER_REMOVED_ERROR;
-use codex_model_provider_info::built_in_model_providers;
-use codex_model_provider_info::merge_configured_model_providers;
-use codex_models_manager::ModelsManagerConfig;
-use codex_protocol::config_types::AltScreenMode;
-use codex_protocol::config_types::AutoCompactTokenLimitScope;
-use codex_protocol::config_types::ForcedLoginMethod;
-use codex_protocol::config_types::Personality;
-use codex_protocol::config_types::ReasoningSummary;
-use codex_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
-use codex_protocol::config_types::SandboxMode;
-use codex_protocol::config_types::ServiceTier;
-use codex_protocol::config_types::ShellEnvironmentPolicy;
-use codex_protocol::config_types::TrustLevel;
-use codex_protocol::config_types::Verbosity;
-use codex_protocol::config_types::WebSearchConfig;
-use codex_protocol::config_types::WebSearchMode;
-use codex_protocol::config_types::WindowsSandboxLevel;
-use codex_protocol::models::ActivePermissionProfile;
-use codex_protocol::models::BaseInstructionsProvenance;
-use codex_protocol::models::PermissionProfile;
-pub use codex_protocol::models::PermissionProfileSnapshot;
-use codex_protocol::models::SandboxEnforcement;
-use codex_protocol::openai_models::ModelMessages;
-use codex_protocol::openai_models::ModelsResponse;
-use codex_protocol::openai_models::ReasoningEffort;
-use codex_protocol::permissions::FileSystemSandboxPolicy;
-use codex_protocol::permissions::NetworkSandboxPolicy;
-use codex_protocol::protocol::AskForApproval;
-use codex_protocol::protocol::MultiAgentVersion;
-use codex_protocol::protocol::SandboxPolicy;
-pub use codex_thread_store::ExtraConfig;
-use codex_utils_absolute_path::AbsolutePathBuf;
-use codex_utils_absolute_path::AbsolutePathBufGuard;
-use codex_utils_path_uri::PathUri;
+use cx_config::CloudConfigBundleLoader;
+use cx_config::ConfigLayerSource;
+use cx_config::ConfigLayerStack;
+use cx_config::ConfigRequirements;
+use cx_config::ConfigRequirementsToml;
+use cx_config::ConstrainedWithSource;
+use cx_config::FeatureRequirementsToml;
+use cx_config::ManagedAuthPolicy;
+use cx_config::McpServerRequirement;
+use cx_config::PluginRequirementsToml;
+use cx_config::ProfileV2Name;
+use cx_config::ResidencyRequirement;
+use cx_config::SandboxModeRequirement;
+use cx_config::Sourced;
+use cx_config::ThreadConfigLoader;
+use cx_config::config_toml::ConfigToml;
+use cx_config::config_toml::DEFAULT_PROJECT_DOC_MAX_BYTES;
+use cx_config::config_toml::ProjectConfig;
+use cx_config::config_toml::RealtimeAudioConfig;
+use cx_config::config_toml::RealtimeConfig;
+use cx_config::config_toml::ThreadStoreToml;
+use cx_config::config_toml::validate_model_providers;
+use cx_config::loader::load_config_layers_state;
+use cx_config::loader::project_trust_key;
+use cx_config::permissions_toml::PermissionProfileToml;
+use cx_config::permissions_toml::PermissionsToml;
+use cx_config::sandbox_mode_requirement_for_permission_profile;
+use cx_config::types::ApprovalsReviewer;
+use cx_config::types::AuthCredentialsStoreMode;
+use cx_config::types::AuthKeyringBackendKind;
+use cx_config::types::History;
+use cx_config::types::McpServerConfig;
+use cx_config::types::McpServerDisabledReason;
+use cx_config::types::MemoriesConfig;
+use cx_config::types::ModelAvailabilityNuxConfig;
+use cx_config::types::Notice;
+use cx_config::types::OAuthCredentialsStoreMode;
+use cx_config::types::ResumeCwdMode;
+use cx_config::types::SessionPickerViewMode;
+use cx_config::types::ToolSuggestConfig;
+use cx_config::types::ToolSuggestDisabledTool;
+use cx_config::types::ToolSuggestDiscoverable;
+use cx_config::types::TuiKeymap;
+use cx_config::types::TuiNotificationSettings;
+use cx_config::types::TuiPetAnchor;
+use cx_config::types::UriBasedFileOpener;
+use cx_config::types::WindowsSandboxModeToml;
+use cx_core_plugins::PluginLoadOutcome;
+use cx_core_plugins::PluginsConfigInput;
+use cx_exec_server::ExecutorFileSystem;
+use cx_exec_server::LOCAL_FS;
+use cx_exec_server::ReadFileOptions;
+use cx_features::CodeModeConfigToml;
+use cx_features::CurrentTimeReminderConfigToml;
+use cx_features::CurrentTimeReminderDeliveryMode;
+use cx_features::CurrentTimeSource;
+use cx_features::Feature;
+use cx_features::FeatureConfigSource;
+use cx_features::FeatureOverrides;
+use cx_features::FeatureToml;
+use cx_features::Features;
+use cx_features::FeaturesToml;
+use cx_features::MultiAgentV2ConfigToml;
+use cx_features::NetworkProxyConfigToml;
+use cx_features::TokenBudgetConfigToml;
+use cx_git_utils::resolve_root_git_project_for_trust;
+use cx_http_client::HttpClientFactory;
+use cx_http_client::OutboundProxyPolicy;
+use cx_install_context::InstallContext;
+use cx_login::AuthManagerConfig;
+use cx_login::AuthRouteConfig;
+use cx_mcp::McpConfig;
+use cx_mcp::McpPluginAttribution;
+use cx_mcp::McpProtocolMode;
+use cx_mcp::McpServerRegistration;
+use cx_mcp::ResolvedMcpCatalog;
+use cx_memories_read::memory_root;
+use cx_model_provider::ProviderCapabilities;
+use cx_model_provider_info::LEGACY_OLLAMA_CHAT_PROVIDER_ID;
+use cx_model_provider_info::ModelProviderInfo;
+use cx_model_provider_info::OLLAMA_CHAT_PROVIDER_REMOVED_ERROR;
+use cx_model_provider_info::built_in_model_providers;
+use cx_model_provider_info::merge_configured_model_providers;
+use cx_models_manager::ModelsManagerConfig;
+use cx_protocol::config_types::AltScreenMode;
+use cx_protocol::config_types::AutoCompactTokenLimitScope;
+use cx_protocol::config_types::ForcedLoginMethod;
+use cx_protocol::config_types::Personality;
+use cx_protocol::config_types::ReasoningSummary;
+use cx_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
+use cx_protocol::config_types::SandboxMode;
+use cx_protocol::config_types::ServiceTier;
+use cx_protocol::config_types::ShellEnvironmentPolicy;
+use cx_protocol::config_types::TrustLevel;
+use cx_protocol::config_types::Verbosity;
+use cx_protocol::config_types::WebSearchConfig;
+use cx_protocol::config_types::WebSearchMode;
+use cx_protocol::config_types::WindowsSandboxLevel;
+use cx_protocol::models::ActivePermissionProfile;
+use cx_protocol::models::BaseInstructionsProvenance;
+use cx_protocol::models::PermissionProfile;
+pub use cx_protocol::models::PermissionProfileSnapshot;
+use cx_protocol::models::SandboxEnforcement;
+use cx_protocol::openai_models::ModelMessages;
+use cx_protocol::openai_models::ModelsResponse;
+use cx_protocol::openai_models::ReasoningEffort;
+use cx_protocol::permissions::FileSystemSandboxPolicy;
+use cx_protocol::permissions::NetworkSandboxPolicy;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::MultiAgentVersion;
+use cx_protocol::protocol::SandboxPolicy;
+pub use cx_thread_store::ExtraConfig;
+use cx_utils_absolute_path::AbsolutePathBuf;
+use cx_utils_absolute_path::AbsolutePathBufGuard;
+use cx_utils_path_uri::PathUri;
 use http::HeaderValue;
 use rmcp::model::ElicitationCapability;
 use rmcp::model::FormElicitationCapability;
@@ -150,7 +150,7 @@ use crate::config::permissions::get_readable_roots_required_for_codex_runtime;
 use crate::config::permissions::network_proxy_config_for_profile_selection;
 use crate::config::permissions::validate_user_permission_profile_names;
 use crate::responses_metadata::validate_extra_metadata;
-use codex_network_proxy::NetworkProxyConfig;
+use cx_network_proxy::NetworkProxyConfig;
 use toml::Value as TomlValue;
 use toml_edit::DocumentMut;
 
@@ -168,14 +168,14 @@ mod resolved_permission_profile;
 mod schema;
 pub use auth_keyring::bootstrap_auth_config;
 pub use auth_keyring::resolve_bootstrap_auth_keyring_backend_kind;
-pub use codex_config::ConfigLoadOptions;
-pub use codex_config::Constrained;
-pub use codex_config::ConstraintError;
-pub use codex_config::ConstraintResult;
-pub use codex_config::LoaderOverrides;
-pub use codex_network_proxy::NetworkProxyAuditMetadata;
-use codex_sandboxing::compatibility_sandbox_policy_for_permission_profile;
-pub use codex_sandboxing::system_bwrap_warning;
+pub use cx_config::ConfigLoadOptions;
+pub use cx_config::Constrained;
+pub use cx_config::ConstraintError;
+pub use cx_config::ConstraintResult;
+pub use cx_config::LoaderOverrides;
+pub use cx_network_proxy::NetworkProxyAuditMetadata;
+use cx_sandboxing::compatibility_sandbox_policy_for_permission_profile;
+pub use cx_sandboxing::system_bwrap_warning;
 pub use managed_features::ManagedFeatures;
 pub use network_proxy_spec::NetworkProxySpec;
 pub use network_proxy_spec::StartedNetworkProxy;
@@ -399,7 +399,7 @@ impl Permissions {
     }
 
     /// Workspace roots that came from user-visible configuration or runtime
-    /// selection. Internal Codex-only writable roots are intentionally excluded.
+    /// selection. Internal CX-only writable roots are intentionally excluded.
     pub fn user_visible_workspace_roots(&self) -> &[AbsolutePathBuf] {
         &self.workspace_roots
     }
@@ -510,7 +510,7 @@ impl Permissions {
 }
 
 // A profile override only inherits the selected profile's proxy/allowlist config
-// when Codex is still responsible for the network policy. `Disabled` means no
+// when CX is still responsible for the network policy. `Disabled` means no
 // outer sandbox, so starting the managed proxy would narrow the override.
 fn profile_allows_configured_network_proxy(permission_profile: &PermissionProfile) -> bool {
     match permission_profile {
@@ -523,7 +523,7 @@ fn profile_allows_configured_network_proxy(permission_profile: &PermissionProfil
 
 fn build_network_proxy_spec(
     configured_network_proxy_config: NetworkProxyConfig,
-    network_requirements: Option<Sourced<codex_config::NetworkConstraints>>,
+    network_requirements: Option<Sourced<cx_config::NetworkConstraints>>,
     permission_profile: &PermissionProfile,
 ) -> std::io::Result<Option<NetworkProxySpec>> {
     let (network_requirements, network_requirements_source) = match network_requirements {
@@ -674,23 +674,23 @@ pub struct Config {
     /// Compact prompt override.
     pub compact_prompt: Option<String>,
 
-    /// Optional external notifier command. When set, Codex will spawn this
+    /// Optional external notifier command. When set, CX will spawn this
     /// program after each completed *turn* (i.e. when the agent finishes
     /// processing a user submission). The value must be the full command
-    /// broken into argv tokens **without** the trailing JSON argument - Codex
+    /// broken into argv tokens **without** the trailing JSON argument - CX
     /// appends one extra argument containing a JSON payload describing the
     /// event.
     ///
-    /// Example `~/.codex/config.toml` snippet:
+    /// Example `~/.cx/config.toml` snippet:
     ///
     /// ```toml
-    /// notify = ["notify-send", "Codex"]
+    /// notify = ["notify-send", "CX"]
     /// ```
     ///
     /// which will be invoked as:
     ///
     /// ```shell
-    /// notify-send Codex '{"type":"agent-turn-complete","turn-id":"12345"}'
+    /// notify-send CX '{"type":"agent-turn-complete","turn-id":"12345"}'
     /// ```
     ///
     /// If unset the feature is disabled.
@@ -781,12 +781,12 @@ pub struct Config {
     pub workspace_roots_explicit: bool,
 
     /// Preferred store for CLI auth credentials.
-    /// file (default): Use a file in the Codex home directory.
+    /// file (default): Use a file in the CX home directory.
     /// keyring: Use an OS-specific keyring service.
     /// auto: Use the OS-specific keyring service if available, otherwise use a file.
     pub cli_auth_credentials_store_mode: AuthCredentialsStoreMode,
 
-    /// Definition for MCP servers that Codex can reach out to for tool calls.
+    /// Definition for MCP servers that CX can reach out to for tool calls.
     pub mcp_servers: Constrained<HashMap<String, McpServerConfig>>,
 
     /// When present, only these MCP servers omit the legacy `mcp__` namespace prefix.
@@ -794,16 +794,16 @@ pub struct Config {
 
     /// Preferred store for MCP OAuth credentials.
     /// keyring: Use an OS-specific keyring service.
-    ///          Credentials stored in the keyring will only be readable by Codex unless the user explicitly grants access via OS-level keyring access.
-    ///          https://github.com/openai/codex/blob/main/codex-rs/rmcp-client/src/oauth.rs#L2
+    ///          Credentials stored in the keyring will only be readable by CX unless the user explicitly grants access via OS-level keyring access.
+    ///          https://github.com/openai/cx/blob/main/cx-rs/rmcp-client/src/oauth.rs#L2
     /// file: CODEX_HOME/.credentials.json
-    ///       This file will be readable to Codex and other applications running as the same user.
+    ///       This file will be readable to CX and other applications running as the same user.
     /// auto (default): keyring if available, otherwise file.
     pub mcp_oauth_credentials_store_mode: OAuthCredentialsStoreMode,
 
     /// Optional fixed port to use for the local HTTP callback server used during MCP OAuth login.
     ///
-    /// When unset, Codex will bind to an ephemeral port chosen by the OS.
+    /// When unset, CX will bind to an ephemeral port chosen by the OS.
     pub mcp_oauth_callback_port: Option<u16>,
 
     /// Optional redirect URI to use during MCP OAuth login.
@@ -852,17 +852,17 @@ pub struct Config {
     /// Memories subsystem settings.
     pub memories: MemoriesConfig,
 
-    /// Directory containing all Codex state (defaults to `~/.codex` but can be
+    /// Directory containing all CX state (defaults to `~/.cx` but can be
     /// overridden by the `CODEX_HOME` environment variable).
     pub codex_home: AbsolutePathBuf,
 
-    /// Resolved configuration shared by all Codex SQLite databases.
+    /// Resolved configuration shared by all CX SQLite databases.
     pub sqlite: codex_state::SqliteConfig,
 
-    /// Directory where Codex writes log files (defaults to `$CODEX_HOME/log`).
+    /// Directory where CX writes log files (defaults to `$CODEX_HOME/log`).
     pub log_dir: PathBuf,
 
-    /// Settings that govern if and what will be written to `~/.codex/history.jsonl`.
+    /// Settings that govern if and what will be written to `~/.cx/history.jsonl`.
     pub history: History,
 
     /// When true, session is not persisted on disk. Default to `false`
@@ -880,19 +880,19 @@ pub struct Config {
     /// output will be hyperlinked using the specified URI scheme.
     pub file_opener: UriBasedFileOpener,
 
-    /// Path to the current Codex executable. This cannot be set in the config
+    /// Path to the current CX executable. This cannot be set in the config
     /// file: it must be set in code via [`ConfigOverrides`].
     pub codex_self_exe: Option<PathBuf>,
 
-    /// Path to the `codex-linux-sandbox` executable. This must be set if
-    /// [`codex_sandboxing::SandboxType::LinuxSeccomp`] is used. Note that this
+    /// Path to the `cx-linux-sandbox` executable. This must be set if
+    /// [`cx_sandboxing::SandboxType::LinuxSeccomp`] is used. Note that this
     /// cannot be set in the config file: it must be set in code via
     /// [`ConfigOverrides`].
     ///
-    /// When this program is invoked, arg0 will be set to `codex-linux-sandbox`.
+    /// When this program is invoked, arg0 will be set to `cx-linux-sandbox`.
     pub codex_linux_sandbox_exe: Option<PathBuf>,
 
-    /// Path to the `codex-execve-wrapper` executable used for shell
+    /// Path to the `cx-execve-wrapper` executable used for shell
     /// escalation. This cannot be set in the config file: it must be set in
     /// code via [`ConfigOverrides`].
     pub main_execve_wrapper_exe: Option<PathBuf>,
@@ -922,10 +922,10 @@ pub struct Config {
     /// Optional verbosity control for GPT-5 models (Responses API `text.verbosity`).
     pub model_verbosity: Option<Verbosity>,
 
-    /// Base URL for requests to ChatGPT (as opposed to the OpenAI API).
+    /// Base URL for requests to gt (as opposed to the oi API).
     pub chatgpt_base_url: String,
 
-    /// Whether Codex-owned clients should respect host system proxy settings.
+    /// Whether CX-owned clients should respect host system proxy settings.
     pub respect_system_proxy: bool,
 
     /// Optional product SKU forwarded to the host-owned apps MCP server.
@@ -965,7 +965,7 @@ pub struct Config {
     pub experimental_realtime_start_instructions: Option<String>,
     /// Experimental / do not use. Selects the thread persistence backend.
     pub experimental_thread_store: ThreadStoreConfig,
-    /// When set, restricts ChatGPT login to one or more workspace identifiers.
+    /// When set, restricts gt login to one or more workspace identifiers.
     pub forced_chatgpt_workspace_id: Option<Vec<String>>,
 
     /// When set, restricts the login mechanism users may use.
@@ -1023,8 +1023,8 @@ pub struct Config {
     /// Collection of various notices we show the user
     pub notices: Notice,
 
-    /// When `true`, checks for Codex updates on startup and surfaces update prompts.
-    /// Set to `false` only if your Codex updates are centrally managed.
+    /// When `true`, checks for CX updates on startup and surfaces update prompts.
+    /// Set to `false` only if your CX updates are centrally managed.
     /// Defaults to `true`.
     pub check_for_update_on_startup: bool,
 
@@ -1033,11 +1033,11 @@ pub struct Config {
     /// or placeholder replacement will occur for fast keypress bursts.
     pub disable_paste_burst: bool,
 
-    /// When `false`, disables analytics across Codex product surfaces in this machine.
+    /// When `false`, disables analytics across CX product surfaces in this machine.
     /// Voluntarily left as Optional because the default value might depend on the client.
     pub analytics_enabled: Option<bool>,
 
-    /// When `false`, disables feedback collection across Codex product surfaces.
+    /// When `false`, disables feedback collection across CX product surfaces.
     /// Defaults to `true`.
     pub feedback_enabled: bool,
 
@@ -1045,7 +1045,7 @@ pub struct Config {
     pub tool_suggest: ToolSuggestConfig,
 
     /// OTEL configuration (exporter type, endpoint, headers, etc.).
-    pub otel: codex_config::types::OtelConfig,
+    pub otel: cx_config::types::OtelConfig,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
@@ -1411,7 +1411,7 @@ impl ConfigBuilder {
             },
             thread_config_loader
                 .as_deref()
-                .unwrap_or(&codex_config::NoopThreadConfigLoader),
+                .unwrap_or(&cx_config::NoopThreadConfigLoader),
         )
         .await?;
         let merged_toml = config_layer_stack.effective_config();
@@ -1423,13 +1423,13 @@ impl ConfigBuilder {
         let config_toml: ConfigToml = match merged_toml.try_into() {
             Ok(config_toml) => config_toml,
             Err(err) => {
-                if let Some(config_error) = codex_config::first_layer_config_error::<ConfigToml>(
+                if let Some(config_error) = cx_config::first_layer_config_error::<ConfigToml>(
                     &config_layer_stack,
-                    codex_config::CONFIG_TOML_FILE,
+                    cx_config::CONFIG_TOML_FILE,
                 )
                 .await
                 {
-                    return Err(codex_config::io_error_from_config_error(
+                    return Err(cx_config::io_error_from_config_error(
                         std::io::ErrorKind::InvalidData,
                         config_error,
                         Some(err),
@@ -1615,7 +1615,7 @@ impl Config {
 
     pub async fn to_mcp_config(
         &self,
-        plugins_manager: &codex_core_plugins::PluginsManager,
+        plugins_manager: &cx_core_plugins::PluginsManager,
     ) -> McpConfig {
         self.to_mcp_config_with_plugin_registrations(
             plugins_manager,
@@ -1626,7 +1626,7 @@ impl Config {
 
     pub(crate) async fn to_mcp_config_with_plugin_registrations(
         &self,
-        plugins_manager: &codex_core_plugins::PluginsManager,
+        plugins_manager: &cx_core_plugins::PluginsManager,
         additional_plugin_registrations: impl IntoIterator<Item = McpServerRegistration>,
     ) -> McpConfig {
         let plugins_input = self.plugins_config_input();
@@ -1816,7 +1816,7 @@ impl Config {
         .await
     }
 
-    /// Load a default configuration for a specific Codex home without reading
+    /// Load a default configuration for a specific CX home without reading
     /// user, project, or system config layers.
     pub async fn load_default_with_cli_overrides_for_codex_home(
         codex_home: PathBuf,
@@ -1828,8 +1828,8 @@ impl Config {
                 format!("failed to serialize default config: {e}"),
             )
         })?;
-        let cli_layer = codex_config::build_cli_overrides_layer(&cli_overrides);
-        codex_config::merge_toml_values(&mut merged, &cli_layer);
+        let cli_layer = cx_config::build_cli_overrides_layer(&cli_overrides);
+        cx_config::merge_toml_values(&mut merged, &cli_layer);
         let codex_home = AbsolutePathBuf::from_absolute_path_checked(codex_home)?;
         let config_toml = deserialize_config_toml_with_base(merged, &codex_home)?;
         Self::load_config_with_layer_stack(
@@ -1843,7 +1843,7 @@ impl Config {
     }
     /// This is a secondary way of creating [Config], which is appropriate when
     /// the harness is meant to be used with a specific configuration that
-    /// ignores user settings. For example, the `codex exec` subcommand is
+    /// ignores user settings. For example, the `cx exec` subcommand is
     /// designed to use [AskForApproval::Never] exclusively.
     ///
     /// Further, [ConfigOverrides] contains some options that are not supported
@@ -1942,7 +1942,7 @@ pub async fn load_config_toml_with_layer_stack(
         cwd.cloned(),
         &cli_overrides,
         options,
-        &codex_config::NoopThreadConfigLoader,
+        &cx_config::NoopThreadConfigLoader,
     )
     .await?;
 
@@ -2134,7 +2134,7 @@ pub async fn load_global_mcp_servers(
     // result.
     let cli_overrides = Vec::<(String, TomlValue)>::new();
     // There is no cwd/project context for this query, so this will not include
-    // MCP servers defined in in-repo .codex/ folders.
+    // MCP servers defined in in-repo .cx/ folders.
     let cwd: Option<AbsolutePathBuf> = None;
     let config_layer_stack = load_config_layers_state(
         LOCAL_FS.as_ref(),
@@ -2142,7 +2142,7 @@ pub async fn load_global_mcp_servers(
         cwd,
         &cli_overrides,
         LoaderOverrides::default(),
-        &codex_config::NoopThreadConfigLoader,
+        &cx_config::NoopThreadConfigLoader,
     )
     .await?;
     let merged_toml = config_layer_stack.effective_config();
@@ -2264,7 +2264,7 @@ pub fn set_project_trust_level(
 
 /// Save the default OSS provider preference to config.toml
 pub fn set_default_oss_provider(codex_home: &Path, provider: &str) -> std::io::Result<()> {
-    codex_config::config_toml::validate_oss_provider(provider)?;
+    cx_config::config_toml::validate_oss_provider(provider)?;
     use toml_edit::value;
 
     let edits = [ConfigEdit::SetPath {
@@ -2475,24 +2475,24 @@ fn resolve_permission_config_syntax(
 
 fn apply_managed_filesystem_constraints(
     file_system_sandbox_policy: &mut FileSystemSandboxPolicy,
-    filesystem_constraints: &codex_config::FilesystemConstraints,
+    filesystem_constraints: &cx_config::FilesystemConstraints,
 ) {
     for deny_read in &filesystem_constraints.deny_read {
         let deny_entry = if deny_read.contains_glob() {
-            codex_protocol::permissions::FileSystemSandboxEntry {
-                path: codex_protocol::permissions::FileSystemPath::GlobPattern {
+            cx_protocol::permissions::FileSystemSandboxEntry {
+                path: cx_protocol::permissions::FileSystemPath::GlobPattern {
                     pattern: deny_read.as_str().to_string(),
                 },
-                access: codex_protocol::permissions::FileSystemAccessMode::Deny,
+                access: cx_protocol::permissions::FileSystemAccessMode::Deny,
                 missing_path_behavior: None,
             }
         } else {
             let Ok(path) = AbsolutePathBuf::try_from(deny_read.as_str()) else {
                 continue;
             };
-            codex_protocol::permissions::FileSystemSandboxEntry {
+            cx_protocol::permissions::FileSystemSandboxEntry {
                 path: path.into(),
-                access: codex_protocol::permissions::FileSystemAccessMode::Deny,
+                access: cx_protocol::permissions::FileSystemAccessMode::Deny,
                 missing_path_behavior: None,
             }
         };
@@ -2601,7 +2601,7 @@ fn resolve_update_plan_enabled(config_toml: &ConfigToml) -> bool {
 }
 
 fn resolve_orchestrator_feature_enabled(
-    feature: Option<&codex_config::config_toml::OrchestratorFeatureToml>,
+    feature: Option<&cx_config::config_toml::OrchestratorFeatureToml>,
 ) -> bool {
     feature.and_then(|feature| feature.enabled).unwrap_or(true)
 }
@@ -3770,7 +3770,7 @@ impl Config {
         let forced_chatgpt_workspace_id = cfg
             .forced_chatgpt_workspace_id
             .clone()
-            .map(codex_config::config_toml::ForcedChatgptWorkspaceIds::into_vec)
+            .map(cx_config::config_toml::ForcedChatgptWorkspaceIds::into_vec)
             .map(|values| {
                 values
                     .into_iter()
@@ -3935,7 +3935,7 @@ impl Config {
         {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                "`approval_policy = \"never\"` cannot be used because requirements do not allow `sandbox_mode = \"danger-full-access\"`; Codex would fall back to read-only permissions with approvals disabled. Choose an `approval_policy` based on what you need, such as `on-request`, or choose an allowed sandbox mode.",
+                "`approval_policy = \"never\"` cannot be used because requirements do not allow `sandbox_mode = \"danger-full-access\"`; CX would fall back to read-only permissions with approvals disabled. Choose an `approval_policy` based on what you need, such as `on-request`, or choose an allowed sandbox mode.",
             ));
         }
         if permission_profile_was_constrained {
@@ -4397,7 +4397,7 @@ impl Config {
     }
 
     pub fn bundled_skills_enabled(&self) -> bool {
-        codex_config::bundled_skills_enabled_from_stack(&self.config_layer_stack)
+        cx_config::bundled_skills_enabled_from_stack(&self.config_layer_stack)
     }
 
     /// Returns whether effective requirements allow selecting a concrete profile.
@@ -4605,19 +4605,19 @@ fn normalize_guardian_policy_config(value: Option<&str>) -> Option<String> {
     })
 }
 
-/// Returns the path to the Codex configuration directory, which can be
+/// Returns the path to the CX configuration directory, which can be
 /// specified by the `CODEX_HOME` environment variable. If not set, defaults to
-/// `~/.codex`.
+/// `~/.cx`.
 ///
 /// - If `CODEX_HOME` is set, the value must exist and be a directory. The
 ///   value will be canonicalized and this function will Err otherwise.
 /// - If `CODEX_HOME` is not set, this function does not verify that the
 ///   directory exists.
 pub fn find_codex_home() -> std::io::Result<AbsolutePathBuf> {
-    codex_utils_home_dir::find_codex_home()
+    cx_utils_home_dir::find_codex_home()
 }
 
-/// Returns the path to the folder where Codex logs are stored. Does not verify
+/// Returns the path to the folder where CX logs are stored. Does not verify
 /// that the directory exists.
 pub fn log_dir(cfg: &Config) -> std::io::Result<PathBuf> {
     Ok(cfg.log_dir.clone())
