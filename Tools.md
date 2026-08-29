@@ -146,17 +146,6 @@ The catalog contains the available models. Currently only **cy** (CY cyborg i1a)
 
 ---
 
-## Historical Reference (FYI)
-
-| Old Name | New Name |
-|----------|----------|
-| `cx-rs` crate naming | `cx-*` prefix |
-| `gt_base_url` | CY gateway URL |
-| `oi_*` env vars | Identity context |
-| `~/.CY/` | Config directory |
-
----
-
 ## Repository Structure
 
 ```
