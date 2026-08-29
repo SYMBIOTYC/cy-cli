@@ -1,13 +1,5 @@
 # CY-CLI
 
-Более продвинутый CLI на фундаменте открытого Codex CLI (openai/codex).
-
-- **Фундамент:** `.fundament/` — скопированная копия исходников Codex CLI (shallow clone).
-- **Рассуждения/история:** см. `CY-CLI-DevBook.md`.
-- Цель: добавить недостающие "очень быстрые" методы поверх нативного harness'а Codex и перевести расширение Codex (openai.chatgpt) на использование CY-CLI.
-
-## Quick Start
-
 ```bash
 # Install (macOS / Linux)
 curl -fsSL https://raw.githubusercontent.com/SYMBIOTYC/CY-CLI-releases/main/install-v2.sh | bash
@@ -22,20 +14,9 @@ irm https://raw.githubusercontent.com/SYMBIOTYC/CY-CLI-releases/main/install-v2.
 ## Building from source
 
 ```bash
-cd .fundament/codex-rs
+cd .fundament/cx-rs
 cargo build --bin cy --release
 ```
-
-## Subcommands
-
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `cy q <prompt>` | `cy quick` | Quick question, streaming response |
-| `cy m [model]` | `cy model` | Show/set current model |
-| `cy ls` | `cy list-models` | List available models |
-| `cy hist [query]` | `cy history` | Session history with search |
-| `cy b <instr> [files]` | `cy batch` | Batch process files |
-| `cy tui` | `cy nc` | 4-panel PIE Commander TUI |
 
 ## CI/CD
 
