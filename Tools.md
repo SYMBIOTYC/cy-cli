@@ -8,7 +8,7 @@
 
 ```bash
 # Set the default model to CY cyborg i1a
-cy model cy/i1a
+cy model cy
 
 # Check current model
 cy m
@@ -41,10 +41,10 @@ cy
 | Command | Description |
 |---------|-------------|
 | `cy m` | Show current model |
-| `cy m cy/i1a` | Set model to CY cyborg i1a |
+| `cy m cy` | Set model to CY cyborg i1a |
 | `cy model list` | List available models |
 | `cy model set <model>` | Set default model |
-| `cy -c model="cy/i1a"` | Override model for one run |
+| `cy -c model="cy"` | Override model for one run |
 
 ### Auth & Login
 
@@ -81,19 +81,19 @@ cy
 
 | Command | Description |
 |---------|-------------|
-| `cy -c key=value` | Override config value (e.g., `-c model="cy/i1a"`) |
+| `cy -c key=value` | Override config value (e.g., `-c model="cy"`) |
 | `cy --enable FEATURE` | Enable a feature flag |
 | `cy --disable FEATURE` | Disable a feature flag |
-| `~/.codex/config.toml` | Main config file (model, provider, sandbox settings) |
-| `~/.codex/vibe-catalog.json` | Available models catalog |
+| `~/.CY/config.toml` | Main config file (model, provider, sandbox settings) |
+| `~/.CY/vibe-catalog.json` | Available models catalog |
 
 ---
 
-## Configuration File: `~/.codex/config.toml`
+## Configuration File: `~/.CY/config.toml`
 
 ```toml
-model = "cy/i1a"
-model_provider = "cy"
+model = "cy"
+model_provider = "simbiotyc"
 
 [model_providers.cy]
 name = "CY"
@@ -104,15 +104,15 @@ wire_api = "responses"
 
 ---
 
-## Model Catalog: `~/.codex/vibe-catalog.json`
+## Model Catalog: `~/.CY/vibe-catalog.json`
 
-The catalog contains the available models. Currently only **cy/i1a** is active:
+The catalog contains the available models. Currently only **cy** (CY cyborg i1a) is active:
 
 ```json
 {
   "models": [
     {
-      "slug": "cy/i1a",
+      "slug": "cy",
       "display_name": "CY cyborg i1a",
       "supported_reasoning_levels": [],
       "shell_type": "shell_command",
@@ -134,18 +134,26 @@ The catalog contains the available models. Currently only **cy/i1a** is active:
 
 ---
 
-## Rebranding Reference (FYI)
+## CY URLs
+
+| Service | URL |
+|---------|-----|
+| CY API (main) | `https://cy.symbiotyc.workers.dev/v1` |
+| CY Auth | `https://auth.cy.symbiotyc.workers.dev` |
+| CY Developer Docs | `https://developers.cy.symbiotyc.workers.dev` |
+| CY API Gateway | `https://api.cy.symbiotyc.workers.dev` |
+| CY Platform (tunnel) | `https://platform.symbiotyc.workers.dev` |
+
+---
+
+## Historical Reference (FYI)
 
 | Old Name | New Name |
 |----------|----------|
-| `codex` / `Codex` / `CODEX` | `cx` / `CX` / `CX` |
-| `OpenAI` | `oi` |
-| `ChatGPT` | `gt` |
-| `openapi-models` | `oi-models` |
-| `chatgpt.com/backend-api` | `https://cy.symbiotyc.workers.dev/v1` |
-| `openai.com` | `https://cy.symbiotyc.workers.dev` |
-| `cx-code-mode-*` | `cx-mode-*` |
-| `cx-chatgpt` | `cx-gt` |
+| `cx-rs` crate naming | `cx-*` prefix |
+| `gt_base_url` | CY gateway URL |
+| `oi_*` env vars | Identity context |
+| `~/.CY/` | Config directory |
 
 ---
 
@@ -179,7 +187,7 @@ cy-cli/
 # From source (rebuild)
 cd ~/.fundament/cx-rs
 cargo build --release -p cy-cli
-cp target/release/cy /Applications/CY-CLI-intel.app/Contents/MacOS/cy
+cp target/release/cy /Applications/CY-CLI.app/Contents/MacOS/cy
 
 # Via install script
 ./scripts/install.sh
@@ -208,7 +216,7 @@ curl -L https://github.com/SYMBIOTYC/CY-CLI-releases/releases/latest/download/cy
 ```bash
 cy
 # Type your prompt at the interactive prompt
-# Model: cy/i1a (CY cyborg i1a)
+# Model: cy (CY cyborg i1a)
 ```
 
 ### One-Shot Command
@@ -246,6 +254,6 @@ cy doctor updates
 |---------|----------|
 | `stdin is not a terminal` | Use `cy exec` instead of piping |
 | `Not inside a trusted directory` | Use `cy exec --skip-git-repo-check` |
-| `failed to parse model_catalog_json` | Check `~/.codex/vibe-catalog.json` format |
+| `failed to parse model_catalog_json` | Check `~/.CY/vibe-catalog.json` format |
 | `401 unauthorized` | Run `cy login` to re-authenticate |
-| Model stuck on wrong value | Run `cy m cy/i1a` to reset |
+| Model stuck on wrong value | Run `cy m cy` to reset |
