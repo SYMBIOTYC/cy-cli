@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package codex.code_mode.v1;
+package cx.code_mode.v1;
 
 // Hosts stateful JavaScript execution and delegates nested tool calls to the
 // session owner. Large tool inputs and outputs stay off the session event
