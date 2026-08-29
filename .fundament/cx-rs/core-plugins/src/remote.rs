@@ -99,7 +99,7 @@ pub const REMOTE_WORKSPACE_SHARED_WITH_ME_UNLISTED_MARKETPLACE_DISPLAY_NAME: &st
 
 const OPENAI_CURATED_REMOTE_COLLECTION_KEY: &str = "vertical";
 const OAI_PRODUCT_SKU_HEADER: &str = "OAI-Product-Sku";
-const CODEX_PRODUCT_SKU: &str = "cx";
+const CX_PRODUCT_SKU: &str = "cx";
 const REMOTE_PLUGIN_CATALOG_TIMEOUT: Duration = Duration::from_secs(30);
 const RECOMMENDED_PLUGINS_TIMEOUT: Duration = Duration::from_secs(5);
 const REMOTE_PLUGIN_LIST_PAGE_LIMIT: u32 = 200;
@@ -2258,7 +2258,7 @@ fn authenticated_request(
     request
         .timeout(REMOTE_PLUGIN_CATALOG_TIMEOUT)
         .headers(cx_model_provider::auth_provider_from_auth(auth).to_auth_headers())
-        .header(OAI_PRODUCT_SKU_HEADER, CODEX_PRODUCT_SKU)
+        .header(OAI_PRODUCT_SKU_HEADER, CX_PRODUCT_SKU)
 }
 
 async fn send_and_decode<T: for<'de> Deserialize<'de>>(

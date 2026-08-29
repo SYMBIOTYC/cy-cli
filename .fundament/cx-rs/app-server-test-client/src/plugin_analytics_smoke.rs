@@ -1,4 +1,4 @@
-use super::CodexClient;
+use super::CxClient;
 use super::loopback_responses_server::LoopbackResponsesServer;
 use anyhow::Context;
 use anyhow::Result;
@@ -27,8 +27,8 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 
-pub(super) const ANALYTICS_CAPTURE_ENV_VAR: &str = "CODEX_ANALYTICS_EVENTS_CAPTURE_FILE";
-const TEST_USER_CONFIG_ENV_VAR: &str = "CODEX_APP_SERVER_TEST_USER_CONFIG_FILE";
+pub(super) const ANALYTICS_CAPTURE_ENV_VAR: &str = "CX_ANALYTICS_EVENTS_CAPTURE_FILE";
+const TEST_USER_CONFIG_ENV_VAR: &str = "CX_APP_SERVER_TEST_USER_CONFIG_FILE";
 const CAPTURE_READY_TIMEOUT: Duration = Duration::from_secs(5);
 const CAPTURE_TIMEOUT: Duration = Duration::from_secs(10);
 const CAPTURE_POLL_INTERVAL: Duration = Duration::from_millis(50);
@@ -63,7 +63,7 @@ pub(super) fn run(
             temporary_config.path().as_os_str().to_os_string(),
         ),
     ];
-    let mut client = CodexClient::spawn_stdio_with_env(cx_bin, &overrides, &child_environment)?;
+    let mut client = CxClient::spawn_stdio_with_env(cx_bin, &overrides, &child_environment)?;
     wait_until_capture_is_ready(&capture_path)?;
     client.initialize()?;
 
@@ -94,7 +94,7 @@ pub(super) fn run(
     Ok(())
 }
 
-fn run_plugin_turn(client: &mut CodexClient, expected: &ExpectedPlugin) -> Result<String> {
+fn run_plugin_turn(client: &mut CxClient, expected: &ExpectedPlugin) -> Result<String> {
     let thread = client.thread_start(ThreadStartParams {
         model: Some(MOCK_MODEL_SLUG.to_string()),
         model_provider: Some(MOCK_PROVIDER_ID.to_string()),
@@ -124,7 +124,7 @@ fn run_plugin_turn(client: &mut CodexClient, expected: &ExpectedPlugin) -> Resul
 }
 
 fn wait_for_plugin_usage(
-    client: &mut CodexClient,
+    client: &mut CxClient,
     capture_path: &Path,
     expected: &ExpectedPlugin,
 ) -> Result<()> {
@@ -164,7 +164,7 @@ struct ExpectedPlugin {
     marketplace_name: String,
 }
 
-fn plugin_installed(client: &mut CodexClient) -> Result<PluginInstalledResponse> {
+fn plugin_installed(client: &mut CxClient) -> Result<PluginInstalledResponse> {
     let request_id = client.request_id();
     client.send_request(
         ClientRequest::PluginInstalled {
@@ -224,7 +224,7 @@ fn expected_plugin(response: &PluginInstalledResponse, plugin_id: &str) -> Resul
 }
 
 fn write_plugin_enabled(
-    client: &mut CodexClient,
+    client: &mut CxClient,
     config_path: &Path,
     plugin_id: &str,
     enabled: bool,

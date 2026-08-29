@@ -16,7 +16,7 @@ use cx_file_system::FileSystemSandboxContext;
 use cx_network_proxy::NetworkProxy;
 use cx_protocol::approvals::ExecPolicyAmendment;
 use cx_protocol::config_types::WindowsSandboxLevel;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::permissions::FileSystemSandboxKind;
 use cx_protocol::permissions::FileSystemSandboxPolicy;
 use cx_protocol::protocol::AskForApproval;
@@ -356,7 +356,7 @@ pub(crate) struct ToolCtx {
 #[derive(Debug)]
 pub(crate) enum ToolError {
     Rejected(String),
-    CX(CodexErr),
+    CX(CxErr),
 }
 
 pub(crate) trait ToolRuntime<Req, Out>: Approvable<Req> + Sandboxable {
@@ -428,7 +428,7 @@ impl<'a> SandboxAttempt<'a> {
         options: ExecOptions,
         network: Option<&NetworkProxy>,
         environment_id: Option<&str>,
-    ) -> Result<crate::sandboxing::ExecRequest, CodexErr> {
+    ) -> Result<crate::sandboxing::ExecRequest, CxErr> {
         let network = self.network_proxy(network);
         let request = self
             .manager
@@ -447,7 +447,7 @@ impl<'a> SandboxAttempt<'a> {
                 windows_sandbox_level: self.windows_sandbox_level,
                 windows_sandbox_private_desktop: self.windows_sandbox_private_desktop,
             })
-            .map_err(CodexErr::from)?;
+            .map_err(CxErr::from)?;
         let workspace_roots = self
             .workspace_roots
             .iter()
@@ -460,7 +460,7 @@ impl<'a> SandboxAttempt<'a> {
         &self,
         command: SandboxCommand,
         options: ExecOptions,
-    ) -> Result<crate::sandboxing::ExecRequest, CodexErr> {
+    ) -> Result<crate::sandboxing::ExecRequest, CxErr> {
         let managed_network = command.managed_network.clone();
         let exec_server_permissions = effective_permission_profile(
             self.exec_server_permissions,
@@ -482,7 +482,7 @@ impl<'a> SandboxAttempt<'a> {
                 windows_sandbox_level: self.windows_sandbox_level,
                 windows_sandbox_private_desktop: self.windows_sandbox_private_desktop,
             })
-            .map_err(CodexErr::from)?;
+            .map_err(CxErr::from)?;
         let mut exec_request = crate::sandboxing::ExecRequest::from_sandbox_exec_request(
             request,
             options,

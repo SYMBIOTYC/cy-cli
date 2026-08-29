@@ -44,8 +44,8 @@ mod websocket_pong_watchdog;
 use cx_exec_server_protocol as protocol;
 
 /// Process-local opt-in for tying a remote executor to its parent's stdin pipe.
-pub const CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR: &str =
-    "CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE";
+pub const CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR: &str =
+    "CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE";
 
 pub use arg0_exec_helper::CODEX_ARG0_EXEC_HELPER_ARG1;
 pub use arg0_exec_helper::main as run_arg0_exec_helper_main;
@@ -83,11 +83,11 @@ pub use cx_file_system::WalkError;
 pub use cx_file_system::WalkOptions;
 pub use cx_file_system::WalkOutcome;
 pub use cx_file_system::WriteFileOptions;
-pub use cx_protocol::shell_environment::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
-pub use environment::CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR;
-pub use environment::CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
-pub use environment::CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
-pub use environment::CODEX_EXEC_SERVER_URL_ENV_VAR;
+pub use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+pub use environment::CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR;
+pub use environment::CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
+pub use environment::CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
+pub use environment::CX_EXEC_SERVER_URL_ENV_VAR;
 pub use environment::Environment;
 pub use environment::EnvironmentConnectionState;
 pub use environment::EnvironmentManager;

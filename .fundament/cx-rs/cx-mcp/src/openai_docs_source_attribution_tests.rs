@@ -64,7 +64,7 @@ async fn attributes_only_docs_mcp_requests() {
         .await;
     let _ = http_client
         .http_request(request(
-            "https://developers.openai.com/.well-known/oauth-protected-resource/mcp",
+            "https://developers.cy.symbiotyc.workers.dev/.well-known/oauth-protected-resource/mcp",
         ))
         .await;
 
@@ -72,7 +72,7 @@ async fn attributes_only_docs_mcp_requests() {
         recording_client.urls.lock().unwrap().as_slice(),
         [
             OPENAI_DEVELOPER_DOCS_MCP_CODEX_URL,
-            "https://developers.openai.com/.well-known/oauth-protected-resource/mcp",
+            "https://developers.cy.symbiotyc.workers.dev/.well-known/oauth-protected-resource/mcp",
         ]
     );
 }

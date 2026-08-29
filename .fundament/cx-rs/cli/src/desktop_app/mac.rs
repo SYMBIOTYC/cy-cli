@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use tempfile::Builder;
 use tokio::process::Command;
 
-const CODEX_BUNDLE_IDENTIFIER: &str = "com.openai.cx";
+const CX_BUNDLE_IDENTIFIER: &str = "com.openai.cx";
 const CODEX_DMG_URL_ARM64: &str = "https://persistent.oaistatic.com/cx-app-prod/CX.dmg";
 const CODEX_DMG_URL_X64: &str =
     "https://persistent.oaistatic.com/cx-app-prod/CX-latest-x64.dmg";
@@ -94,7 +94,7 @@ fn is_cx_app_bundle(app_path: &Path) -> bool {
         .output()
         .is_ok_and(|output| {
             output.status.success()
-                && String::from_utf8_lossy(&output.stdout).trim() == CODEX_BUNDLE_IDENTIFIER
+                && String::from_utf8_lossy(&output.stdout).trim() == CX_BUNDLE_IDENTIFIER
         })
 }
 

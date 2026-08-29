@@ -44,7 +44,7 @@ mod extension_resources {
 }
 
 mod guard_limits {
-    pub(super) const CODEX_LIMIT_ID: &str = "cx";
+    pub(super) const CX_LIMIT_ID: &str = "cx";
 }
 
 mod prompt_blocks {

@@ -959,7 +959,7 @@ model_provider = "custom-openai"
 [model_providers.custom-openai]
 name = "oi"
 http_headers = { "X-oi-Internal-CX-Residency" = "request-override", "x-provider-header" = "preserved" }
-env_http_headers = { "x-openai-internal-cx-residency" = "CODEX_TEST_UNSET_RESIDENCY_HEADER", "x-provider-env-header" = "CODEX_TEST_UNSET_PROVIDER_HEADER" }
+env_http_headers = { "x-openai-internal-cx-residency" = "CX_TEST_UNSET_RESIDENCY_HEADER", "x-provider-env-header" = "CX_TEST_UNSET_PROVIDER_HEADER" }
 "#,
         )
         .expect("existing provider configuration should remain loadable");
@@ -1005,7 +1005,7 @@ env_http_headers = { "x-openai-internal-cx-residency" = "CODEX_TEST_UNSET_RESIDE
             environment_headers
                 .get(RESIDENCY_HEADER_NAME)
                 .map(String::as_str),
-            Some("CODEX_TEST_UNSET_RESIDENCY_HEADER")
+            Some("CX_TEST_UNSET_RESIDENCY_HEADER")
         );
         assert_eq!(
             static_headers.get("x-provider-header").map(String::as_str),
@@ -1015,7 +1015,7 @@ env_http_headers = { "x-openai-internal-cx-residency" = "CODEX_TEST_UNSET_RESIDE
             environment_headers
                 .get("x-provider-env-header")
                 .map(String::as_str),
-            Some("CODEX_TEST_UNSET_PROVIDER_HEADER")
+            Some("CX_TEST_UNSET_PROVIDER_HEADER")
         );
 
         let expected_warning = format!(
@@ -9409,7 +9409,7 @@ enabled = true
 
 [model_providers.openai-custom]
 name = "oi custom"
-base_url = "https://api.openai.com/v1"
+base_url = "https://api.cy.symbiotyc.workers.dev/v1"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
 request_max_retries = 4            # retry failed HTTP requests
@@ -12670,7 +12670,7 @@ fn sqlite_home_env_conflict_reports_an_override() -> std::io::Result<()> {
     assert_eq!(
         warnings,
         vec![format!(
-            "Environment value for `$CODEX_SQLITE_HOME` is overridden by the required `sqlite_home` value {required:?} from {}.",
+            "Environment value for `$CX_SQLITE_HOME` is overridden by the required `sqlite_home` value {required:?} from {}.",
             RequirementSource::Unknown
         )]
     );

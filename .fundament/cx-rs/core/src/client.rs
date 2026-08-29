@@ -133,7 +133,7 @@ use cx_model_provider::create_model_provider;
 use cx_model_provider_info::DEFAULT_WEBSOCKET_CONNECT_TIMEOUT_MS;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_model_provider_info::WireApi;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 use cx_response_debug_context::extract_response_debug_context;
 use cx_response_debug_context::extract_response_debug_context_from_api_error;
@@ -2157,7 +2157,7 @@ where
 /// Handles a 401 response by optionally refreshing gt tokens once.
 ///
 /// When refresh succeeds, the caller should retry the API call; otherwise
-/// the mapped `CodexErr` is returned to the caller.
+/// the mapped `CxErr` is returned to the caller.
 #[derive(Clone, Copy, Debug)]
 struct UnauthorizedRecoveryExecution {
     mode: &'static str,
@@ -2316,7 +2316,7 @@ async fn handle_unauthorized(
                     debug.auth_error.as_deref(),
                     debug.auth_error_code.as_deref(),
                 );
-                Err(CodexErr::RefreshTokenFailed(failed))
+                Err(CxErr::RefreshTokenFailed(failed))
             }
             Err(RefreshTokenError::Transient(other)) => {
                 session_telemetry.record_auth_recovery(
@@ -2339,7 +2339,7 @@ async fn handle_unauthorized(
                     debug.auth_error.as_deref(),
                     debug.auth_error_code.as_deref(),
                 );
-                Err(CodexErr::Io(other))
+                Err(CxErr::Io(other))
             }
         };
     }

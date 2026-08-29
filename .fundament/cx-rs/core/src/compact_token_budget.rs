@@ -10,7 +10,7 @@ use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
 use cx_analytics::CompactionTrigger;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::ContextCompactionItem;
 use cx_protocol::items::TurnItem;
@@ -73,7 +73,7 @@ async fn run_compact_task_inner(
     let pre_compact_outcome = run_pre_compact_hooks(sess, turn_context, trigger).await;
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
-        PreCompactHookOutcome::Stopped => return Err(CodexErr::TurnAborted),
+        PreCompactHookOutcome::Stopped => return Err(CxErr::TurnAborted),
     }
 
     let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
@@ -86,7 +86,7 @@ async fn run_compact_task_inner(
 
     let post_compact_outcome = run_post_compact_hooks(sess, turn_context, trigger).await;
     if let PostCompactHookOutcome::Stopped = post_compact_outcome {
-        return Err(CodexErr::TurnAborted);
+        return Err(CxErr::TurnAborted);
     }
 
     Ok(())

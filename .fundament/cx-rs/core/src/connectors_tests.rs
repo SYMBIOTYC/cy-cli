@@ -10,7 +10,7 @@ use cx_connectors::metadata::sanitize_name;
 use cx_features::Feature;
 use cx_login::AuthManager;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::ToolInfo;
 use pretty_assertions::assert_eq;
 use rmcp::model::JsonObject;
@@ -36,11 +36,11 @@ fn cx_app_tool(
 ) -> ToolInfo {
     let tool_namespace = connector_name
         .map(sanitize_name)
-        .map(|connector_name| format!("mcp__{CODEX_APPS_MCP_SERVER_NAME}__{connector_name}"))
-        .unwrap_or_else(|| CODEX_APPS_MCP_SERVER_NAME.to_string());
+        .map(|connector_name| format!("mcp__{CX_APPS_MCP_SERVER_NAME}__{connector_name}"))
+        .unwrap_or_else(|| CX_APPS_MCP_SERVER_NAME.to_string());
 
     ToolInfo {
-        server_name: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server_name: CX_APPS_MCP_SERVER_NAME.to_string(),
         supports_parallel_tool_calls: false,
         server_origin: None,
         callable_name: tool_name.to_string(),
@@ -264,7 +264,7 @@ async fn refresh_accessible_connectors_cache_from_mcp_tools_writes_latest_instal
 #[test]
 fn accessible_connectors_from_mcp_tools_preserves_description() {
     let mcp_tools = vec![ToolInfo {
-        server_name: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server_name: CX_APPS_MCP_SERVER_NAME.to_string(),
         supports_parallel_tool_calls: false,
         server_origin: None,
         callable_name: "calendar_create_event".to_string(),
@@ -350,7 +350,7 @@ approvals_reviewer = "{app}"
                 &config.config_layer_stack,
                 config.approvals_reviewer,
                 config.model.as_deref(),
-                CODEX_APPS_MCP_SERVER_NAME,
+                CX_APPS_MCP_SERVER_NAME,
                 Some("calendar")
             ),
             expected_app
@@ -360,7 +360,7 @@ approvals_reviewer = "{app}"
                 &config.config_layer_stack,
                 config.approvals_reviewer,
                 config.model.as_deref(),
-                CODEX_APPS_MCP_SERVER_NAME,
+                CX_APPS_MCP_SERVER_NAME,
                 Some("drive")
             ),
             expected_default
@@ -370,7 +370,7 @@ approvals_reviewer = "{app}"
                 &config.config_layer_stack,
                 config.approvals_reviewer,
                 config.model.as_deref(),
-                CODEX_APPS_MCP_SERVER_NAME,
+                CX_APPS_MCP_SERVER_NAME,
                 /*connector_id*/ None
             ),
             expected_default
@@ -417,7 +417,7 @@ approvals_reviewer = "user"
             &config.config_layer_stack,
             config.approvals_reviewer,
             config.model.as_deref(),
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             Some("calendar")
         ),
         ApprovalsReviewer::AutoReview
@@ -453,7 +453,7 @@ approvals_reviewer = "user"
             &config.config_layer_stack,
             config.approvals_reviewer,
             config.model.as_deref(),
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             Some("calendar")
         ),
         ApprovalsReviewer::AutoReview

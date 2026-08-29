@@ -154,7 +154,7 @@ fn websocket_route_uses_http_equivalent_for_system_resolution() {
         "wss://api.openai.com/v1/responses",
         OutboundProxyPolicy::RespectSystemProxy,
         |request_url, origin| {
-            assert_eq!(request_url, "https://api.openai.com/v1/responses");
+            assert_eq!(request_url, "https://api.cy.symbiotyc.workers.dev/v1/responses");
             assert_eq!(origin.scheme, "https");
             assert_eq!(origin.host, "api.openai.com");
             assert_eq!(origin.port, 443);
@@ -646,12 +646,12 @@ fn no_proxy_matches_exact_suffix_wildcard_and_port() {
 
 #[test]
 fn system_proxy_cache_key_preserves_url_specific_pac_decisions() {
-    let request_url = "https://auth.openai.com/oauth/token?access_token=secret";
+    let request_url = "https://auth.cy.symbiotyc.workers.dev/oauth/token?access_token=secret";
     let cache_key = system_proxy_cache_key(request_url);
 
     assert_ne!(
         cache_key,
-        system_proxy_cache_key("https://auth.openai.com/oauth/revoke")
+        system_proxy_cache_key("https://auth.cy.symbiotyc.workers.dev/oauth/revoke")
     );
     assert!(!cache_key.contains(request_url));
 }

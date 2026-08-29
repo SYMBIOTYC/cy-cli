@@ -23,7 +23,7 @@ use cx_thread_store::PersistContext;
 
 pub(super) const THREAD_LIST_DEFAULT_LIMIT: usize = 25;
 pub(super) const THREAD_LIST_MAX_LIMIT: usize = 100;
-const CODEX_TUI_CLIENT_NAME: &str = "cx-tui";
+const CX_TUI_CLIENT_NAME: &str = "cx-tui";
 const THREAD_ROLLBACK_DEPRECATION_SUMMARY: &str =
     "thread/rollback is deprecated and will be removed soon";
 
@@ -785,7 +785,7 @@ impl ThreadRequestProcessor {
         params: ThreadRollbackParams,
         app_server_client_name: Option<&str>,
     ) -> Result<Option<ClientResponsePayload>, JSONRPCErrorError> {
-        if app_server_client_name != Some(CODEX_TUI_CLIENT_NAME) {
+        if app_server_client_name != Some(CX_TUI_CLIENT_NAME) {
             self.send_thread_rollback_deprecation_notice(request_id.connection_id)
                 .await;
         }
@@ -5649,7 +5649,7 @@ fn conversation_summary_rollout_path_read_error(
     }
 }
 
-pub(super) fn core_thread_write_error(operation: &str, err: CodexErr) -> JSONRPCErrorError {
+pub(super) fn core_thread_write_error(operation: &str, err: CxErr) -> JSONRPCErrorError {
     match err.details() {
         CodexErrorDetails::ThreadNotFound(thread_id) => {
             invalid_request(format!("thread not found: {thread_id}"))

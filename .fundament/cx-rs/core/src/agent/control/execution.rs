@@ -1,6 +1,6 @@
 use super::AgentControl;
 use crate::cx_thread::CodexThread;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::MultiAgentVersion;
@@ -53,7 +53,7 @@ impl AgentControl {
         if self.agent_execution_limiter.has_capacity() {
             Ok(())
         } else {
-            Err(CodexErr::new(CodexErrorDetails::AgentLimitReached {
+            Err(CxErr::new(CodexErrorDetails::AgentLimitReached {
                 max_threads,
             }))
         }

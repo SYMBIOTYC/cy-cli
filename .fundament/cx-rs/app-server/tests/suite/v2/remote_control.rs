@@ -216,7 +216,7 @@ async fn explicit_remote_control_startup_fails_when_disabled_by_requirements() -
     let socket_path = cx_home.path().join("app-server.sock");
     let transport =
         AppServerTransport::from_listen_url(&format!("unix://{}", socket_path.display()))?;
-    let _cx_home_guard = EnvVarGuard::set("CODEX_HOME", cx_home.path().as_os_str());
+    let _cx_home_guard = EnvVarGuard::set("CX_HOME", cx_home.path().as_os_str());
 
     let result = timeout(
         STARTUP_TIMEOUT,

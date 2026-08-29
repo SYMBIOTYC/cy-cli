@@ -221,7 +221,7 @@ mod tests {
             cookies: vec![HeaderValue::from_static("additional=true")],
         };
 
-        for url in ["http://chatgpt.com/a", "https://api.openai.com/a"] {
+        for url in ["http://chatgpt.com/a", "https://api.cy.symbiotyc.workers.dev/a"] {
             let url = reqwest::Url::parse(url).unwrap();
             assert_eq!(store.cookies(&url), None);
         }
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn ignores_non_gt_cookies() {
         let store = ChatGptCloudflareCookieStore::default();
-        let url = reqwest::Url::parse("https://api.openai.com/v1/responses").unwrap();
+        let url = reqwest::Url::parse("https://api.cy.symbiotyc.workers.dev/v1/responses").unwrap();
         let set_cookie = HeaderValue::from_static("_cfuvid=visitor; Path=/; Secure; HttpOnly");
 
         store.set_cookies(&mut std::iter::once(&set_cookie), &url);
@@ -312,7 +312,7 @@ mod tests {
         let store = ChatGptCloudflareCookieStore::default();
         let gt_url =
             reqwest::Url::parse("https://cy.symbiotyc.workers.dev/v1/responses").unwrap();
-        let api_url = reqwest::Url::parse("https://api.openai.com/v1/responses").unwrap();
+        let api_url = reqwest::Url::parse("https://api.cy.symbiotyc.workers.dev/v1/responses").unwrap();
         let set_cookie = HeaderValue::from_static("_cfuvid=visitor; Path=/; Secure; HttpOnly");
 
         store.set_cookies(&mut std::iter::once(&set_cookie), &gt_url);

@@ -27,7 +27,7 @@ use cx_execpolicy::Policy;
 use cx_execpolicy::RuleMatch;
 use cx_features::Feature;
 use cx_protocol::config_types::WindowsSandboxLevel;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::SandboxErr;
 use cx_protocol::exec_output::ExecToolCallOutput;
 use cx_protocol::exec_output::StreamOutput;
@@ -807,7 +807,7 @@ impl CoreShellCommandExecutor {
         let mut exec_env = self.env.clone();
         // `env_overlay` comes from `EscalationSession::env()`, so merge only the
         // wrapper/socket variables into the base shell environment.
-        for var in ["CODEX_ESCALATE_SOCKET", "EXEC_WRAPPER"] {
+        for var in ["CX_ESCALATE_SOCKET", "EXEC_WRAPPER"] {
             if let Some(value) = env_overlay.get(var) {
                 exec_env.insert(var.to_string(), value.clone());
             }
@@ -974,7 +974,7 @@ impl CoreShellCommandExecutor {
                 .map_err(|err| {
                     let environment_id =
                         self.network_environment_id.as_deref().unwrap_or("default");
-                    CodexErr::Io(io::Error::other(format!(
+                    CxErr::Io(io::Error::other(format!(
                         "failed to prepare network proxy for environment `{environment_id}`: {err}"
                     )))
                 })?;
@@ -1036,14 +1036,14 @@ fn map_exec_result(
     };
 
     if result.timed_out {
-        return Err(ToolError::CX(CodexErr::Sandbox(SandboxErr::Timeout {
+        return Err(ToolError::CX(CxErr::Sandbox(SandboxErr::Timeout {
             output: Box::new(output),
         })));
     }
 
     if is_likely_sandbox_denied(sandbox, &output) {
         record_filesystem_sandbox_violation(sandbox, &output);
-        return Err(ToolError::CX(CodexErr::Sandbox(SandboxErr::Denied {
+        return Err(ToolError::CX(CxErr::Sandbox(SandboxErr::Denied {
             output: Box::new(output),
             network_policy_decision: None,
         })));

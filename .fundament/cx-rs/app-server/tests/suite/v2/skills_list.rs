@@ -30,7 +30,7 @@ use cx_app_server_protocol::ThreadStartParams;
 use cx_app_server_protocol::ThreadStartResponse;
 use cx_config::types::AuthCredentialsStoreMode;
 use cx_core::config::set_project_trust_level;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use cx_exec_server::CreateDirectoryOptions;
 use cx_protocol::config_types::TrustLevel;
 use cx_utils_absolute_path::AbsolutePathBuf;
@@ -733,7 +733,7 @@ async fn skills_list_skips_cwd_roots_when_environment_disabled() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[(CODEX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
+        .with_env_overrides(&[(CX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)
         .await?;
 

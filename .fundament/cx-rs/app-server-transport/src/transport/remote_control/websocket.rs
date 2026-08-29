@@ -2037,7 +2037,7 @@ mod tests {
         };
         let payload = serde_json::json!({
             "email": "user@example.com",
-            "https://api.openai.com/auth": {
+            "https://api.cy.symbiotyc.workers.dev/auth": {
                 "gt_user_id": "user-12345",
                 "user_id": "user-12345",
                 "gt_account_id": "account_id"

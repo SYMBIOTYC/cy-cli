@@ -11,7 +11,7 @@ use crate::tools::context::ToolPayload;
 use cx_models_manager::manager::RefreshStrategy;
 use cx_protocol::AgentPath;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::models::BaseInstructions;
 use cx_protocol::models::ResponseInputItem;
@@ -80,7 +80,7 @@ where
     })
 }
 
-pub(crate) fn collab_spawn_error(err: CodexErr) -> FunctionCallError {
+pub(crate) fn collab_spawn_error(err: CxErr) -> FunctionCallError {
     match err.details() {
         CodexErrorDetails::UnsupportedOperation(message) if message == "thread manager dropped" => {
             FunctionCallError::RespondToModel("collab manager unavailable".to_string())
@@ -92,7 +92,7 @@ pub(crate) fn collab_spawn_error(err: CodexErr) -> FunctionCallError {
     }
 }
 
-pub(crate) fn collab_agent_error(agent_id: ThreadId, err: CodexErr) -> FunctionCallError {
+pub(crate) fn collab_agent_error(agent_id: ThreadId, err: CxErr) -> FunctionCallError {
     match err.details() {
         CodexErrorDetails::ThreadNotFound(id) => {
             FunctionCallError::RespondToModel(format!("agent with id {id} not found"))

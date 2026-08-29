@@ -100,7 +100,7 @@ pub(super) fn updates_check(config: &Config) -> DoctorCheck {
                 status = status.max(CheckStatus::Warning);
                 summary = "npm update target could not be proven".to_string();
                 remediation = Some(
-                    "Reinstall or update CX so the JS shim provides CODEX_MANAGED_PACKAGE_ROOT."
+                    "Reinstall or update CX so the JS shim provides CX_MANAGED_PACKAGE_ROOT."
                         .to_string(),
                 );
             }

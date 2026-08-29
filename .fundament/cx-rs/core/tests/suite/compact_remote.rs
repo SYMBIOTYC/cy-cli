@@ -974,7 +974,7 @@ async fn remote_compact_uses_agent_identity_assertion() -> Result<()> {
                     gt_account_is_fedramp: false,
                     task_id: Some("task-compact".to_string()),
                 },
-                "https://auth.openai.com/api/accounts",
+                "https://auth.cy.symbiotyc.workers.dev/api/accounts",
                 &cx_login::test_support::transport_default_auth_route_config(),
             )
             .await?,

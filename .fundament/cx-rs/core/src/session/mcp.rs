@@ -6,7 +6,7 @@ use cx_exec_server::ExecutorCapabilityDiscoverySnapshot;
 use cx_exec_server::FileSystemSandboxContext;
 use cx_exec_server::MAX_SELECTED_CAPABILITY_ROOTS;
 use cx_exec_server::ResolvedSelectedCapabilityRoot;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::ElicitationReviewRequest;
 use cx_mcp::ElicitationReviewer;
 use cx_mcp::ElicitationReviewerHandle;
@@ -271,8 +271,8 @@ impl Session {
             Some(self.mcp_elicitation_reviewer()),
         );
         anyhow::ensure!(
-            input.mcp_servers.contains_key(CODEX_APPS_MCP_SERVER_NAME),
-            "unknown MCP server '{CODEX_APPS_MCP_SERVER_NAME}'"
+            input.mcp_servers.contains_key(CX_APPS_MCP_SERVER_NAME),
+            "unknown MCP server '{CX_APPS_MCP_SERVER_NAME}'"
         );
         let refreshed = self.services.mcp_runtime.replace_fresh(input).await;
         self.services.thread_extension_data.insert(selected_plugins);
@@ -702,7 +702,7 @@ async fn review_guardian_mcp_elicitation(
         Some(Value::Bool(true))
     ) {
         let connector_id = elicitation_connector_id(&request.elicitation);
-        let trusted_guardian_request = if request.server_name == CODEX_APPS_MCP_SERVER_NAME {
+        let trusted_guardian_request = if request.server_name == CX_APPS_MCP_SERVER_NAME {
             let Some(call_id) = request
                 .elicitation
                 .meta()

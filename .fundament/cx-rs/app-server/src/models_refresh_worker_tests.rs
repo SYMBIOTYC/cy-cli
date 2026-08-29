@@ -9,7 +9,7 @@ use cx_models_manager::manager::ModelsEndpointClient;
 use cx_models_manager::manager::ModelsEndpointFuture;
 use cx_models_manager::manager::OpenAiModelsManager;
 use cx_models_manager::manager::SharedModelsManager;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CoreResult;
 use cx_protocol::openai_models::ModelInfo;
 use pretty_assertions::assert_eq;
@@ -63,7 +63,7 @@ impl ModelsEndpointClient for TestModelsEndpoint {
             let fetch_index = self.fetch_count.fetch_add(1, Ordering::SeqCst);
             self.fetched.notify_one();
             if fetch_index == 0 {
-                return Err(CodexErr::Io(std::io::Error::other("test failure")));
+                return Err(CxErr::Io(std::io::Error::other("test failure")));
             }
             if fetch_index == 1 {
                 self.release_second_fetch.notified().await;

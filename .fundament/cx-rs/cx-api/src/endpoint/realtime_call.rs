@@ -419,7 +419,7 @@ mod tests {
         let transport = CapturingTransport::new();
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -438,7 +438,7 @@ mod tests {
 
         let request = transport.last_request.lock().unwrap().clone().unwrap();
         assert_eq!(request.method, Method::POST);
-        assert_eq!(request.url, "https://api.openai.com/v1/realtime/calls");
+        assert_eq!(request.url, "https://api.cy.symbiotyc.workers.dev/v1/realtime/calls");
         assert_eq!(
             request.headers.get(CONTENT_TYPE).unwrap(),
             HeaderValue::from_static("application/sdp")
@@ -496,7 +496,7 @@ mod tests {
         let transport = CapturingTransport::new();
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -520,7 +520,7 @@ mod tests {
         assert_eq!(request.method, Method::POST);
         assert_eq!(
             request.url,
-            "https://api.openai.com/v1/realtime/calls?intent=quicksilver&architecture=avas"
+            "https://api.cy.symbiotyc.workers.dev/v1/realtime/calls?intent=quicksilver&architecture=avas"
         );
         assert_eq!(
             request.headers.get(CONTENT_TYPE).unwrap(),
@@ -561,7 +561,7 @@ mod tests {
         let transport = CapturingTransport::with_location("/v1/live/rtc_frameless");
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -576,7 +576,7 @@ mod tests {
         assert_eq!(response.call_id, "rtc_frameless");
         let request = transport.last_request.lock().unwrap().clone().unwrap();
         assert_eq!(request.method, Method::POST);
-        assert_eq!(request.url, "https://api.openai.com/v1/live");
+        assert_eq!(request.url, "https://api.cy.symbiotyc.workers.dev/v1/live");
         let Some(RequestBody::Raw(body)) = request.body else {
             panic!("multipart body should be raw");
         };
@@ -591,7 +591,7 @@ mod tests {
         let transport = CapturingTransport::new();
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -616,7 +616,7 @@ mod tests {
         assert_eq!(request.method, Method::POST);
         assert_eq!(
             request.url,
-            "https://api.openai.com/v1/realtime/calls?intent=quicksilver&architecture=avas"
+            "https://api.cy.symbiotyc.workers.dev/v1/realtime/calls?intent=quicksilver&architecture=avas"
         );
     }
 
@@ -625,7 +625,7 @@ mod tests {
         let transport = CapturingTransport::new();
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -752,7 +752,7 @@ mod tests {
         let transport = CapturingTransport::without_location();
         let client = RealtimeCallClient::new(
             transport,
-            provider("https://api.openai.com/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 

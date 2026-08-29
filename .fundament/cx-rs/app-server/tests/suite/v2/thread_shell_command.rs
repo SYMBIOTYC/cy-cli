@@ -32,7 +32,7 @@ use cx_app_server_protocol::TurnStartParams;
 use cx_app_server_protocol::TurnStartResponse;
 use cx_app_server_protocol::UserInput as V2UserInput;
 use cx_core::shell::default_user_shell;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use tokio::time::timeout;
@@ -170,7 +170,7 @@ async fn thread_shell_command_returns_error_when_local_environment_is_disabled()
         .with_cx_home(cx_home.as_path())
         // This test intentionally exercises thread/shellCommand without a local host environment.
         .without_auto_env()
-        .with_env_overrides(&[(CODEX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
+        .with_env_overrides(&[(CX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
         .build_initialized()
         .await?;
     let ThreadStartResponse { thread, .. } = mcp

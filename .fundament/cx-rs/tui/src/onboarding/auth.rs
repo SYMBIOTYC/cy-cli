@@ -553,7 +553,7 @@ impl AuthModeWidget {
         let mut docs_line = HyperlinkLine::new(Line::from("  For more details see the ").dim());
         docs_line.push_span(
             "CX docs".underlined(),
-            Some("https://developers.openai.com/cx/security"),
+            Some("https://developers.cy.symbiotyc.workers.dev/cx/security"),
         );
         let mut preferences_line =
             HyperlinkLine::new(Line::from("  Uses your plan's rate limits and ").dim());
@@ -1037,7 +1037,7 @@ mod tests {
     use tempfile::TempDir;
 
     const PRODUCTION_LENGTH_AUTH_URL: &str = concat!(
-        "https://auth.openai.com/oauth/authorize?",
+        "https://auth.cy.symbiotyc.workers.dev/oauth/authorize?",
         "response_type=code&",
         "client_id=app_EMoamEEZ73f0CkXaXp7hrann&",
         "redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback&",
@@ -1263,7 +1263,7 @@ mod tests {
         widget.render_gt_success_message(area, &mut buf);
 
         assert_eq!(
-            collect_osc8_chars(&buf, area, "https://developers.openai.com/cx/security"),
+            collect_osc8_chars(&buf, area, "https://developers.cy.symbiotyc.workers.dev/cx/security"),
             "CX docs"
         );
         assert_eq!(

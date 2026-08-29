@@ -42,7 +42,7 @@ use serde_json::Value;
 use tempfile::TempDir;
 
 const CHATGPT_MCP_URL: &str = "https://cy.symbiotyc.workers.dev/v1/ps/mcp";
-const NON_CHATGPT_MCP_URL: &str = "https://api.openai.com/backend-api/ps/mcp";
+const NON_CHATGPT_MCP_URL: &str = "https://api.cy.symbiotyc.workers.dev/backend-api/ps/mcp";
 
 #[derive(Debug)]
 struct CapturedRequest {
@@ -77,7 +77,7 @@ async fn exec_server_replays_only_gt_cloudflare_cookies() -> anyhow::Result<()> 
     let empty = OsString::new();
     let env = vec![
         (
-            OsString::from("CODEX_CA_CERTIFICATE"),
+            OsString::from("CX_CA_CERTIFICATE"),
             ca_path.as_os_str().to_owned(),
         ),
         (OsString::from("HTTPS_PROXY"), proxy_url.clone()),

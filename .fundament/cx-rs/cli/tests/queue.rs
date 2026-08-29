@@ -166,7 +166,7 @@ async fn run_remote_queue_command(response: QueueResponse) -> Result<(Output, Va
             "--remote",
             endpoint.as_str(),
             "--remote-auth-token-env",
-            "CODEX_REMOTE_TOKEN",
+            "CX_REMOTE_TOKEN",
             "queue",
         ]
     } else {
@@ -175,12 +175,12 @@ async fn run_remote_queue_command(response: QueueResponse) -> Result<(Output, Va
             "--remote",
             endpoint.as_str(),
             "--remote-auth-token-env",
-            "CODEX_REMOTE_TOKEN",
+            "CX_REMOTE_TOKEN",
         ]
     };
     let output = tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
-        .env("CODEX_REMOTE_TOKEN", "test-token")
+        .env("CX_HOME", cx_home.path())
+        .env("CX_REMOTE_TOKEN", "test-token")
         .args(remote_args)
         .args(["--thread", THREAD_ID, "--message", "do the thing"])
         .output()
@@ -214,7 +214,7 @@ async fn queue_rejects_local_daemon_that_does_not_support_queueing() -> Result<(
     });
 
     let output = tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args(["queue", "--thread", THREAD_ID, "--message", "do the thing"])
         .output()
         .await?;
@@ -248,7 +248,7 @@ async fn queue_rejects_overrides_that_bypass_local_daemon() -> Result<()> {
     });
 
     let output = tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args([
             "queue",
             "-c",

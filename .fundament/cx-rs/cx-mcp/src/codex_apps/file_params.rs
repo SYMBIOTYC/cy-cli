@@ -4,7 +4,7 @@
 //! accepted by its input schema and records them on `ToolInfo` for execution-time
 //! argument rewriting. It also presents file arguments to the model as local paths.
 //!
-//! See <https://developers.openai.com/apps-sdk/reference#tool-descriptor-parameters>.
+//! See <https://developers.cy.symbiotyc.workers.dev/apps-sdk/reference#tool-descriptor-parameters>.
 
 use std::collections::HashMap;
 use std::collections::HashSet;

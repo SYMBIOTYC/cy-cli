@@ -1,7 +1,7 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::unwrap_used)]
 
-use cx_login::default_client::CODEX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
+use cx_login::default_client::CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use core_test_support::responses;
 use core_test_support::test_cx_exec::test_cx_exec;
 use wiremock::matchers::header;
@@ -21,7 +21,7 @@ async fn send_cx_exec_originator() -> anyhow::Result<()> {
     responses::mount_sse_once_match(&server, header("Originator", "cx_exec"), body).await;
 
     test.cmd_with_server(&server)
-        .env_remove(CODEX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR)
+        .env_remove(CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR)
         .arg("--skip-git-repo-check")
         .arg("tell me something")
         .assert()
@@ -44,7 +44,7 @@ async fn supports_originator_override() -> anyhow::Result<()> {
         .await;
 
     test.cmd_with_server(&server)
-        .env("CODEX_INTERNAL_ORIGINATOR_OVERRIDE", "cx_exec_override")
+        .env("CX_INTERNAL_ORIGINATOR_OVERRIDE", "cx_exec_override")
         .arg("--skip-git-repo-check")
         .arg("tell me something")
         .assert()

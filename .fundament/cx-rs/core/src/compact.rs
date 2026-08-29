@@ -20,7 +20,7 @@ use crate::session::turn::get_last_assistant_message_from_turn;
 use crate::session::turn_context::TurnContext;
 use crate::state::AutoCompactWindowIds;
 use crate::util::backoff;
-use cx_analytics::CodexCompactionEvent;
+use cx_analytics::CxCompactionEvent;
 use cx_analytics::CompactionImplementation;
 use cx_analytics::CompactionPhase;
 use cx_analytics::CompactionReason;
@@ -30,7 +30,7 @@ use cx_analytics::CompactionTrigger;
 use cx_analytics::now_unix_seconds;
 use cx_history::CodexHarnessMetadata;
 use cx_history::ResponseItemEnvelope;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::ContextCompactionItem;
@@ -190,7 +190,7 @@ async fn run_compact_task_inner(
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
         PreCompactHookOutcome::Stopped => {
-            let error = CodexErr::TurnAborted;
+            let error = CxErr::TurnAborted;
             attempt
                 .track(
                     sess.as_ref(),
@@ -223,7 +223,7 @@ async fn run_compact_task_inner(
                     CompactionAnalyticsDetails::default(),
                 )
                 .await;
-            return Err(CodexErr::TurnAborted);
+            return Err(CxErr::TurnAborted);
         }
     }
     attempt
@@ -441,7 +441,7 @@ impl CompactionAnalyticsAttempt {
         self,
         sess: &Session,
         status: CompactionStatus,
-        cx_error: Option<&CodexErr>,
+        cx_error: Option<&CxErr>,
         details: CompactionAnalyticsDetails,
     ) {
         let CompactionAnalyticsDetails {
@@ -456,7 +456,7 @@ impl CompactionAnalyticsAttempt {
         let active_context_tokens_after = sess.get_total_token_usage().await;
         sess.services
             .analytics_events_client
-            .track_compaction(CodexCompactionEvent {
+            .track_compaction(CxCompactionEvent {
                 thread_id: self.thread_id,
                 turn_id: self.turn_id,
                 trigger: self.trigger,
@@ -467,7 +467,7 @@ impl CompactionAnalyticsAttempt {
                 status,
                 cx_error_kind: cx_error.map(Into::into),
                 cx_error_http_status_code: cx_error
-                    .and_then(CodexErr::http_status_code_value),
+                    .and_then(CxErr::http_status_code_value),
                 active_context_tokens_before,
                 active_context_tokens_after,
                 retained_image_count,
@@ -740,7 +740,7 @@ async fn drain_to_completed(
     loop {
         let maybe_event = stream.next().await;
         let Some(event) = maybe_event else {
-            return Err(CodexErr::Stream(
+            return Err(CxErr::Stream(
                 "stream closed before response.completed".into(),
             ));
         };

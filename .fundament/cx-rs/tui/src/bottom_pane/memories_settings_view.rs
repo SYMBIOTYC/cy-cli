@@ -31,7 +31,7 @@ use super::selection_popup_common::GenericDisplayRow;
 use super::selection_popup_common::measure_rows_height;
 use super::selection_popup_common::render_rows;
 
-const MEMORIES_DOC_URL: &str = "https://developers.openai.com/cx/memories";
+const MEMORIES_DOC_URL: &str = "https://developers.cy.symbiotyc.workers.dev/cx/memories";
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MemoriesSetting {

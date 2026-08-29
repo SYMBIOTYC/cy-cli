@@ -7,7 +7,7 @@ use crate::elicitation::ElicitationReviewRequest;
 use crate::elicitation::ElicitationReviewer;
 use crate::elicitation::elicitation_is_rejected_by_policy;
 use crate::rmcp_client::AsyncManagedClient;
-use crate::rmcp_client::CODEX_APPS_RECONNECT_INITIAL_BACKOFF;
+use crate::rmcp_client::CX_APPS_RECONNECT_INITIAL_BACKOFF;
 use crate::rmcp_client::CodexAppsStartupReconnect;
 use crate::rmcp_client::ManagedClient;
 use crate::rmcp_client::ManagedClientFuture;
@@ -483,7 +483,7 @@ async fn create_test_manager_with_ready_apps_client(
     list_started: Option<Arc<Notify>>,
     release_list: Option<Arc<Notify>>,
 ) -> anyhow::Result<Arc<McpConnectionSet>> {
-    let tool = create_test_tool(CODEX_APPS_MCP_SERVER_NAME, tool_name);
+    let tool = create_test_tool(CX_APPS_MCP_SERVER_NAME, tool_name);
     let client = Arc::new(
         RmcpClient::new_in_process_client(Arc::new(RefreshTestTransportFactory {
             tool: tool.tool.clone(),
@@ -523,7 +523,7 @@ async fn create_test_manager_with_ready_apps_client(
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: futures::future::ready::<Result<ManagedClient, StartupOutcomeError>>(Ok(
                 managed_client,
@@ -540,7 +540,7 @@ async fn create_test_manager_with_ready_apps_client(
         },
     );
     manager.set_test_server_metadata(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         McpServerMetadata {
             environment_id: cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(),
             pollutes_memory: false,
@@ -578,7 +578,7 @@ fn create_test_manager_with_failed_apps_startup(
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client,
             is_cx_apps_mcp_server: true,
@@ -1669,7 +1669,7 @@ fn filter_tools_applies_per_server_filters() {
 #[test]
 fn cx_apps_env_bearer_token_bypasses_shared_tools_cache() {
     assert!(!should_share_cx_apps_tools_cache(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         /*uses_env_bearer_token*/ true,
     ));
 }
@@ -1686,7 +1686,7 @@ async fn cx_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow::Re
     store_current_tools(
         &cache_context,
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "calendar_create_event",
         )],
     );
@@ -1696,7 +1696,7 @@ async fn cx_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow::Re
     let mut config = crate::mcp::tests::test_mcp_config(cx_home.path().to_path_buf());
     let mut catalog = crate::ResolvedMcpCatalog::builder();
     catalog.register(crate::McpServerRegistration::from_extension(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         "test-extension",
         /*contribution_order*/ 0,
         server_config.clone(),
@@ -1714,7 +1714,7 @@ async fn cx_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow::Re
             plugins_available: false,
             ready_selected_capability_roots: Vec::new(),
             mcp_servers: HashMap::from([(
-                CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                CX_APPS_MCP_SERVER_NAME.to_string(),
                 EffectiveMcpServer::configured(server_config),
             )]),
             submit_id: "cache-ownership-test".to_string(),
@@ -1737,7 +1737,7 @@ async fn cx_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow::Re
     )
     .await;
 
-    let client = manager.test_client(CODEX_APPS_MCP_SERVER_NAME);
+    let client = manager.test_client(CX_APPS_MCP_SERVER_NAME);
     assert!(
         client.cx_apps_tools_cache_context.is_none(),
         "an extension must not receive the host-owned Apps cache"
@@ -1761,7 +1761,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_while_client_is_pending() {
     store_current_tools(
         &cache_context,
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "calendar_create_event",
         )],
     );
@@ -1776,7 +1776,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_while_client_is_pending() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -1797,7 +1797,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_while_client_is_pending() {
                 == ToolName::namespaced("mcp__cx_apps", "calendar_create_event")
         })
         .expect("tool from shared cache");
-    assert_eq!(tool.server_name, CODEX_APPS_MCP_SERVER_NAME);
+    assert_eq!(tool.server_name, CX_APPS_MCP_SERVER_NAME);
     assert_eq!(tool.callable_name, "calendar_create_event");
 }
 
@@ -1812,13 +1812,13 @@ async fn capture_binding_uses_the_ready_clients_own_tools() {
     store_current_tools(
         &cache_context,
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "shared_cached_tool",
         )],
     );
     let mut ready_client = create_test_managed_client(vec![
-        create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "client_local_tool"),
-        create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "client_local_blocked"),
+        create_test_tool(CX_APPS_MCP_SERVER_NAME, "client_local_tool"),
+        create_test_tool(CX_APPS_MCP_SERVER_NAME, "client_local_blocked"),
     ])
     .await;
     let tool_filter = ToolFilter {
@@ -1834,7 +1834,7 @@ async fn capture_binding_uses_the_ready_clients_own_tools() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: futures::future::ready(Ok(ready_client)).boxed().shared(),
             is_cx_apps_mcp_server: true,
@@ -1848,11 +1848,11 @@ async fn capture_binding_uses_the_ready_clients_own_tools() {
     );
     manager
         .servers
-        .get_mut(CODEX_APPS_MCP_SERVER_NAME)
+        .get_mut(CX_APPS_MCP_SERVER_NAME)
         .expect("test server exists")
         .tool_filter = tool_filter;
     manager.set_test_server_metadata(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         McpServerMetadata {
             environment_id: cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(),
             pollutes_memory: false,
@@ -1882,15 +1882,15 @@ async fn capture_binding_uses_the_ready_clients_own_tools() {
         vec!["client_local_tool"]
     );
     assert!(
-        step.prepare_call(CODEX_APPS_MCP_SERVER_NAME, "client_local_tool")
+        step.prepare_call(CX_APPS_MCP_SERVER_NAME, "client_local_tool")
             .is_some()
     );
     assert!(
-        step.prepare_call(CODEX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
+        step.prepare_call(CX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
             .is_none()
     );
     assert!(
-        step.prepare_call(CODEX_APPS_MCP_SERVER_NAME, "client_local_blocked")
+        step.prepare_call(CX_APPS_MCP_SERVER_NAME, "client_local_blocked")
             .is_none()
     );
 }
@@ -2139,7 +2139,7 @@ async fn list_available_server_infos_uses_cache_while_client_is_pending() {
     );
     let server_info = create_test_server_info("CX Apps");
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -2159,7 +2159,7 @@ async fn list_available_server_infos_uses_cache_while_client_is_pending() {
     .await;
     let server_infos = timeout_result.expect("server info lookup should not block on startup");
     assert_eq!(
-        server_infos.get(CODEX_APPS_MCP_SERVER_NAME),
+        server_infos.get(CX_APPS_MCP_SERVER_NAME),
         Some(&server_info)
     );
 }
@@ -2203,7 +2203,7 @@ async fn capture_binding_exposes_cached_tools_before_startup() {
         Some("account-one"),
         Some("user-one"),
     );
-    let mut cached_tool = create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "shared_cached_tool");
+    let mut cached_tool = create_test_tool(CX_APPS_MCP_SERVER_NAME, "shared_cached_tool");
     cached_tool.tool.annotations = Some(
         rmcp::model::ToolAnnotations::new()
             .read_only(true)
@@ -2220,7 +2220,7 @@ async fn capture_binding_exposes_cached_tools_before_startup() {
         startup_released.await.expect("release client startup");
         startup_complete_for_client.store(true, std::sync::atomic::Ordering::Release);
         Ok(create_test_managed_client(vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "client_local_tool",
         )])
         .await)
@@ -2235,7 +2235,7 @@ async fn capture_binding_exposes_cached_tools_before_startup() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -2248,7 +2248,7 @@ async fn capture_binding_exposes_cached_tools_before_startup() {
         },
     );
     manager.set_test_server_metadata(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         McpServerMetadata {
             environment_id: cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(),
             pollutes_memory: false,
@@ -2278,14 +2278,14 @@ async fn capture_binding_exposes_cached_tools_before_startup() {
     );
     assert!(
         cached_binding
-            .prepare_call(CODEX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
+            .prepare_call(CX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
             .is_none()
     );
 
     let manager_for_startup = Arc::clone(&manager);
     let startup = tokio::spawn(async move {
         manager_for_startup
-            .wait_for_server_startup(CODEX_APPS_MCP_SERVER_NAME)
+            .wait_for_server_startup(CX_APPS_MCP_SERVER_NAME)
             .await
     });
 
@@ -2542,12 +2542,12 @@ async fn capture_binding_resolves_concurrently_and_rechecks_cached_clients() {
     store_current_tools(
         &cache_context,
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "shared_cached_tool",
         )],
     );
     let ready_apps_client = create_test_managed_client(vec![create_test_tool(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "client_local_tool",
     )])
     .await;
@@ -2571,7 +2571,7 @@ async fn capture_binding_resolves_concurrently_and_rechecks_cached_clients() {
         &permission_profile,
         /*prefix_mcp_tool_names*/ true,
     );
-    manager.insert_test_client(CODEX_APPS_MCP_SERVER_NAME, apps_client);
+    manager.insert_test_client(CX_APPS_MCP_SERVER_NAME, apps_client);
     manager.insert_test_client("first", first_client);
     manager.insert_test_client("second", second_client);
     let manager = Arc::new(manager);
@@ -2579,7 +2579,7 @@ async fn capture_binding_resolves_concurrently_and_rechecks_cached_clients() {
     let manager_for_startup = Arc::clone(&manager);
     let startup = tokio::spawn(async move {
         manager_for_startup
-            .wait_for_server_startup(CODEX_APPS_MCP_SERVER_NAME)
+            .wait_for_server_startup(CX_APPS_MCP_SERVER_NAME)
             .await
     });
     tokio::time::timeout(Duration::from_secs(1), apps_started)
@@ -2612,12 +2612,12 @@ async fn capture_binding_resolves_concurrently_and_rechecks_cached_clients() {
     );
     assert!(
         binding
-            .prepare_call(CODEX_APPS_MCP_SERVER_NAME, "client_local_tool")
+            .prepare_call(CX_APPS_MCP_SERVER_NAME, "client_local_tool")
             .is_some()
     );
     assert!(
         binding
-            .prepare_call(CODEX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
+            .prepare_call(CX_APPS_MCP_SERVER_NAME, "shared_cached_tool")
             .is_none()
     );
     assert!(binding.prepare_call("first", "first_tool").is_some());
@@ -2795,7 +2795,7 @@ async fn list_all_tools_blocks_while_client_is_pending_without_cached_tools() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -2849,7 +2849,7 @@ async fn shutdown_cancels_pending_tool_listing() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -2895,7 +2895,7 @@ async fn shutdown_continues_after_caller_is_aborted() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: blocking_client,
             is_cx_apps_mcp_server: true,
@@ -2947,7 +2947,7 @@ async fn list_all_tools_does_not_block_when_shared_cx_apps_cache_is_empty() {
         /*prefix_mcp_tool_names*/ true,
     );
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: pending_client,
             is_cx_apps_mcp_server: true,
@@ -2977,7 +2977,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_when_client_startup_fails() {
     store_current_tools(
         &cache_context,
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "calendar_create_event",
         )],
     );
@@ -2999,7 +2999,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_when_client_startup_fails() {
     );
     let startup_complete = Arc::new(std::sync::atomic::AtomicBool::new(true));
     manager.insert_test_client(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         AsyncManagedClient {
             client: failed_client,
             is_cx_apps_mcp_server: true,
@@ -3020,13 +3020,13 @@ async fn list_all_tools_uses_shared_cx_apps_cache_when_client_startup_fails() {
                 == ToolName::namespaced("mcp__cx_apps", "calendar_create_event")
         })
         .expect("tool from shared cache");
-    assert_eq!(tool.server_name, CODEX_APPS_MCP_SERVER_NAME);
+    assert_eq!(tool.server_name, CX_APPS_MCP_SERVER_NAME);
     assert_eq!(tool.callable_name, "calendar_create_event");
     assert_eq!(
         manager
             .list_available_server_infos()
             .await
-            .get(CODEX_APPS_MCP_SERVER_NAME),
+            .get(CX_APPS_MCP_SERVER_NAME),
         Some(&server_info)
     );
 }
@@ -3034,7 +3034,7 @@ async fn list_all_tools_uses_shared_cx_apps_cache_when_client_startup_fails() {
 #[tokio::test]
 async fn list_all_tools_reconnects_failed_cx_apps_startup_and_reuses_client() {
     let recovered_client = create_test_managed_client(vec![create_test_tool(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "drive_search",
     )])
     .await;
@@ -3056,7 +3056,7 @@ async fn list_all_tools_reconnects_failed_cx_apps_startup_and_reuses_client() {
     let mut manager = create_test_manager_with_failed_apps_startup(Vec::new(), reconnect_factory);
     manager
         .servers
-        .get_mut(CODEX_APPS_MCP_SERVER_NAME)
+        .get_mut(CX_APPS_MCP_SERVER_NAME)
         .expect("test server exists")
         .metadata = McpServerMetadata {
         environment_id: cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(),
@@ -3087,7 +3087,7 @@ async fn list_all_tools_reconnects_failed_cx_apps_startup_and_reuses_client() {
 
     let step = capture_binding(&manager).await;
     let prepared = step
-        .prepare_call(CODEX_APPS_MCP_SERVER_NAME, "drive_search")
+        .prepare_call(CX_APPS_MCP_SERVER_NAME, "drive_search")
         .expect("recovered tool should have a prepared call");
     assert!(
         !prepared
@@ -3110,7 +3110,7 @@ async fn list_all_tools_reconnects_failed_cx_apps_startup_and_reuses_client() {
 #[tokio::test(start_paused = true)]
 async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools() {
     let recovered_client = create_test_managed_client(vec![create_test_tool(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "drive_search",
     )])
     .await;
@@ -3139,7 +3139,7 @@ async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools()
     });
     let manager = create_test_manager_with_failed_apps_startup(
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "cached_drive_search",
         )],
         reconnect_factory,
@@ -3167,7 +3167,7 @@ async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools()
     );
     assert_eq!(attempts.load(std::sync::atomic::Ordering::SeqCst), 1);
 
-    tokio::time::advance(CODEX_APPS_RECONNECT_INITIAL_BACKOFF).await;
+    tokio::time::advance(CX_APPS_RECONNECT_INITIAL_BACKOFF).await;
     let second_reconnect_finished = reconnect_finished.notified();
     let tools = manager.list_all_tools().await;
     assert_eq!(
@@ -3180,7 +3180,7 @@ async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools()
     second_reconnect_finished.await;
     assert_eq!(attempts.load(std::sync::atomic::Ordering::SeqCst), 2);
 
-    tokio::time::advance(CODEX_APPS_RECONNECT_INITIAL_BACKOFF).await;
+    tokio::time::advance(CX_APPS_RECONNECT_INITIAL_BACKOFF).await;
     let tools = manager.list_all_tools().await;
     assert_eq!(
         tools
@@ -3191,7 +3191,7 @@ async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools()
     );
     assert_eq!(attempts.load(std::sync::atomic::Ordering::SeqCst), 2);
 
-    tokio::time::advance(CODEX_APPS_RECONNECT_INITIAL_BACKOFF).await;
+    tokio::time::advance(CX_APPS_RECONNECT_INITIAL_BACKOFF).await;
     let third_reconnect_finished = reconnect_finished.notified();
     let tools = manager.list_all_tools().await;
     assert_eq!(
@@ -3217,7 +3217,7 @@ async fn later_tool_list_retries_after_failed_reconnect_and_keeps_cached_tools()
 #[tokio::test]
 async fn tool_lists_do_not_block_and_share_cx_apps_startup_reconnect() {
     let recovered_client = create_test_managed_client(vec![create_test_tool(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "drive_search",
     )])
     .await;
@@ -3243,13 +3243,13 @@ async fn tool_lists_do_not_block_and_share_cx_apps_startup_reconnect() {
     });
     let mut manager = create_test_manager_with_failed_apps_startup(
         vec![create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "cached_drive_search",
         )],
         reconnect_factory,
     );
     manager.set_test_server_metadata(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         McpServerMetadata {
             environment_id: cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID.to_string(),
             pollutes_memory: false,
@@ -3313,7 +3313,7 @@ async fn tool_lists_do_not_block_and_share_cx_apps_startup_reconnect() {
     );
     assert!(
         recovered_step
-            .prepare_call(CODEX_APPS_MCP_SERVER_NAME, "drive_search")
+            .prepare_call(CX_APPS_MCP_SERVER_NAME, "drive_search")
             .is_some()
     );
     assert_eq!(attempts.load(std::sync::atomic::Ordering::SeqCst), 1);
@@ -3480,13 +3480,13 @@ async fn executor_owned_gt_mcp_accepts_only_safe_explicit_authorization() -> any
             "environment header",
             Some(("Authorization", "Bearer executor-secret")),
             None,
-            Some(("aUtHoRiZaTiOn", "CODEX_TEST_HOSTED_SECRET")),
+            Some(("aUtHoRiZaTiOn", "CX_TEST_HOSTED_SECRET")),
             false,
         ),
         (
             "environment bearer",
             Some(("Authorization", "Bearer executor-secret")),
-            Some("CODEX_TEST_HOSTED_SECRET"),
+            Some("CX_TEST_HOSTED_SECRET"),
             None,
             false,
         ),
@@ -3808,7 +3808,7 @@ fn mcp_init_error_display_prompts_for_github_pat() {
     let display = mcp_init_error_display(server_name, Some(&config), &err, /*reason*/ None);
 
     let expected = format!(
-        "GitHub MCP does not support OAuth. Log in by adding a personal access token (https://github.com/settings/personal-access-tokens) to your environment and config.toml:\n[mcp_servers.{server_name}]\nbearer_token_env_var = CODEX_GITHUB_PERSONAL_ACCESS_TOKEN"
+        "GitHub MCP does not support OAuth. Log in by adding a personal access token (https://github.com/settings/personal-access-tokens) to your environment and config.toml:\n[mcp_servers.{server_name}]\nbearer_token_env_var = CX_GITHUB_PERSONAL_ACCESS_TOKEN"
     );
 
     assert_eq!(expected, display);
@@ -4000,7 +4000,7 @@ fn reusable_server_config(url: &str) -> McpServerConfig {
         auth: Default::default(),
         transport: McpServerTransportConfig::StreamableHttp {
             url: url.to_string(),
-            bearer_token_env_var: Some("CODEX_MCP_REUSE_TEST_TOKEN".to_string()),
+            bearer_token_env_var: Some("CX_MCP_REUSE_TEST_TOKEN".to_string()),
             http_headers: None,
             env_http_headers: None,
             http_headers_helper: None,
@@ -4392,7 +4392,7 @@ async fn reconciliation_retries_non_oauth_authentication_failures() {
 #[test]
 fn connection_identity_uses_effective_authorization_headers() {
     let runtime_context = reusable_server_runtime_context();
-    let missing_env_var = format!("CODEX_TEST_UNSET_MCP_AUTHORIZATION_{}", std::process::id());
+    let missing_env_var = format!("CX_TEST_UNSET_MCP_AUTHORIZATION_{}", std::process::id());
     assert!(std::env::var_os(&missing_env_var).is_none());
 
     for (static_header, environment_header, has_authorization) in [
@@ -4448,7 +4448,7 @@ async fn reconciliation_reuses_legacy_stdio_server_with_existing_protocol_marker
         command: "legacy-server".to_string(),
         args: Vec::new(),
         env: Some(HashMap::from([(
-            "CODEX_MCP_PROTOCOL_VERSION".to_string(),
+            "CX_MCP_PROTOCOL_VERSION".to_string(),
             "1999-01-01".to_string(),
         )])),
         env_vars: Vec::new(),
@@ -4781,7 +4781,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
     let previous_auth = CodexAuth::AgentIdentity(
         cx_login::auth::AgentIdentityAuth::from_record(
             record.clone(),
-            "https://auth.openai.com/api/accounts",
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts",
             &auth_route_config,
         )
         .await?,
@@ -4789,7 +4789,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
     let connection_identity = |auth: &CodexAuth| {
         let provider = cx_model_provider::auth_provider_from_auth(auth);
         McpServerConnectionIdentity::new(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             &server,
             OAuthCredentialsStoreMode::default(),
             AuthKeyringBackendKind::default(),
@@ -4830,7 +4830,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
         let changed_auth = CodexAuth::AgentIdentity(
             cx_login::auth::AgentIdentityAuth::from_record(
                 changed_record,
-                "https://auth.openai.com/api/accounts",
+                "https://auth.cy.symbiotyc.workers.dev/api/accounts",
                 &auth_route_config,
             )
             .await?,

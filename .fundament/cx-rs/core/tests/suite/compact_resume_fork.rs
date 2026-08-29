@@ -15,7 +15,7 @@ use cx_core::ThreadManager;
 use cx_core::TurnInputRequest;
 use cx_core::compact::SUMMARIZATION_PROMPT;
 use cx_core::config::Config;
-use cx_core::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
+use cx_core::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use cx_history::CodexHarnessMetadata;
 use cx_history::RolloutItem;
 use cx_history::RolloutLine;
@@ -57,7 +57,7 @@ const AFTER_ROLLBACK: &str = "AFTER_ROLLBACK";
 const CHECKPOINT_METADATA_KEY: &str = "replacement_history_metadata";
 
 fn network_disabled() -> bool {
-    std::env::var(CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
+    std::env::var(CX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok()
 }
 
 fn body_contains_text(body: &str, text: &str) -> bool {

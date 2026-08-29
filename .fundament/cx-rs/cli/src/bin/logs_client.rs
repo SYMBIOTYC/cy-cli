@@ -17,8 +17,8 @@ use owo_colors::OwoColorize;
 #[command(name = "cx-state-logs")]
 #[command(about = "Tail CX logs from the dedicated logs SQLite DB with simple filters")]
 struct Args {
-    /// Path to CODEX_HOME. Defaults to $CODEX_HOME or ~/.cx.
-    #[arg(long, env = "CODEX_HOME")]
+    /// Path to CX_HOME. Defaults to $CX_HOME or ~/.cx.
+    #[arg(long, env = "CX_HOME")]
     cx_home: Option<PathBuf>,
 
     /// Direct path to the logs SQLite database. Overrides --cx-home.

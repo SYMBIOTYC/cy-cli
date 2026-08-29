@@ -72,9 +72,9 @@ impl IdTokenInfo {
 struct IdClaims {
     #[serde(default)]
     email: Option<String>,
-    #[serde(rename = "https://api.openai.com/profile", default)]
+    #[serde(rename = "https://api.cy.symbiotyc.workers.dev/profile", default)]
     profile: Option<ProfileClaims>,
-    #[serde(rename = "https://api.openai.com/auth", default)]
+    #[serde(rename = "https://api.cy.symbiotyc.workers.dev/auth", default)]
     auth: Option<AuthClaims>,
 }
 

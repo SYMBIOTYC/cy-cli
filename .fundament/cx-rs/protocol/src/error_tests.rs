@@ -14,10 +14,10 @@ use std::time::Duration;
 #[test]
 fn cx_err_debug_preserves_legacy_shape() {
     let actual = [
-        CodexErr::Timeout,
-        CodexErr::Stream("disconnected".to_string()),
-        CodexErr::Stream("retry later".to_string()).with_retry_delay(Duration::from_secs(2)),
-        CodexErr::InternalServerError.with_retry_delay(Duration::from_secs(3)),
+        CxErr::Timeout,
+        CxErr::Stream("disconnected".to_string()),
+        CxErr::Stream("retry later".to_string()).with_retry_delay(Duration::from_secs(2)),
+        CxErr::InternalServerError.with_retry_delay(Duration::from_secs(3)),
     ]
     .map(|err| format!("{err:?}"));
 
@@ -35,16 +35,16 @@ fn cx_err_debug_preserves_legacy_shape() {
 #[test]
 fn retryability_preserves_error_details_distinctions() {
     let errors = [
-        (CodexErr::ServerOverloaded, false),
+        (CxErr::ServerOverloaded, false),
         (
-            CodexErr::RetryLimit(RetryLimitReachedError {
+            CxErr::RetryLimit(RetryLimitReachedError {
                 status: StatusCode::TOO_MANY_REQUESTS,
                 request_id: None,
             }),
             false,
         ),
         (
-            CodexErr::UnexpectedStatus(UnexpectedResponseError {
+            CxErr::UnexpectedStatus(UnexpectedResponseError {
                 status: StatusCode::TOO_MANY_REQUESTS,
                 body: String::new(),
                 user_message: None,
@@ -60,7 +60,7 @@ fn retryability_preserves_error_details_distinctions() {
             CodexErrorDetails::ToolCollision("functions.update_plan".to_string()).into(),
             false,
         ),
-        (CodexErr::InternalServerError, true),
+        (CxErr::InternalServerError, true),
     ];
 
     for (err, expected) in errors {
@@ -166,7 +166,7 @@ fn usage_limit_reached_error_formats_rate_limit_reached_types() {
 
 #[test]
 fn server_overloaded_maps_to_protocol() {
-    let err = CodexErr::ServerOverloaded;
+    let err = CxErr::ServerOverloaded;
     assert_eq!(
         err.to_cx_protocol_error(),
         CodexErrorInfo::ServerOverloaded
@@ -183,7 +183,7 @@ fn sandbox_denied_uses_aggregated_output_when_stderr_empty() {
         duration: Duration::from_millis(10),
         timed_out: false,
     };
-    let err = CodexErr::Sandbox(SandboxErr::Denied {
+    let err = CxErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -200,7 +200,7 @@ fn sandbox_denied_reports_both_streams_when_available() {
         duration: Duration::from_millis(10),
         timed_out: false,
     };
-    let err = CodexErr::Sandbox(SandboxErr::Denied {
+    let err = CxErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -217,7 +217,7 @@ fn sandbox_denied_reports_stdout_when_no_stderr() {
         duration: Duration::from_millis(8),
         timed_out: false,
     };
-    let err = CodexErr::Sandbox(SandboxErr::Denied {
+    let err = CxErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });
@@ -234,7 +234,7 @@ fn to_error_event_handles_response_stream_failed() {
         .error_for_status_ref()
         .unwrap_err()
         .with_url("http://example.com".parse().unwrap());
-    let err = CodexErr::ResponseStreamFailed(ResponseStreamFailed {
+    let err = CxErr::ResponseStreamFailed(ResponseStreamFailed {
         source,
         request_id: Some("req-123".to_string()),
     });
@@ -263,7 +263,7 @@ fn sandbox_denied_reports_exit_code_when_no_output_available() {
         duration: Duration::from_millis(5),
         timed_out: false,
     };
-    let err = CodexErr::Sandbox(SandboxErr::Denied {
+    let err = CxErr::Sandbox(SandboxErr::Denied {
         output: Box::new(output),
         network_policy_decision: None,
     });

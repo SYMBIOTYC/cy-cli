@@ -712,7 +712,7 @@ mod tests {
     use crate::session::tests::make_session_and_context_with_dynamic_tools_and_rx;
     use crate::turn_diff_tracker::TurnDiffTracker;
     use cx_exec_server::LOCAL_FS;
-    use cx_protocol::error::CodexErr;
+    use cx_protocol::error::CxErr;
     use cx_protocol::error::SandboxErr;
     use cx_protocol::exec_output::ExecToolCallOutput;
     use cx_protocol::items::TurnItem;
@@ -790,7 +790,7 @@ mod tests {
             ..Default::default()
         };
         assert_failed_apply_patch_tracks_committed_delta(
-            Err(ToolError::CX(CodexErr::Sandbox(SandboxErr::Denied {
+            Err(ToolError::CX(CxErr::Sandbox(SandboxErr::Denied {
                 output: Box::new(output),
                 network_policy_decision: None,
             }))),

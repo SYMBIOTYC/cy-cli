@@ -6,7 +6,7 @@ use cx_core::ThreadManager;
 use cx_core::TurnInputRequest;
 use cx_core::config::Config;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::W3cTraceContext;
 use cx_protocol::user_input::UserInput;
@@ -53,7 +53,7 @@ impl AgentRunner {
             parent_trace,
         } = invocation;
         if prompt.trim().is_empty() {
-            return Err(CodexErr::InvalidRequest(
+            return Err(CxErr::InvalidRequest(
                 "agent prompt must not be empty".to_string(),
             ));
         }
@@ -61,7 +61,7 @@ impl AgentRunner {
         let thread_manager = self
             .thread_manager
             .upgrade()
-            .ok_or_else(|| CodexErr::UnsupportedOperation("thread manager dropped".to_string()))?;
+            .ok_or_else(|| CxErr::UnsupportedOperation("thread manager dropped".to_string()))?;
         let NewThread {
             thread_id, thread, ..
         } = thread_manager
@@ -85,7 +85,7 @@ impl AgentRunner {
         {
             StartIfIdleSubmission::Started { turn_id } => turn_id,
             StartIfIdleSubmission::NotSubmitted { reason } => {
-                return Err(CodexErr::InvalidRequest(format!(
+                return Err(CxErr::InvalidRequest(format!(
                     "agent prompt was not submitted: {reason:?}"
                 )));
             }

@@ -34,7 +34,7 @@ use cx_login::default_client::default_headers;
 use cx_login::read_openai_api_key_from_env;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_protocol::auth::AuthMode;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::MessagePhase;
 use cx_protocol::protocol::CodexErrorInfo;
@@ -710,7 +710,7 @@ impl RealtimeConversationManager {
         };
 
         let Some(sender) = sender else {
-            return Err(CodexErr::InvalidRequest(
+            return Err(CxErr::InvalidRequest(
                 "conversation is not running".to_string(),
             ));
         };
@@ -721,7 +721,7 @@ impl RealtimeConversationManager {
                 warn!("dropping input audio frame due to full queue");
                 Ok(())
             }
-            Err(TrySendError::Closed(_)) => Err(CodexErr::InvalidRequest(
+            Err(TrySendError::Closed(_)) => Err(CxErr::InvalidRequest(
                 "conversation is not running".to_string(),
             )),
         }
@@ -736,7 +736,7 @@ impl RealtimeConversationManager {
         };
 
         let Some((sender, session_kind)) = sender else {
-            return Err(CodexErr::InvalidRequest(
+            return Err(CxErr::InvalidRequest(
                 "conversation is not running".to_string(),
             ));
         };
@@ -748,7 +748,7 @@ impl RealtimeConversationManager {
         sender
             .send(params)
             .await
-            .map_err(|_| CodexErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| CxErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
@@ -760,7 +760,7 @@ impl RealtimeConversationManager {
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.as_ref() else {
-                return Err(CodexErr::InvalidRequest(
+                return Err(CxErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -842,7 +842,7 @@ impl RealtimeConversationManager {
             .output_tx
             .send(output)
             .await
-            .map_err(|_| CodexErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| CxErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
@@ -913,7 +913,7 @@ impl RealtimeConversationManager {
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.as_ref() else {
-                return Err(CodexErr::InvalidRequest(
+                return Err(CxErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -979,7 +979,7 @@ impl RealtimeConversationManager {
         let handoff = {
             let guard = self.state.lock().await;
             let Some(state) = guard.as_ref() else {
-                return Err(CodexErr::InvalidRequest(
+                return Err(CxErr::InvalidRequest(
                     "conversation is not running".to_string(),
                 ));
             };
@@ -992,7 +992,7 @@ impl RealtimeConversationManager {
                 text: realtime_backend_output(text, handoff.session_kind),
             })
             .await
-            .map_err(|_| CodexErr::InvalidRequest("conversation is not running".to_string()))?;
+            .map_err(|_| CxErr::InvalidRequest("conversation is not running".to_string()))?;
         Ok(())
     }
 
@@ -1033,7 +1033,7 @@ impl RealtimeConversationManager {
             .output_tx
             .send(output)
             .await
-            .map_err(|_| CodexErr::InvalidRequest("conversation is not running".to_string()))
+            .map_err(|_| CxErr::InvalidRequest("conversation is not running".to_string()))
     }
 
     pub(crate) async fn clear_active_handoff(&self) {
@@ -1238,12 +1238,12 @@ fn validate_avas_webrtc_start(
     session_type: RealtimeWsMode,
 ) -> CodexResult<()> {
     if version == RealtimeWsVersion::V2 {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "AVAS realtime calls require realtime v1 or v3".to_string(),
         ));
     }
     if session_type != RealtimeWsMode::Conversational {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "AVAS realtime calls require conversational realtime".to_string(),
         ));
     }
@@ -1269,7 +1269,7 @@ pub(crate) async fn build_realtime_session_config(
         if instructions.is_some_and(|instructions| {
             approx_token_count(instructions) > REALTIME_MODE_INSTRUCTIONS_MAX_TOKENS
         }) {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "{name} must not exceed {REALTIME_MODE_INSTRUCTIONS_MAX_TOKENS} estimated tokens"
             )));
         }
@@ -1299,12 +1299,12 @@ pub(crate) async fn build_realtime_session_config(
         (false, false) => format!("{prompt}\n\n{startup_context}"),
     };
     if version != RealtimeWsVersion::V3 && !params.initial_items.is_empty() {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "initial realtime items require realtime v3".to_string(),
         ));
     }
     if params.initial_items.len() > REALTIME_INITIAL_ITEMS_MAX_COUNT {
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "initial realtime items must contain no more than {REALTIME_INITIAL_ITEMS_MAX_COUNT} items"
         )));
     }
@@ -1312,14 +1312,14 @@ pub(crate) async fn build_realtime_session_config(
     for item in &params.initial_items {
         let item_tokens = approx_token_count(&item.text);
         if item_tokens > REALTIME_INITIAL_ITEMS_MAX_TOKENS {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "each initial realtime item must not exceed {REALTIME_INITIAL_ITEMS_MAX_TOKENS} estimated tokens"
             )));
         }
         total_initial_item_tokens = total_initial_item_tokens.saturating_add(item_tokens);
     }
     if total_initial_item_tokens > REALTIME_INITIAL_ITEMS_MAX_TOKENS {
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "initial realtime items must not exceed {REALTIME_INITIAL_ITEMS_MAX_TOKENS} estimated tokens in total"
         )));
     }
@@ -1341,7 +1341,7 @@ pub(crate) async fn build_realtime_session_config(
     if version != RealtimeWsVersion::V2
         && matches!(params.output_modality, RealtimeOutputModality::Text)
     {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "text realtime output modality requires realtime v2".to_string(),
         ));
     }
@@ -1424,7 +1424,7 @@ fn validate_realtime_voice(version: RealtimeWsVersion, voice: RealtimeVoice) -> 
         .map(|voice| voice.wire_name())
         .collect::<Vec<_>>()
         .join(", ");
-    Err(CodexErr::InvalidRequest(format!(
+    Err(CxErr::InvalidRequest(format!(
         "realtime voice `{}` is not supported for {version}; supported voices: {allowed}",
         voice.wire_name()
     )))
@@ -1643,7 +1643,7 @@ fn realtime_api_key(auth: Option<&CodexAuth>, provider: &ModelProviderInfo) -> C
         return Ok(api_key);
     }
 
-    Err(CodexErr::InvalidRequest(
+    Err(CxErr::InvalidRequest(
         "realtime conversation requires API key auth".to_string(),
     ))
 }
@@ -1674,7 +1674,7 @@ fn realtime_request_headers(
 
     if let Some(api_key) = api_key {
         let auth_value = HeaderValue::from_str(&format!("Bearer {api_key}")).map_err(|err| {
-            CodexErr::InvalidRequest(format!("invalid realtime api key header: {err}"))
+            CxErr::InvalidRequest(format!("invalid realtime api key header: {err}"))
         })?;
         headers.insert(AUTHORIZATION, auth_value);
     }

@@ -24,7 +24,7 @@ use crate::context::world_state::WorldState;
 use cx_connectors::AppToolPolicyEvaluator;
 use cx_extension_api::WorldStateContributionInput;
 use cx_features::Feature;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::BaseInstructionsProvenance;
 
@@ -194,7 +194,7 @@ impl Session {
                 .time_provider
                 .current_time(self.thread_id())
                 .await
-                .map_err(|err| CodexErr::Fatal(format!("failed to read current time: {err:#}")))?
+                .map_err(|err| CxErr::Fatal(format!("failed to read current time: {err:#}")))?
                 .with_timezone(&chrono::Local)
                 .format("%Y-%m-%d")
                 .to_string();

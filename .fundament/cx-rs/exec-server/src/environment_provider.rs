@@ -4,7 +4,7 @@ use std::pin::Pin;
 use crate::ExecServerError;
 use crate::client_api::DEFAULT_REMOTE_EXEC_SERVER_CONNECT_TIMEOUT;
 use crate::client_api::ExecServerTransportParams;
-use crate::environment::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use crate::environment::CX_EXEC_SERVER_URL_ENV_VAR;
 use crate::environment::LOCAL_ENVIRONMENT_ID;
 use crate::environment::REMOTE_ENVIRONMENT_ID;
 
@@ -47,21 +47,21 @@ pub enum EnvironmentDefault {
     EnvironmentId(String),
 }
 
-/// Default provider backed by `CODEX_EXEC_SERVER_URL`.
+/// Default provider backed by `CX_EXEC_SERVER_URL`.
 #[derive(Clone, Debug)]
 pub struct DefaultEnvironmentProvider {
     exec_server_url: Option<String>,
 }
 
 impl DefaultEnvironmentProvider {
-    /// Builds a provider from an already-read raw `CODEX_EXEC_SERVER_URL` value.
+    /// Builds a provider from an already-read raw `CX_EXEC_SERVER_URL` value.
     pub fn new(exec_server_url: Option<String>) -> Self {
         Self { exec_server_url }
     }
 
-    /// Builds a provider by reading `CODEX_EXEC_SERVER_URL`.
+    /// Builds a provider by reading `CX_EXEC_SERVER_URL`.
     pub fn from_env() -> Self {
-        Self::new(std::env::var(CODEX_EXEC_SERVER_URL_ENV_VAR).ok())
+        Self::new(std::env::var(CX_EXEC_SERVER_URL_ENV_VAR).ok())
     }
 
     pub(crate) fn snapshot_inner(&self) -> EnvironmentProviderSnapshot {

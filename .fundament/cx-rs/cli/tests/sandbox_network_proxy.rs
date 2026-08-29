@@ -34,7 +34,7 @@ mode = "full"
 
     let url = format!("http://127.0.0.2:{port}/");
     let output = std::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args([
             "sandbox",
             "--permission-profile",
@@ -125,7 +125,7 @@ allow_local_binding = false
 
     let url = format!("http://127.0.0.2:{port}/");
     let output = std::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args([
             "sandbox",
             "--permission-profile",

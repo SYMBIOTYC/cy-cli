@@ -17,7 +17,7 @@ use crate::tools::router::ToolRouter;
 use crate::tools::router::tool_log_payload;
 use cx_memories_read::citations::parse_memory_citation;
 use cx_memories_read::citations::thread_ids_from_memory_citation;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 use cx_protocol::memory_citation::MemoryCitation;
 use cx_protocol::models::FunctionCallOutputBody;
@@ -382,7 +382,7 @@ pub(crate) async fn handle_output_item_done(
         }
         // A fatal error occurred; surface it back into history.
         Err(FunctionCallError::Fatal(message)) => {
-            return Err(CodexErr::Fatal(message));
+            return Err(CxErr::Fatal(message));
         }
     }
 

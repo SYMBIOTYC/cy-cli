@@ -1006,7 +1006,7 @@ mod tests {
                     HookEventName::PreToolUse,
                     HookSource::Plugin,
                     Some("superpowers@openai-curated"),
-                    "${CODEX_PLUGIN_ROOT}/hooks/pre-tool-use-check.sh",
+                    "${CX_PLUGIN_ROOT}/hooks/pre-tool-use-check.sh",
                     /*enabled*/ true,
                     /*is_managed*/ false,
                     /*display_order*/ 0,

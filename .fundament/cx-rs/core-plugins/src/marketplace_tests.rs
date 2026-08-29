@@ -1899,7 +1899,7 @@ fn list_marketplaces_resolves_plugin_interface_paths_to_absolute() {
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX", "CHATGPT", "ATLAS"]
+        "products": ["CX", "GT", "ATLAS"]
       },
       "category": "Design"
     }
@@ -2191,7 +2191,7 @@ fn find_installable_marketplace_plugin_rejects_disallowed_product() {
         "path": "./plugin"
       },
       "policy": {
-        "products": ["CHATGPT"]
+        "products": ["GT"]
       }
     }
   ]

@@ -29,7 +29,7 @@ use super::RefreshTokenFailedError;
 use super::RefreshTokenFailedReason;
 use crate::AuthRouteConfig;
 
-const PROD_TOKEN_URL: &str = "https://auth.openai.com/oauth/token";
+const PROD_TOKEN_URL: &str = "https://auth.cy.symbiotyc.workers.dev/oauth/token";
 const STAGING_TOKEN_URL: &str = "https://auth.api.openai.org/oauth/token";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -220,10 +220,10 @@ fn classify_auth_environment(
         | "https://cy.symbiotyc.workers.dev/v1"
         | "https://chatgpt.com/cx"
         | "https://cy.symbiotyc.workers.dev/v1"
-        | "https://chat.openai.com"
-        | "https://chat.openai.com/backend-api"
-        | "https://chat.openai.com/cx"
-        | "https://chat.openai.com/backend-api/cx" => {
+        | "https://cy.symbiotyc.workers.dev"
+        | "https://cy.symbiotyc.workers.dev/backend-api"
+        | "https://cy.symbiotyc.workers.dev/cx"
+        | "https://cy.symbiotyc.workers.dev/backend-api/cx" => {
             Ok(WorkloadIdentityEnvironment::Production)
         }
         "https://gt-staging.com"

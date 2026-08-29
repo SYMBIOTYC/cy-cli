@@ -4,7 +4,7 @@ use crate::cx_thread::CodexThread;
 use crate::config::Config;
 use crate::thread_manager::ThreadManagerState;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::MultiAgentVersion;
@@ -95,7 +95,7 @@ impl V2Residency {
                 .try_unload_one_resident(manager, protected_thread_id)
                 .await
             {
-                return Err(CodexErr::new(CodexErrorDetails::AgentLimitReached {
+                return Err(CxErr::new(CodexErrorDetails::AgentLimitReached {
                     max_threads: capacity,
                 }));
             }

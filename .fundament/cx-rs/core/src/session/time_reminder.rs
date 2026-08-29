@@ -1,7 +1,7 @@
 use chrono::DateTime;
 use chrono::Utc;
 use cx_features::CurrentTimeReminderDeliveryMode;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::ResponseItem;
 
@@ -82,7 +82,7 @@ pub(super) async fn maybe_record_current_time_reminder(
         .time_provider
         .current_time(sess.thread_id)
         .await
-        .map_err(|err| CodexErr::Fatal(format!("failed to read current time: {err:#}")))?;
+        .map_err(|err| CxErr::Fatal(format!("failed to read current time: {err:#}")))?;
 
     let reminder_is_due = {
         let mut state = sess.state.lock().await;

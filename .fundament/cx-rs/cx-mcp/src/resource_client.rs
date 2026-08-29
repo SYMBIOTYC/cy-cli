@@ -20,7 +20,7 @@ use tokio::runtime::Handle;
 
 use crate::McpRuntime;
 use crate::connection_manager::McpConnectionSet;
-use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
+use crate::mcp::CX_APPS_MCP_SERVER_NAME;
 
 /// One page of resources returned by an MCP server.
 #[derive(Clone, Debug, PartialEq)]
@@ -225,7 +225,7 @@ impl McpResourceClient {
         let connections = self.runtime.latest_connections();
         let cache_key = McpResourceClientCacheKey(Arc::downgrade(&connections));
         let (managed, request_timeout) = connections
-            .client_by_name(CODEX_APPS_MCP_SERVER_NAME)
+            .client_by_name(CX_APPS_MCP_SERVER_NAME)
             .await?;
         let result = managed
             .client
@@ -262,7 +262,7 @@ impl McpResourceClient {
 
         let connections = self.runtime.latest_connections();
         let (managed, _) = connections
-            .client_by_name(CODEX_APPS_MCP_SERVER_NAME)
+            .client_by_name(CX_APPS_MCP_SERVER_NAME)
             .await?;
         let request = managed
             .client

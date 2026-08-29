@@ -94,8 +94,8 @@ source = {good_url:?}
 
 #[test]
 fn automatic_marketplace_git_ignores_inherited_repository_configuration() {
-    const CHILD_HOME: &str = "CODEX_MARKETPLACE_GIT_ISOLATION_CHILD_HOME";
-    const CHILD_SOURCE: &str = "CODEX_MARKETPLACE_GIT_ISOLATION_CHILD_SOURCE";
+    const CHILD_HOME: &str = "CX_MARKETPLACE_GIT_ISOLATION_CHILD_HOME";
+    const CHILD_SOURCE: &str = "CX_MARKETPLACE_GIT_ISOLATION_CHILD_SOURCE";
 
     if let Some(cx_home) = std::env::var_os(CHILD_HOME) {
         let cx_home = PathBuf::from(cx_home);

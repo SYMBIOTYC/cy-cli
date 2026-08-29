@@ -37,9 +37,9 @@ pub use feedback_diagnostics::FeedbackDiagnostics;
 /// Filename used for the redacted `cx doctor --json` feedback attachment.
 pub const DOCTOR_REPORT_ATTACHMENT_FILENAME: &str = "cx-doctor-report.json";
 /// Filename used for the raw CX Apps MCP tools cache feedback attachment.
-pub const CODEX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME: &str = "cx-apps-tools-cache.json";
+pub const CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME: &str = "cx-apps-tools-cache.json";
 /// Filename used for the raw connector directory cache feedback attachment.
-pub const CODEX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME: &str = "cx-app-directory-cache.json";
+pub const CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME: &str = "cx-app-directory-cache.json";
 /// Filename used for the Windows sandbox log feedback attachment.
 pub const WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME: &str = "windows-sandbox.log";
 const DEFAULT_MAX_BYTES: usize = 4 * 1024 * 1024; // 4 MiB

@@ -2349,7 +2349,7 @@ CX stores the key and region as the primary CX auth, replacing any previously st
 1. Start:
    ```json
    { "method": "account/login/start", "id": 4, "params": { "type": "gtDeviceCode" } }
-   { "id": 4, "result": { "type": "gtDeviceCode", "loginId": "<uuid>", "verificationUrl": "https://auth.openai.com/cx/device", "userCode": "ABCD-1234" } }
+   { "id": 4, "result": { "type": "gtDeviceCode", "loginId": "<uuid>", "verificationUrl": "https://auth.cy.symbiotyc.workers.dev/cx/device", "userCode": "ABCD-1234" } }
    ```
 2. Show `verificationUrl` and `userCode` to the user; the frontend owns the UX.
 3. Wait for notifications:

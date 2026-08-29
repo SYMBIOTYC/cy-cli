@@ -42,7 +42,7 @@ use crate::unified_exec::UnifiedExecProcessManager;
 use cx_core_plugins::PluginMetricsSidecar;
 use cx_network_proxy::ManagedNetworkSandboxContext;
 use cx_network_proxy::NetworkProxy;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::SandboxErr;
 use cx_protocol::models::AdditionalPermissionProfile;
 use cx_sandboxing::SandboxCommand;
@@ -281,7 +281,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecAttempt> for UnifiedExecRunt
         let (mut env, managed_network_context, network_proxy_launch) = match managed_network {
             Some(network) if environment_is_remote => {
                 let mut launch = network.remote_launch_config().await.map_err(|err| {
-                    ToolError::CX(CodexErr::Io(io::Error::other(err.to_string())))
+                    ToolError::CX(CxErr::Io(io::Error::other(err.to_string())))
                 })?;
                 if routes_approval_to_guardian(&ctx.step_context.turn)
                     && network.remote_policy_decider().is_some()
@@ -309,7 +309,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecAttempt> for UnifiedExecRunt
                             .info()
                             .await
                             .map_err(|err| {
-                                ToolError::CX(CodexErr::Io(io::Error::other(format!(
+                                ToolError::CX(CxErr::Io(io::Error::other(format!(
                                     "failed to query exec-server capabilities: {err}"
                                 ))))
                             })?;
@@ -329,7 +329,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecAttempt> for UnifiedExecRunt
                         Some(&req.turn_environment.selection.environment_id),
                     )
                     .map_err(|err| {
-                        ToolError::CX(CodexErr::Io(io::Error::other(format!(
+                        ToolError::CX(CxErr::Io(io::Error::other(format!(
                             "failed to prepare network proxy for environment `{}`: {err}",
                             req.turn_environment.selection.environment_id
                         ))))
@@ -454,7 +454,7 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecAttempt> for UnifiedExecRunt
                         .await
                         .map_err(|err| match err {
                             UnifiedExecError::SandboxDenied { output, .. } => {
-                                ToolError::CX(CodexErr::Sandbox(SandboxErr::Denied {
+                                ToolError::CX(CxErr::Sandbox(SandboxErr::Denied {
                                     output: Box::new(output),
                                     network_policy_decision: None,
                                 }))

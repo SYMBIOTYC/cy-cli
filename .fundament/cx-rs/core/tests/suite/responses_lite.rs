@@ -11,7 +11,7 @@ use cx_features::Feature;
 use cx_image_generation_extension::install as install_image_generation_extension;
 use cx_login::CodexAuth;
 use cx_login::auth::BedrockApiKeyAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_protocol::config_types::WebSearchMode;
 use cx_protocol::models::ImageDetail;
 use cx_protocol::openai_models::InputModality;
@@ -188,7 +188,7 @@ async fn responses_lite_includes_tool_namespaces_info_when_enabled() -> Result<(
             config.tool_registry.turn_metadata_includes_tool_info = true;
         });
     let test = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     test.submit_turn("hello").await?;
 

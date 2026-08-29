@@ -56,7 +56,7 @@ impl ExecServerProcess {
         let cx_home = TempDir::new()?;
         let mut child = Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
             .args(["exec-server", "--listen", "ws://127.0.0.1:0"])
-            .env("CODEX_HOME", cx_home.path())
+            .env("CX_HOME", cx_home.path())
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())

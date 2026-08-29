@@ -303,7 +303,7 @@ fn lock_sandbox_dir(
     real_user_mask: u32,
     setup_mode: SetupMode,
 ) -> Result<()> {
-    // ProvisionOnly accepts another user's CODEX_HOME; keep its ACL mutation
+    // ProvisionOnly accepts another user's CX_HOME; keep its ACL mutation
     // bound to a no-reparse handle without changing full setup behavior.
     let directory = match setup_mode {
         SetupMode::Full | SetupMode::ReadAclsOnly => {
@@ -420,7 +420,7 @@ pub fn main() -> Result<()> {
     let ret = real_main();
     if let Err(e) = &ret {
         // Best-effort: log unexpected top-level errors.
-        if let Ok(cx_home) = std::env::var("CODEX_HOME") {
+        if let Ok(cx_home) = std::env::var("CX_HOME") {
             let sbx_dir = sandbox_dir(Path::new(&cx_home));
             let _ = std::fs::create_dir_all(&sbx_dir);
             if let Some(mut f) = log_writer(&sbx_dir) {

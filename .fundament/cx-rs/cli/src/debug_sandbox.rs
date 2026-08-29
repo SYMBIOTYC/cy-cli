@@ -17,8 +17,8 @@ use cx_core::config::NetworkProxyAuditMetadata;
 use cx_core::config::find_cx_home;
 use cx_core::exec_env::create_env;
 #[cfg(target_os = "macos")]
-use cx_core::spawn::CODEX_SANDBOX_ENV_VAR;
-use cx_core::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
+use cx_core::spawn::CX_SANDBOX_ENV_VAR;
+use cx_core::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use cx_protocol::config_types::SandboxMode;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::models::SandboxEnforcement;
@@ -400,7 +400,7 @@ async fn run_command_under_sandbox(
                 network_sandbox_policy,
                 env,
                 |env_map| {
-                    env_map.insert(CODEX_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
+                    env_map.insert(CX_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
                     if let Some(network) = network.as_ref() {
                         network.apply_to_env(env_map);
                     }
@@ -537,7 +537,7 @@ async fn spawn_debug_sandbox_child(
     cmd.envs(env);
 
     if !network_sandbox_policy.is_enabled() {
-        cmd.env(CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR, "1");
+        cmd.env(CX_SANDBOX_NETWORK_DISABLED_ENV_VAR, "1");
     }
 
     cmd.stdin(Stdio::inherit())

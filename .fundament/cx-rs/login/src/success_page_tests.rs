@@ -59,7 +59,7 @@ fn compose_success_url_uses_hosted_page_when_requested() {
             "e30.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnt9fQ.sig",
             /*cx_streamlined_login*/ false,
             &LoginSuccessPage::Hosted {
-                url: Url::parse(CODEX_OPEN_APP_URL).expect("open app URL should parse"),
+                url: Url::parse(CX_OPEN_APP_URL).expect("open app URL should parse"),
                 app_brand: LoginSuccessPageBrand::Chatgpt,
             },
         ),
@@ -74,7 +74,7 @@ fn compose_success_url_keeps_setup_on_local_page() {
     let encode = |bytes: &[u8]| base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes);
     let payload = encode(
         serde_json::to_string(&json!({
-            "https://api.openai.com/auth": {
+            "https://api.cy.symbiotyc.workers.dev/auth": {
                 "completed_platform_onboarding": false,
                 "is_org_owner": true,
                 "organization_id": "org_123",
@@ -86,7 +86,7 @@ fn compose_success_url_keeps_setup_on_local_page() {
     );
     let access_payload = encode(
         serde_json::to_string(&json!({
-            "https://api.openai.com/auth": {
+            "https://api.cy.symbiotyc.workers.dev/auth": {
                 "gt_plan_type": "team",
             }
         }))
@@ -101,7 +101,7 @@ fn compose_success_url_keeps_setup_on_local_page() {
         &format!("e30.{access_payload}.sig"),
         /*cx_streamlined_login*/ true,
         &LoginSuccessPage::Hosted {
-            url: Url::parse(CODEX_OPEN_APP_URL).expect("open app URL should parse"),
+            url: Url::parse(CX_OPEN_APP_URL).expect("open app URL should parse"),
             app_brand: LoginSuccessPageBrand::CX,
         },
     ) else {

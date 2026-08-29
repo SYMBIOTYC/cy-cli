@@ -1,7 +1,7 @@
 use cx_aws_auth::AwsAuthConfig;
 use cx_login::auth::BedrockApiKeyAuth;
 use cx_model_provider_info::ModelProviderAwsAuthInfo;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 
 use super::BedrockEndpoint;
@@ -48,7 +48,7 @@ pub(super) fn base_url(region: &str) -> Result<String> {
     if is_supported_amazon_bedrock_region(region) {
         Ok(format!("https://bedrock-mantle.{region}.api.aws/openai/v1"))
     } else {
-        Err(CodexErr::Fatal(format!(
+        Err(CxErr::Fatal(format!(
             "Amazon Bedrock Mantle does not support region `{region}`"
         )))
     }

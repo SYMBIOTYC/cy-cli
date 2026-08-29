@@ -29,7 +29,7 @@ use cx_model_provider::AgentIdentitySessionFallback;
 use cx_model_provider::ProviderAuthScope;
 use cx_model_provider::SharedModelProvider;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::ContentItem;
 use cx_protocol::models::ResponseItem;
 use cx_protocol::openai_models::ReasoningEffort;
@@ -106,7 +106,7 @@ pub struct LunaSamplingRequest {
 pub enum LunaSamplerError {
     /// The thread's provider or scoped credentials could not be resolved.
     #[error("could not resolve the Luna model provider: {0}")]
-    Provider(#[source] CodexErr),
+    Provider(#[source] CxErr),
     /// The Responses WebSocket could not be opened or streamed.
     #[error("Luna Responses WebSocket failed: {0}")]
     Api(#[source] ApiError),

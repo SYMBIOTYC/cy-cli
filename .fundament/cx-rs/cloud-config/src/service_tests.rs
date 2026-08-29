@@ -113,7 +113,7 @@ async fn auth_manager_with_agent_identity_business_plan() -> Arc<AuthManager> {
                 gt_account_is_fedramp: false,
                 task_id: Some("task-123".to_string()),
             },
-            "https://auth.openai.com/api/accounts",
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts",
             &cx_login::test_support::transport_default_auth_route_config(),
         )
         .await
@@ -168,7 +168,7 @@ fn fake_gt_jwt(plan_type: &str, gt_user_id: Option<&str>, signature: &[u8]) -> S
     });
     let payload = json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": auth_payload,
+        "https://api.cy.symbiotyc.workers.dev/auth": auth_payload,
     });
     let header_b64 = URL_SAFE_NO_PAD.encode(serde_json::to_vec(&header).expect("header"));
     let payload_b64 = URL_SAFE_NO_PAD.encode(serde_json::to_vec(&payload).expect("payload"));

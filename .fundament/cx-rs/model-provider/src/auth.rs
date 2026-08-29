@@ -16,7 +16,7 @@ use cx_login::auth::AgentIdentityAuth;
 use cx_login::auth::AgentIdentityAuthError;
 use cx_login::auth::AgentIdentityAuthPolicy;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::protocol::SessionSource;
 use http::HeaderMap;
 use http::HeaderValue;
@@ -207,7 +207,7 @@ pub(crate) fn resolve_provider_auth(
     }
 
     if matches!(auth, Some(CodexAuth::BedrockApiKey(_))) {
-        return Err(CodexErr::UnsupportedOperation(
+        return Err(CxErr::UnsupportedOperation(
             BEDROCK_API_KEY_UNSUPPORTED_MESSAGE.to_string(),
         ));
     }
@@ -379,7 +379,7 @@ mod tests {
                 gt_account_is_fedramp,
                 task_id: Some("task-run-1".to_string()),
             },
-            "https://auth.openai.com/api/accounts",
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts",
             &cx_login::test_support::transport_default_auth_route_config(),
         )
         .await

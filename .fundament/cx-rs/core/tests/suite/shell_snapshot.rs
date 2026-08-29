@@ -49,7 +49,7 @@ struct SnapshotRun {
 
 const POLICY_PATH_FOR_TEST: &str = "/cx/policy/path";
 const SNAPSHOT_PATH_FOR_TEST: &str = "/cx/snapshot/path";
-const SNAPSHOT_MARKER_VAR: &str = "CODEX_SNAPSHOT_POLICY_MARKER";
+const SNAPSHOT_MARKER_VAR: &str = "CX_SNAPSHOT_POLICY_MARKER";
 const SNAPSHOT_MARKER_VALUE: &str = "from_snapshot";
 const POLICY_SUCCESS_OUTPUT: &str = "policy-after-snapshot";
 

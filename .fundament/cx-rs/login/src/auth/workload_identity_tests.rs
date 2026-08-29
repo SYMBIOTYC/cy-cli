@@ -183,7 +183,7 @@ fn jwt(label: &str, user_id: &str) -> String {
     let header = encode(&serde_json::json!({"alg": "none", "typ": "JWT"}));
     let payload = encode(&serde_json::json!({
         "jti": label,
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_account_id": "account-one",
             "gt_plan_type": "enterprise",
             "gt_user_id": user_id,

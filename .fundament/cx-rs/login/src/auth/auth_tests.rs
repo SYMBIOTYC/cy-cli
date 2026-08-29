@@ -218,9 +218,9 @@ async fn agent_identity_jwt_uses_explicit_staging_endpoint_overrides() -> anyhow
     .await;
     let authapi_base_url = format!("{}/api/accounts/", authapi_server.uri());
     let _authapi_guard =
-        EnvVarGuard::set("CODEX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+        EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
     let jwks_base_url = format!("{}/api/cx/", jwks_server.uri());
-    let _jwks_guard = EnvVarGuard::set("CODEX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
+    let _jwks_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
     let auth = CodexAuth::from_agent_identity_jwt(
         &jwt,
@@ -260,9 +260,9 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
     .await;
     let authapi_base_url = format!("{}/api/accounts", authapi_server.uri());
     let _authapi_guard =
-        EnvVarGuard::set("CODEX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+        EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
     let jwks_base_url = format!("{}/api/cx", jwks_server.uri());
-    let _jwks_guard = EnvVarGuard::set("CODEX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
+    let _jwks_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
     let auth = CodexAuth::from_agent_identity_jwt(
         &jwt,
@@ -284,11 +284,11 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
 #[serial(cx_auth_env)]
 fn agent_identity_authapi_override_preserves_gt_environment_validation() {
     let _authapi_guard = EnvVarGuard::set(
-        "CODEX_AGENT_IDENTITY_AUTHAPI_BASE_URL",
+        "CX_AGENT_IDENTITY_AUTHAPI_BASE_URL",
         "https://authapi.example/api/accounts",
     );
     let _jwks_guard = EnvVarGuard::set(
-        "CODEX_AGENT_IDENTITY_JWKS_BASE_URL",
+        "CX_AGENT_IDENTITY_JWKS_BASE_URL",
         "https://jwks.example/api/cx",
     );
 
@@ -304,9 +304,9 @@ fn agent_identity_authapi_override_preserves_gt_environment_validation() {
 #[test]
 #[serial(cx_auth_env)]
 fn agent_identity_custom_jwks_base_requires_explicit_authapi_override() {
-    let _authapi_guard = EnvVarGuard::remove("CODEX_AGENT_IDENTITY_AUTHAPI_BASE_URL");
+    let _authapi_guard = EnvVarGuard::remove("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL");
     let jwks_base_url = "https://jwks.example/api/cx";
-    let _jwks_guard = EnvVarGuard::set("CODEX_AGENT_IDENTITY_JWKS_BASE_URL", jwks_base_url);
+    let _jwks_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_JWKS_BASE_URL", jwks_base_url);
 
     let error = agent_identity_authapi_base_url(Some(jwks_base_url))
         .expect_err("custom JWKS bases must also explicitly configure AuthAPI");
@@ -324,7 +324,7 @@ async fn agent_identity_jwks_override_preserves_gt_environment_validation() {
     let jwt =
         signed_agent_identity_jwt(&record, json!(record.plan_type)).expect("signed agent identity");
     let _jwks_guard = EnvVarGuard::set(
-        "CODEX_AGENT_IDENTITY_JWKS_BASE_URL",
+        "CX_AGENT_IDENTITY_JWKS_BASE_URL",
         "https://jwks.example/api/cx",
     );
 
@@ -421,7 +421,7 @@ async fn login_with_access_token_writes_only_personal_access_token() {
         .expect(1)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let allowed_workspaces = [WORKSPACE_ID_ALLOWED.to_string()];
     super::login_with_access_token(
         dir.path(),
@@ -473,7 +473,7 @@ async fn login_with_access_token_rejects_personal_access_token_workspace_mismatc
         .expect(1)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let allowed_workspaces = [WORKSPACE_ID_ALLOWED.to_string()];
 
     let err = super::login_with_access_token(
@@ -507,7 +507,7 @@ async fn login_with_access_token_rejects_invalid_personal_access_token() {
         .expect(1)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
 
     let err = super::login_with_access_token(
         dir.path(),
@@ -1768,7 +1768,7 @@ fn fake_jwt_for_auth_file_params(params: &AuthFileParams) -> std::io::Result<Str
     let payload = serde_json::json!({
         "email": "user@example.com",
         "email_verified": true,
-        "https://api.openai.com/auth": auth_payload,
+        "https://api.cy.symbiotyc.workers.dev/auth": auth_payload,
     });
     let b64 = |b: &[u8]| base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(b);
     let header_b64 = b64(&serde_json::to_vec(&header)?);
@@ -1834,7 +1834,7 @@ impl Drop for EnvVarGuard {
 }
 
 fn remove_access_token_env_var() -> EnvVarGuard {
-    EnvVarGuard::remove(CODEX_ACCESS_TOKEN_ENV_VAR)
+    EnvVarGuard::remove(CX_ACCESS_TOKEN_ENV_VAR)
 }
 
 struct TestAuthManagerConfig(AuthConfig);
@@ -1910,7 +1910,7 @@ fn auth_config_from_preserves_all_fields() {
 async fn shared_from_config_prefers_workload_identity_to_explicit_access_token() {
     let cx_home = tempdir().expect("tempdir");
     let config = test_auth_manager_config(cx_home.path());
-    let _access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, "at-explicit");
+    let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, "at-explicit");
     let _rule_guard = EnvVarGuard::set(OI_FEDERATION_RULE_ID_ENV_VAR, "rule-one");
     let _assertion_file_guard = EnvVarGuard::remove(OI_IDENTITY_TOKEN_FILE_ENV_VAR);
 
@@ -1949,7 +1949,7 @@ async fn load_auth_reads_access_token_from_env() {
         .mount(&server)
         .await;
     expected_record.task_id = Some("task-123".to_string());
-    let _access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
+    let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
 
     let authapi_base_url = server.uri();
     let gt_base_url = format!("{authapi_base_url}/backend-api");
@@ -1995,8 +1995,8 @@ async fn load_auth_reads_personal_access_token_from_env() {
         .expect(2)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
-    let _access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, "at-env-test");
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
+    let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, "at-env-test");
 
     for auth_credentials_store_mode in [
         AuthCredentialsStoreMode::File,
@@ -2054,9 +2054,9 @@ async fn auth_manager_rejects_env_personal_access_token_workspace_mismatch() {
         .expect(1)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let _access_token_guard =
-        EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, "at-env-workspace-mismatch");
+        EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, "at-env-workspace-mismatch");
 
     let manager = AuthManager::new(
         cx_home.path().to_path_buf(),
@@ -2090,7 +2090,7 @@ async fn auth_manager_rejects_stored_personal_access_token_workspace_mismatch() 
         .expect(4)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let _access_token_guard = remove_access_token_env_var();
 
     for auth_credentials_store_mode in [
@@ -2140,9 +2140,9 @@ async fn personal_access_token_does_not_offer_unauthorized_recovery() {
         .expect(1)
         .mount(&server)
         .await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let _access_token_guard =
-        EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, "at-no-unauthorized-recovery");
+        EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, "at-no-unauthorized-recovery");
     let manager = Arc::new(
         AuthManager::new(
             cx_home.path().to_path_buf(),
@@ -2173,8 +2173,8 @@ async fn load_auth_keeps_cx_api_key_env_precedence() {
     let cx_home = tempdir().unwrap();
     let record = agent_identity_record(WORKSPACE_ID_ALLOWED);
     let agent_identity = fake_agent_identity_jwt(&record).expect("fake agent identity");
-    let _access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
-    let _api_key_guard = EnvVarGuard::set(CODEX_API_KEY_ENV_VAR, "sk-env");
+    let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
+    let _api_key_guard = EnvVarGuard::set(CX_API_KEY_ENV_VAR, "sk-env");
 
     let auth = super::load_auth(
         cx_home.path(),
@@ -2265,8 +2265,8 @@ async fn auth_manager_rejects_disallowed_stored_and_external_auth() {
 async fn api_only_policy_rejects_access_tokens_before_hydration() {
     let cx_home = tempdir().unwrap();
     let server = MockServer::start().await;
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
-    let _access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, "at-rejected");
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
+    let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, "at-rejected");
     let mut config = build_config(
         cx_home.path(),
         /*forced_login_method*/ None,
@@ -2298,9 +2298,9 @@ async fn workspace_policy_rejects_agent_identity_before_hydration() {
     let record = agent_identity_record(WORKSPACE_ID_DISALLOWED);
     let agent_identity =
         signed_agent_identity_jwt(&record, json!(record.plan_type)).expect("signed agent identity");
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     let _access_token_reset = remove_access_token_env_var();
-    let access_token_guard = EnvVarGuard::set(CODEX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
+    let access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
     let mut config = build_config(
         cx_home.path(),
         /*forced_login_method*/ None,
@@ -2440,7 +2440,7 @@ async fn enforce_login_restrictions_logs_out_for_personal_access_token_workspace
         .mount(&server)
         .await;
     let _access_token_guard = remove_access_token_env_var();
-    let _authapi_guard = EnvVarGuard::set("CODEX_AUTHAPI_BASE_URL", &server.uri());
+    let _authapi_guard = EnvVarGuard::set("CX_AUTHAPI_BASE_URL", &server.uri());
     super::login_with_access_token(
         cx_home.path(),
         "at-workspace-mismatch",
@@ -2642,7 +2642,7 @@ async fn enforce_login_restrictions_allows_api_key_if_login_method_not_set_but_f
 #[tokio::test]
 #[serial(cx_auth_env)]
 async fn enforce_login_restrictions_blocks_env_api_key_when_gt_required() {
-    let _guard = EnvVarGuard::set(CODEX_API_KEY_ENV_VAR, "sk-env");
+    let _guard = EnvVarGuard::set(CX_API_KEY_ENV_VAR, "sk-env");
     let _access_token_guard = remove_access_token_env_var();
     let cx_home = tempdir().unwrap();
 

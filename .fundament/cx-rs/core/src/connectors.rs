@@ -30,7 +30,7 @@ use cx_core_plugins::PluginsManager;
 use cx_features::Feature;
 use cx_login::AuthManager;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::MCP_TOOL_CODEX_APPS_META_KEY;
 use cx_mcp::McpRuntime;
 use cx_mcp::McpRuntimeContext;
@@ -239,7 +239,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     }
 
     let mut mcp_servers = effective_mcp_servers(&mcp_config, auth.as_ref());
-    mcp_servers.retain(|name, _| name == CODEX_APPS_MCP_SERVER_NAME);
+    mcp_servers.retain(|name, _| name == CX_APPS_MCP_SERVER_NAME);
     if mcp_servers.is_empty() {
         return Ok(AccessibleConnectorsStatus {
             connectors: Vec::new(),
@@ -285,7 +285,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
             Ok(tools) => Some(tools),
             Err(err) => {
                 warn!(
-                    "failed to force-refresh tools for MCP server '{CODEX_APPS_MCP_SERVER_NAME}', using cached/startup tools: {err:#}"
+                    "failed to force-refresh tools for MCP server '{CX_APPS_MCP_SERVER_NAME}', using cached/startup tools: {err:#}"
                 );
                 None
             }
@@ -303,9 +303,9 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     let mut should_reload_tools = false;
     let cx_apps_ready = if refreshed_tools_succeeded {
         true
-    } else if let Some(cfg) = mcp_servers.get(CODEX_APPS_MCP_SERVER_NAME) {
+    } else if let Some(cfg) = mcp_servers.get(CX_APPS_MCP_SERVER_NAME) {
         let immediate_ready = mcp_runtime
-            .latest_wait_for_server_ready(CODEX_APPS_MCP_SERVER_NAME, Duration::ZERO)
+            .latest_wait_for_server_ready(CX_APPS_MCP_SERVER_NAME, Duration::ZERO)
             .await;
         if immediate_ready {
             true
@@ -315,7 +315,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
                 .startup_timeout_sec
                 .unwrap_or(CONNECTORS_READY_TIMEOUT_ON_EMPTY_TOOLS);
             let ready = mcp_runtime
-                .latest_wait_for_server_ready(CODEX_APPS_MCP_SERVER_NAME, timeout)
+                .latest_wait_for_server_ready(CX_APPS_MCP_SERVER_NAME, timeout)
                 .await;
             should_reload_tools = ready;
             ready
@@ -474,7 +474,7 @@ fn collect_accessible_connectors_from_mcp_tools<'a>(
     // ToolInfo already carries plugin provenance, so app-level plugin sources
     // can be derived here instead of requiring a separate enrichment pass.
     let tools = mcp_tools.filter_map(|tool| {
-        if tool.server_name != CODEX_APPS_MCP_SERVER_NAME {
+        if tool.server_name != CX_APPS_MCP_SERVER_NAME {
             return None;
         }
         let connector_id = tool.connector_id.as_deref()?;
@@ -526,7 +526,7 @@ pub(crate) fn mcp_approvals_reviewer_from_layers(
         return ApprovalsReviewer::AutoReview;
     }
 
-    let app_reviewer = if server_name == CODEX_APPS_MCP_SERVER_NAME {
+    let app_reviewer = if server_name == CX_APPS_MCP_SERVER_NAME {
         apps_config_from_layer_stack(config_layer_stack).and_then(|apps_config| {
             connector_id
                 .and_then(|connector_id| apps_config.apps.get(connector_id))

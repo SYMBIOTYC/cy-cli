@@ -25,7 +25,7 @@ prefix_rule(
     )?;
 
     let output = Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args([
             "execpolicy",
             "check",
@@ -82,7 +82,7 @@ prefix_rule(
     )?;
 
     let output = Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args([
             "execpolicy",
             "check",

@@ -4,7 +4,7 @@ use url::Url;
 
 use crate::server::DEFAULT_ISSUER;
 
-pub const CODEX_OPEN_APP_URL: &str = "https://chatgpt.com/cx/open-app";
+pub const CX_OPEN_APP_URL: &str = "https://chatgpt.com/cx/open-app";
 
 #[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub enum LoginSuccessPage {
@@ -120,12 +120,12 @@ pub(crate) fn jwt_auth_claims(jwt: &str) -> serde_json::Map<String, serde_json::
         Ok(bytes) => match serde_json::from_slice::<serde_json::Value>(&bytes) {
             Ok(mut value) => {
                 if let Some(claims) = value
-                    .get_mut("https://api.openai.com/auth")
+                    .get_mut("https://api.cy.symbiotyc.workers.dev/auth")
                     .and_then(JsonValue::as_object_mut)
                 {
                     return claims.clone();
                 }
-                eprintln!("JWT payload missing expected 'https://api.openai.com/auth' object");
+                eprintln!("JWT payload missing expected 'https://api.cy.symbiotyc.workers.dev/auth' object");
             }
             Err(error) => {
                 eprintln!("Failed to parse JWT JSON payload: {error}");

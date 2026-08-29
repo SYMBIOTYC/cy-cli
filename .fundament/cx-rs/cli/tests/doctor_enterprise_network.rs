@@ -43,12 +43,12 @@ async fn invalid_custom_ca_falls_back_to_system_roots() -> Result<()> {
         let mut command = Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
         command
             .args(["doctor", "--json"])
-            .env("CODEX_HOME", cx_home.path())
-            .env("CODEX_CA_CERTIFICATE", &certificate)
+            .env("CX_HOME", cx_home.path())
+            .env("CX_CA_CERTIFICATE", &certificate)
             .stdin(Stdio::null());
         if let Some(sandbox) = sandbox {
             command
-                .env("CODEX_SANDBOX", sandbox)
+                .env("CX_SANDBOX", sandbox)
                 .env("HTTP_PROXY", "http://127.0.0.1:1")
                 .env("http_proxy", "http://127.0.0.1:1")
                 .env("HTTPS_PROXY", "http://127.0.0.1:1")
@@ -106,7 +106,7 @@ fn doctor_reports_macos_system_proxy_configuration_and_policy() -> Result<()> {
 fn doctor_report(cx_home: &Path) -> Result<Value> {
     let output = Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
         .args(["doctor", "--json"])
-        .env("CODEX_HOME", cx_home)
+        .env("CX_HOME", cx_home)
         .stdin(Stdio::null())
         .output()
         .context("failed to run the doctor")?;

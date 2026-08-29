@@ -1466,9 +1466,9 @@ async fn plugin_read_returns_plugin_details_with_bundle_contents() -> Result<()>
     "developerName": "oi",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
-    "websiteURL": "https://openai.com/",
-    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
-    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "websiteURL": "https://cy.symbiotyc.workers.dev/",
+    "privacyPolicyURL": "https://cy.symbiotyc.workers.dev/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://cy.symbiotyc.workers.dev/policies/row-terms-of-use/",
     "defaultPrompt": [
       "Draft the reply",
       "Find my next action"
@@ -1506,7 +1506,7 @@ description: Visible only for gt
         plugin_root.join("skills/thread-summarizer/agents/openai.yaml"),
         r#"policy:
   products:
-    - CODEX
+    - CX
 "#,
     )?;
     std::fs::create_dir_all(plugin_root.join("skills/gt-only/agents"))?;
@@ -1976,8 +1976,8 @@ async fn plugin_read_hides_apps_for_api_key_auth() -> Result<()> {
         .with_cx_home(cx_home.path())
         .without_auto_env()
         .with_env_overrides(&[
-            ("CODEX_ACCESS_TOKEN", None),
-            ("CODEX_API_KEY", None),
+            ("CX_ACCESS_TOKEN", None),
+            ("CX_API_KEY", None),
             ("OPENAI_API_KEY", None),
         ])
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)

@@ -354,7 +354,7 @@ fn prepare_path_entry_for_cx_aliases(
     }
 
     std::fs::create_dir_all(&cx_home)?;
-    // Use a CODEX_HOME-scoped temp root to avoid cluttering the top-level directory.
+    // Use a CX_HOME-scoped temp root to avoid cluttering the top-level directory.
     let temp_root = cx_home.join("tmp").join("arg0");
     std::fs::create_dir_all(&temp_root)?;
     #[cfg(unix)]

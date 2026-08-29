@@ -23,7 +23,7 @@ use crate::cx_apps::normalize_cx_apps_callable_namespace;
 use crate::cx_apps::normalize_cx_apps_tool_title;
 use crate::cx_apps::prepare_openai_file_params_for_model;
 use crate::elicitation::ElicitationRequestManager;
-use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
+use crate::mcp::CX_APPS_MCP_SERVER_NAME;
 use crate::mcp::ToolPluginProvenance;
 use crate::openai_docs_source_attribution::maybe_with_openai_docs_source_attribution;
 use crate::pagination::collect_paginated_with_limit;
@@ -88,12 +88,12 @@ const MCP_TOOL_CATALOG_CACHEABLE_PROPERTY: &str = "cacheable";
 pub(crate) const MCP_TOOLS_LIST_DURATION_METRIC: &str = "cx.mcp.tools.list.duration_ms";
 pub(crate) const MCP_TOOLS_FETCH_UNCACHED_DURATION_METRIC: &str =
     "cx.mcp.tools.fetch_uncached.duration_ms";
-pub(crate) const CODEX_APPS_REFRESH_DURATION_METRIC: &str = "cx.apps.refresh.duration_ms";
+pub(crate) const CX_APPS_REFRESH_DURATION_METRIC: &str = "cx.apps.refresh.duration_ms";
 pub(crate) const DEFAULT_STARTUP_TIMEOUT: Duration = Duration::from_secs(30);
 pub(crate) const DEFAULT_TOOL_TIMEOUT: Duration = Duration::from_secs(300);
 
-pub(crate) const CODEX_APPS_RECONNECT_INITIAL_BACKOFF: Duration = Duration::from_secs(1);
-const CODEX_APPS_RECONNECT_MAX_BACKOFF: Duration = Duration::from_secs(30);
+pub(crate) const CX_APPS_RECONNECT_INITIAL_BACKOFF: Duration = Duration::from_secs(1);
+const CX_APPS_RECONNECT_MAX_BACKOFF: Duration = Duration::from_secs(30);
 
 const UNTRUSTED_CONNECTOR_META_KEYS: &[&str] = &[
     "connector_id",
@@ -264,9 +264,9 @@ impl CodexAppsStartupReconnect {
 
 fn cx_apps_reconnect_backoff(consecutive_failures: u32) -> Duration {
     let exponent = consecutive_failures.saturating_sub(1).min(5);
-    CODEX_APPS_RECONNECT_INITIAL_BACKOFF
+    CX_APPS_RECONNECT_INITIAL_BACKOFF
         .saturating_mul(1 << exponent)
-        .min(CODEX_APPS_RECONNECT_MAX_BACKOFF)
+        .min(CX_APPS_RECONNECT_MAX_BACKOFF)
 }
 
 #[derive(Clone)]
@@ -311,7 +311,7 @@ impl ManagedClientStartup {
             cancel_token,
             startup_complete,
         } = self.clone();
-        let is_cx_apps_mcp_server = server_name == CODEX_APPS_MCP_SERVER_NAME;
+        let is_cx_apps_mcp_server = server_name == CX_APPS_MCP_SERVER_NAME;
         let startup_timeout = server
             .config()
             .startup_timeout_sec
@@ -377,7 +377,7 @@ impl ManagedClientStartup {
                 && let Some(refresh_start) = refresh_start
             {
                 emit_duration(
-                    CODEX_APPS_REFRESH_DURATION_METRIC,
+                    CX_APPS_REFRESH_DURATION_METRIC,
                     refresh_start.elapsed(),
                     &[("path", "legacy"), ("trigger", "initial")],
                 );
@@ -428,7 +428,7 @@ impl AsyncManagedClient {
         protocol_mode: McpProtocolMode,
         catalog_item_limit: usize,
     ) -> Self {
-        let is_cx_apps_mcp_server = server_name == CODEX_APPS_MCP_SERVER_NAME;
+        let is_cx_apps_mcp_server = server_name == CX_APPS_MCP_SERVER_NAME;
         let reconnect_server_name = server_name.clone();
         let reconnect_tx_event = tx_event.clone();
         let cached_server_info = if is_cx_apps_mcp_server {
@@ -1310,7 +1310,7 @@ mod tests {
         let expected_tool = tool.clone();
 
         let tool_info = tool_info_from_listed_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             /*is_cx_apps_mcp_server*/ true,
             /*server_instructions*/ None,
             ToolWithConnectorId {
@@ -1322,7 +1322,7 @@ mod tests {
         );
 
         let expected = ToolInfo {
-            server_name: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            server_name: CX_APPS_MCP_SERVER_NAME.to_string(),
             supports_parallel_tool_calls: false,
             server_origin: None,
             callable_name: "capture_file_upload".to_string(),

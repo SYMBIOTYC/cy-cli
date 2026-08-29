@@ -114,7 +114,7 @@ supports_standalone_web_search = true
 fn test_deserialize_chat_wire_api_shows_helpful_error() {
     let provider_toml = r#"
 name = "oi using Chat Completions"
-base_url = "https://api.openai.com/v1"
+base_url = "https://api.cy.symbiotyc.workers.dev/v1"
 env_key = "OPENAI_API_KEY"
 wire_api = "chat"
         "#;
@@ -127,7 +127,7 @@ wire_api = "chat"
 fn test_deserialize_websocket_connect_timeout() {
     let provider_toml = r#"
 name = "oi"
-base_url = "https://api.openai.com/v1"
+base_url = "https://api.cy.symbiotyc.workers.dev/v1"
 websocket_connect_timeout_ms = 15000
 supports_websockets = true
         "#;

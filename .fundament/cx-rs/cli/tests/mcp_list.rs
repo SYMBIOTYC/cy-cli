@@ -10,7 +10,7 @@ use anyhow::Result;
 use cx_config::types::McpServerTransportConfig;
 use cx_core::config::edit::ConfigEditsBuilder;
 use cx_core::config::load_global_mcp_servers;
-use cx_login::CODEX_API_KEY_ENV_VAR;
+use cx_login::CX_API_KEY_ENV_VAR;
 use predicates::prelude::PredicateBooleanExt;
 use predicates::str::contains;
 use pretty_assertions::assert_eq;
@@ -30,7 +30,7 @@ use wiremock::matchers::path;
 
 fn cx_command(cx_home: &Path) -> Result<assert_cmd::Command> {
     let mut cmd = assert_cmd::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
-    cmd.env("CODEX_HOME", cx_home);
+    cmd.env("CX_HOME", cx_home);
     Ok(cmd)
 }
 
@@ -94,7 +94,7 @@ enabled = true
 
     let mut list_cmd = cx_command(cx_home.path())?;
     list_cmd
-        .env(CODEX_API_KEY_ENV_VAR, "sk-test")
+        .env(CX_API_KEY_ENV_VAR, "sk-test")
         .args(["mcp", "list", "--json"])
         .assert()
         .success()
@@ -102,7 +102,7 @@ enabled = true
 
     let mut get_cmd = cx_command(cx_home.path())?;
     get_cmd
-        .env(CODEX_API_KEY_ENV_VAR, "sk-test")
+        .env(CX_API_KEY_ENV_VAR, "sk-test")
         .args(["mcp", "get", "api-docs", "--json"])
         .assert()
         .success()

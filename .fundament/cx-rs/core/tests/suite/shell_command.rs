@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use cx_protocol::models::PermissionProfile;
-use cx_protocol::shell_environment::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
 use core_test_support::TestTargetOs;
 use core_test_support::assert_regex_match;
 use core_test_support::responses::ev_assistant_message;
@@ -137,21 +137,21 @@ async fn shell_command_does_not_expose_configured_noise_auth_token() -> Result<(
 
     let builder = test_codex().with_model("gpt-5.4").with_config(|config| {
         config.permissions.shell_environment_policy.r#set.insert(
-            CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(),
+            CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(),
             "configured-noise-token".to_string(),
         );
         config.permissions.shell_environment_policy.r#set.insert(
-            CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_ascii_lowercase(),
+            CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_ascii_lowercase(),
             "case-variant-noise-token".to_string(),
         );
     });
     let harness = TestCodexHarness::with_auto_env_builder(builder).await?;
     let command = match test_target_os() {
         TestTargetOs::Linux | TestTargetOs::MacOs => {
-            "if [ -n \"${CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN:-}\" ] || [ -n \"${cx_exec_server_noise_auth_token:-}\" ]; then echo leaked; else echo unset; fi"
+            "if [ -n \"${CX_EXEC_SERVER_NOISE_AUTH_TOKEN:-}\" ] || [ -n \"${cx_exec_server_noise_auth_token:-}\" ]; then echo leaked; else echo unset; fi"
         }
         TestTargetOs::Windows => {
-            "if ($env:CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN) { Write-Output leaked } else { Write-Output unset }"
+            "if ($env:CX_EXEC_SERVER_NOISE_AUTH_TOKEN) { Write-Output leaked } else { Write-Output unset }"
         }
     };
     let call_id = "shell-command-noise-auth-token";

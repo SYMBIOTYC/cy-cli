@@ -402,7 +402,7 @@ use cx_feedback::FeedbackUploadOptions;
 use cx_git_utils::git_diff_to_remote;
 use cx_git_utils::resolve_root_git_project_for_trust;
 use cx_login::AuthManager;
-use cx_login::CODEX_OPEN_APP_URL;
+use cx_login::CX_OPEN_APP_URL;
 use cx_login::CodexAuth;
 use cx_login::LoginSuccessPage;
 use cx_login::LoginSuccessPageBrand;
@@ -431,7 +431,7 @@ use cx_protocol::config_types::Personality;
 use cx_protocol::config_types::ReasoningSummary;
 use cx_protocol::config_types::TrustLevel;
 use cx_protocol::config_types::WindowsSandboxLevel;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 #[cfg(test)]
 use cx_protocol::items::TurnItem;

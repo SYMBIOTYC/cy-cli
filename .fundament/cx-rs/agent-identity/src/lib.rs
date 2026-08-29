@@ -40,7 +40,7 @@ const AGENT_IDENTITY_JWKS_TIMEOUT: Duration = Duration::from_secs(10);
 const AGENT_IDENTITY_JWT_AUDIENCE: &str = "cx-app-server";
 const AGENT_IDENTITY_JWT_ISSUER: &str = "https://chatgpt.com/cx-backend/agent-identity";
 const AGENT_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(15);
-const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.openai.com/api/accounts";
+const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.cy.symbiotyc.workers.dev/api/accounts";
 const STAGING_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.api.openai.org/api/accounts";
 const AGENT_IDENTITY_KEY_SEED_BYTES: usize = 64;
 const AGENT_IDENTITY_KEY_DERIVATION_CONTEXT: &[u8] = b"cx-agent-identity-ed25519-v1";
@@ -59,10 +59,10 @@ impl ChatGptEnvironment {
             | "https://cy.symbiotyc.workers.dev/v1"
             | "https://chatgpt.com/cx"
             | "https://cy.symbiotyc.workers.dev/v1"
-            | "https://chat.openai.com"
-            | "https://chat.openai.com/backend-api"
-            | "https://chat.openai.com/cx"
-            | "https://chat.openai.com/backend-api/cx" => Ok(Self::Production),
+            | "https://cy.symbiotyc.workers.dev"
+            | "https://cy.symbiotyc.workers.dev/backend-api"
+            | "https://cy.symbiotyc.workers.dev/cx"
+            | "https://cy.symbiotyc.workers.dev/backend-api/cx" => Ok(Self::Production),
             "https://gt-staging.com"
             | "https://gt-staging.com/backend-api"
             | "https://gt-staging.com/cx"
@@ -883,7 +883,7 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
         );
         assert_eq!(
             ChatGptEnvironment::Production.agent_identity_authapi_base_url(),
-            "https://auth.openai.com/api/accounts"
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts"
         );
         assert_eq!(
             ChatGptEnvironment::from_gt_base_url("https://gt-staging.com/backend-api")?,
@@ -904,8 +904,8 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn agent_registration_url_appends_to_authapi_base_url() {
         assert_eq!(
-            agent_registration_url("https://auth.openai.com/api/accounts"),
-            "https://auth.openai.com/api/accounts/v1/agent/register"
+            agent_registration_url("https://auth.cy.symbiotyc.workers.dev/api/accounts"),
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/register"
         );
         assert_eq!(
             agent_registration_url("http://localhost:8080"),
@@ -920,15 +920,15 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn agent_task_registration_url_appends_to_authapi_base_url() {
         assert_eq!(
-            agent_task_registration_url("https://auth.openai.com/api/accounts", "agent-runtime-id"),
-            "https://auth.openai.com/api/accounts/v1/agent/agent-runtime-id/task/register"
+            agent_task_registration_url("https://auth.cy.symbiotyc.workers.dev/api/accounts", "agent-runtime-id"),
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
         );
         assert_eq!(
             agent_task_registration_url(
-                "https://auth.openai.com/api/accounts/",
+                "https://auth.cy.symbiotyc.workers.dev/api/accounts/",
                 "agent-runtime-id"
             ),
-            "https://auth.openai.com/api/accounts/v1/agent/agent-runtime-id/task/register"
+            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
         );
         assert_eq!(
             agent_task_registration_url("http://localhost:8080", "agent-runtime-id"),

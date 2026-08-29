@@ -7,10 +7,10 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -40,9 +40,9 @@ use crate::relay_support::assert_relay_data_is_encrypted;
 use crate::relay_support::proxy_relay_frames;
 use crate::relay_support::registered_executor_public_key;
 
-const RELEASED_CODEX_ENV_VAR: &str = "CODEX_TEST_RELEASED_CODEX";
-const CURRENT_CODEX_ENV_VAR: &str = "CODEX_TEST_CURRENT_CODEX";
-const EXECUTOR_MARKER_ENV_VAR: &str = "CODEX_EXECUTOR_VERSION_SKEW_MARKER";
+const RELEASED_CODEX_ENV_VAR: &str = "CX_TEST_RELEASED_CODEX";
+const CURRENT_CODEX_ENV_VAR: &str = "CX_TEST_CURRENT_CODEX";
+const EXECUTOR_MARKER_ENV_VAR: &str = "CX_EXECUTOR_VERSION_SKEW_MARKER";
 const VERSION_SKEW_TIMEOUT: Duration = Duration::from_secs(30);
 const EXPECTED_OUTPUT: &str = "executor-version-skew-ok";
 
@@ -143,8 +143,8 @@ stream_max_retries = 0
             ENVIRONMENT_ID,
         ])
         .current_dir(cx_home.path())
-        .env("CODEX_HOME", cx_home.path())
-        .env("CODEX_API_KEY", REGISTRY_TOKEN)
+        .env("CX_HOME", cx_home.path())
+        .env("CX_API_KEY", REGISTRY_TOKEN)
         .env(EXECUTOR_MARKER_ENV_VAR, EXPECTED_OUTPUT)
         .stdin(Stdio::null())
         .stdout(Stdio::null())
@@ -185,19 +185,19 @@ stream_max_retries = 0
     let mut app_server = Command::new(app_binary)
         .arg("app-server")
         .current_dir(cx_home.path())
-        .env("CODEX_HOME", cx_home.path())
-        .env("CODEX_API_KEY", REGISTRY_TOKEN)
+        .env("CX_HOME", cx_home.path())
+        .env("CX_API_KEY", REGISTRY_TOKEN)
         .env(
-            "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
             cx_home.path().join("managed_config.toml"),
         )
-        .env(CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR, &registry_url)
+        .env(CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR, &registry_url)
         .env(
-            CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR,
+            CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR,
             ENVIRONMENT_ID,
         )
-        .env(CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR, REGISTRY_TOKEN)
-        .env_remove(CODEX_EXEC_SERVER_URL_ENV_VAR)
+        .env(CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR, REGISTRY_TOKEN)
+        .env_remove(CX_EXEC_SERVER_URL_ENV_VAR)
         .env_remove(EXECUTOR_MARKER_ENV_VAR)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

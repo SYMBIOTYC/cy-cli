@@ -372,7 +372,7 @@ fn websocket_url_supports_auth_token(parsed: &Url) -> bool {
 pub fn resolve_remote_addr(addr: &str) -> color_eyre::Result<RemoteAppServerEndpoint> {
     if let Some(socket_path) = addr.strip_prefix("unix://") {
         let socket_path = if socket_path.is_empty() {
-            let cx_home = find_cx_home().wrap_err("failed to resolve CODEX_HOME")?;
+            let cx_home = find_cx_home().wrap_err("failed to resolve CX_HOME")?;
             cx_app_server_client::app_server_control_socket_path(&cx_home)
                 .map_err(color_eyre::Report::new)?
         } else {
@@ -2377,7 +2377,7 @@ mod tests {
 
     #[test]
     fn resolve_remote_addr_accepts_default_socket() -> color_eyre::Result<()> {
-        let cx_home = find_cx_home().wrap_err("failed to resolve CODEX_HOME")?;
+        let cx_home = find_cx_home().wrap_err("failed to resolve CX_HOME")?;
         assert_eq!(
             resolve_remote_addr("unix://")?,
             RemoteAppServerEndpoint::UnixSocket {

@@ -15,7 +15,7 @@ use tokio::task;
 use crate::operations::run_git_for_status;
 
 const BASELINE_COMMIT_MESSAGE: &str =
-    "Initialize CX git baseline\n\nCo-authored-by: CX <noreply@openai.com>";
+    "Initialize CX git baseline\n\nCo-authored-by: CX <noreply@cy.symbiotyc.workers.dev>";
 
 /// File-level change status between a git baseline and the current directory.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -162,7 +162,7 @@ fn write_index_from_head(root: &Path) -> anyhow::Result<()> {
 fn cx_signature() -> gix::actor::Signature {
     gix::actor::Signature {
         name: "CX".into(),
-        email: "noreply@openai.com".into(),
+        email: "noreply@cy.symbiotyc.workers.dev".into(),
         time: gix::date::Time {
             seconds: chrono::Utc::now().timestamp(),
             offset: 0,

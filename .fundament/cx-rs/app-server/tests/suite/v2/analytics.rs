@@ -290,9 +290,9 @@ operations:
     )?;
     std::fs::write(
         &script_path,
-        r#"test -n "$CODEX_PLUGIN_METRICS_OUTPUT"
+        r#"test -n "$CX_PLUGIN_METRICS_OUTPUT"
 sleep "${1:-0.3}"
-printf '%s' '{"version":1,"measurements":[{"name":"findings","value":3,"dimensions":{"severity":"high"}},{"name":"files_scanned","value":17}]}' > "$CODEX_PLUGIN_METRICS_OUTPUT"
+printf '%s' '{"version":1,"measurements":[{"name":"findings","value":3,"dimensions":{"severity":"high"}},{"name":"files_scanned","value":17}]}' > "$CX_PLUGIN_METRICS_OUTPUT"
 "#,
     )?;
 

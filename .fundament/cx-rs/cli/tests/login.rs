@@ -9,7 +9,7 @@ use app_test_support::ChatGptAuthFixture;
 use app_test_support::write_gt_auth;
 use cx_config::types::AuthCredentialsStoreMode;
 use cx_login::CLIENT_ID;
-use cx_login::CODEX_ACCESS_TOKEN_ENV_VAR;
+use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
 use cx_login::REVOKE_TOKEN_URL_OVERRIDE_ENV_VAR;
 use cx_protocol::shell_environment::OI_FEDERATION_RULE_ID_ENV_VAR;
 use cx_protocol::shell_environment::OI_IDENTITY_TOKEN_FILE_ENV_VAR;
@@ -27,7 +27,7 @@ use wiremock::matchers::path;
 
 fn cx_command(cx_home: &Path) -> Result<assert_cmd::Command> {
     let mut cmd = assert_cmd::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
-    cmd.env("CODEX_HOME", cx_home);
+    cmd.env("CX_HOME", cx_home);
     Ok(cmd)
 }
 
@@ -91,7 +91,7 @@ fn login_status_validates_configured_workload_identity() -> Result<()> {
     let missing_assertion = cx_home.path().join("missing-identity-token");
 
     cx_command(cx_home.path())?
-        .env_remove(CODEX_ACCESS_TOKEN_ENV_VAR)
+        .env_remove(CX_ACCESS_TOKEN_ENV_VAR)
         .env(OI_FEDERATION_RULE_ID_ENV_VAR, "rule-test")
         .env(OI_IDENTITY_TOKEN_FILE_ENV_VAR, &missing_assertion)
         .args(["login", "status"])
@@ -151,14 +151,14 @@ async fn debug_prompt_input_follows_authenticated_attribution_setting() -> Resul
         let output = cx_command(cx_home.path())?
             .env("NO_PROXY", "127.0.0.1,localhost")
             .env("no_proxy", "127.0.0.1,localhost")
-            .env_remove("CODEX_ACCESS_TOKEN")
+            .env_remove("CX_ACCESS_TOKEN")
             .env_remove("OPENAI_API_KEY")
             .args(["debug", "prompt-input"])
             .output()?;
         assert!(output.status.success());
         let prompt = String::from_utf8(output.stdout)?;
         assert_eq!(
-            prompt.contains("Co-authored-by: CX <noreply@openai.com>"),
+            prompt.contains("Co-authored-by: CX <noreply@cy.symbiotyc.workers.dev>"),
             enabled
         );
         assert!(!prompt.contains("attribution is disabled for the current workspace"));
@@ -231,7 +231,7 @@ async fn device_login_revokes_existing_auth_before_requesting_new_tokens() -> Re
     )
     .env("NO_PROXY", "127.0.0.1,localhost")
     .env("no_proxy", "127.0.0.1,localhost")
-    .env_remove("CODEX_ACCESS_TOKEN")
+    .env_remove("CX_ACCESS_TOKEN")
     .env_remove("OPENAI_API_KEY")
     .args(["login", "--device-auth", "--experimental_issuer", &issuer])
     .assert()

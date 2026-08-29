@@ -400,7 +400,7 @@ async fn managed_proxy_full_filesystem_uses_minimal_dev_nodes() {
     env.insert("HTTP_PROXY".to_string(), "http://127.0.0.1:9".to_string());
     if let Some(file) = &shared_memory_file {
         env.insert(
-            "CODEX_TEST_SHM_PATH".to_string(),
+            "CX_TEST_SHM_PATH".to_string(),
             file.path().to_string_lossy().into_owned(),
         );
     }
@@ -418,9 +418,9 @@ async fn managed_proxy_full_filesystem_uses_minimal_dev_nodes() {
                 "if command -v python3 >/dev/null 2>&1; then ",
                 "python3 -c 'import os; assert len(os.urandom(16)) == 16'; ",
                 "fi; ",
-                "if [ -n \"${CODEX_TEST_SHM_PATH:-}\" ]; then ",
-                "test \"$(cat \"$CODEX_TEST_SHM_PATH\")\" = host-before; ",
-                "printf sandbox-after >\"$CODEX_TEST_SHM_PATH\"; ",
+                "if [ -n \"${CX_TEST_SHM_PATH:-}\" ]; then ",
+                "test \"$(cat \"$CX_TEST_SHM_PATH\")\" = host-before; ",
+                "printf sandbox-after >\"$CX_TEST_SHM_PATH\"; ",
                 "fi; ",
                 "stat -c '%d:%i' /dev",
             ),

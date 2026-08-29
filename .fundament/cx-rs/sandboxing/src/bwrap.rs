@@ -17,7 +17,7 @@ const MISSING_BWRAP_WARNING: &str = concat!(
     "CX could not find bubblewrap on PATH. ",
     "Install bubblewrap with your OS package manager. ",
     "See the sandbox prerequisites: ",
-    "https://developers.openai.com/cx/concepts/sandboxing#prerequisites. ",
+    "https://developers.cy.symbiotyc.workers.dev/cx/concepts/sandboxing#prerequisites. ",
     "CX will use the bundled bubblewrap in the meantime.",
 );
 const USER_NAMESPACE_WARNING: &str =

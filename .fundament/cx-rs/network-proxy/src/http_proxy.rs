@@ -1661,7 +1661,7 @@ mod tests {
 
         let mut req = Request::builder()
             .method(Method::CONNECT)
-            .uri("https://api.openai.com:443")
+            .uri("https://api.cy.symbiotyc.workers.dev:443")
             .header("host", "api.openai.com:443")
             .body(Body::empty())
             .unwrap();

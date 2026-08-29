@@ -17,7 +17,7 @@ use cx_extension_api::ThreadIdleInput;
 use cx_extension_api::ThreadLifecycleContributor;
 use cx_extension_api::ThreadResumeInput;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::snapshot_local_user_input;
 use cx_protocol::protocol::AgentStatus;
 use cx_protocol::protocol::Event;
@@ -52,7 +52,7 @@ pub enum QueueServiceError {
     #[error("local queued attachment is invalid: {0}")]
     InvalidAttachment(#[from] std::io::Error),
     #[error("Core failed to submit queued user message: {0}")]
-    CoreSubmissionError(#[from] CodexErr),
+    CoreSubmissionError(#[from] CxErr),
     #[error("only user input can be added to the user-message queue")]
     InvalidInput,
     #[error(

@@ -2,8 +2,8 @@ use super::*;
 use cx_connectors::ConnectorDirectoryCacheContext;
 use cx_connectors::ConnectorDirectoryCacheKey;
 use cx_connectors::connector_runtime_cache_path;
-use cx_feedback::CODEX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
-use cx_feedback::CODEX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
+use cx_feedback::CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
+use cx_feedback::CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 #[cfg(target_os = "windows")]
 use cx_feedback::WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME;
 use cx_rollout::RolloutRecorder;
@@ -421,7 +421,7 @@ fn tool_cache_feedback_attachments(
         attachments.push(FeedbackAttachmentPath {
             path: tools_cache_path,
             attachment_filename_override: Some(
-                CODEX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string(),
+                CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string(),
             ),
         });
     }
@@ -443,7 +443,7 @@ fn tool_cache_feedback_attachments(
         attachments.push(FeedbackAttachmentPath {
             path: directory_cache_path,
             attachment_filename_override: Some(
-                CODEX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string(),
+                CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string(),
             ),
         });
     }
@@ -778,11 +778,11 @@ mod tests {
             vec![
                 (
                     tools_cache_path,
-                    Some(CODEX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string()),
+                    Some(CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string()),
                 ),
                 (
                     directory_cache_path,
-                    Some(CODEX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string()),
+                    Some(CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string()),
                 ),
             ]
         );
@@ -823,7 +823,7 @@ mod tests {
             attachments,
             vec![(
                 directory_cache_path,
-                Some(CODEX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string()),
+                Some(CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME.to_string()),
             )]
         );
     }

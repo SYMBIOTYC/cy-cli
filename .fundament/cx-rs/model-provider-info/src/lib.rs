@@ -12,7 +12,7 @@ use cx_api::Provider as ApiProvider;
 use cx_api::RetryConfig as ApiRetryConfig;
 use cx_protocol::auth::AuthMode;
 use cx_protocol::config_types::ModelProviderAuthInfo;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::EnvVarError;
 use cx_protocol::error::Result as CodexResult;
 use http::HeaderMap;
@@ -306,7 +306,7 @@ impl ModelProviderInfo {
         ) {
             CHATGPT_CODEX_BASE_URL
         } else {
-            "https://api.openai.com/v1"
+            "https://api.cy.symbiotyc.workers.dev/v1"
         };
         let base_url = self
             .base_url
@@ -342,7 +342,7 @@ impl ModelProviderInfo {
                     .ok()
                     .filter(|v| !v.trim().is_empty())
                     .ok_or_else(|| {
-                        CodexErr::EnvVar(EnvVarError {
+                        CxErr::EnvVar(EnvVarError {
                             var: env_key.clone(),
                             instructions: self.env_key_instructions.clone(),
                         })
@@ -604,18 +604,18 @@ other non-default provider fields are not supported"
 }
 
 pub fn create_oss_provider(default_provider_port: u16, wire_api: WireApi) -> ModelProviderInfo {
-    // These CODEX_OSS_ environment variables are experimental: we may
+    // These CX_OSS_ environment variables are experimental: we may
     // switch to reading values from config.toml instead.
     let default_cx_oss_base_url = format!(
         "http://localhost:{cx_oss_port}/v1",
-        cx_oss_port = std::env::var("CODEX_OSS_PORT")
+        cx_oss_port = std::env::var("CX_OSS_PORT")
             .ok()
             .filter(|value| !value.trim().is_empty())
             .and_then(|value| value.parse::<u16>().ok())
             .unwrap_or(default_provider_port)
     );
 
-    let cx_oss_base_url = std::env::var("CODEX_OSS_BASE_URL")
+    let cx_oss_base_url = std::env::var("CX_OSS_BASE_URL")
         .ok()
         .filter(|v| !v.trim().is_empty())
         .unwrap_or(default_cx_oss_base_url);

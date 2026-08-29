@@ -394,7 +394,7 @@ async fn run_remove(args: RemoveMarketplaceArgs) -> Result<()> {
         marketplace_name,
         json,
     } = args;
-    let cx_home = find_cx_home().context("failed to resolve CODEX_HOME")?;
+    let cx_home = find_cx_home().context("failed to resolve CX_HOME")?;
     let outcome = remove_marketplace(
         cx_home.to_path_buf(),
         MarketplaceRemoveRequest { marketplace_name },

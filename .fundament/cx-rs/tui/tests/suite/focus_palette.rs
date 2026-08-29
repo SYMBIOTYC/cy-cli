@@ -99,7 +99,7 @@ impl PtyCodex {
             .arg("analytics.enabled=false")
             .env("TERM", "xterm-256color")
             .env("OPENAI_API_KEY", "focus-palette-test")
-            .env("CODEX_HOME", cx_home.path())
+            .env("CX_HOME", cx_home.path())
             .stdin(stdin)
             .stdout(stdout)
             .stderr(slave)

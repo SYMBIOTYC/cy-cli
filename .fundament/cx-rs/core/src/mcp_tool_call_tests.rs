@@ -260,7 +260,7 @@ fn openai_file_params_are_only_honored_for_cx_apps() {
     let params = HashMap::from([("file".to_string(), Vec::new())]);
 
     assert_eq!(
-        openai_file_input_optional_fields_for_server(CODEX_APPS_MCP_SERVER_NAME, &params),
+        openai_file_input_optional_fields_for_server(CX_APPS_MCP_SERVER_NAME, &params),
         Some(params.clone())
     );
     assert_eq!(
@@ -416,7 +416,7 @@ async fn mcp_tool_call_span_records_error_type_and_error_code() {
         &session,
         &turn_context,
         McpToolCallSpanFields {
-            server_name: CODEX_APPS_MCP_SERVER_NAME,
+            server_name: CX_APPS_MCP_SERVER_NAME,
             tool_name: "calendar_search",
             call_id: "call-123",
             server_origin: Some("https://chatgpt.com/api/cx/ps/mcp"),
@@ -579,7 +579,7 @@ fn truncates_strings_on_char_boundaries() {
 fn approval_elicitation_request_uses_message_override_and_preserves_tool_params_keys() {
     let question = build_mcp_tool_approval_question(
         "q".to_string(),
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "create_event",
         Some("Calendar"),
         prompt_options(
@@ -589,7 +589,7 @@ fn approval_elicitation_request_uses_message_override_and_preserves_tool_params_
     );
 
     let request = build_mcp_tool_approval_elicitation_request(McpToolApprovalElicitationRequest {
-        server: CODEX_APPS_MCP_SERVER_NAME,
+        server: CX_APPS_MCP_SERVER_NAME,
         metadata: Some(&approval_metadata(
             Some("calendar"),
             Some("Calendar"),
@@ -693,7 +693,7 @@ fn custom_mcp_tool_question_mentions_server_name() {
 fn cx_apps_tool_question_uses_fallback_app_label() {
     let question = build_mcp_tool_approval_question(
         "q".to_string(),
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "run_action",
         /*connector_name*/ None,
         prompt_options(
@@ -712,7 +712,7 @@ fn cx_apps_tool_question_uses_fallback_app_label() {
 fn trusted_cx_apps_tool_question_offers_always_allow() {
     let question = build_mcp_tool_approval_question(
         "q".to_string(),
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "run_action",
         Some("Calendar"),
         prompt_options(
@@ -748,7 +748,7 @@ fn trusted_cx_apps_tool_question_offers_always_allow() {
 fn cx_apps_tool_question_without_elicitation_omits_always_allow() {
     let question = build_mcp_tool_approval_question(
         "q".to_string(),
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "run_action",
         Some("Calendar"),
         mcp_tool_approval_prompt_options(
@@ -832,7 +832,7 @@ fn custom_servers_support_session_and_persistent_approval() {
 #[test]
 fn cx_apps_connectors_support_persistent_approval() {
     let invocation = McpInvocation {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         tool: "calendar/list_events".to_string(),
         arguments: None,
     };
@@ -844,7 +844,7 @@ fn cx_apps_connectors_support_persistent_approval() {
         /*tool_description*/ None,
     );
     let expected = McpToolApprovalKey {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         connector_id: Some("calendar".to_string()),
         tool_name: "calendar/list_events".to_string(),
     };
@@ -1194,7 +1194,7 @@ fn mcp_tool_call_item_metadata_only_trusts_cx_apps_identity() {
     );
 
     assert_eq!(
-        McpToolCallItemMetadata::from_tool_metadata(CODEX_APPS_MCP_SERVER_NAME, Some(&metadata),),
+        McpToolCallItemMetadata::from_tool_metadata(CX_APPS_MCP_SERVER_NAME, Some(&metadata),),
         McpToolCallItemMetadata {
             connector_id: Some("asdk_app_0123456789abcdef0123456789abcdef".to_string()),
             link_id: Some("link_fedcba9876543210fedcba9876543210".to_string()),
@@ -1228,7 +1228,7 @@ async fn mcp_tool_call_item_includes_app_identity() {
         &turn_context,
         "call-plugin",
         McpInvocation {
-            server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            server: CX_APPS_MCP_SERVER_NAME.to_string(),
             tool: "echo".to_string(),
             arguments: None,
         },
@@ -1300,7 +1300,7 @@ async fn cx_apps_tool_call_request_meta_includes_turn_metadata_and_cx_apps_meta(
     assert_eq!(
         build_mcp_tool_call_request_meta(
             &turn_context,
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "call_abc123xyz789",
             Some(&metadata),
         ),
@@ -1325,7 +1325,7 @@ async fn cx_apps_tool_call_request_meta_includes_call_id_without_existing_cx_app
     assert_eq!(
         build_mcp_tool_call_request_meta(
             &turn_context,
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "call_abc123xyz789",
             /*metadata*/ None,
         ),
@@ -1389,7 +1389,7 @@ async fn cx_apps_auth_elicitation_feature_disabled_returns_original_result() {
         &turn_context,
         turn_context.approval_policy(),
         "call_123",
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         Some(&metadata),
         result.clone(),
     )
@@ -1414,7 +1414,7 @@ async fn cx_apps_auth_elicitation_disallowed_by_policy_returns_original_result()
         &turn_context,
         AskForApproval::Never,
         "call_123",
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         Some(&metadata),
         result.clone(),
     )
@@ -1450,7 +1450,7 @@ async fn cx_apps_auth_elicitation_granular_mcp_disabled_returns_original_result(
         &turn_context,
         turn_context.approval_policy(),
         "call_123",
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         Some(&metadata),
         result.clone(),
     )
@@ -1476,7 +1476,7 @@ async fn cx_apps_auth_elicitation_enabled_by_default_requests_elicitation() {
                 &turn_context,
                 turn_context.approval_policy(),
                 "call_123",
-                CODEX_APPS_MCP_SERVER_NAME,
+                CX_APPS_MCP_SERVER_NAME,
                 Some(&metadata),
                 result,
             )
@@ -1493,7 +1493,7 @@ async fn cx_apps_auth_elicitation_enabled_by_default_requests_elicitation() {
             break request;
         }
     };
-    assert_eq!(request.server_name, CODEX_APPS_MCP_SERVER_NAME);
+    assert_eq!(request.server_name, CX_APPS_MCP_SERVER_NAME);
     assert_eq!(
         request.id,
         cx_protocol::mcp::RequestId::String("cx_apps_auth_call_123".to_string())
@@ -1505,7 +1505,7 @@ async fn cx_apps_auth_elicitation_enabled_by_default_requests_elicitation() {
 
     session
         .resolve_elicitation(
-            CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            CX_APPS_MCP_SERVER_NAME.to_string(),
             rmcp::model::RequestId::String("cx_apps_auth_call_123".into()),
             ElicitationResponse {
                 action: ElicitationAction::Accept,
@@ -1632,7 +1632,7 @@ fn approval_elicitation_meta_merges_session_and_always_persist_for_custom_server
 #[test]
 fn guardian_mcp_review_request_includes_invocation_metadata() {
     let invocation = McpInvocation {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         tool: "browser_navigate".to_string(),
         arguments: Some(serde_json::json!({
             "url": "https://example.com",
@@ -1653,7 +1653,7 @@ fn guardian_mcp_review_request_includes_invocation_metadata() {
         request,
         GuardianApprovalRequest::McpToolCall {
             id: "call-1".to_string(),
-            server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            server: CX_APPS_MCP_SERVER_NAME.to_string(),
             tool_name: "browser_navigate".to_string(),
             arguments: Some(serde_json::json!({
                 "url": "https://example.com",
@@ -1753,7 +1753,7 @@ fn guardian_mcp_review_request_ignores_untrusted_connected_account_email() {
 fn approval_elicitation_meta_includes_connector_source_for_cx_apps() {
     assert_eq!(
         build_mcp_tool_approval_elicitation_meta(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             Some(&approval_metadata(
                 Some("calendar"),
                 Some("Calendar"),
@@ -1788,7 +1788,7 @@ fn approval_elicitation_meta_includes_connector_source_for_cx_apps() {
 fn approval_elicitation_meta_merges_session_and_always_persist_with_connector_source() {
     assert_eq!(
         build_mcp_tool_approval_elicitation_meta(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             Some(&approval_metadata(
                 Some("calendar"),
                 Some("Calendar"),
@@ -2104,7 +2104,7 @@ async fn maybe_persist_mcp_tool_approval_reloads_session_config() {
     let cx_home = session.cx_home().await;
     std::fs::create_dir_all(&cx_home).expect("create cx home");
     let key = McpToolApprovalKey {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         connector_id: Some("calendar".to_string()),
         tool_name: "calendar/list_events".to_string(),
     };
@@ -2910,7 +2910,7 @@ async fn full_access_mode_skips_mcp_tool_approval_for_all_approval_modes() {
     let session = Arc::new(session);
     let turn_context = Arc::new(turn_context);
     let invocation = McpInvocation {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         tool: "dangerous_tool".to_string(),
         arguments: Some(serde_json::json!({ "id": 1 })),
     };
@@ -2967,7 +2967,7 @@ async fn approve_mode_skips_guardian_in_every_permission_mode() {
         .await;
 
     let invocation = McpInvocation {
-        server: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        server: CX_APPS_MCP_SERVER_NAME.to_string(),
         tool: "dangerous_tool".to_string(),
         arguments: Some(serde_json::json!({ "id": 1 })),
     };

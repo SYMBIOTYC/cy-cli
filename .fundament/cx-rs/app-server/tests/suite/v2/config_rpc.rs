@@ -888,7 +888,7 @@ async fn config_read_respects_managed_project_root_markers() -> Result<()> {
     let mut app_server = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[("CODEX_APP_SERVER_MANAGED_CONFIG_PATH", Some(&managed_path))])
+        .with_env_overrides(&[("CX_APP_SERVER_MANAGED_CONFIG_PATH", Some(&managed_path))])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;
     let request_id = app_server
@@ -975,7 +975,7 @@ writable_roots = [{}]
         .with_cx_home(cx_home.path())
         .without_auto_env()
         .with_env_overrides(&[(
-            "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
             Some(&managed_path_str),
         )])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)

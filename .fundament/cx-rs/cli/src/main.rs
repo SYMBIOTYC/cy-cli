@@ -581,7 +581,7 @@ type HostSandboxArgs = UnsupportedSandboxArgs;
 #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
 #[derive(Debug, Parser)]
 struct UnsupportedSandboxArgs {
-    /// Layer $CODEX_HOME/<name>.config.toml on top of the base user config.
+    /// Layer $CX_HOME/<name>.config.toml on top of the base user config.
     #[arg(long = "profile", short = 'p')]
     pub config_profile: Option<ProfileV2Name>,
 
@@ -619,7 +619,7 @@ struct LoginCommand {
 
     #[arg(
         long = "with-access-token",
-        help = "Read the access token from stdin (e.g. `printenv CODEX_ACCESS_TOKEN | cx login --with-access-token`)"
+        help = "Read the access token from stdin (e.g. `printenv CX_ACCESS_TOKEN | cx login --with-access-token`)"
     )]
     with_access_token: bool,
 
@@ -705,7 +705,7 @@ struct AppServerCommand {
     /// enabled = false
     /// ```
     ///
-    /// See https://developers.openai.com/cx/config-advanced/#metrics for more details.
+    /// See https://developers.cy.symbiotyc.workers.dev/cx/config-advanced/#metrics for more details.
     #[arg(long = "analytics-default-enabled")]
     analytics_default_enabled: bool,
 
@@ -761,7 +761,7 @@ struct ExecServerCommand {
     #[arg(long = "name", value_name = "NAME", global = true)]
     name: Option<String>,
 
-    /// Use Agent Identity auth from CODEX_ACCESS_TOKEN for remote registration.
+    /// Use Agent Identity auth from CX_ACCESS_TOKEN for remote registration.
     #[arg(
         long = "use-agent-identity-auth",
         requires = "exec_server_remote",
@@ -772,7 +772,7 @@ struct ExecServerCommand {
     /// Exit when the parent-owned standard-input pipe closes.
     #[arg(
         long = "exit-on-stdin-close",
-        env = cx_exec_server::CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
+        env = cx_exec_server::CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
         requires_if("true", "exec_server_remote"),
         global = true
     )]
@@ -1010,7 +1010,7 @@ fn run_update_command() -> anyhow::Result<()> {
     {
         let Some(action) = cx_tui::get_update_action() else {
             anyhow::bail!(
-                "Could not detect the CX installation method. Please update manually: https://developers.openai.com/cx/cli/"
+                "Could not detect the CX installation method. Please update manually: https://developers.cy.symbiotyc.workers.dev/cx/cli/"
             );
         };
         run_update_action(action)
@@ -2429,7 +2429,7 @@ async fn load_exec_server_remote_auth_provider(
 ) -> anyhow::Result<cx_api::SharedAuthProvider> {
     if use_agent_identity_auth {
         read_cx_access_token_from_env().ok_or_else(|| {
-            anyhow::anyhow!("CODEX_ACCESS_TOKEN is required when --use-agent-identity-auth is set")
+            anyhow::anyhow!("CX_ACCESS_TOKEN is required when --use-agent-identity-auth is set")
         })?;
         let auth = AuthManager::shared_from_config(config, /*enable_cx_api_key_env*/ false)
             .await?
@@ -2438,7 +2438,7 @@ async fn load_exec_server_remote_auth_provider(
             .ok_or_else(|| anyhow::anyhow!("Agent Identity authentication is unavailable"))?;
         if !matches!(auth, CodexAuth::AgentIdentity(_)) {
             anyhow::bail!(
-                "CODEX_ACCESS_TOKEN did not provide permitted Agent Identity authentication"
+                "CX_ACCESS_TOKEN did not provide permitted Agent Identity authentication"
             );
         }
         return Ok(cx_model_provider::auth_provider_from_auth(&auth));
@@ -2446,7 +2446,7 @@ async fn load_exec_server_remote_auth_provider(
 
     let (auth_manager, auth) = load_exec_server_remote_auth(
         config,
-        "remote exec-server registration requires gt authentication or API key authentication; run `cx login` or set CODEX_API_KEY",
+        "remote exec-server registration requires gt authentication or API key authentication; run `cx login` or set CX_API_KEY",
     )
     .await?;
 
@@ -3359,7 +3359,7 @@ mod tests {
     #[test]
     fn exec_server_remote_api_key_auth_accepts_https_openai_domains() {
         for base_url in [
-            "https://openai.com/api",
+            "https://cy.symbiotyc.workers.dev/api",
             "https://service.openai.com/api",
             "https://openai.org/api",
             "https://service.openai.org/api",
@@ -4692,14 +4692,14 @@ mod tests {
         let cli = MultitoolCli::try_parse_from([
             "cx",
             "--remote-auth-token-env",
-            "CODEX_REMOTE_AUTH_TOKEN",
+            "CX_REMOTE_AUTH_TOKEN",
             "--remote",
             "ws://127.0.0.1:4500",
         ])
         .expect("parse");
         assert_eq!(
             cli.remote.remote_auth_token_env.as_deref(),
-            Some("CODEX_REMOTE_AUTH_TOKEN")
+            Some("CX_REMOTE_AUTH_TOKEN")
         );
     }
 
@@ -4724,7 +4724,7 @@ mod tests {
             "--remote",
             "ws://127.0.0.1:4500",
             "--remote-auth-token-env",
-            "CODEX_REMOTE_AUTH_TOKEN",
+            "CX_REMOTE_AUTH_TOKEN",
             "--cd",
             "/workspace",
             "--no-alt-screen",
@@ -4740,7 +4740,7 @@ mod tests {
         );
         assert_eq!(
             options.remote.remote_auth_token_env.as_deref(),
-            Some("CODEX_REMOTE_AUTH_TOKEN")
+            Some("CX_REMOTE_AUTH_TOKEN")
         );
         assert_eq!(
             options.cwd.as_deref(),
@@ -4767,7 +4767,7 @@ mod tests {
     fn reject_remote_auth_token_env_for_non_interactive_subcommands() {
         let err = reject_remote_mode_for_subcommand(
             /*remote*/ None,
-            Some("CODEX_REMOTE_AUTH_TOKEN"),
+            Some("CX_REMOTE_AUTH_TOKEN"),
             "exec",
         )
         .expect_err("non-interactive subcommands should reject --remote-auth-token-env");
@@ -4785,7 +4785,7 @@ mod tests {
             });
         let err = reject_remote_mode_for_app_server_subcommand(
             /*remote*/ None,
-            Some("CODEX_REMOTE_AUTH_TOKEN"),
+            Some("CX_REMOTE_AUTH_TOKEN"),
             Some(&subcommand),
         )
         .expect_err("non-interactive app-server subcommands should reject --remote-auth-token-env");
@@ -4794,7 +4794,7 @@ mod tests {
 
     #[test]
     fn read_remote_auth_token_from_env_var_reports_missing_values() {
-        let err = read_remote_auth_token_from_env_var_with("CODEX_REMOTE_AUTH_TOKEN", |_| {
+        let err = read_remote_auth_token_from_env_var_with("CX_REMOTE_AUTH_TOKEN", |_| {
             Err(std::env::VarError::NotPresent)
         })
         .expect_err("missing env vars should be rejected");
@@ -4804,7 +4804,7 @@ mod tests {
     #[test]
     fn read_remote_auth_token_from_env_var_trims_values() {
         let auth_token =
-            read_remote_auth_token_from_env_var_with("CODEX_REMOTE_AUTH_TOKEN", |_| {
+            read_remote_auth_token_from_env_var_with("CX_REMOTE_AUTH_TOKEN", |_| {
                 Ok("  bearer-token  ".to_string())
             })
             .expect("env var should parse");
@@ -4813,7 +4813,7 @@ mod tests {
 
     #[test]
     fn read_remote_auth_token_from_env_var_rejects_empty_values() {
-        let err = read_remote_auth_token_from_env_var_with("CODEX_REMOTE_AUTH_TOKEN", |_| {
+        let err = read_remote_auth_token_from_env_var_with("CX_REMOTE_AUTH_TOKEN", |_| {
             Ok(" \n\t ".to_string())
         })
         .expect_err("empty env vars should be rejected");
@@ -5068,7 +5068,7 @@ mod tests {
         let subcommand = AppServerSubcommand::Proxy(AppServerProxyCommand { socket_path: None });
         let err = reject_remote_mode_for_app_server_subcommand(
             /*remote*/ None,
-            Some("CODEX_REMOTE_AUTH_TOKEN"),
+            Some("CX_REMOTE_AUTH_TOKEN"),
             Some(&subcommand),
         )
         .expect_err("app-server proxy should reject --remote-auth-token-env");
@@ -5082,7 +5082,7 @@ mod tests {
         });
         let err = reject_remote_mode_for_app_server_subcommand(
             /*remote*/ None,
-            Some("CODEX_REMOTE_AUTH_TOKEN"),
+            Some("CX_REMOTE_AUTH_TOKEN"),
             Some(&subcommand),
         )
         .expect_err("app-server daemon version should reject --remote-auth-token-env");

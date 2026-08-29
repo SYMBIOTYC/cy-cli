@@ -109,8 +109,8 @@ async fn first_layer_config_error_from_entries(layers: &[ConfigLayerEntry]) -> O
 /// - system    `/etc/cx/config.toml` (Unix) or
 ///   `%ProgramData%\oi\CX\config.toml` (Windows)
 /// - cloud     enterprise-managed cloud config bundle fragments
-/// - user      `${CODEX_HOME}/config.toml`
-/// - profile   `${CODEX_HOME}/<name>.config.toml`, when selected
+/// - user      `${CX_HOME}/config.toml`
+/// - profile   `${CX_HOME}/<name>.config.toml`, when selected
 /// - cwd       `${PWD}/config.toml` (loaded but disabled when the directory is untrusted)
 /// - tree      parent directories up to root looking for `./.cx/config.toml` (loaded but disabled when untrusted)
 /// - repo      `$(git rev-parse --show-toplevel)/.cx/config.toml` (loaded but disabled when untrusted)
@@ -118,7 +118,7 @@ async fn first_layer_config_error_from_entries(layers: &[ConfigLayerEntry]) -> O
 ///
 /// (*) Only available on macOS via managed device profiles.
 ///
-/// See https://developers.openai.com/cx/security for details.
+/// See https://developers.cy.symbiotyc.workers.dev/cx/security for details.
 ///
 /// When loading the config stack for a thread, there should be a `cwd`
 /// associated with it such that `cwd` should be `Some(...)`. Only for
@@ -335,7 +335,7 @@ pub async fn load_config_layers_state(
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 format!(
-                    "--profile `{active_user_profile}` cannot be used while {} contains legacy `profile = \"{active_user_profile}\"` or `[profiles.{active_user_profile}]` config; move those settings into {} and remove the legacy profile selector/table. See https://developers.openai.com/cx/config-advanced#profiles for more information.",
+                    "--profile `{active_user_profile}` cannot be used while {} contains legacy `profile = \"{active_user_profile}\"` or `[profiles.{active_user_profile}]` config; move those settings into {} and remove the legacy profile selector/table. See https://developers.cy.symbiotyc.workers.dev/cx/config-advanced#profiles for more information.",
                     base_user_file.as_path().display(),
                     active_user_file.as_path().display()
                 ),

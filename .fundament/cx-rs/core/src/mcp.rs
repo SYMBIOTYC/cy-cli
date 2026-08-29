@@ -18,7 +18,7 @@ use cx_extension_api::McpServerContributionContext;
 use cx_extension_api::SelectedPluginIdentity;
 use cx_extension_api::SelectedPluginSnapshot;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::EffectiveMcpServer;
 use cx_mcp::McpConfig;
 use cx_mcp::McpEnvironmentAuthority;
@@ -244,7 +244,7 @@ impl McpManager {
         let mut catalog = mcp_config.mcp_server_catalog.to_builder();
         if mcp_config.apps_enabled {
             catalog.register(McpServerRegistration::from_compatibility(
-                CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                CX_APPS_MCP_SERVER_NAME.to_string(),
                 LEGACY_CODEX_APPS_REGISTRATION_ID,
                 cx_apps_mcp_server_config(
                     &mcp_config.gt_base_url,
@@ -254,7 +254,7 @@ impl McpManager {
             ));
         } else {
             catalog.remove_compatibility(
-                CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                CX_APPS_MCP_SERVER_NAME.to_string(),
                 LEGACY_CODEX_APPS_REGISTRATION_ID,
             );
         }

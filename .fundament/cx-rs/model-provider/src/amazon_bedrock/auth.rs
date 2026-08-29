@@ -14,7 +14,7 @@ use cx_login::CodexAuth;
 use cx_login::auth::BedrockApiKeyAuth;
 use cx_model_provider_info::ModelProviderAwsAuthInfo;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 use http::HeaderMap;
 
@@ -144,7 +144,7 @@ pub(super) fn bearer_token_region(
         .or_else(|| non_empty_env_var_from(AWS_REGION_ENV_VAR, env_var))
         .or_else(|| non_empty_env_var_from(AWS_DEFAULT_REGION_ENV_VAR, env_var))
         .ok_or_else(|| {
-            CodexErr::Fatal(
+            CxErr::Fatal(
                 "Amazon Bedrock bearer token auth requires \
 `model_providers.amazon-bedrock.aws.region`, `AWS_REGION`, or `AWS_DEFAULT_REGION`"
                     .to_string(),
@@ -152,8 +152,8 @@ pub(super) fn bearer_token_region(
         })
 }
 
-fn aws_auth_error_to_cx_error(error: AwsAuthError) -> CodexErr {
-    CodexErr::Fatal(format!("failed to resolve Amazon Bedrock auth: {error}"))
+fn aws_auth_error_to_cx_error(error: AwsAuthError) -> CxErr {
+    CxErr::Fatal(format!("failed to resolve Amazon Bedrock auth: {error}"))
 }
 
 fn aws_auth_error_to_auth_error(error: AwsAuthError) -> AuthError {

@@ -7,7 +7,7 @@ use cx_login::AuthKeyringBackendKind;
 use cx_login::AuthManager;
 use cx_login::CLIENT_ID;
 use cx_login::CLIENT_ID_OVERRIDE_ENV_VAR;
-use cx_login::CODEX_ACCESS_TOKEN_ENV_VAR;
+use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
 use cx_login::REVOKE_TOKEN_URL_OVERRIDE_ENV_VAR;
 use cx_login::logout_with_revoke;
 use cx_login::save_auth;
@@ -104,7 +104,7 @@ async fn logout_with_revoke_uses_stored_auth_when_access_token_env_is_set() -> R
         format!("{}/oauth/revoke", server.uri()),
     );
     let _access_token_env_guard = EnvGuard::set(
-        CODEX_ACCESS_TOKEN_ENV_VAR,
+        CX_ACCESS_TOKEN_ENV_VAR,
         "at-environment-token".to_string(),
     );
 

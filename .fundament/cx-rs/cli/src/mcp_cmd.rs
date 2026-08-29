@@ -345,7 +345,7 @@ async fn run_add(config_overrides: &CliConfigOverrides, add_args: AddArgs) -> Re
 
     validate_server_name(&name)?;
 
-    let cx_home = find_cx_home().context("failed to resolve CODEX_HOME")?;
+    let cx_home = find_cx_home().context("failed to resolve CX_HOME")?;
     let mut servers = load_global_mcp_servers(&cx_home)
         .await
         .with_context(|| format!("failed to load MCP servers from {}", cx_home.display()))?;
@@ -496,7 +496,7 @@ async fn run_remove(config_overrides: &CliConfigOverrides, remove_args: RemoveAr
 
     validate_server_name(&name)?;
 
-    let cx_home = find_cx_home().context("failed to resolve CODEX_HOME")?;
+    let cx_home = find_cx_home().context("failed to resolve CX_HOME")?;
     let mut servers = load_global_mcp_servers(&cx_home)
         .await
         .with_context(|| format!("failed to load MCP servers from {}", cx_home.display()))?;

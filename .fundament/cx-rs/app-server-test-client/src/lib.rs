@@ -108,7 +108,7 @@ const APP_SERVER_GRACEFUL_SHUTDOWN_POLL_INTERVAL: Duration = Duration::from_mill
 const DEFAULT_ANALYTICS_ENABLED: bool = true;
 const OTEL_SERVICE_NAME: &str = "cx-app-server-test-client";
 const TRACE_DISABLED_MESSAGE: &str =
-    "Not enabled - enable tracing in $CODEX_HOME/config.toml to get a trace URL!";
+    "Not enabled - enable tracing in $CX_HOME/config.toml to get a trace URL!";
 
 /// Minimal launcher that initializes the CX app-server and logs the handshake.
 #[derive(Parser)]
@@ -116,14 +116,14 @@ const TRACE_DISABLED_MESSAGE: &str =
 struct Cli {
     /// Path to the `cx` CLI binary. When set, requests use stdio by
     /// spawning `cx app-server` as a child process.
-    #[arg(long, env = "CODEX_BIN", global = true)]
+    #[arg(long, env = "CX_BIN", global = true)]
     cx_bin: Option<PathBuf>,
 
     /// Existing websocket server URL to connect to.
     ///
     /// If neither `--cx-bin` nor `--url` is provided, defaults to
     /// `ws://127.0.0.1:4222`.
-    #[arg(long, env = "CODEX_APP_SERVER_URL", global = true)]
+    #[arg(long, env = "CX_APP_SERVER_URL", global = true)]
     url: Option<String>,
 
     /// Forwarded to the `cx` CLI as `--config key=value`. Repeatable.
@@ -1327,7 +1327,7 @@ async fn with_client<T>(
     command_name: &'static str,
     endpoint: &Endpoint,
     config_overrides: &[String],
-    f: impl FnOnce(&mut CodexClient) -> Result<T>,
+    f: impl FnOnce(&mut CxClient) -> Result<T>,
 ) -> Result<T> {
     let tracing = TestClientTracing::initialize(config_overrides).await?;
     let command_span = info_span!(
@@ -1338,7 +1338,7 @@ async fn with_client<T>(
     );
     let trace_summary = command_span.in_scope(|| TraceSummary::capture(tracing.traces_enabled));
     let result = command_span.in_scope(|| {
-        let mut client = CodexClient::connect(endpoint, config_overrides)?;
+        let mut client = CxClient::connect(endpoint, config_overrides)?;
         f(&mut client)
     });
     print_trace_summary(&trace_summary);
@@ -1347,7 +1347,7 @@ async fn with_client<T>(
 
 fn thread_increment_elicitation(url: &str, thread_id: String) -> Result<()> {
     let endpoint = Endpoint::ConnectWs(url.to_string());
-    let mut client = CodexClient::connect(&endpoint, &[])?;
+    let mut client = CxClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1361,7 +1361,7 @@ fn thread_increment_elicitation(url: &str, thread_id: String) -> Result<()> {
 
 fn thread_decrement_elicitation(url: &str, thread_id: String) -> Result<()> {
     let endpoint = Endpoint::ConnectWs(url.to_string());
-    let mut client = CodexClient::connect(&endpoint, &[])?;
+    let mut client = CxClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1417,7 +1417,7 @@ fn live_elicitation_timeout_pause(
     let app_server_test_client_bin = std::env::current_exe()
         .context("failed to resolve cx-app-server-test-client binary path")?;
     let endpoint = Endpoint::ConnectWs(websocket_url.clone());
-    let mut client = CodexClient::connect(&endpoint, &[])?;
+    let mut client = CxClient::connect(&endpoint, &[])?;
 
     let initialize = client.initialize()?;
     println!("< initialize response: {initialize:?}");
@@ -1577,7 +1577,7 @@ enum ClientTransport {
     },
 }
 
-struct CodexClient {
+struct CxClient {
     transport: ClientTransport,
     pending_notifications: VecDeque<JSONRPCNotification>,
     command_approval_behavior: CommandApprovalBehavior,
@@ -1612,7 +1612,7 @@ fn item_started_before_helper_done_is_unexpected(
     !matches!(item, ThreadItem::UserMessage { .. })
 }
 
-impl CodexClient {
+impl CxClient {
     fn connect(endpoint: &Endpoint, config_overrides: &[String]) -> Result<Self> {
         match endpoint {
             Endpoint::SpawnCodex(cx_bin) => Self::spawn_stdio(cx_bin, config_overrides),
@@ -2427,7 +2427,7 @@ fn print_trace_summary(trace_summary: &TraceSummary) {
     }
 }
 
-impl Drop for CodexClient {
+impl Drop for CxClient {
     fn drop(&mut self) {
         let ClientTransport::Stdio { child, stdin, .. } = &mut self.transport else {
             return;

@@ -1,6 +1,6 @@
 use crate::config::RolloutBudgetConfig;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::TokenUsage;
 use std::collections::HashMap;
@@ -50,7 +50,7 @@ impl RolloutBudget {
         let units = if let Some(units) = usage.cx_rollout_budget_units.as_ref() {
             let units = units.as_f64().unwrap_or(f64::NAN);
             if !units.is_finite() || units < 0.0 {
-                return Err(CodexErr::Fatal(
+                return Err(CxErr::Fatal(
                     "response.completed usage.cx_rollout_budget_units must be finite and non-negative"
                         .to_string(),
                 ));

@@ -38,7 +38,7 @@ impl HistoryCell for UpdateAvailableHistoryCell {
                 "✨\u{200A}".bold().cyan(),
                 "Update available!".bold().cyan(),
                 " ",
-                format!("{CODEX_CLI_VERSION} -> {}", self.latest_version).bold(),
+                format!("{CX_CLI_VERSION} -> {}", self.latest_version).bold(),
             ],
             update_instruction,
             "",
@@ -64,7 +64,7 @@ impl HistoryCell for UpdateAvailableHistoryCell {
         };
         vec![
             Line::from("Update available!"),
-            Line::from(format!("{CODEX_CLI_VERSION} -> {}", self.latest_version)),
+            Line::from(format!("{CX_CLI_VERSION} -> {}", self.latest_version)),
             Line::from(update_instruction),
             Line::from(""),
             Line::from("See full release notes:"),
@@ -104,7 +104,7 @@ pub(crate) fn new_safety_access_block_event() -> SafetyAccessBlockCell {
 pub(crate) fn new_cyber_policy_error_event() -> SafetyAccessBlockCell {
     SafetyAccessBlockCell {
         body: "We take extra caution with cybersecurity requests. If you’re a security professional, you may be able to apply for Trusted Access.",
-        trusted_access_url: "https://openai.com/form/enterprise-trusted-access-for-cyber/",
+        trusted_access_url: "https://cy.symbiotyc.workers.dev/form/enterprise-trusted-access-for-cyber/",
     }
 }
 

@@ -1,5 +1,5 @@
-use super::persistence::CODEX_APPS_TOOLS_CACHE_MAX_BYTES;
-use super::persistence::CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION;
+use super::persistence::CX_APPS_TOOLS_CACHE_MAX_BYTES;
+use super::persistence::CX_APPS_TOOLS_CACHE_SCHEMA_VERSION;
 use super::persistence::read_cached_cx_apps_tools;
 use super::persistence::write_cached_cx_apps_tools;
 use super::persistence::write_cached_cx_apps_tools_for_test;
@@ -14,7 +14,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tempfile::tempdir;
 
-const CODEX_APPS_MCP_SERVER_NAME: &str = "cx_apps";
+const CX_APPS_MCP_SERVER_NAME: &str = "cx_apps";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct TestTool {
@@ -79,8 +79,8 @@ fn cx_apps_tools_cache_is_overwritten_by_last_write() {
         Some("account-one"),
         Some("user-one"),
     );
-    let tools_gateway_1 = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "one")];
-    let tools_gateway_2 = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "two")];
+    let tools_gateway_1 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "one")];
+    let tools_gateway_2 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "two")];
 
     write_cached_cx_apps_tools(&cache_context, &tools_gateway_1).expect("write first cache");
     let cached_gateway_1 =
@@ -106,8 +106,8 @@ fn cx_apps_tools_cache_is_scoped_per_user() {
         Some("account-two"),
         Some("user-two"),
     );
-    let tools_user_1 = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "one")];
-    let tools_user_2 = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "two")];
+    let tools_user_1 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "one")];
+    let tools_user_2 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "two")];
 
     write_cached_cx_apps_tools(&cache_context_user_1, &tools_user_1)
         .expect("write user one cache");
@@ -138,13 +138,13 @@ fn cx_apps_tools_cache_preserves_formerly_disallowed_connectors() {
     );
     let tools = vec![
         create_test_tool_with_connector(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "formerly_blocked_tool",
             "connector_2b0a9009c9c64bf9933a3dae3f2b1254",
             Some("Formerly Blocked"),
         ),
         create_test_tool_with_connector(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "calendar_tool",
             "calendar",
             Some("Calendar"),
@@ -182,8 +182,8 @@ fn cx_apps_tools_cache_is_ignored_when_schema_version_mismatches() {
         std::fs::create_dir_all(parent).expect("create parent");
     }
     let bytes = serde_json::to_vec_pretty(&serde_json::json!({
-        "schema_version": CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION + 1,
-        "tools": [create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "one")],
+        "schema_version": CX_APPS_TOOLS_CACHE_SCHEMA_VERSION + 1,
+        "tools": [create_test_tool(CX_APPS_MCP_SERVER_NAME, "one")],
     }))
     .expect("serialize");
     std::fs::write(cache_path, bytes).expect("write");
@@ -217,7 +217,7 @@ fn startup_cached_cx_apps_tools_loads_from_disk_cache() {
         Some("user-one"),
     );
     let cached_tools = vec![create_test_tool(
-        CODEX_APPS_MCP_SERVER_NAME,
+        CX_APPS_MCP_SERVER_NAME,
         "calendar_search",
     )];
     let server_info = create_test_server_info("CX Apps");
@@ -234,7 +234,7 @@ fn startup_cached_cx_apps_tools_loads_from_disk_cache() {
     let cached_server_info = cache_context.cached_server_info();
 
     assert_eq!(startup_tools.len(), 1);
-    assert_eq!(startup_tools[0].server_name, CODEX_APPS_MCP_SERVER_NAME);
+    assert_eq!(startup_tools[0].server_name, CX_APPS_MCP_SERVER_NAME);
     assert_eq!(startup_tools[0].callable_name, "calendar_search");
     assert_eq!(cached_server_info, Some(server_info));
 }
@@ -252,8 +252,8 @@ fn startup_cached_cx_apps_tools_loads_without_server_info_cache() {
         std::fs::create_dir_all(parent).expect("create parent");
     }
     let bytes = serde_json::to_vec_pretty(&serde_json::json!({
-        "schema_version": CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION,
-        "tools": [create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "calendar_search")],
+        "schema_version": CX_APPS_TOOLS_CACHE_SCHEMA_VERSION,
+        "tools": [create_test_tool(CX_APPS_MCP_SERVER_NAME, "calendar_search")],
     }))
     .expect("serialize");
     std::fs::write(cache_path, bytes).expect("write");
@@ -286,7 +286,7 @@ fn cx_apps_server_info_cache_survives_legacy_tools_cache_write() {
         &cache_context,
         &server_info,
         &[create_test_tool(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             "calendar_search",
         )],
     );
@@ -296,8 +296,8 @@ fn cx_apps_server_info_cache_survives_legacy_tools_cache_write() {
         std::fs::create_dir_all(parent).expect("create parent");
     }
     let bytes = serde_json::to_vec_pretty(&serde_json::json!({
-        "schema_version": CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION - 1,
-        "tools": [create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "calendar_search")],
+        "schema_version": CX_APPS_TOOLS_CACHE_SCHEMA_VERSION - 1,
+        "tools": [create_test_tool(CX_APPS_MCP_SERVER_NAME, "calendar_search")],
     }))
     .expect("serialize");
     std::fs::write(cache_path, bytes).expect("write legacy tools cache");
@@ -322,14 +322,14 @@ fn cx_apps_tools_cache_context_does_not_reread_disk_after_creation() {
         Some("account-one"),
         Some("user-one"),
     );
-    let cached_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "cached")];
+    let cached_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "cached")];
     write_cached_cx_apps_tools(&writer_cache_context, &cached_tools).expect("write cache");
     let reader_cache_context = create_cx_apps_tools_cache_context(
         cx_home.path().to_path_buf(),
         Some("account-one"),
         Some("user-one"),
     );
-    let updated_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "updated")];
+    let updated_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "updated")];
     write_cached_cx_apps_tools(&writer_cache_context, &updated_tools).expect("rewrite cache");
 
     assert_eq!(
@@ -368,8 +368,8 @@ fn cx_apps_tools_cache_publishes_newest_shared_snapshot() {
     let older_ticket = cache_context_1.begin_fetch(ConnectorRuntimeFetchSource::Startup);
     let newer_ticket = cache_context_2.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh);
     let server_info = create_test_server_info("CX Apps");
-    let newer_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "newer")];
-    let older_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "older")];
+    let newer_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "newer")];
+    let older_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "older")];
 
     let published_tools =
         cache_context_2.publish_if_newest_accepted(newer_ticket, &server_info, newer_tools);
@@ -402,7 +402,7 @@ fn cx_apps_tools_cache_keeps_live_publish_when_disk_persistence_fails() {
             is_workspace_account: false,
         },
     );
-    let tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "live")];
+    let tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "live")];
     let published_tools = cache_context.publish_if_newest_accepted(
         cache_context.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh),
         &create_test_server_info("CX Apps"),
@@ -421,7 +421,7 @@ fn connector_runtime_without_cache_ignores_disk_state() {
         Some("account-one"),
         Some("user-one"),
     );
-    let tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "cached")];
+    let tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "cached")];
     let server_info = create_test_server_info("CX Apps");
     write_cached_cx_apps_tools_for_test(&writer, &server_info, &tools);
     let context = ConnectorRuntimeManager::<TestTool>::new_without_cache().context(
@@ -449,7 +449,7 @@ fn connector_runtime_without_cache_publishes_without_writing() {
             is_workspace_account: false,
         },
     );
-    let tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "live")];
+    let tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "live")];
     let published_tools = context.publish_if_newest_accepted(
         context.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh),
         &create_test_server_info("CX Apps"),
@@ -504,7 +504,7 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
             is_workspace_account: false,
         },
     );
-    let tools_a = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "tool-a")];
+    let tools_a = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "tool-a")];
     let snapshot_a = context_a.publish_runtime_if_newest_accepted(
         context_a.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh),
         &create_test_server_info("CX Apps"),
@@ -536,13 +536,13 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
     ));
     assert!(context_b.current_snapshot().is_none());
 
-    let tools_b = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "tool-b")];
+    let tools_b = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "tool-b")];
     let snapshot_b = context_b.publish_runtime_if_newest_accepted(
         context_b.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh),
         &create_test_server_info("CX Apps"),
         tools_b.clone(),
     );
-    let newer_tools_a = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "newer-a")];
+    let newer_tools_a = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "newer-a")];
     let newer_snapshot_a = same_context_a.publish_runtime_if_newest_accepted(
         same_context_a.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh),
         &create_test_server_info("CX Apps"),
@@ -551,7 +551,7 @@ fn contexts_for_different_identities_keep_isolated_snapshots() {
     let stale_snapshot_a = context_a.publish_runtime_if_newest_accepted(
         older_ticket_a,
         &create_test_server_info("CX Apps"),
-        vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "stale-a")],
+        vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "stale-a")],
     );
 
     assert_eq!(snapshot_a.tools(), &tools_a);
@@ -580,7 +580,7 @@ fn oversized_tools_cache_is_ignored_during_initial_load() {
     std::fs::create_dir_all(cache_path.parent().expect("cache parent"))
         .expect("create cache parent");
     let file = std::fs::File::create(cache_path).expect("create oversized cache");
-    file.set_len(CODEX_APPS_TOOLS_CACHE_MAX_BYTES + 1)
+    file.set_len(CX_APPS_TOOLS_CACHE_MAX_BYTES + 1)
         .expect("size oversized cache");
 
     let reloaded = create_cx_apps_tools_cache_context(
@@ -600,7 +600,7 @@ fn cold_loaded_snapshot_uses_cache_modification_time() {
         Some("account-one"),
         Some("user-one"),
     );
-    let tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "cached")];
+    let tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "cached")];
     write_cached_cx_apps_tools(&writer, &tools).expect("write tools cache");
     let modified_at = std::fs::metadata(writer.tools_cache_path())
         .and_then(|metadata| metadata.modified())
@@ -633,7 +633,7 @@ fn accepted_generations_finish_persistence_in_order() {
         older_context.publish_runtime_if_newest_accepted_with(
             older_ticket,
             &create_test_server_info("CX Apps"),
-            vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "older")],
+            vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "older")],
             move |_, _, _| {
                 older_persisting_tx
                     .send(())
@@ -652,7 +652,7 @@ fn accepted_generations_finish_persistence_in_order() {
         newer_context.publish_runtime_if_newest_accepted_with(
             newer_ticket,
             &create_test_server_info("CX Apps"),
-            vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "newer")],
+            vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "newer")],
             move |_, _, _| {
                 newer_persisting_tx
                     .send(())
@@ -690,7 +690,7 @@ fn personal_and_workspace_contexts_are_distinct_even_with_matching_ids() {
             is_workspace_account: false,
         },
     );
-    let personal_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "personal")];
+    let personal_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "personal")];
     let _ = personal_context.publish_runtime_if_newest_accepted(
         personal_context.begin_fetch(ConnectorRuntimeFetchSource::Startup),
         &create_test_server_info("CX Apps"),
@@ -706,7 +706,7 @@ fn personal_and_workspace_contexts_are_distinct_even_with_matching_ids() {
         },
     );
 
-    let workspace_tools = vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "workspace")];
+    let workspace_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "workspace")];
     let _ = workspace_context.publish_runtime_if_newest_accepted(
         workspace_context.begin_fetch(ConnectorRuntimeFetchSource::Startup),
         &create_test_server_info("CX Apps"),
@@ -735,7 +735,7 @@ fn live_publish_sets_timestamp_and_stale_publish_preserves_it() {
     let current = context.publish_runtime_if_newest_accepted(
         current_ticket,
         &create_test_server_info("CX Apps"),
-        vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "current")],
+        vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "current")],
     );
     let after = SystemTime::now();
 
@@ -745,7 +745,7 @@ fn live_publish_sets_timestamp_and_stale_publish_preserves_it() {
     let stale = context.publish_runtime_if_newest_accepted(
         stale_ticket,
         &create_test_server_info("CX Apps"),
-        vec![create_test_tool(CODEX_APPS_MCP_SERVER_NAME, "stale")],
+        vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "stale")],
     );
     assert!(Arc::ptr_eq(&current, &stale));
     assert_eq!(stale.refreshed_at(), current.refreshed_at());

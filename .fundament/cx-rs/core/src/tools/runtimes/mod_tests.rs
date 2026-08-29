@@ -6,7 +6,7 @@ use crate::shell::ShellType;
 use crate::tools::sandboxing::SandboxAttempt;
 use crate::tools::sandboxing::managed_network_for_sandbox_permissions;
 #[cfg(target_os = "macos")]
-use cx_network_proxy::CODEX_PROXY_GIT_SSH_COMMAND_MARKER;
+use cx_network_proxy::CX_PROXY_GIT_SSH_COMMAND_MARKER;
 use cx_network_proxy::CUSTOM_CA_ENV_KEYS;
 use cx_network_proxy::ConfigReloader;
 use cx_network_proxy::ConfigReloaderFuture;
@@ -507,7 +507,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_cx_thread_id_from_env() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_THREAD_ID='parent-thread'\n",
+        "# Snapshot file\nexport CX_THREAD_ID='parent-thread'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -515,19 +515,19 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_cx_thread_id_from_env() {
     let command = vec![
         "/bin/bash".to_string(),
         "-lc".to_string(),
-        "printf '%s' \"$CODEX_THREAD_ID\"".to_string(),
+        "printf '%s' \"$CX_THREAD_ID\"".to_string(),
     ];
     let rewritten = maybe_wrap_shell_lc_with_snapshot(
         &command,
         &session_shell,
         Some(&shell_snapshot),
         &HashMap::new(),
-        &HashMap::from([("CODEX_THREAD_ID".to_string(), "nested-thread".to_string())]),
+        &HashMap::from([("CX_THREAD_ID".to_string(), "nested-thread".to_string())]),
         &RuntimePathPrepends::default(),
     );
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env("CODEX_THREAD_ID", "nested-thread")
+        .env("CX_THREAD_ID", "nested-thread")
         .output()
         .expect("run rewritten command");
 
@@ -541,7 +541,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_permission_profile_from_env() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_PERMISSION_PROFILE='parent-profile'\n",
+        "# Snapshot file\nexport CX_PERMISSION_PROFILE='parent-profile'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -549,10 +549,10 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_permission_profile_from_env() {
     let command = vec![
         "/bin/bash".to_string(),
         "-lc".to_string(),
-        "printenv CODEX_PERMISSION_PROFILE".to_string(),
+        "printenv CX_PERMISSION_PROFILE".to_string(),
     ];
     let env = HashMap::from([(
-        CODEX_PERMISSION_PROFILE_ENV_VAR.to_string(),
+        CX_PERMISSION_PROFILE_ENV_VAR.to_string(),
         "current-profile".to_string(),
     )]);
     let rewritten = maybe_wrap_shell_lc_with_snapshot(
@@ -565,7 +565,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_permission_profile_from_env() {
     );
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env(CODEX_PERMISSION_PROFILE_ENV_VAR, "current-profile")
+        .env(CX_PERMISSION_PROFILE_ENV_VAR, "current-profile")
         .output()
         .expect("run rewritten command");
 
@@ -579,7 +579,7 @@ fn maybe_wrap_shell_lc_with_snapshot_unsets_absent_permission_profile() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_PERMISSION_PROFILE='stale-profile'\n",
+        "# Snapshot file\nexport CX_PERMISSION_PROFILE='stale-profile'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -587,7 +587,7 @@ fn maybe_wrap_shell_lc_with_snapshot_unsets_absent_permission_profile() {
     let command = vec![
         "/bin/bash".to_string(),
         "-lc".to_string(),
-        "printenv CODEX_PERMISSION_PROFILE".to_string(),
+        "printenv CX_PERMISSION_PROFILE".to_string(),
     ];
     let rewritten = maybe_wrap_shell_lc_with_snapshot(
         &command,
@@ -599,7 +599,7 @@ fn maybe_wrap_shell_lc_with_snapshot_unsets_absent_permission_profile() {
     );
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env_remove(CODEX_PERMISSION_PROFILE_ENV_VAR)
+        .env_remove(CX_PERMISSION_PROFILE_ENV_VAR)
         .output()
         .expect("run rewritten command");
 
@@ -613,7 +613,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_apply_patch_rollout_state() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS='stale'\n",
+        "# Snapshot file\nexport CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS='stale'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -621,10 +621,10 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_apply_patch_rollout_state() {
     let command = vec![
         "/bin/bash".to_string(),
         "-lc".to_string(),
-        "printenv CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS".to_string(),
+        "printenv CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS".to_string(),
     ];
     let env = HashMap::from([(
-        CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
+        CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
         "1".to_string(),
     )]);
     let rewritten = maybe_wrap_shell_lc_with_snapshot(
@@ -637,7 +637,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_apply_patch_rollout_state() {
     );
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env(CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR, "1")
+        .env(CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR, "1")
         .output()
         .expect("run rewritten command");
 
@@ -654,7 +654,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_apply_patch_rollout_state() {
     );
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env_remove(CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR)
+        .env_remove(CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR)
         .output()
         .expect("run rewritten command");
 
@@ -668,7 +668,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_reserved_metrics_output_env() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_PLUGIN_METRICS_OUTPUT='/stale/path'\n",
+        "# Snapshot file\nexport CX_PLUGIN_METRICS_OUTPUT='/stale/path'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -676,7 +676,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_reserved_metrics_output_env() {
     let command = vec![
         "/bin/bash".to_string(),
         "-lc".to_string(),
-        "printf '%s' \"${CODEX_PLUGIN_METRICS_OUTPUT-unset}\"".to_string(),
+        "printf '%s' \"${CX_PLUGIN_METRICS_OUTPUT-unset}\"".to_string(),
     ];
 
     for (live_value, expected) in [(None, "unset"), (Some("/private/path"), "/private/path")] {
@@ -761,10 +761,10 @@ fn maybe_wrap_shell_lc_with_snapshot_refreshes_cx_proxy_git_ssh_command() {
     let dir = tempdir().expect("create temp dir");
     let snapshot_path = dir.path().join("snapshot.sh");
     let stale_command = format!(
-        "{CODEX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
+        "{CX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
     );
     let fresh_command = format!(
-        "{CODEX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:48081 %h %p'"
+        "{CX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:48081 %h %p'"
     );
     std::fs::write(
         &snapshot_path,
@@ -805,7 +805,7 @@ fn maybe_wrap_shell_lc_with_snapshot_restores_custom_git_ssh_command() {
     let dir = tempdir().expect("create temp dir");
     let snapshot_path = dir.path().join("snapshot.sh");
     let stale_command = format!(
-        "{CODEX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
+        "{CX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
     );
     let custom_command = "ssh -o ProxyCommand='tsh proxy ssh --cluster=dev %r@%h:%p'";
     std::fs::write(
@@ -847,7 +847,7 @@ fn maybe_wrap_shell_lc_with_snapshot_clears_stale_cx_git_ssh_command_without_liv
     let dir = tempdir().expect("create temp dir");
     let snapshot_path = dir.path().join("snapshot.sh");
     let stale_command = format!(
-        "{CODEX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
+        "{CX_PROXY_GIT_SSH_COMMAND_MARKER}ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:8081 %h %p'"
     );
     std::fs::write(
         &snapshot_path,
@@ -1223,7 +1223,7 @@ fn maybe_wrap_shell_lc_with_snapshot_preserves_unset_override_variables() {
     let snapshot_path = dir.path().join("snapshot.sh");
     std::fs::write(
         &snapshot_path,
-        "# Snapshot file\nexport CODEX_TEST_UNSET_OVERRIDE='snapshot-value'\n",
+        "# Snapshot file\nexport CX_TEST_UNSET_OVERRIDE='snapshot-value'\n",
     )
     .expect("write snapshot");
     let (session_shell, shell_snapshot) =
@@ -1231,10 +1231,10 @@ fn maybe_wrap_shell_lc_with_snapshot_preserves_unset_override_variables() {
     let command = vec![
             "/bin/bash".to_string(),
             "-lc".to_string(),
-            "if [ \"${CODEX_TEST_UNSET_OVERRIDE+x}\" = x ]; then printf 'set:%s' \"$CODEX_TEST_UNSET_OVERRIDE\"; else printf 'unset'; fi".to_string(),
+            "if [ \"${CX_TEST_UNSET_OVERRIDE+x}\" = x ]; then printf 'set:%s' \"$CX_TEST_UNSET_OVERRIDE\"; else printf 'unset'; fi".to_string(),
         ];
     let explicit_env_overrides = HashMap::from([(
-        "CODEX_TEST_UNSET_OVERRIDE".to_string(),
+        "CX_TEST_UNSET_OVERRIDE".to_string(),
         "worktree-value".to_string(),
     )]);
     let rewritten = maybe_wrap_shell_lc_with_snapshot(
@@ -1248,7 +1248,7 @@ fn maybe_wrap_shell_lc_with_snapshot_preserves_unset_override_variables() {
 
     let output = Command::new(&rewritten[0])
         .args(&rewritten[1..])
-        .env_remove("CODEX_TEST_UNSET_OVERRIDE")
+        .env_remove("CX_TEST_UNSET_OVERRIDE")
         .output()
         .expect("run rewritten command");
     assert!(output.status.success(), "command failed: {output:?}");

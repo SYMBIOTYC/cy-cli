@@ -11,7 +11,7 @@ use pretty_assertions::assert_eq;
 
 use crate::config::PermissionProfileSnapshot;
 use crate::environment_selection::EnvironmentConfigOrigin;
-use crate::exec_env::CODEX_PERMISSION_PROFILE_ENV_VAR;
+use crate::exec_env::CX_PERMISSION_PROFILE_ENV_VAR;
 use crate::exec_env::create_env;
 use crate::exec_env::inject_permission_profile_env;
 use crate::exec_env::inject_session_id_env;
@@ -138,7 +138,7 @@ async fn shell_command_handler_to_exec_params_uses_selected_environment() {
     assert_eq!(exec_params.cwd, expected_cwd);
     assert_eq!(exec_params.env, expected_env);
     assert_eq!(
-        exec_params.env.get(CODEX_PERMISSION_PROFILE_ENV_VAR),
+        exec_params.env.get(CX_PERMISSION_PROFILE_ENV_VAR),
         Some(&active_permission_profile.id)
     );
     assert_eq!(exec_params.network, turn_context.network);

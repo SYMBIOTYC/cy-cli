@@ -21,7 +21,7 @@ use wiremock::matchers::path;
 
 fn cx_command(cx_home: &Path) -> Result<assert_cmd::Command> {
     let mut cmd = assert_cmd::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
-    cmd.env("CODEX_HOME", cx_home);
+    cmd.env("CX_HOME", cx_home);
     Ok(cmd)
 }
 
@@ -267,8 +267,8 @@ async fn features_list_honors_cloud_managed_feature_requirements() -> Result<()>
         .current_dir(cx_home.path())
         .env("NO_PROXY", "127.0.0.1,localhost")
         .env("no_proxy", "127.0.0.1,localhost")
-        .env_remove("CODEX_ACCESS_TOKEN")
-        .env_remove("CODEX_API_KEY")
+        .env_remove("CX_ACCESS_TOKEN")
+        .env_remove("CX_API_KEY")
         .env_remove("OPENAI_API_KEY")
         .args(["features", "list"])
         .assert()

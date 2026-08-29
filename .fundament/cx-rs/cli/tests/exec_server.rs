@@ -48,7 +48,7 @@ use wiremock::matchers::path;
 
 fn cx_command(cx_home: &Path) -> Result<assert_cmd::Command> {
     let mut cmd = assert_cmd::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
-    cmd.env("CODEX_HOME", cx_home);
+    cmd.env("CX_HOME", cx_home);
     Ok(cmd)
 }
 
@@ -113,7 +113,7 @@ fn local_exec_server_allows_disabled_parent_lifetime_environment_variable() -> R
     let cx_home = TempDir::new()?;
     let mut cmd = cx_command(cx_home.path())?;
     cmd.env(
-        cx_exec_server::CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
+        cx_exec_server::CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
         "false",
     )
     .args(["exec-server", "--listen", "stdio"])
@@ -177,10 +177,10 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{collector_url}/v1/metrics", pr
     )?;
     let mut command = tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
     command
-        .env("CODEX_HOME", cx_home.path())
-        .env("CODEX_API_KEY", "test-api-key")
+        .env("CX_HOME", cx_home.path())
+        .env("CX_API_KEY", "test-api-key")
         .env(
-            cx_exec_server::CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
+            cx_exec_server::CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE_ENV_VAR,
             "true",
         )
         .env("NO_PROXY", "127.0.0.1,localhost")
@@ -236,13 +236,13 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{collector_url}/v1/metrics", pr
     let argv = vec![
         "cmd.exe",
         "/C",
-        "if defined CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE (exit /b 1) else ping -n 61 127.0.0.1",
+        "if defined CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE (exit /b 1) else ping -n 61 127.0.0.1",
     ];
     #[cfg(not(windows))]
     let argv = vec![
         "/bin/sh",
         "-c",
-        "[ -z \"${CODEX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE+present}\" ] && exec /bin/sleep 60",
+        "[ -z \"${CX_EXEC_SERVER_EXIT_ON_STDIN_CLOSE+present}\" ] && exec /bin/sleep 60",
     ];
     let cwd = url::Url::from_directory_path(std::env::current_dir()?)
         .map_err(|()| anyhow::anyhow!("could not convert cwd to file URL"))?;
@@ -400,7 +400,7 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{base_url}/v1/metrics", protoco
     let subprocess = async move {
         let mut command = tokio::process::Command::new(cx_bin);
         command
-            .env("CODEX_HOME", cx_home)
+            .env("CX_HOME", cx_home)
             .env("NO_PROXY", "127.0.0.1,localhost")
             .env("no_proxy", "127.0.0.1,localhost")
             .args(["exec-server", "--listen", "stdio"])
@@ -530,7 +530,7 @@ async fn send_json_line(
 fn local_exec_server_exits_successfully_on_sigterm() -> Result<()> {
     let cx_home = TempDir::new()?;
     let mut child = std::process::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .args(["exec-server", "--listen", "ws://127.0.0.1:0"])
         .stdout(Stdio::piped())
         .spawn()?;

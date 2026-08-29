@@ -36,7 +36,7 @@ use cx_analytics::CompactionTrigger;
 use cx_features::Feature;
 use cx_history::CodexHarnessMetadata;
 use cx_history::ResponseItemEnvelope;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::ContextCompactionItem;
@@ -158,7 +158,7 @@ async fn run_remote_compact_task_inner(
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
         PreCompactHookOutcome::Stopped => {
-            let error = CodexErr::TurnAborted;
+            let error = CxErr::TurnAborted;
             attempt
                 .track(
                     sess.as_ref(),
@@ -188,7 +188,7 @@ async fn run_remote_compact_task_inner(
             attempt
                 .track(sess.as_ref(), status, cx_error, analytics_details)
                 .await;
-            return Err(CodexErr::TurnAborted);
+            return Err(CxErr::TurnAborted);
         }
     }
     attempt
@@ -432,13 +432,13 @@ async fn collect_compaction_output(
     }
 
     if !saw_completed {
-        return Err(CodexErr::Stream(
+        return Err(CxErr::Stream(
             "remote compaction v2 stream closed before response.completed".to_string(),
         ));
     }
 
     if compaction_count != 1 {
-        return Err(CodexErr::Fatal(format!(
+        return Err(CxErr::Fatal(format!(
             "remote compaction v2 expected exactly one compaction output item, got {compaction_count} from {output_item_count} output items"
         )));
     }

@@ -25,7 +25,7 @@ use cx_model_provider_info::ModelProviderInfo;
 use cx_models_manager::manager::SharedModelsManager;
 use cx_models_manager::manager::StaticModelsManager;
 use cx_protocol::account::ProviderAccount;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 use cx_protocol::openai_models::ModelsResponse;
 
@@ -236,9 +236,9 @@ impl ModelProvider for AmazonBedrockModelProvider {
 
             recovery.refresh().await.map_err(|error| {
                 if error.kind() == std::io::ErrorKind::InvalidInput {
-                    CodexErr::InvalidRequest(error.to_string())
+                    CxErr::InvalidRequest(error.to_string())
                 } else {
-                    CodexErr::Io(error)
+                    CxErr::Io(error)
                 }
             })?;
             Ok(ProviderUnauthorizedRecovery::Recovered)
@@ -258,7 +258,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
         })
     }
 
-    fn map_api_error(&self, error: ApiError) -> CodexErr {
+    fn map_api_error(&self, error: ApiError) -> CxErr {
         error::map_api_error(error)
     }
 

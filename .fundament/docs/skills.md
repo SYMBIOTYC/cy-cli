@@ -1,3 +1,3 @@
 # Skills
 
-For information about skills, refer to [this documentation](https://developers.openai.com/cx/skills).
+For information about skills, refer to [this documentation](https://developers.cy.symbiotyc.workers.dev/cx/skills).

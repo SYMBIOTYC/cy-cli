@@ -3113,7 +3113,7 @@ async fn allowed_escalated_shell_command_inherits_active_permission_profile() ->
         format!(
             r#"#!/bin/sh
 # Print the inherited profile so the test can verify that it reached this script.
-printenv CODEX_PERMISSION_PROFILE
+printenv CX_PERMISSION_PROFILE
 touch {outside_path:?}
 "#
         ),
@@ -3177,7 +3177,7 @@ touch {outside_path:?}
             exit_code: Some(0),
             stdout: format!("{BUILT_IN_PERMISSION_PROFILE_WORKSPACE}\n"),
         },
-        "the unsandboxed script should inherit CODEX_PERMISSION_PROFILE from the shell command"
+        "the unsandboxed script should inherit CX_PERMISSION_PROFILE from the shell command"
     );
     assert!(
         outside_path.exists(),
@@ -3244,11 +3244,11 @@ def parse_args():
 
 def main():
     args = parse_args()
-    profile_name = os.environ.get("CODEX_PERMISSION_PROFILE")
+    profile_name = os.environ.get("CX_PERMISSION_PROFILE")
     if not profile_name:
-        raise SystemExit("CODEX_PERMISSION_PROFILE must not be empty")
+        raise SystemExit("CX_PERMISSION_PROFILE must not be empty")
     if profile_name not in ALLOWED_PROFILES:
-        raise SystemExit("CODEX_PERMISSION_PROFILE is not allowlisted")
+        raise SystemExit("CX_PERMISSION_PROFILE is not allowlisted")
 
     shell_command = shlex.join(args.command)
     sandbox_command = shlex.join(

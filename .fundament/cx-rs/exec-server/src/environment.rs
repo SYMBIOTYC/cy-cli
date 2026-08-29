@@ -9,7 +9,7 @@ use cx_http_client::HttpClientFactory;
 use cx_http_client::OutboundProxyPolicy;
 use cx_protocol::capabilities::CapabilityRootLocation;
 use cx_protocol::capabilities::SelectedCapabilityRoot;
-use cx_protocol::shell_environment::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
 
 use crate::CapabilityRootsDiscoverParams;
 use crate::CapabilityRootsDiscoverResponse;
@@ -48,13 +48,13 @@ use tokio_util::task::AbortOnDropHandle;
 use tracing::Instrument;
 use tracing::instrument::WithSubscriber;
 
-pub const CODEX_EXEC_SERVER_URL_ENV_VAR: &str = "CODEX_EXEC_SERVER_URL";
-pub const CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR: &str =
-    "CODEX_EXEC_SERVER_NOISE_REGISTRY_URL";
-pub const CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR: &str =
-    "CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID";
-pub const CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR: &str =
-    "CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID";
+pub const CX_EXEC_SERVER_URL_ENV_VAR: &str = "CX_EXEC_SERVER_URL";
+pub const CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR: &str =
+    "CX_EXEC_SERVER_NOISE_REGISTRY_URL";
+pub const CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR: &str =
+    "CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID";
+pub const CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR: &str =
+    "CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID";
 
 /// The current connection state for one concrete environment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -68,10 +68,10 @@ pub enum EnvironmentConnectionState {
 /// Owns the execution/filesystem environments available to the CX runtime.
 ///
 /// `EnvironmentManager` is a shared registry for concrete environments. Its
-/// default constructor preserves the legacy `CODEX_EXEC_SERVER_URL` behavior
+/// default constructor preserves the legacy `CX_EXEC_SERVER_URL` behavior
 /// while configured construction accepts a provider-supplied snapshot.
 ///
-/// Setting `CODEX_EXEC_SERVER_URL=none` disables environment access by leaving
+/// Setting `CX_EXEC_SERVER_URL=none` disables environment access by leaving
 /// the default environment unset and omitting the local environment. Callers
 /// use `default_environment().is_some()` as the signal for model-facing
 /// shell/filesystem tool availability.
@@ -172,9 +172,9 @@ impl EnvironmentManager {
 
     /// Discovers configured environments without starting remote connections.
     ///
-    /// If `CODEX_HOME/environments.toml` is present, it defines the configured
+    /// If `CX_HOME/environments.toml` is present, it defines the configured
     /// environments. Otherwise this preserves the legacy
-    /// `CODEX_EXEC_SERVER_URL` behavior.
+    /// `CX_EXEC_SERVER_URL` behavior.
     pub async fn prepare_from_cx_home(
         cx_home: impl AsRef<std::path::Path>,
     ) -> Result<PreparedEnvironmentManager, ExecServerError> {
@@ -187,7 +187,7 @@ impl EnvironmentManager {
         Ok(PreparedEnvironmentManager { source })
     }
 
-    /// Builds a manager from `CODEX_HOME` with an explicit outbound HTTP policy.
+    /// Builds a manager from `CX_HOME` with an explicit outbound HTTP policy.
     pub async fn from_cx_home(
         cx_home: impl AsRef<std::path::Path>,
         local_runtime_paths: Option<ExecServerRuntimePaths>,
@@ -605,10 +605,10 @@ fn validate_remote_exec_server_url(exec_server_url: String) -> Result<String, Ex
 fn noise_environment_config_from_env()
 -> Result<Option<NoiseRendezvousEnvironmentConfig>, ExecServerError> {
     noise_environment_config_from_values(
-        optional_environment_value(CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR),
-        optional_environment_value(CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR),
-        optional_environment_value(CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
-        optional_environment_value(CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR),
+        optional_environment_value(CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR),
+        optional_environment_value(CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR),
+        optional_environment_value(CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
+        optional_environment_value(CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR),
     )
 }
 
@@ -626,9 +626,9 @@ fn noise_environment_config_from_values(
             }
             _ => {
                 return Err(ExecServerError::EnvironmentRegistryConfig(format!(
-                    "Noise environment requires {CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR}, \
-{CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR}, and \
-{CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR}"
+                    "Noise environment requires {CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR}, \
+{CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR}, and \
+{CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR}"
                 )));
             }
         };
@@ -716,7 +716,7 @@ impl Environment {
         )
     }
 
-    /// Builds an environment from the raw `CODEX_EXEC_SERVER_URL` value and
+    /// Builds an environment from the raw `CX_EXEC_SERVER_URL` value and
     /// local runtime paths used when creating local filesystem helpers.
     fn create_inner(
         exec_server_url: Option<String>,

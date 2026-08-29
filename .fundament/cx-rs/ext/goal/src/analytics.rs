@@ -1,5 +1,5 @@
 use cx_analytics::AnalyticsEventsClient;
-use cx_analytics::CodexGoalEvent;
+use cx_analytics::CxGoalEvent;
 use cx_analytics::GoalEventKind;
 
 #[derive(Clone)]
@@ -60,7 +60,7 @@ impl GoalAnalytics {
                 (None, None)
             }
         };
-        self.client.track_goal_event(CodexGoalEvent {
+        self.client.track_goal_event(CxGoalEvent {
             thread_id: goal.thread_id.to_string(),
             turn_id: match attribution {
                 GoalEventAttribution::Turn(turn_id) => Some(turn_id.to_string()),

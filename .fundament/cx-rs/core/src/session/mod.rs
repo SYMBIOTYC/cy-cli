@@ -197,7 +197,7 @@ use cx_config::ConfigLayerSource;
 use cx_config::types::McpServerConfig;
 use cx_model_provider::create_model_provider;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 #[cfg(test)]
@@ -457,7 +457,7 @@ pub(crate) fn resolve_multi_agent_version(
 pub(crate) const INITIAL_SUBMIT_ID: &str = "";
 pub(crate) const SUBMISSION_CHANNEL_CAPACITY: usize = 512;
 const CYBER_VERIFY_URL: &str = "https://chatgpt.com/cyber";
-const CYBER_SAFETY_URL: &str = "https://developers.openai.com/cx/concepts/cyber-safety";
+const CYBER_SAFETY_URL: &str = "https://developers.cy.symbiotyc.workers.dev/cx/concepts/cyber-safety";
 
 impl Session {
     /// Spawn and initialize a new session.
@@ -565,7 +565,7 @@ impl Session {
             Arc::new(
                 ExecPolicyManager::load(&config.config_layer_stack)
                     .await
-                    .map_err(|err| CodexErr::Fatal(format!("failed to load rules: {err}")))?,
+                    .map_err(|err| CxErr::Fatal(format!("failed to load rules: {err}")))?,
             )
         };
 
@@ -611,12 +611,12 @@ impl Session {
                 config
                     .permissions
                     .set_permission_profile(permission_profile.clone())
-                    .map_err(|err| CodexErr::InvalidRequest(err.to_string()))?;
+                    .map_err(|err| CxErr::InvalidRequest(err.to_string()))?;
                 if let Some(network) = config.permissions.network.as_ref() {
                     config.permissions.network = Some(
                         network
                             .recompute_for_permission_profile(&permission_profile)
-                            .map_err(|err| CodexErr::InvalidRequest(err.to_string()))?,
+                            .map_err(|err| CxErr::InvalidRequest(err.to_string()))?,
                     );
                 }
             }
@@ -625,7 +625,7 @@ impl Session {
                 .requirements()
                 .approvals_reviewer
                 .can_set(&ApprovalsReviewer::AutoReview)
-                .map_err(|err| CodexErr::InvalidRequest(err.to_string()))?;
+                .map_err(|err| CxErr::InvalidRequest(err.to_string()))?;
             config.approvals_reviewer = ApprovalsReviewer::AutoReview;
         }
         if allow_provider_model_fallback
@@ -720,7 +720,7 @@ impl Session {
         };
         session_configuration
             .validate(&environment_selections)
-            .map_err(|err| CodexErr::InvalidRequest(err.to_string()))?;
+            .map_err(|err| CxErr::InvalidRequest(err.to_string()))?;
 
         // Generate a unique ID for the lifetime of this session.
         let session_source_clone = session_configuration.session_source.clone();
@@ -830,7 +830,7 @@ impl SessionIo {
         self.tx_sub
             .send(sub)
             .await
-            .map_err(|_| CodexErr::InternalAgentDied)?;
+            .map_err(|_| CxErr::InternalAgentDied)?;
         Ok(())
     }
 
@@ -858,7 +858,7 @@ impl SessionIo {
             root_turn_id: None,
         })
         .await?;
-        reply_rx.await.unwrap_or(Err(CodexErr::InternalAgentDied))
+        reply_rx.await.unwrap_or(Err(CxErr::InternalAgentDied))
     }
 
     pub(crate) async fn submit_recover_turn(
@@ -879,7 +879,7 @@ impl SessionIo {
             root_turn_id: None,
         })
         .await?;
-        reply_rx.await.unwrap_or(Err(CodexErr::InternalAgentDied))
+        reply_rx.await.unwrap_or(Err(CxErr::InternalAgentDied))
     }
 
     pub(crate) async fn shutdown_and_wait(&self) -> CodexResult<()> {
@@ -898,7 +898,7 @@ impl SessionIo {
             .rx_event
             .recv()
             .await
-            .map_err(|_| CodexErr::InternalAgentDied)?;
+            .map_err(|_| CxErr::InternalAgentDied)?;
         Ok(event)
     }
 
@@ -1898,8 +1898,8 @@ impl Session {
         self.refresh_runtime_config(next_config).await;
     }
 
-    /// Record a terminal CodexErr before the app-server completion notification is reduced.
-    pub(crate) fn track_turn_cx_error(&self, turn_context: &TurnContext, error: &CodexErr) {
+    /// Record a terminal CxErr before the app-server completion notification is reduced.
+    pub(crate) fn track_turn_cx_error(&self, turn_context: &TurnContext, error: &CxErr) {
         self.services
             .analytics_events_client
             .track_turn_cx_error(TurnCodexErrorFact::from_cx_err(
@@ -4082,7 +4082,7 @@ impl Session {
         &self,
         turn_context: &TurnContext,
         message: impl Into<String>,
-        cx_error: CodexErr,
+        cx_error: CxErr,
     ) {
         let additional_details = cx_error.to_string();
         let cx_error_info = CodexErrorInfo::ResponseStreamDisconnected {

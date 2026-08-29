@@ -5,7 +5,7 @@ use cx_exec_server::ExecServerRuntimePaths;
 use cx_extension_api::ExtensionRegistry;
 use cx_extension_api::UserInstructionsProvider;
 use cx_login::AuthManager;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::ResponseItem;
 use cx_protocol::protocol::SessionSource;
@@ -35,7 +35,7 @@ pub async fn build_prompt_input(
     let auth_manager =
         AuthManager::shared_from_config(&config, /*enable_cx_api_key_env*/ false)
             .await
-            .map_err(|err| CodexErr::Fatal(err.to_string()))?;
+            .map_err(|err| CxErr::Fatal(err.to_string()))?;
 
     let local_runtime_paths = ExecServerRuntimePaths::from_optional_paths(
         config.cx_self_exe.clone(),
@@ -57,7 +57,7 @@ pub async fn build_prompt_input(
                 config.http_client_factory(),
             )
             .await
-            .map_err(|err| CodexErr::Fatal(err.to_string()))?,
+            .map_err(|err| CxErr::Fatal(err.to_string()))?,
         ),
         extensions,
         user_instructions_provider,

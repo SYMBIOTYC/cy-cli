@@ -30,7 +30,7 @@ use crate::events::CodexPluginUsedEventRequest;
 #[cfg(debug_assertions)]
 use crate::events::CodexPluginUsedMetadata;
 #[cfg(debug_assertions)]
-use crate::events::CodexRuntimeMetadata;
+use crate::events::CxRuntimeMetadata;
 #[cfg(debug_assertions)]
 use crate::events::CodexToolItemEventBase;
 #[cfg(debug_assertions)]
@@ -206,7 +206,7 @@ fn sample_mcp_tool_call_event(thread_id: &str, plugin_id: Option<&str>) -> Track
                     rpc_transport: AppServerRpcTransport::InProcess,
                     experimental_api_enabled: None,
                 },
-                runtime: CodexRuntimeMetadata {
+                runtime: CxRuntimeMetadata {
                     cx_rs_version: "0.0.0".to_string(),
                     runtime_os: "test".to_string(),
                     runtime_os_version: "test".to_string(),

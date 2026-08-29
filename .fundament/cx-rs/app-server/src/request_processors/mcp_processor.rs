@@ -449,7 +449,7 @@ impl McpRequestProcessor {
 
             tokio::spawn(async move {
                 let origin_call_id =
-                    origin_call_id.filter(|_| server == cx_mcp::CODEX_APPS_MCP_SERVER_NAME);
+                    origin_call_id.filter(|_| server == cx_mcp::CX_APPS_MCP_SERVER_NAME);
                 let result = match origin_call_id.as_deref() {
                     Some(call_id) => {
                         thread

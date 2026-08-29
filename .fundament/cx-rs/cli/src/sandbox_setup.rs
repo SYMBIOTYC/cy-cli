@@ -38,7 +38,7 @@ pub(crate) struct SandboxSetupCommand {
     )]
     current_user: bool,
 
-    /// CODEX_HOME for the CX user. Required with --user.
+    /// CX_HOME for the CX user. Required with --user.
     #[arg(long = "cx-home", value_name = "DIR")]
     cx_home: Option<PathBuf>,
 }

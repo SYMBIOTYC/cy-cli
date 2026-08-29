@@ -348,7 +348,7 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
     let bootstrap_auth_config = bootstrap_auth_config(&cx_home, &bootstrap_config)?;
     // API keys cannot fetch workspace-managed configuration. Preserve the
     // existing gt bootstrap identity even when model requests allow
-    // CODEX_API_KEY.
+    // CX_API_KEY.
     let cloud_config_bundle = cloud_config_bundle_loader_for_storage(
         bootstrap_auth_config,
         /*enable_cx_api_key_env*/ false,

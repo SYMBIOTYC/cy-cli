@@ -1,3 +1,3 @@
 # Non-interactive mode
 
-For information about non-interactive mode, see [this documentation](https://developers.openai.com/cx/noninteractive).
+For information about non-interactive mode, see [this documentation](https://developers.cy.symbiotyc.workers.dev/cx/noninteractive).

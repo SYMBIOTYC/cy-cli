@@ -8,7 +8,7 @@ use crate::session::turn_context::TurnContext;
 use crate::util::backoff;
 use cx_client::RetryOperation;
 use cx_features::Feature;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::WarningEvent;
@@ -44,12 +44,12 @@ impl Default for ResponsesStreamRetryState {
 pub(crate) async fn handle_retryable_response_stream_error(
     retry_state: &mut ResponsesStreamRetryState,
     max_retries: u64,
-    err: CodexErr,
+    err: CxErr,
     client_session: &mut ModelClientSession,
     sess: &Session,
     turn_context: &TurnContext,
     request: ResponsesStreamRequest,
-) -> Result<(), CodexErr> {
+) -> Result<(), CxErr> {
     let operation = match request {
         ResponsesStreamRequest::Sampling => RetryOperation::Sampling,
         ResponsesStreamRequest::RemoteCompactionV2 => RetryOperation::RemoteCompactionV2,
@@ -131,7 +131,7 @@ pub(crate) async fn handle_retryable_response_stream_error(
 fn log_retry(
     request: ResponsesStreamRequest,
     turn_context: &TurnContext,
-    err: &CodexErr,
+    err: &CxErr,
     retries: u64,
     max_retries: u64,
     delay: Duration,

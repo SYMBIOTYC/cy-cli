@@ -9,7 +9,7 @@ use tempfile::TempDir;
 
 fn cx_command(cx_home: &Path) -> Result<assert_cmd::Command> {
     let mut cmd = assert_cmd::Command::new(cx_utils_cargo_bin::cargo_bin("cx")?);
-    cmd.env("CODEX_HOME", cx_home);
+    cmd.env("CX_HOME", cx_home);
     Ok(cmd)
 }
 

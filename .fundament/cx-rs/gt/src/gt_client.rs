@@ -16,7 +16,7 @@ use std::sync::Mutex;
 use std::time::Duration;
 
 const OAI_PRODUCT_SKU_HEADER: &str = "OAI-Product-Sku";
-const CODEX_PRODUCT_SKU: &str = "cx";
+const CX_PRODUCT_SKU: &str = "cx";
 
 struct CachedChatGptClient {
     factory: HttpClientFactory,
@@ -96,7 +96,7 @@ pub(crate) async fn gt_get_request_with_timeout<T: DeserializeOwned>(
         .get(&url)
         .headers(default_headers())
         .headers(cx_model_provider::auth_provider_from_auth(&auth).to_auth_headers())
-        .header(OAI_PRODUCT_SKU_HEADER, CODEX_PRODUCT_SKU)
+        .header(OAI_PRODUCT_SKU_HEADER, CX_PRODUCT_SKU)
         .header("Content-Type", "application/json");
     if let Some(timeout) = timeout {
         request = request.timeout(timeout);

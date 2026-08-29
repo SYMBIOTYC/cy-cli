@@ -9,7 +9,7 @@ use cx_config::types::MemoriesConfig;
 use cx_core::Prompt;
 use cx_core::RolloutRecorder;
 use cx_core::config::Config;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::BaseInstructions;
 use cx_protocol::models::ContentItem;
 use cx_protocol::models::ResponseItem;
@@ -422,7 +422,7 @@ mod job {
             })
             .collect::<Vec<_>>();
         let serialized = serde_json::to_string(&filtered).map_err(|err| {
-            CodexErr::InvalidRequest(format!("failed to serialize rollout memory: {err}"))
+            CxErr::InvalidRequest(format!("failed to serialize rollout memory: {err}"))
         })?;
         Ok(redact_secrets(serialized))
     }

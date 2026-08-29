@@ -18,7 +18,7 @@ use crate::state::TurnState;
 use crate::tasks::MailboxParentProvenance;
 use crate::tasks::RegularTask;
 use cx_protocol::config_types::ModeKind;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::ResponseItem;
 use cx_protocol::protocol::AdditionalContextEntry;
@@ -70,7 +70,7 @@ impl PreparedTurnInputSettings {
             session
                 .preview_settings(&updates)
                 .await
-                .map_err(|error| CodexErr::InvalidRequest(error.to_string()))?;
+                .map_err(|error| CxErr::InvalidRequest(error.to_string()))?;
             Some(updates)
         };
         Ok(Self {
@@ -134,7 +134,7 @@ impl PreparedTurnInputSettings {
         };
         thread_settings::apply_update(session, submission_id, thread_settings_update)
             .await
-            .map_err(|error| CodexErr::InvalidRequest(error.to_string()))
+            .map_err(|error| CxErr::InvalidRequest(error.to_string()))
     }
 }
 
@@ -182,7 +182,7 @@ async fn start_or_steer(
         client_id,
     } = input
     else {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "only user input can steer a turn".to_string(),
         ));
     };
@@ -390,7 +390,7 @@ async fn steer(
         client_id,
     } = input
     else {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "only user input can steer a turn".to_string(),
         ));
     };

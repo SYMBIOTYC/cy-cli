@@ -56,7 +56,7 @@ use wiremock::matchers::query_param_is_missing;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(30);
 const TEST_CURATED_PLUGIN_SHA: &str = "0123456789abcdef0123456789abcdef01234567";
 const TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS: &str =
-    "CODEX_TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS";
+    "CX_TEST_ALLOW_HTTP_REMOTE_PLUGIN_BUNDLE_DOWNLOADS";
 const ALTERNATE_MARKETPLACE_RELATIVE_PATH: &str = ".claude-plugin/marketplace.json";
 const ALTERNATE_PLUGIN_MANIFEST_RELATIVE_PATH: &str = ".claude-plugin/plugin.json";
 type RemoteInstalledPluginFixtures = BTreeMap<String, BTreeMap<String, Vec<serde_json::Value>>>;
@@ -1341,9 +1341,9 @@ async fn plugin_list_returns_plugin_interface_with_absolute_asset_paths() -> Res
     "developerName": "oi",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
-    "websiteURL": "https://openai.com/",
-    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
-    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "websiteURL": "https://cy.symbiotyc.workers.dev/",
+    "privacyPolicyURL": "https://cy.symbiotyc.workers.dev/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://cy.symbiotyc.workers.dev/policies/row-terms-of-use/",
     "defaultPrompt": [
       "Starter prompt for trying a plugin",
       "Find my next action"
@@ -1395,15 +1395,15 @@ async fn plugin_list_returns_plugin_interface_with_absolute_asset_paths() -> Res
     assert_eq!(interface.category.as_deref(), Some("Design"));
     assert_eq!(
         interface.website_url.as_deref(),
-        Some("https://openai.com/")
+        Some("https://cy.symbiotyc.workers.dev/")
     );
     assert_eq!(
         interface.privacy_policy_url.as_deref(),
-        Some("https://openai.com/policies/row-privacy-policy/")
+        Some("https://cy.symbiotyc.workers.dev/policies/row-privacy-policy/")
     );
     assert_eq!(
         interface.terms_of_service_url.as_deref(),
-        Some("https://openai.com/policies/row-terms-of-use/")
+        Some("https://cy.symbiotyc.workers.dev/policies/row-terms-of-use/")
     );
     assert_eq!(
         interface.default_prompt,

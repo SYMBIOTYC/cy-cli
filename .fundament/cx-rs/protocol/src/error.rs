@@ -27,7 +27,7 @@ use strum_macros::EnumDiscriminants;
 use thiserror::Error;
 use tokio::task::JoinError;
 
-pub type Result<T> = std::result::Result<T, CodexErr>;
+pub type Result<T> = std::result::Result<T, CxErr>;
 
 /// Limit UI error messages to a reasonable size while keeping useful context.
 const ERROR_MESSAGE_UI_MAX_BYTES: usize = 2 * 1024;
@@ -67,14 +67,14 @@ pub enum SandboxErr {
     LandlockRestrict,
 }
 
-pub struct CodexErr {
+pub struct CxErr {
     details: CodexErrorDetails,
     retry_delay: Option<Duration>,
 }
 
-/// The semantic category and diagnostic payload for a [`CodexErr`].
+/// The semantic category and diagnostic payload for a [`CxErr`].
 #[derive(Error, Debug, EnumDiscriminants)]
-#[strum_discriminants(name(CodexErrKind))]
+#[strum_discriminants(name(CxErrKind))]
 #[strum_discriminants(derive(serde::Serialize))]
 #[strum_discriminants(serde(rename_all = "snake_case"))]
 #[strum_discriminants(doc = "The payload-free semantic category used for analytics.")]
@@ -182,13 +182,13 @@ pub enum CodexErrorDetails {
     EnvVar(EnvVarError),
 }
 
-impl From<&CodexErr> for CodexErrKind {
-    fn from(error: &CodexErr) -> Self {
+impl From<&CxErr> for CxErrKind {
+    fn from(error: &CxErr) -> Self {
         error.details().into()
     }
 }
 
-impl fmt::Debug for CodexErr {
+impl fmt::Debug for CxErr {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.details {
             CodexErrorDetails::Stream(message) => formatter
@@ -201,19 +201,19 @@ impl fmt::Debug for CodexErr {
     }
 }
 
-impl fmt::Display for CodexErr {
+impl fmt::Display for CxErr {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Display::fmt(&self.details, formatter)
     }
 }
 
-impl std::error::Error for CodexErr {
+impl std::error::Error for CxErr {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.details.source()
     }
 }
 
-impl From<CodexErrorDetails> for CodexErr {
+impl From<CodexErrorDetails> for CxErr {
     fn from(details: CodexErrorDetails) -> Self {
         Self {
             details,
@@ -222,45 +222,45 @@ impl From<CodexErrorDetails> for CodexErr {
     }
 }
 
-impl From<CancelErr> for CodexErr {
+impl From<CancelErr> for CxErr {
     fn from(error: CancelErr) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
-impl From<SandboxErr> for CodexErr {
+impl From<SandboxErr> for CxErr {
     fn from(error: SandboxErr) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
-impl From<io::Error> for CodexErr {
+impl From<io::Error> for CxErr {
     fn from(error: io::Error) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
-impl From<serde_json::Error> for CodexErr {
+impl From<serde_json::Error> for CxErr {
     fn from(error: serde_json::Error) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
-impl From<JoinError> for CodexErr {
+impl From<JoinError> for CxErr {
     fn from(error: JoinError) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
 #[cfg(target_os = "linux")]
-impl From<landlock::RulesetError> for CodexErr {
+impl From<landlock::RulesetError> for CxErr {
     fn from(error: landlock::RulesetError) -> Self {
         CodexErrorDetails::from(error).into()
     }
 }
 
 #[cfg(target_os = "linux")]
-impl From<landlock::PathFdError> for CodexErr {
+impl From<landlock::PathFdError> for CxErr {
     fn from(error: landlock::PathFdError) -> Self {
         CodexErrorDetails::from(error).into()
     }
@@ -302,7 +302,7 @@ macro_rules! cx_err_tuple_constructors {
     };
 }
 
-impl CodexErr {
+impl CxErr {
     cx_err_unit_constructors!(
         TurnAborted,
         SessionBudgetExceeded,
@@ -412,7 +412,7 @@ impl CodexErr {
         self
     }
 
-    /// Minimal shim so that existing `e.downcast_ref::<CodexErr>()` checks continue to compile
+    /// Minimal shim so that existing `e.downcast_ref::<CxErr>()` checks continue to compile
     /// after replacing `anyhow::Error` in the return signature. This mirrors the behavior of
     /// `anyhow::Error::downcast_ref` but works directly on our concrete error type.
     pub fn downcast_ref<T: std::any::Any>(&self) -> Option<&T> {
@@ -813,7 +813,7 @@ impl std::fmt::Display for EnvVarError {
     }
 }
 
-pub fn get_error_message_ui(e: &CodexErr) -> String {
+pub fn get_error_message_ui(e: &CxErr) -> String {
     let message = match e.details() {
         CodexErrorDetails::Sandbox(SandboxErr::Denied { output, .. }) => {
             let aggregated = output.aggregated_output.text.trim();

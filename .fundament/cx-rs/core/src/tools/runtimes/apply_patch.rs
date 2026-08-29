@@ -18,7 +18,7 @@ use cx_apply_patch::AppliedPatchDelta;
 use cx_apply_patch::ApplyPatchAction;
 use cx_apply_patch::ApplyPatchOptions;
 use cx_exec_server::FileSystemSandboxContext;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::SandboxErr;
 use cx_protocol::exec_output::ExecToolCallOutput;
 use cx_protocol::exec_output::StreamOutput;
@@ -223,7 +223,7 @@ impl ToolRuntime<ApplyPatchRequest, ApplyPatchRuntimeOutput> for ApplyPatchRunti
             if attempt.sandbox != SandboxType::None {
                 record_filesystem_sandbox_violation(attempt.sandbox, &output);
             }
-            return Err(ToolError::CX(CodexErr::Sandbox(SandboxErr::Denied {
+            return Err(ToolError::CX(CxErr::Sandbox(SandboxErr::Denied {
                 output: Box::new(output),
                 network_policy_decision: None,
             })));

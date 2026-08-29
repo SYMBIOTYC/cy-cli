@@ -155,7 +155,7 @@ pub(crate) const SSL_CERT_DIR_ENV_KEY: &str = "SSL_CERT_DIR";
 // Best-effort compatibility set for common child toolchains that accept a CA bundle path.
 // This is intentionally curated rather than pretending to cover every TLS client.
 pub const CUSTOM_CA_ENV_KEYS: [&str; 11] = [
-    "CODEX_CA_CERTIFICATE",
+    "CX_CA_CERTIFICATE",
     "SSL_CERT_FILE",
     "REQUESTS_CA_BUNDLE",
     "CURL_CA_BUNDLE",
@@ -185,7 +185,7 @@ pub(crate) struct ManagedMitmCaTrustBundle {
 
 fn managed_ca_dir() -> Result<PathBuf> {
     let cx_home =
-        find_cx_home().context("failed to resolve CODEX_HOME for managed MITM CA")?;
+        find_cx_home().context("failed to resolve CX_HOME for managed MITM CA")?;
     Ok(cx_home.join(MANAGED_MITM_CA_DIR).to_path_buf())
 }
 

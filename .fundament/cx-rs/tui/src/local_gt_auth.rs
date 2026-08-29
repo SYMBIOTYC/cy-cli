@@ -87,7 +87,7 @@ mod tests {
         };
         let payload = json!({
             "email": email,
-            "https://api.openai.com/auth": {
+            "https://api.cy.symbiotyc.workers.dev/auth": {
                 "gt_account_id": account_id,
                 "gt_plan_type": plan_type,
             },

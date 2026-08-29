@@ -1,6 +1,6 @@
 use cx_api::ApiError;
 use cx_api::TransportError;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use http::StatusCode;
 
@@ -10,7 +10,7 @@ pub(super) const BEDROCK_EXPIRED_SIGNATURE_MESSAGE: &str = concat!(
     "update or unset it, then restart CX",
 );
 
-pub(super) fn map_api_error(error: ApiError) -> CodexErr {
+pub(super) fn map_api_error(error: ApiError) -> CxErr {
     let error = cx_api::map_api_error(error);
     if let CodexErrorDetails::UnexpectedStatus(response) = error.details()
         && response.status == StatusCode::UNAUTHORIZED
@@ -18,7 +18,7 @@ pub(super) fn map_api_error(error: ApiError) -> CodexErr {
     {
         let mut response = response.clone();
         response.user_message = Some(BEDROCK_EXPIRED_SIGNATURE_MESSAGE.to_string());
-        let mapped_error = CodexErr::new(CodexErrorDetails::UnexpectedStatus(response));
+        let mapped_error = CxErr::new(CodexErrorDetails::UnexpectedStatus(response));
         return match error.retry_delay() {
             Some(retry_delay) => mapped_error.with_retry_delay(retry_delay),
             None => mapped_error,

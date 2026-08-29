@@ -226,7 +226,7 @@ impl McpRuntime {
             .unwrap_or_else(std::sync::PoisonError::into_inner)
             .find(call_id)?;
         let binding = self
-            .current_binding_for_call(crate::CODEX_APPS_MCP_SERVER_NAME)
+            .current_binding_for_call(crate::CX_APPS_MCP_SERVER_NAME)
             .await
             .ok_or_else(|| anyhow::anyhow!("cx_apps MCP server is unavailable"))?;
 

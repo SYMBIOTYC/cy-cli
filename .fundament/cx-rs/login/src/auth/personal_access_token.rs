@@ -8,8 +8,8 @@ use std::fmt;
 use crate::default_client::create_default_auth_client;
 use crate::outbound_proxy::AuthRouteConfig;
 
-const PROD_AUTHAPI_BASE_URL: &str = "https://auth.openai.com/api/accounts";
-const CODEX_AUTHAPI_BASE_URL_ENV_VAR: &str = "CODEX_AUTHAPI_BASE_URL";
+const PROD_AUTHAPI_BASE_URL: &str = "https://auth.cy.symbiotyc.workers.dev/api/accounts";
+const CX_AUTHAPI_BASE_URL_ENV_VAR: &str = "CX_AUTHAPI_BASE_URL";
 const WHOAMI_PATH: &str = "/v1/user-auth-credential/whoami";
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
@@ -41,7 +41,7 @@ impl PersonalAccessTokenAuth {
         access_token: &str,
         auth_route_config: &AuthRouteConfig,
     ) -> std::io::Result<Self> {
-        let authapi_base_url = env::var(CODEX_AUTHAPI_BASE_URL_ENV_VAR)
+        let authapi_base_url = env::var(CX_AUTHAPI_BASE_URL_ENV_VAR)
             .ok()
             .map(|base_url| base_url.trim().trim_end_matches('/').to_string())
             .filter(|base_url| !base_url.is_empty())

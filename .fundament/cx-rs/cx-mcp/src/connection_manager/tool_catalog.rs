@@ -18,8 +18,8 @@ use super::McpServerMetadata;
 use crate::binding::McpBinding;
 use crate::binding::PreparedMcpCall;
 use crate::binding_clients::McpBindingClients;
-use crate::mcp::CODEX_APPS_MCP_SERVER_NAME;
-use crate::rmcp_client::CODEX_APPS_REFRESH_DURATION_METRIC;
+use crate::mcp::CX_APPS_MCP_SERVER_NAME;
+use crate::rmcp_client::CX_APPS_REFRESH_DURATION_METRIC;
 use crate::rmcp_client::MCP_TOOLS_LIST_DURATION_METRIC;
 use crate::rmcp_client::ManagedClient;
 use crate::rmcp_client::list_tools_for_client_uncached;
@@ -98,7 +98,7 @@ impl McpConnectionSet {
                 .client
                 .startup_complete
                 .load(Ordering::Acquire);
-            let catalog_override = if server_name == CODEX_APPS_MCP_SERVER_NAME {
+            let catalog_override = if server_name == CX_APPS_MCP_SERVER_NAME {
                 self.cx_apps_tools_override.read().await.clone()
             } else {
                 None
@@ -192,7 +192,7 @@ impl McpConnectionSet {
                     || required_servers
                         .iter()
                         .any(|required| required == server_name)
-                    || (server_name == CODEX_APPS_MCP_SERVER_NAME && !has_cached_tools);
+                    || (server_name == CX_APPS_MCP_SERVER_NAME && !has_cached_tools);
                 if !must_wait_for_startup && has_cached_tools {
                     return;
                 }
@@ -251,14 +251,14 @@ impl McpConnectionSet {
                 return None;
             };
             client.tool_timeout = view.tool_timeout;
-            let catalog_override = if server_name == CODEX_APPS_MCP_SERVER_NAME {
+            let catalog_override = if server_name == CX_APPS_MCP_SERVER_NAME {
                 self.cx_apps_tools_override.read().await.clone()
             } else {
                 None
             };
             let server_tools = catalog_override.unwrap_or_else(|| client.tools.clone());
             let server_tools = filter_tools(server_tools, &view.tool_filter);
-            let server_tools = if server_name == CODEX_APPS_MCP_SERVER_NAME {
+            let server_tools = if server_name == CX_APPS_MCP_SERVER_NAME {
                 prepare_cx_apps_tools_for_model(server_tools, &self.tool_plugin_provenance)
             } else {
                 crate::rmcp_client::prepare_regular_mcp_tools_for_model(
@@ -358,8 +358,8 @@ impl McpConnectionSet {
         let refresh_start = Instant::now();
         let view = self
             .servers
-            .get(CODEX_APPS_MCP_SERVER_NAME)
-            .ok_or_else(|| anyhow!("unknown MCP server '{CODEX_APPS_MCP_SERVER_NAME}'"))?;
+            .get(CX_APPS_MCP_SERVER_NAME)
+            .ok_or_else(|| anyhow!("unknown MCP server '{CX_APPS_MCP_SERVER_NAME}'"))?;
         let managed_client = view
             .connection
             .client()
@@ -375,7 +375,7 @@ impl McpConnectionSet {
                     cache_context.begin_fetch(ConnectorRuntimeFetchSource::HardRefresh)
                 });
         let client_tools = list_tools_for_client_uncached(
-            CODEX_APPS_MCP_SERVER_NAME,
+            CX_APPS_MCP_SERVER_NAME,
             /*is_cx_apps_mcp_server*/ true,
             /*cx_apps_refresh_trigger*/ "explicit",
             &managed_client.client,
@@ -385,7 +385,7 @@ impl McpConnectionSet {
         )
         .await
         .with_context(|| {
-            format!("failed to refresh tools for MCP server '{CODEX_APPS_MCP_SERVER_NAME}'")
+            format!("failed to refresh tools for MCP server '{CX_APPS_MCP_SERVER_NAME}'")
         })?;
 
         let mut tool_catalog_revision = self.tool_catalog_revision.write().await;
@@ -421,7 +421,7 @@ impl McpConnectionSet {
             &self.non_prefixed_mcp_tool_servers,
         );
         emit_duration(
-            CODEX_APPS_REFRESH_DURATION_METRIC,
+            CX_APPS_REFRESH_DURATION_METRIC,
             refresh_start.elapsed(),
             &[("path", "legacy"), ("trigger", "explicit")],
         );

@@ -28,7 +28,7 @@ use cx_analytics::CompactionPhase;
 use cx_analytics::CompactionReason;
 use cx_analytics::CompactionTrigger;
 use cx_history::ResponseItemEnvelope;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::ContextCompactionItem;
 use cx_protocol::items::TurnItem;
@@ -142,7 +142,7 @@ async fn run_remote_compact_task_inner(
     match pre_compact_outcome {
         PreCompactHookOutcome::Continue => {}
         PreCompactHookOutcome::Stopped => {
-            let error = CodexErr::TurnAborted;
+            let error = CxErr::TurnAborted;
             attempt
                 .track(
                     sess.as_ref(),
@@ -172,7 +172,7 @@ async fn run_remote_compact_task_inner(
             attempt
                 .track(sess.as_ref(), status, cx_error, analytics_details)
                 .await;
-            return Err(CodexErr::TurnAborted);
+            return Err(CxErr::TurnAborted);
         }
     }
     attempt

@@ -796,7 +796,7 @@ pub struct Config {
     /// keyring: Use an OS-specific keyring service.
     ///          Credentials stored in the keyring will only be readable by CX unless the user explicitly grants access via OS-level keyring access.
     ///          https://github.com/openai/cx/blob/main/cx-rs/rmcp-client/src/oauth.rs#L2
-    /// file: CODEX_HOME/.credentials.json
+    /// file: CX_HOME/.credentials.json
     ///       This file will be readable to CX and other applications running as the same user.
     /// auto (default): keyring if available, otherwise file.
     pub mcp_oauth_credentials_store_mode: OAuthCredentialsStoreMode,
@@ -853,13 +853,13 @@ pub struct Config {
     pub memories: MemoriesConfig,
 
     /// Directory containing all CX state (defaults to `~/.cx` but can be
-    /// overridden by the `CODEX_HOME` environment variable).
+    /// overridden by the `CX_HOME` environment variable).
     pub cx_home: AbsolutePathBuf,
 
     /// Resolved configuration shared by all CX SQLite databases.
     pub sqlite: cx_state::SqliteConfig,
 
-    /// Directory where CX writes log files (defaults to `$CODEX_HOME/log`).
+    /// Directory where CX writes log files (defaults to `$CX_HOME/log`).
     pub log_dir: PathBuf,
 
     /// Settings that govern if and what will be written to `~/.cx/history.jsonl`.
@@ -2248,7 +2248,7 @@ pub(crate) fn set_project_trust_level_inner(
     Ok(())
 }
 
-/// Patch `CODEX_HOME/config.toml` project state to set trust level.
+/// Patch `CX_HOME/config.toml` project state to set trust level.
 /// Use with caution.
 pub fn set_project_trust_level(
     cx_home: &Path,
@@ -4606,12 +4606,12 @@ fn normalize_guardian_policy_config(value: Option<&str>) -> Option<String> {
 }
 
 /// Returns the path to the CX configuration directory, which can be
-/// specified by the `CODEX_HOME` environment variable. If not set, defaults to
+/// specified by the `CX_HOME` environment variable. If not set, defaults to
 /// `~/.cx`.
 ///
-/// - If `CODEX_HOME` is set, the value must exist and be a directory. The
+/// - If `CX_HOME` is set, the value must exist and be a directory. The
 ///   value will be canonicalized and this function will Err otherwise.
-/// - If `CODEX_HOME` is not set, this function does not verify that the
+/// - If `CX_HOME` is not set, this function does not verify that the
 ///   directory exists.
 pub fn find_cx_home() -> std::io::Result<AbsolutePathBuf> {
     cx_utils_home_dir::find_cx_home()

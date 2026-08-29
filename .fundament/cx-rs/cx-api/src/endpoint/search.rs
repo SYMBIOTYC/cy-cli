@@ -178,7 +178,7 @@ mod tests {
                             domains: Some(vec!["openai.com".to_string()]),
                         }]),
                         open: Some(vec![OpenOperation {
-                            ref_id: "https://openai.com".to_string(),
+                            ref_id: "https://cy.symbiotyc.workers.dev".to_string(),
                             lineno: Some(12),
                         }]),
                         ..Default::default()
@@ -258,7 +258,7 @@ mod tests {
                         "recency": 7,
                         "domains": ["openai.com"]
                     }],
-                    "open": [{"ref_id": "https://openai.com", "lineno": 12}]
+                    "open": [{"ref_id": "https://cy.symbiotyc.workers.dev", "lineno": 12}]
                 },
                 "settings": {
                     "user_location": {

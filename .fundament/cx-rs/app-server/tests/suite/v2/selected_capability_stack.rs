@@ -753,7 +753,7 @@ async fn spawn_exec_server(cx_home: &std::path::Path, url: &str) -> Result<Child
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())
         .kill_on_drop(true)
-        .env("CODEX_HOME", cx_home)
+        .env("CX_HOME", cx_home)
         .env(EXECUTOR_ENV_NAME, EXECUTOR_ENV_VALUE)
         .spawn()?;
     let stdout = child

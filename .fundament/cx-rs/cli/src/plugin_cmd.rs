@@ -585,7 +585,7 @@ struct PluginCommandContext {
 async fn load_plugin_command_context(
     overrides: Vec<(String, toml::Value)>,
 ) -> Result<PluginCommandContext> {
-    let cx_home = find_cx_home().context("failed to resolve CODEX_HOME")?;
+    let cx_home = find_cx_home().context("failed to resolve CX_HOME")?;
     let config = Config::load_with_cli_overrides(overrides)
         .await
         .context("failed to load configuration")?;

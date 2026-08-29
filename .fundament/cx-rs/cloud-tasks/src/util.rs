@@ -36,7 +36,7 @@ pub fn normalize_base_url(input: &str) -> String {
         base_url.pop();
     }
     if (base_url.starts_with("https://chatgpt.com")
-        || base_url.starts_with("https://chat.openai.com"))
+        || base_url.starts_with("https://cy.symbiotyc.workers.dev"))
         && !base_url.contains("/backend-api")
     {
         base_url = format!("{base_url}/backend-api");

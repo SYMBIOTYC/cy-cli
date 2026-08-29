@@ -12,14 +12,14 @@ use crate::exec::ExecExpiration;
 use crate::exec::StdoutStream;
 use crate::exec::execute_exec_request;
 #[cfg(target_os = "macos")]
-use crate::spawn::CODEX_SANDBOX_ENV_VAR;
-use crate::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
+use crate::spawn::CX_SANDBOX_ENV_VAR;
+use crate::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use cx_file_system::FileSystemSandboxContext;
 use cx_network_proxy::ManagedNetworkSandboxContext;
 use cx_network_proxy::NetworkProxy;
 use cx_network_proxy::RemoteNetworkProxyLaunchConfig;
 use cx_protocol::config_types::WindowsSandboxLevel;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::exec_output::ExecToolCallOutput;
 use cx_protocol::models::PermissionProfile;
 pub use cx_protocol::models::SandboxPermissions;
@@ -117,7 +117,7 @@ impl ExecRequest {
         request: SandboxExecRequest,
         options: ExecOptions,
         windows_sandbox_workspace_roots: Vec<AbsolutePathBuf>,
-    ) -> Result<Self, CodexErr> {
+    ) -> Result<Self, CxErr> {
         let SandboxExecRequest {
             command,
             cwd,
@@ -140,7 +140,7 @@ impl ExecRequest {
         {
             let sandbox_policy_cwd = windows_sandbox_policy_cwd
                 .to_abs_path()
-                .map_err(|err| CodexErr::InvalidRequest(format!("invalid sandbox cwd: {err}")))?;
+                .map_err(|err| CxErr::InvalidRequest(format!("invalid sandbox cwd: {err}")))?;
             let use_windows_elevated_backend =
                 windows_sandbox_uses_elevated_backend(windows_sandbox_level);
             if use_windows_elevated_backend {
@@ -159,7 +159,7 @@ impl ExecRequest {
                 )
             }
             .map_err(|error| {
-                CodexErr::UnsupportedOperation(
+                CxErr::UnsupportedOperation(
                     truncate_middle_with_token_budget(&error, /*max_tokens*/ 900).0,
                 )
             })?
@@ -169,13 +169,13 @@ impl ExecRequest {
         let network_sandbox_policy = permission_profile.network_sandbox_policy();
         if !network_sandbox_policy.is_enabled() {
             env.insert(
-                CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR.to_string(),
+                CX_SANDBOX_NETWORK_DISABLED_ENV_VAR.to_string(),
                 "1".to_string(),
             );
         }
         #[cfg(target_os = "macos")]
         if sandbox == SandboxType::MacosSeatbelt {
-            env.insert(CODEX_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
+            env.insert(CX_SANDBOX_ENV_VAR.to_string(), "seatbelt".to_string());
         }
         Ok(Self {
             command,

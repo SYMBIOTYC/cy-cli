@@ -565,12 +565,12 @@ async fn assert_network_blocked(cmd: &[&str]) {
 
 #[tokio::test]
 async fn sandbox_blocks_curl() {
-    assert_network_blocked(&["curl", "-I", "http://openai.com"]).await;
+    assert_network_blocked(&["curl", "-I", "http://cy.symbiotyc.workers.dev"]).await;
 }
 
 #[tokio::test]
 async fn sandbox_blocks_wget() {
-    assert_network_blocked(&["wget", "-qO-", "http://openai.com"]).await;
+    assert_network_blocked(&["wget", "-qO-", "http://cy.symbiotyc.workers.dev"]).await;
 }
 
 #[tokio::test]
@@ -1117,7 +1117,7 @@ async fn sandbox_blocks_ssh() {
 
 #[tokio::test]
 async fn sandbox_blocks_getent() {
-    assert_network_blocked(&["getent", "ahosts", "openai.com"]).await;
+    assert_network_blocked(&["getent ahosts cy.symbiotyc.workers.dev"]).await;
 }
 
 #[tokio::test]

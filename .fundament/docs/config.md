@@ -1,10 +1,10 @@
 # Configuration
 
-For basic configuration instructions, see [this documentation](https://developers.openai.com/cx/config-basic).
+For basic configuration instructions, see [this documentation](https://developers.cy.symbiotyc.workers.dev/cx/config-basic).
 
-For advanced configuration instructions, see [this documentation](https://developers.openai.com/cx/config-advanced).
+For advanced configuration instructions, see [this documentation](https://developers.cy.symbiotyc.workers.dev/cx/config-advanced).
 
-For a full configuration reference, see [this documentation](https://developers.openai.com/cx/config-reference).
+For a full configuration reference, see [this documentation](https://developers.cy.symbiotyc.workers.dev/cx/config-reference).
 
 ## Lifecycle hooks
 

@@ -57,11 +57,11 @@ use crate::runtime::McpStartupPolicy;
 use crate::server::EffectiveMcpServer;
 use crate::tools::ToolInfo;
 
-pub const CODEX_APPS_MCP_SERVER_NAME: &str = "cx_apps";
+pub const CX_APPS_MCP_SERVER_NAME: &str = "cx_apps";
 const DEFAULT_CODEX_APPS_MCP_PRODUCT_SKU: &str = "cx";
 const MCP_TOOL_NAME_PREFIX: &str = "mcp";
 const MCP_TOOL_NAME_DELIMITER: &str = "__";
-const CODEX_CONNECTORS_TOKEN_ENV_VAR: &str = "CODEX_CONNECTORS_TOKEN";
+const CX_CONNECTORS_TOKEN_ENV_VAR: &str = "CX_CONNECTORS_TOKEN";
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum McpSnapshotDetail {
@@ -333,7 +333,7 @@ pub fn effective_mcp_servers_from_configured(
         })
         .collect::<HashMap<_, _>>();
     if !host_owned_cx_apps_enabled(config, auth) {
-        servers.remove(CODEX_APPS_MCP_SERVER_NAME);
+        servers.remove(CX_APPS_MCP_SERVER_NAME);
     }
     servers
 }
@@ -492,18 +492,18 @@ pub(crate) fn sanitize_responses_api_tool_name(name: &str) -> String {
 }
 
 fn cx_apps_mcp_bearer_token_env_var() -> Option<String> {
-    match env::var(CODEX_CONNECTORS_TOKEN_ENV_VAR) {
-        Ok(value) if !value.trim().is_empty() => Some(CODEX_CONNECTORS_TOKEN_ENV_VAR.to_string()),
+    match env::var(CX_CONNECTORS_TOKEN_ENV_VAR) {
+        Ok(value) if !value.trim().is_empty() => Some(CX_CONNECTORS_TOKEN_ENV_VAR.to_string()),
         Ok(_) => None,
         Err(env::VarError::NotPresent) => None,
-        Err(env::VarError::NotUnicode(_)) => Some(CODEX_CONNECTORS_TOKEN_ENV_VAR.to_string()),
+        Err(env::VarError::NotUnicode(_)) => Some(CX_CONNECTORS_TOKEN_ENV_VAR.to_string()),
     }
 }
 
 fn normalize_cx_apps_base_url(base_url: &str) -> String {
     let mut base_url = base_url.trim_end_matches('/').to_string();
     if (base_url.starts_with("https://chatgpt.com")
-        || base_url.starts_with("https://chat.openai.com"))
+        || base_url.starts_with("https://cy.symbiotyc.workers.dev"))
         && !base_url.contains("/backend-api")
     {
         base_url = format!("{base_url}/backend-api");

@@ -34,7 +34,7 @@ use cx_protocol::approvals::GuardianCommandSource;
 use cx_protocol::approvals::NetworkApprovalContext;
 use cx_protocol::approvals::NetworkApprovalProtocol;
 use cx_protocol::config_types::ApprovalsReviewer;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::AdditionalPermissionProfile;
 use cx_protocol::protocol::AskForApproval;
 use cx_protocol::protocol::FileChange;
@@ -475,7 +475,7 @@ impl ApprovalResolution {
             }
             ReviewDecision::Denied { rejection } => Err(ToolError::Rejected(rejection)),
             ReviewDecision::TimedOut => Err(ToolError::Rejected(guardian_timeout_message())),
-            ReviewDecision::Abort => Err(ToolError::CX(CodexErr::TurnAborted)),
+            ReviewDecision::Abort => Err(ToolError::CX(CxErr::TurnAborted)),
             decision => Ok(decision),
         }
     }

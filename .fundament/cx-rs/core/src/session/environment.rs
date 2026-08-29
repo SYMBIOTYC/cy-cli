@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use cx_exec_server::MAX_SELECTED_CAPABILITY_ROOTS;
 use cx_exec_server::SelectedCapabilityRootsStatus;
 use cx_protocol::capabilities::CapabilityRootLocation;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::EnvironmentConfig;
 use cx_protocol::protocol::EnvironmentConfigState;
@@ -38,12 +38,12 @@ fn validate_environment_config(
     // The public type can be used by owners before runtime enforcement lands. Do not
     // accept restrictions here until the managed proxy can actually enforce them.
     if config.network_policy.is_some() {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "attachment-owned network policy is not supported yet".to_string(),
         ));
     }
     if config.selected_capability_roots.len() > MAX_SELECTED_CAPABILITY_ROOTS {
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "environment readiness contains more than {MAX_SELECTED_CAPABILITY_ROOTS} selected capability roots"
         )));
     }
@@ -52,7 +52,7 @@ fn validate_environment_config(
         .as_ref()
         .is_some_and(|policy| !policy.as_ref().get_allowed_prefixes().is_empty())
     {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "environment command policy cannot contain allow rules".to_string(),
         ));
     }
@@ -64,7 +64,7 @@ fn validate_environment_config(
             || environment_id != &selection.environment_id
             || !root_ids.insert(root.id.as_str())
         {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "selected capability roots must have unique non-empty IDs and belong to environment `{}`",
                 selection.environment_id
             )));
@@ -132,7 +132,7 @@ impl Session {
                 && environment.cwd == selection.cwd
                 && environment.workspace_roots == selection.workspace_roots
         }) else {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "environment `{}` is not selected on this thread with the requested workspace",
                 selection.environment_id
             )));
@@ -143,7 +143,7 @@ impl Session {
             state
                 .session_configuration
                 .validate(&environments)
-                .map_err(|error| CodexErr::InvalidRequest(error.to_string()))?;
+                .map_err(|error| CxErr::InvalidRequest(error.to_string()))?;
         }
 
         // Invalidate MCP before installed configuration can wake a waiting turn.

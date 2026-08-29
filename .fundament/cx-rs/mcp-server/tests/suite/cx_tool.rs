@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use app_test_support::ChatGptAuthFixture;
 use app_test_support::write_gt_auth;
 use cx_config::types::AuthCredentialsStoreMode;
-use cx_core::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
+use cx_core::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR;
 use cx_mcp_server::CodexToolCallParam;
 use cx_mcp_server::ExecApprovalElicitRequestParams;
 use cx_mcp_server::ExecApprovalResponse;
@@ -45,7 +45,7 @@ const DEFAULT_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs
 /// command, as expected.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn test_shell_command_approval_triggers_elicitation() {
-    if env::var(CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+    if env::var(CX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
         println!(
             "Skipping test because it cannot execute when network is disabled in a CX sandbox."
         );
@@ -224,7 +224,7 @@ fn create_expected_elicitation_request_params(
 /// sending a denial leaves the patch unapplied, as expected.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn test_patch_approval_triggers_elicitation() {
-    if env::var(CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+    if env::var(CX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
         println!(
             "Skipping test because it cannot execute when network is disabled in a CX sandbox."
         );
@@ -401,7 +401,7 @@ async fn cx_tool_passes_base_instructions() -> anyhow::Result<()> {
         .await;
     let mut mcp_process = McpProcess::new_with_env(
         cx_home.path(),
-        &[("OPENAI_API_KEY", None), ("CODEX_ACCESS_TOKEN", None)],
+        &[("OPENAI_API_KEY", None), ("CX_ACCESS_TOKEN", None)],
     )
     .await?;
     timeout(DEFAULT_READ_TIMEOUT, mcp_process.initialize()).await??;
@@ -474,13 +474,13 @@ async fn cx_tool_passes_base_instructions() -> anyhow::Result<()> {
     let developer_text = developer_contents.join("\n");
     assert_eq!(
         developer_text
-            .matches("Co-authored-by: CX <noreply@openai.com>")
+            .matches("Co-authored-by: CX <noreply@cy.symbiotyc.workers.dev>")
             .count(),
         1
     );
     assert_eq!(
         developer_text
-            .matches("Generated with [CX](https://openai.com/cx/).")
+            .matches("Generated with [CX](https://cy.symbiotyc.workers.dev/cx/).")
             .count(),
         1
     );

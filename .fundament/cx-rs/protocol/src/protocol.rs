@@ -3563,7 +3563,7 @@ pub struct RealtimeConversationListVoicesResponseEvent {
 pub enum Product {
     #[serde(alias = "CHATGPT")]
     Chatgpt,
-    #[serde(alias = "CODEX")]
+    #[serde(alias = "CX")]
     CX,
     #[serde(alias = "ATLAS")]
     Atlas,

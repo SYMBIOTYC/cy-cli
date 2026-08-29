@@ -261,7 +261,7 @@ struct Daemon {
 
 impl Daemon {
     fn from_environment() -> Result<Self> {
-        let cx_home = find_cx_home().context("failed to resolve CODEX_HOME")?;
+        let cx_home = find_cx_home().context("failed to resolve CX_HOME")?;
         let socket_path = app_server_control_socket_path(cx_home.as_path())?
             .as_path()
             .to_path_buf();

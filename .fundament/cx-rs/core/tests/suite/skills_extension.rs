@@ -16,7 +16,7 @@ use cx_extension_api::ExtensionRegistryBuilder;
 use cx_extension_api::ExtensionWarning;
 use cx_features::Feature;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_protocol::protocol::Event;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::user_input::UserInput;
@@ -977,7 +977,7 @@ async fn explicit_only_orchestrator_skill_is_hidden_but_can_be_invoked() -> Resu
             config.orchestrator_skills_enabled = true;
         });
     let test = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     test.submit_turn("Use $demo:explicit-only.").await?;
 
@@ -1141,7 +1141,7 @@ async fn production_turn_aliases_discovered_singleton_orchestrator_root() -> Res
             config.orchestrator_skills_enabled = true;
         });
     let test = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     test.submit_turn("Inspect the available skills.").await?;
 
@@ -1848,7 +1848,7 @@ async fn production_turn_uses_provider_host_catalog_and_core_snapshot_injection(
         .with_extensions(Arc::new(extensions.build()))
         .with_config(configure_catalog_test);
     let test = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     test.submit_turn(&format!("Use ${skill_name}.")).await?;
     let request = response.single_request();
@@ -2171,7 +2171,7 @@ async fn production_turn_keeps_orchestrator_world_state_incremental_across_turns
         entries: vec![
             SkillCatalogEntry::new(
                 SkillPackageId("orchestrator/orchestrator-search".to_string()),
-                SkillAuthority::new(SkillSourceKind::Orchestrator, CODEX_APPS_MCP_SERVER_NAME),
+                SkillAuthority::new(SkillSourceKind::Orchestrator, CX_APPS_MCP_SERVER_NAME),
                 skill_name,
                 skill_description,
                 SkillResourceId::new(skill_resource),

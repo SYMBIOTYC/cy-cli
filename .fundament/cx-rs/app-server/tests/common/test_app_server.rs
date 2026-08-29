@@ -123,12 +123,12 @@ use cx_app_server_protocol::TurnStartParams;
 use cx_app_server_protocol::TurnStartResponse;
 use cx_app_server_protocol::TurnSteerParams;
 use cx_app_server_protocol::WindowsSandboxSetupStartParams;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
-use cx_login::default_client::CODEX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
+use cx_login::default_client::CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use core_test_support::is_remote_test_environment;
 use core_test_support::test_codex::TestEnv;
 use core_test_support::test_codex::test_env;
@@ -158,7 +158,7 @@ pub struct TestAppServer {
     auto_env: Option<TestEnv>,
     json_logs: JsonLogCapture,
     // Fields drop in declaration order. Tear down the delayed child before
-    // removing an owned CODEX_HOME that may still be its cwd on Windows.
+    // removing an owned CX_HOME that may still be its cwd on Windows.
     _delayed_exec_server: Option<(LocalWebsocketExecServer, WebsocketDelayInterposer)>,
     _attribution_settings_server: Option<MockServer>,
     _owned_install_dir: Option<TempDir>,
@@ -167,14 +167,14 @@ pub struct TestAppServer {
 
 pub const DEFAULT_CLIENT_NAME: &str = "cx-app-server-tests";
 pub const DISABLE_PLUGIN_STARTUP_TASKS_ARG: &str = "--disable-plugin-startup-tasks-for-tests";
-const DISABLE_MANAGED_CONFIG_ENV_VAR: &str = "CODEX_APP_SERVER_DISABLE_MANAGED_CONFIG";
+const DISABLE_MANAGED_CONFIG_ENV_VAR: &str = "CX_APP_SERVER_DISABLE_MANAGED_CONFIG";
 #[cfg(windows)]
 const DEFAULT_REQUEST_TIMEOUT: Duration = Duration::from_secs(25);
 #[cfg(not(windows))]
 const DEFAULT_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
 impl TestAppServer {
-    /// Starts building a server with a temporary CODEX_HOME and the standard
+    /// Starts building a server with a temporary CX_HOME and the standard
     /// automatic test environment.
     pub fn builder() -> TestAppServerBuilder {
         TestAppServerBuilder {
@@ -239,14 +239,14 @@ impl TestAppServer {
         cmd.stdout(Stdio::piped());
         cmd.stderr(Stdio::piped());
         cmd.current_dir(cx_home);
-        cmd.env("CODEX_HOME", cx_home);
+        cmd.env("CX_HOME", cx_home);
         cmd.env("RUST_LOG", "warn");
         // Keep integration tests isolated from host managed configuration.
         cmd.env(
-            "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
             cx_home.join("managed_config.toml"),
         );
-        cmd.env_remove(CODEX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR);
+        cmd.env_remove(CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR);
         cmd.args(args);
 
         for (k, v) in env_overrides {
@@ -1842,7 +1842,7 @@ enum TestAppServerEnvironment {
 }
 
 impl TestAppServerBuilder {
-    /// Uses this existing CODEX_HOME instead of a temporary one.
+    /// Uses this existing CX_HOME instead of a temporary one.
     pub fn with_cx_home(mut self, cx_home: &Path) -> Self {
         self.cx_home = Some(cx_home.to_path_buf());
         self
@@ -1926,7 +1926,7 @@ impl TestAppServerBuilder {
         Ok(server)
     }
 
-    /// Builds a server with a temporary CODEX_HOME and automatic environment
+    /// Builds a server with a temporary CX_HOME and automatic environment
     /// by default.
     pub async fn build(self) -> anyhow::Result<TestAppServer> {
         let Self {
@@ -2019,20 +2019,20 @@ impl TestAppServerBuilder {
                 // provider, so clear inherited values to keep the selection hermetic.
                 let mut auto_env_overrides = vec![
                     (
-                        CODEX_EXEC_SERVER_URL_ENV_VAR.to_string(),
+                        CX_EXEC_SERVER_URL_ENV_VAR.to_string(),
                         auto_env.exec_server_url().map(str::to_string),
                     ),
                     (
-                        CODEX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR.to_string(),
+                        CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR.to_string(),
                         None,
                     ),
                     (
-                        CODEX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR.to_string(),
+                        CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR.to_string(),
                         None,
                     ),
-                    (CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(), None),
+                    (CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(), None),
                     (
-                        CODEX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR.to_string(),
+                        CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR.to_string(),
                         None,
                     ),
                 ];

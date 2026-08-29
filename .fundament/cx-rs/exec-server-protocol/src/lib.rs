@@ -11,4 +11,4 @@ pub use protocol::*;
 pub use rpc::*;
 
 /// Oldest CX release supported by the executor protocol.
-pub const MINIMUM_SUPPORTED_CODEX_VERSION: &str = "0.145.0";
+pub const MINIMUM_SUPPORTED_CX_VERSION: &str = "0.145.0";

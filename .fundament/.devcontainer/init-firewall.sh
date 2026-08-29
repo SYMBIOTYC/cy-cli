@@ -152,8 +152,8 @@ if curl --connect-timeout 5 https://example.com >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! curl --connect-timeout 5 https://api.openai.com >/dev/null 2>&1; then
-  echo "ERROR: Firewall verification failed - unable to reach https://api.openai.com"
+if ! curl --connect-timeout 5 https://api.cy.symbiotyc.workers.dev >/dev/null 2>&1; then
+  echo "ERROR: Firewall verification failed - unable to reach https://api.cy.symbiotyc.workers.dev"
   exit 1
 fi
 

@@ -3,9 +3,9 @@ use std::time::Instant;
 use crate::facts::AppInvocation;
 use crate::facts::ArtifactOperation;
 use crate::facts::ArtifactOperationLifecycle;
-use crate::facts::CodexCompactionEvent;
-use crate::facts::CodexErrKind;
-use crate::facts::CodexGoalEvent;
+use crate::facts::CxCompactionEvent;
+use crate::facts::CxErrKind;
+use crate::facts::CxGoalEvent;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -108,7 +108,7 @@ pub(crate) struct CodexArtifactOperationEventParams {
     pub(crate) lifecycle: ArtifactOperationLifecycle,
     pub(crate) occurred_at_ms: u64,
     pub(crate) product_client_id: String,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) model_slug: String,
     pub(crate) plugin_id: String,
     pub(crate) script_path: String,
@@ -223,7 +223,7 @@ pub(crate) struct CodexAppServerClientMetadata {
 }
 
 #[derive(Clone, Serialize)]
-pub(crate) struct CodexRuntimeMetadata {
+pub(crate) struct CxRuntimeMetadata {
     pub(crate) cx_rs_version: String,
     pub(crate) runtime_os: String,
     pub(crate) runtime_os_version: String,
@@ -235,7 +235,7 @@ pub(crate) struct ThreadInitializedEventParams {
     pub(crate) thread_id: String,
     pub(crate) session_id: String,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) model: String,
     pub(crate) ephemeral: bool,
     pub(crate) thread_source: Option<ThreadSource>,
@@ -573,7 +573,7 @@ pub struct GuardianReviewSessionAnalyticsParams {
 pub(crate) struct GuardianReviewEventPayload {
     pub(crate) session_id: String,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     #[serde(flatten)]
     pub(crate) guardian_review: GuardianReviewEventParams,
 }
@@ -629,7 +629,7 @@ pub(crate) struct CodexToolItemEventBase {
     pub(crate) originating_response_id: Option<String>,
     pub(crate) subsequent_response_id: Option<String>,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -706,7 +706,7 @@ pub(crate) struct CodexReviewEventParams {
     pub(crate) item_id: Option<String>,
     pub(crate) review_id: String,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -938,7 +938,7 @@ pub(crate) struct CodexCompactionEventParams {
     pub(crate) session_id: String,
     pub(crate) turn_id: String,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -948,7 +948,7 @@ pub(crate) struct CodexCompactionEventParams {
     pub(crate) phase: CompactionPhase,
     pub(crate) strategy: CompactionStrategy,
     pub(crate) status: CompactionStatus,
-    pub(crate) cx_error_kind: Option<CodexErrKind>,
+    pub(crate) cx_error_kind: Option<CxErrKind>,
     pub(crate) cx_error_http_status_code: Option<u16>,
     pub(crate) active_context_tokens_before: i64,
     pub(crate) active_context_tokens_after: i64,
@@ -973,7 +973,7 @@ pub(crate) struct CodexGoalEventParams {
     pub(crate) session_id: String,
     pub(crate) turn_id: Option<String>,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -1000,7 +1000,7 @@ pub(crate) struct CodexTurnEventParams {
     // the turn/start callsites instead of always being reported as None.
     pub(crate) submission_type: Option<TurnSubmissionType>,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) ephemeral: bool,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) initialization_mode: ThreadInitializationMode,
@@ -1026,7 +1026,7 @@ pub(crate) struct CodexTurnEventParams {
     /// that later received a successful response.
     pub(crate) explicit_client_interrupt_requested_at_ms: Option<u64>,
     pub(crate) turn_error: Option<CodexErrorInfo>,
-    pub(crate) cx_error_kind: Option<CodexErrKind>,
+    pub(crate) cx_error_kind: Option<CxErrKind>,
     pub(crate) cx_error_http_status_code: Option<u16>,
     pub(crate) steer_count: Option<usize>,
     pub(crate) total_tool_call_count: Option<usize>,
@@ -1069,7 +1069,7 @@ pub(crate) struct CodexTurnSteerEventParams {
     pub(crate) expected_turn_id: Option<String>,
     pub(crate) accepted_turn_id: Option<String>,
     pub(crate) app_server_client: CodexAppServerClientMetadata,
-    pub(crate) runtime: CodexRuntimeMetadata,
+    pub(crate) runtime: CxRuntimeMetadata,
     pub(crate) thread_source: Option<ThreadSource>,
     pub(crate) subagent_source: Option<String>,
     pub(crate) parent_thread_id: Option<String>,
@@ -1282,10 +1282,10 @@ pub(crate) fn cx_plugin_install_requested_metadata(
 }
 
 pub(crate) fn cx_compaction_event_params(
-    input: CodexCompactionEvent,
+    input: CxCompactionEvent,
     session_id: String,
     app_server_client: CodexAppServerClientMetadata,
-    runtime: CodexRuntimeMetadata,
+    runtime: CxRuntimeMetadata,
     thread_source: Option<ThreadSource>,
     subagent_source: Option<String>,
     parent_thread_id: Option<String>,
@@ -1320,10 +1320,10 @@ pub(crate) fn cx_compaction_event_params(
 }
 
 pub(crate) fn cx_goal_event_params(
-    input: CodexGoalEvent,
+    input: CxGoalEvent,
     session_id: String,
     app_server_client: CodexAppServerClientMetadata,
-    runtime: CodexRuntimeMetadata,
+    runtime: CxRuntimeMetadata,
     thread_source: Option<ThreadSource>,
     subagent_source: Option<String>,
     parent_thread_id: Option<String>,
@@ -1415,9 +1415,9 @@ fn analytics_hook_source(source: HookSource) -> &'static str {
     }
 }
 
-pub(crate) fn current_runtime_metadata() -> CodexRuntimeMetadata {
+pub(crate) fn current_runtime_metadata() -> CxRuntimeMetadata {
     let os_info = os_info::get();
-    CodexRuntimeMetadata {
+    CxRuntimeMetadata {
         cx_rs_version: env!("CARGO_PKG_VERSION").to_string(),
         runtime_os: std::env::consts::OS.to_string(),
         runtime_os_version: os_info.version().to_string(),

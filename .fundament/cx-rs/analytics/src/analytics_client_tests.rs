@@ -18,7 +18,7 @@ use crate::events::CodexPluginInstallFailedMetadata;
 use crate::events::CodexPluginUsedEventRequest;
 use crate::events::CodexReviewEventParams;
 use crate::events::CodexReviewEventRequest;
-use crate::events::CodexRuntimeMetadata;
+use crate::events::CxRuntimeMetadata;
 use crate::events::CodexToolItemEventBase;
 use crate::events::CodexTurnEventRequest;
 use crate::events::FinalApprovalOutcome;
@@ -53,8 +53,8 @@ use crate::facts::ArtifactOperationInput;
 use crate::facts::ArtifactOperationLifecycle;
 use crate::facts::CodeModeToolCallFact;
 use crate::facts::CodeModeToolCallStatus;
-use crate::facts::CodexCompactionEvent;
-use crate::facts::CodexErrKind;
+use crate::facts::CxCompactionEvent;
+use crate::facts::CxErrKind;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -166,7 +166,7 @@ use cx_plugin::PluginTelemetryMetadata;
 use cx_protocol::approvals::NetworkApprovalProtocol;
 use cx_protocol::config_types::ApprovalsReviewer;
 use cx_protocol::config_types::ModeKind;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::NetworkPermissions as CoreNetworkPermissions;
 use cx_protocol::models::PermissionProfile as CorePermissionProfile;
 use cx_protocol::protocol::AskForApproval;
@@ -281,8 +281,8 @@ fn sample_app_server_client_metadata() -> CodexAppServerClientMetadata {
     }
 }
 
-fn sample_runtime_metadata() -> CodexRuntimeMetadata {
-    CodexRuntimeMetadata {
+fn sample_runtime_metadata() -> CxRuntimeMetadata {
+    CxRuntimeMetadata {
         cx_rs_version: "0.1.0".to_string(),
         runtime_os: "macos".to_string(),
         runtime_os_version: "15.3.1".to_string(),
@@ -849,7 +849,7 @@ fn sample_initialize_fact(connection_id: u64) -> AnalyticsFact {
             }),
         },
         product_client_id: DEFAULT_ORIGINATOR.to_string(),
-        runtime: CodexRuntimeMetadata {
+        runtime: CxRuntimeMetadata {
             cx_rs_version: "0.99.0".to_string(),
             runtime_os: "linux".to_string(),
             runtime_os_version: "24.04".to_string(),
@@ -1455,7 +1455,7 @@ fn compaction_event_serializes_expected_shape() {
     let event = TrackEventRequest::Compaction(Box::new(CodexCompactionEventRequest {
         event_type: "cx_compaction_event",
         event_params: crate::events::cx_compaction_event_params(
-            CodexCompactionEvent {
+            CxCompactionEvent {
                 thread_id: "thread-1".to_string(),
                 turn_id: "turn-1".to_string(),
                 trigger: CompactionTrigger::Auto,
@@ -1629,7 +1629,7 @@ fn thread_initialized_event_serializes_expected_shape() {
                 rpc_transport: AppServerRpcTransport::Stdio,
                 experimental_api_enabled: Some(true),
             },
-            runtime: CodexRuntimeMetadata {
+            runtime: CxRuntimeMetadata {
                 cx_rs_version: "0.1.0".to_string(),
                 runtime_os: "macos".to_string(),
                 runtime_os_version: "15.3.1".to_string(),
@@ -1702,7 +1702,7 @@ fn command_execution_event_serializes_expected_shape() {
                     rpc_transport: AppServerRpcTransport::Websocket,
                     experimental_api_enabled: Some(true),
                 },
-                runtime: CodexRuntimeMetadata {
+                runtime: CxRuntimeMetadata {
                     cx_rs_version: "0.99.0".to_string(),
                     runtime_os: "macos".to_string(),
                     runtime_os_version: "15.3.1".to_string(),
@@ -1810,7 +1810,7 @@ fn review_event_serializes_expected_shape() {
                 rpc_transport: AppServerRpcTransport::Websocket,
                 experimental_api_enabled: Some(true),
             },
-            runtime: CodexRuntimeMetadata {
+            runtime: CxRuntimeMetadata {
                 cx_rs_version: "0.99.0".to_string(),
                 runtime_os: "macos".to_string(),
                 runtime_os_version: "15.3.1".to_string(),
@@ -1911,7 +1911,7 @@ async fn initialize_caches_client_and_thread_lifecycle_publishes_once_initialize
                     }),
                 },
                 product_client_id: DEFAULT_ORIGINATOR.to_string(),
-                runtime: CodexRuntimeMetadata {
+                runtime: CxRuntimeMetadata {
                     cx_rs_version: "0.99.0".to_string(),
                     runtime_os: "linux".to_string(),
                     runtime_os_version: "24.04".to_string(),
@@ -2072,7 +2072,7 @@ async fn thread_originator_overrides_shared_connection_across_thread_events() {
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                CodexCompactionEvent {
+                CxCompactionEvent {
                     thread_id: "thread-work".to_string(),
                     turn_id: "turn-compact".to_string(),
                     trigger: CompactionTrigger::Manual,
@@ -2252,7 +2252,7 @@ async fn compaction_event_ingests_custom_fact() {
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                CodexCompactionEvent {
+                CxCompactionEvent {
                     thread_id: "thread-1".to_string(),
                     turn_id: "turn-compact".to_string(),
                     trigger: CompactionTrigger::Manual,
@@ -2261,7 +2261,7 @@ async fn compaction_event_ingests_custom_fact() {
                     phase: CompactionPhase::StandaloneTurn,
                     strategy: CompactionStrategy::Memento,
                     status: CompactionStatus::Failed,
-                    cx_error_kind: Some(CodexErrKind::ContextWindowExceeded),
+                    cx_error_kind: Some(CxErrKind::ContextWindowExceeded),
                     cx_error_http_status_code: None,
                     active_context_tokens_before: 131_000,
                     active_context_tokens_after: 131_000,
@@ -3404,7 +3404,7 @@ async fn subagent_events_keep_thread_originator_with_explicit_turn_connection() 
     reducer
         .ingest(
             AnalyticsFact::Custom(CustomAnalyticsFact::Compaction(Box::new(
-                CodexCompactionEvent {
+                CxCompactionEvent {
                     thread_id: "thread-review".to_string(),
                     turn_id: "turn-compact".to_string(),
                     trigger: CompactionTrigger::Manual,
@@ -5377,11 +5377,11 @@ async fn turn_lifecycle_emits_failed_turn_event() {
     .await;
     reducer
         .ingest(
-            AnalyticsFact::Custom(CustomAnalyticsFact::TurnCodexError(Box::new(
+            AnalyticsFact::Custom(CustomAnalyticsFact::TurnCxError(Box::new(
                 TurnCodexErrorFact::from_cx_err(
                     "thread-2".to_string(),
                     "turn-2".to_string(),
-                    &CodexErr::InvalidRequest("unknown turn environment id `env-2`".to_string()),
+                    &CxErr::InvalidRequest("unknown turn environment id `env-2`".to_string()),
                 ),
             ))),
             &mut out,

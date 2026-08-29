@@ -7,7 +7,7 @@ use base64::Engine;
 use chrono::DateTime;
 use chrono::Utc;
 use cx_protocol::auth::PlanType;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::ConnectionFailedError;
 use cx_protocol::error::RetryLimitReachedError;
@@ -17,23 +17,23 @@ use http::HeaderMap;
 use serde::Deserialize;
 use serde_json::Value;
 
-pub fn map_api_error(err: ApiError) -> CodexErr {
+pub fn map_api_error(err: ApiError) -> CxErr {
     match err {
-        ApiError::ContextWindowExceeded => CodexErr::ContextWindowExceeded,
-        ApiError::QuotaExceeded => CodexErr::QuotaExceeded,
-        ApiError::UsageNotIncluded => CodexErr::UsageNotIncluded,
+        ApiError::ContextWindowExceeded => CxErr::ContextWindowExceeded,
+        ApiError::QuotaExceeded => CxErr::QuotaExceeded,
+        ApiError::UsageNotIncluded => CxErr::UsageNotIncluded,
         ApiError::Retryable { message, delay } => {
-            let error = CodexErr::Stream(message);
+            let error = CxErr::Stream(message);
             match delay {
                 Some(delay) => error.with_retry_delay(delay),
                 None => error,
             }
         }
-        ApiError::Stream(msg) => CodexErr::Stream(msg),
-        ApiError::ServerOverloaded => CodexErr::ServerOverloaded,
+        ApiError::Stream(msg) => CxErr::Stream(msg),
+        ApiError::ServerOverloaded => CxErr::ServerOverloaded,
         ApiError::Api { status, message } => {
             let user_message = api_error_user_message(status, &message);
-            CodexErr::UnexpectedStatus(UnexpectedResponseError {
+            CxErr::UnexpectedStatus(UnexpectedResponseError {
                 status,
                 body: message,
                 user_message,
@@ -44,12 +44,12 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                 identity_error_code: None,
             })
         }
-        ApiError::InvalidRequest { message } => CodexErr::InvalidRequest(message),
+        ApiError::InvalidRequest { message } => CxErr::InvalidRequest(message),
         ApiError::CyberPolicy { message } => {
-            CodexErr::new(CodexErrorDetails::CyberPolicy { message })
+            CxErr::new(CodexErrorDetails::CyberPolicy { message })
         }
         ApiError::MisalignmentPolicyViolation { message } => {
-            CodexErr::new(CodexErrorDetails::MisalignmentPolicyViolation { message })
+            CxErr::new(CodexErrorDetails::MisalignmentPolicyViolation { message })
         }
         ApiError::Transport(transport) => match transport {
             TransportError::Http {
@@ -70,7 +70,7 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                         Some("server_is_overloaded" | "slow_down")
                     )
                 {
-                    return CodexErr::ServerOverloaded;
+                    return CxErr::ServerOverloaded;
                 }
 
                 if (status == http::StatusCode::BAD_REQUEST
@@ -88,7 +88,7 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                         .unwrap_or_else(|| {
                             MISALIGNMENT_POLICY_VIOLATION_FALLBACK_MESSAGE.to_string()
                         });
-                    return CodexErr::new(CodexErrorDetails::MisalignmentPolicyViolation {
+                    return CxErr::new(CodexErrorDetails::MisalignmentPolicyViolation {
                         message,
                     });
                 }
@@ -105,16 +105,16 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                             .filter(|message| !message.trim().is_empty())
                             .map(str::to_string)
                             .unwrap_or_else(|| CYBER_POLICY_FALLBACK_MESSAGE.to_string());
-                        CodexErr::new(CodexErrorDetails::CyberPolicy { message })
+                        CxErr::new(CodexErrorDetails::CyberPolicy { message })
                     } else if body_text
                         .contains("The image data you provided does not represent a valid image")
                     {
-                        CodexErr::InvalidImageRequest()
+                        CxErr::InvalidImageRequest()
                     } else {
-                        CodexErr::InvalidRequest(body_text)
+                        CxErr::InvalidRequest(body_text)
                     }
                 } else if status == http::StatusCode::INTERNAL_SERVER_ERROR {
-                    CodexErr::InternalServerError
+                    CxErr::InternalServerError
                 } else if status == http::StatusCode::TOO_MANY_REQUESTS {
                     if let Ok(err) = serde_json::from_str::<UsageErrorResponse>(&body_text) {
                         if err.error.error_type.as_deref() == Some("usage_limit_reached") {
@@ -135,7 +135,7 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                                 .error
                                 .resets_at
                                 .and_then(|seconds| DateTime::<Utc>::from_timestamp(seconds, 0));
-                            return CodexErr::UsageLimitReached(UsageLimitReachedError {
+                            return CxErr::UsageLimitReached(UsageLimitReachedError {
                                 plan_type: err.error.plan_type,
                                 resets_at,
                                 rate_limits: rate_limits.map(Box::new),
@@ -143,16 +143,16 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                                 rate_limit_reached_type,
                             });
                         } else if err.error.error_type.as_deref() == Some("usage_not_included") {
-                            return CodexErr::UsageNotIncluded;
+                            return CxErr::UsageNotIncluded;
                         }
                     }
 
-                    CodexErr::RetryLimit(RetryLimitReachedError {
+                    CxErr::RetryLimit(RetryLimitReachedError {
                         status,
                         request_id: extract_request_tracking_id(headers.as_ref()),
                     })
                 } else {
-                    CodexErr::UnexpectedStatus(UnexpectedResponseError {
+                    CxErr::UnexpectedStatus(UnexpectedResponseError {
                         status,
                         user_message: api_error_user_message(status, &body_text),
                         body: body_text,
@@ -167,17 +167,17 @@ pub fn map_api_error(err: ApiError) -> CodexErr {
                     })
                 }
             }
-            TransportError::RetryLimit => CodexErr::RetryLimit(RetryLimitReachedError {
+            TransportError::RetryLimit => CxErr::RetryLimit(RetryLimitReachedError {
                 status: http::StatusCode::INTERNAL_SERVER_ERROR,
                 request_id: None,
             }),
-            TransportError::Timeout => CodexErr::RequestTimeout,
+            TransportError::Timeout => CxErr::RequestTimeout,
             TransportError::Connection(source) => {
-                CodexErr::ConnectionFailed(ConnectionFailedError { source })
+                CxErr::ConnectionFailed(ConnectionFailedError { source })
             }
-            TransportError::Network(msg) | TransportError::Build(msg) => CodexErr::Stream(msg),
+            TransportError::Network(msg) | TransportError::Build(msg) => CxErr::Stream(msg),
         },
-        ApiError::RateLimit(msg) => CodexErr::Stream(msg),
+        ApiError::RateLimit(msg) => CxErr::Stream(msg),
     }
 }
 

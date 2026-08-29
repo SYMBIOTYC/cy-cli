@@ -14,9 +14,9 @@ foo = "bar"
     )?;
 
     let output = Command::new(cx_utils_cargo_bin::cargo_bin("cx-app-server")?)
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .env(
-            "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
             cx_home.path().join("managed_config.toml"),
         )
         .args(["--strict-config", "--listen", "off"])
@@ -42,9 +42,9 @@ fn managed_auth_requirements_fail_closed_for_standalone_app_server() -> Result<(
         std::fs::write(cx_home.path().join("requirements.toml"), requirements)?;
 
         let output = Command::new(cx_utils_cargo_bin::cargo_bin("cx-app-server")?)
-            .env("CODEX_HOME", cx_home.path())
+            .env("CX_HOME", cx_home.path())
             .env(
-                "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+                "CX_APP_SERVER_MANAGED_CONFIG_PATH",
                 cx_home.path().join("managed_config.toml"),
             )
             .args(["--listen", "off"])

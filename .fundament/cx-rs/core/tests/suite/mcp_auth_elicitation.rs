@@ -3,7 +3,7 @@
 use anyhow::Result;
 use cx_core::TurnInputRequest;
 use cx_core::config::Constrained;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_protocol::approvals::ElicitationRequest;
 use cx_protocol::protocol::AskForApproval;
 use cx_protocol::protocol::ElicitationAction;
@@ -153,7 +153,7 @@ default_tools_approval_mode = "auto"
         panic!("default auth elicitation should prompt before completing the turn");
     };
 
-    assert_eq!(request.server_name, CODEX_APPS_MCP_SERVER_NAME);
+    assert_eq!(request.server_name, CX_APPS_MCP_SERVER_NAME);
     assert_eq!(
         request.id,
         cx_protocol::mcp::RequestId::String(format!("cx_apps_auth_{call_id}"))

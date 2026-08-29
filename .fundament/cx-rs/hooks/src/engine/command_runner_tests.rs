@@ -17,7 +17,7 @@ use cx_protocol::protocol::HookOutputEntry;
 use cx_protocol::protocol::HookOutputEntryKind;
 use cx_protocol::protocol::HookRunStatus;
 use cx_protocol::protocol::HookSource;
-use cx_protocol::shell_environment::CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
+use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
@@ -134,10 +134,10 @@ async fn command_hook_does_not_expose_configured_noise_auth_token() {
     let command = if cfg!(windows) { "set" } else { "env" };
     let env = HashMap::from([
         (
-            CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_ascii_lowercase(),
+            CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_ascii_lowercase(),
             "configured-noise-token".to_string(),
         ),
-        ("CODEX_HOOK_SAFE_ENV".to_string(), "visible".to_string()),
+        ("CX_HOOK_SAFE_ENV".to_string(), "visible".to_string()),
     ]);
     let handler = ConfiguredHandler {
         event_name: HookEventName::SessionStart,
@@ -159,10 +159,10 @@ async fn command_hook_does_not_expose_configured_noise_auth_token() {
     let result = run_command(&runtime, &handler, command, &env, "{}", temp.path()).await;
 
     assert_eq!(result.exit_code, Some(0), "stderr: {}", result.stderr);
-    assert!(result.stdout.contains("CODEX_HOOK_SAFE_ENV=visible"));
+    assert!(result.stdout.contains("CX_HOOK_SAFE_ENV=visible"));
     assert!(!result.stdout.lines().any(|line| {
         line.split_once('=').is_some_and(|(name, _)| {
-            name.eq_ignore_ascii_case(CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR)
+            name.eq_ignore_ascii_case(CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR)
         })
     }));
     assert_eq!(result.error, None);
@@ -174,28 +174,28 @@ fn build_command_replays_snapshot_before_hook_overrides_and_scrubbing() {
     let non_unicode_value = OsString::from_vec(vec![b'v', 0xff]);
     let environment = vec![
         (
-            OsString::from("CODEX_HOOK_SNAPSHOT"),
+            OsString::from("CX_HOOK_SNAPSHOT"),
             OsString::from("captured"),
         ),
         (
-            OsString::from("CODEX_HOOK_OVERRIDE"),
+            OsString::from("CX_HOOK_OVERRIDE"),
             OsString::from("captured"),
         ),
         (
-            OsString::from(CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
+            OsString::from(CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
             OsString::from("captured-noise-token"),
         ),
         #[cfg(unix)]
         (
-            OsString::from("CODEX_HOOK_NON_UNICODE"),
+            OsString::from("CX_HOOK_NON_UNICODE"),
             non_unicode_value.clone(),
         ),
     ];
     let env = HashMap::from([
-        ("CODEX_HOOK_OVERRIDE".to_string(), "configured".to_string()),
-        ("CODEX_HOOK_SAFE_ENV".to_string(), "visible".to_string()),
+        ("CX_HOOK_OVERRIDE".to_string(), "configured".to_string()),
+        ("CX_HOOK_SAFE_ENV".to_string(), "visible".to_string()),
         (
-            CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(),
+            CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR.to_string(),
             "configured-noise-token".to_string(),
         ),
     ]);
@@ -210,24 +210,24 @@ fn build_command_replays_snapshot_before_hook_overrides_and_scrubbing() {
     );
 
     assert_eq!(
-        configured_environment_value(&command, "CODEX_HOOK_SNAPSHOT"),
+        configured_environment_value(&command, "CX_HOOK_SNAPSHOT"),
         Some(Some(OsString::from("captured")))
     );
     assert_eq!(
-        configured_environment_value(&command, "CODEX_HOOK_OVERRIDE"),
+        configured_environment_value(&command, "CX_HOOK_OVERRIDE"),
         Some(Some(OsString::from("configured")))
     );
     assert_eq!(
-        configured_environment_value(&command, "CODEX_HOOK_SAFE_ENV"),
+        configured_environment_value(&command, "CX_HOOK_SAFE_ENV"),
         Some(Some(OsString::from("visible")))
     );
     assert_eq!(
-        configured_environment_value(&command, CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
+        configured_environment_value(&command, CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR),
         None
     );
     #[cfg(unix)]
     assert_eq!(
-        configured_environment_value(&command, "CODEX_HOOK_NON_UNICODE"),
+        configured_environment_value(&command, "CX_HOOK_NON_UNICODE"),
         Some(Some(non_unicode_value))
     );
 }
@@ -373,7 +373,7 @@ async fn async_hook_result_survives_runtime_reconfiguration() {
     let temp = TempDir::new().expect("async test directory");
     let mut environment = std::env::vars_os().collect::<Vec<_>>();
     environment.push((
-        OsString::from("CODEX_HOOK_CAPTURED_ENV"),
+        OsString::from("CX_HOOK_CAPTURED_ENV"),
         OsString::from("captured"),
     ));
     let (previous, results) = runtime_with_environment(Arc::new(environment));
@@ -390,7 +390,7 @@ import time
 json.load(sys.stdin)
 while not Path(r"{}").exists():
     time.sleep(0.01)
-print(os.environ["CODEX_HOOK_CAPTURED_ENV"])
+print(os.environ["CX_HOOK_CAPTURED_ENV"])
 "#,
             release_path.display()
         ),

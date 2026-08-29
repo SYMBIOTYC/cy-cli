@@ -16,8 +16,8 @@ use cx_app_server_protocol::JSONRPCMessage;
 use cx_app_server_protocol::JSONRPCNotification;
 use cx_app_server_protocol::RequestId;
 use cx_app_server_protocol::SandboxPolicy;
-use cx_core::exec_env::CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use cx_core::exec_env::CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use cx_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY;
 use cx_protocol::shell_environment::OI_FEDERATION_RULE_ID_ENV_VAR;
 use pretty_assertions::assert_eq;
@@ -153,7 +153,7 @@ async fn command_exec_env_overrides_merge_with_server_environment_and_support_un
             command: vec![
                 "/bin/sh".to_string(),
                 "-lc".to_string(),
-                "printf '%s|%s|%s|%s|%s|%s' \"$COMMAND_EXEC_BASELINE\" \"$COMMAND_EXEC_EXTRA\" \"${RUST_LOG-unset}\" \"$CODEX_HOME\" \"$OI_FEDERATION_RULE_ID\" \"$oi_identity_token_file\"".to_string(),
+                "printf '%s|%s|%s|%s|%s|%s' \"$COMMAND_EXEC_BASELINE\" \"$COMMAND_EXEC_EXTRA\" \"${RUST_LOG-unset}\" \"$CX_HOME\" \"$OI_FEDERATION_RULE_ID\" \"$oi_identity_token_file\"".to_string(),
             ],
             process_id: None,
             tty: false,
@@ -243,7 +243,7 @@ async fn assert_command_exec_apply_patch_rollout(
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[(CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR, Some("1"))])
+        .with_env_overrides(&[(CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR, Some("1"))])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;
 
@@ -261,7 +261,7 @@ async fn assert_command_exec_apply_patch_rollout(
             timeout_ms: None,
             cwd: Some(workspace.path().to_path_buf()),
             env: Some(HashMap::from([(
-                CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
+                CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
                 Some(client_override.to_string()),
             )])),
             size: None,
@@ -350,7 +350,7 @@ async fn command_exec_permission_profile_starts_selected_network_proxy() -> Resu
             command: vec![
                 "sh".to_string(),
                 "-lc".to_string(),
-                "printf '%s' \"${CODEX_NETWORK_PROXY_ACTIVE-unset}\"".to_string(),
+                "printf '%s' \"${CX_NETWORK_PROXY_ACTIVE-unset}\"".to_string(),
             ],
             process_id: None,
             tty: false,
@@ -398,7 +398,7 @@ async fn command_exec_permission_profile_does_not_reuse_default_network_proxy() 
             command: vec![
                 "sh".to_string(),
                 "-lc".to_string(),
-                "printf '%s' \"${CODEX_NETWORK_PROXY_ACTIVE-unset}\"".to_string(),
+                "printf '%s' \"${CX_NETWORK_PROXY_ACTIVE-unset}\"".to_string(),
             ],
             process_id: None,
             tty: false,
@@ -499,7 +499,7 @@ async fn command_exec_returns_error_when_local_environment_is_disabled() -> Resu
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[(CODEX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
+        .with_env_overrides(&[(CX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;
 

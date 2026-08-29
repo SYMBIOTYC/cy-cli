@@ -34,7 +34,7 @@ use cx_exec_server::HttpRequestParams;
 use cx_features::Feature;
 use cx_http_client::HttpClientBuilder;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::MCP_SANDBOX_STATE_META_CAPABILITY;
 use cx_mcp::SandboxState;
 use cx_models_manager::manager::RefreshStrategy;
@@ -1092,7 +1092,7 @@ async fn modern_mcp_pagination_preserves_valid_tools_and_rejects_oversized_curso
                         command.clone(),
                         Some(HashMap::from([
                             (
-                                "CODEX_MCP_PROTOCOL_VERSION".to_string(),
+                                "CX_MCP_PROTOCOL_VERSION".to_string(),
                                 "2026-07-28".to_string(),
                             ),
                             (
@@ -1213,7 +1213,7 @@ async fn apps_enabled_turn_skips_pending_optional_mcp_without_cached_tools() -> 
                 .await
                 .context("event stream ended before CX Apps became ready")?;
             if let EventMsg::McpStartupUpdate(update) = event.msg
-                && update.server == CODEX_APPS_MCP_SERVER_NAME
+                && update.server == CX_APPS_MCP_SERVER_NAME
                 && matches!(update.status, McpStartupStatus::Ready)
             {
                 break Ok::<(), anyhow::Error>(());
@@ -2898,7 +2898,7 @@ async fn remote_stdio_env_var_source_does_not_copy_local_env() -> anyhow::Result
 }
 
 /// Remote runtime websocket URL used by remote-aware MCP integration tests.
-const REMOTE_EXEC_SERVER_URL_ENV_VAR: &str = "CODEX_TEST_REMOTE_EXEC_SERVER_URL";
+const REMOTE_EXEC_SERVER_URL_ENV_VAR: &str = "CX_TEST_REMOTE_EXEC_SERVER_URL";
 /// OAuth metadata path served by the Streamable HTTP MCP test server.
 const STREAMABLE_HTTP_METADATA_PATH: &str = "/.well-known/oauth-authorization-server/mcp";
 
@@ -3311,8 +3311,8 @@ auth = "gt"
     Ok(())
 }
 
-/// This test writes to a fallback credentials file in CODEX_HOME.
-/// Ideally, we wouldn't need to serialize the test but it's much more cumbersome to wire CODEX_HOME through the code.
+/// This test writes to a fallback credentials file in CX_HOME.
+/// Ideally, we wouldn't need to serialize the test but it's much more cumbersome to wire CX_HOME through the code.
 #[test]
 #[serial(cx_home)]
 fn streamable_http_with_oauth_round_trip() -> anyhow::Result<()> {
@@ -3411,12 +3411,12 @@ async fn streamable_http_with_oauth_round_trip_impl() -> anyhow::Result<()> {
     };
     let server_url = http_server.url().to_string();
 
-    // Phase 3: seed an isolated CODEX_HOME with fallback OAuth tokens for this
+    // Phase 3: seed an isolated CX_HOME with fallback OAuth tokens for this
     // server so the test does not share credentials with other suite cases.
     let temp_home = Arc::new(tempdir()?);
-    let _cx_home_guard = EnvVarGuard::set("CODEX_HOME", temp_home.path().as_os_str());
+    let _cx_home_guard = EnvVarGuard::set("CX_HOME", temp_home.path().as_os_str());
     let unset_authorization_env_var = format!(
-        "CODEX_TEST_UNSET_MCP_OAUTH_AUTHORIZATION_{}",
+        "CX_TEST_UNSET_MCP_OAUTH_AUTHORIZATION_{}",
         std::process::id()
     );
     assert!(std::env::var_os(&unset_authorization_env_var).is_none());

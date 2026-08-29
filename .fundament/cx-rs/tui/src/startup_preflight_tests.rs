@@ -21,7 +21,7 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         &cx_home,
         Ok(system_config_path.clone()),
         || Ok(false),
-        |name| (name == cx_login::CODEX_ACCESS_TOKEN_ENV_VAR).then(|| "  ".into()),
+        |name| (name == cx_login::CX_ACCESS_TOKEN_ENV_VAR).then(|| "  ".into()),
     ));
 
     std::fs::create_dir_all(cx_home.join("tmp").join("arg0"))?;
@@ -48,17 +48,17 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         &cx_home,
         Ok(system_config_path.clone()),
         || Ok(false),
-        |name| (name == "CODEX_HOME").then(|| "/custom/home".into()),
+        |name| (name == "CX_HOME").then(|| "/custom/home".into()),
     ));
     assert!(!should_delay_startup_composer_for_first_login(
         &cx_home,
         Ok(system_config_path.clone()),
         || Ok(false),
-        |name| { (name == cx_login::CODEX_ACCESS_TOKEN_ENV_VAR).then(|| "access-token".into()) },
+        |name| { (name == cx_login::CX_ACCESS_TOKEN_ENV_VAR).then(|| "access-token".into()) },
     ));
     for disabled_credential in [
         cx_login::OPENAI_API_KEY_ENV_VAR,
-        cx_login::CODEX_API_KEY_ENV_VAR,
+        cx_login::CX_API_KEY_ENV_VAR,
     ] {
         assert!(should_delay_startup_composer_for_first_login(
             &cx_home,
@@ -86,15 +86,15 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         &cx_home,
         Ok(system_config_path.clone()),
         || Ok(false),
-        |name| (name == "CODEX_HOME").then(|| "/custom/home".into()),
+        |name| (name == "CX_HOME").then(|| "/custom/home".into()),
     ));
     assert!(!should_delay_startup_composer_for_first_login(
         &cx_home,
         Ok(system_config_path.clone()),
         || panic!("process credentials should not probe managed configuration"),
         |name| match name {
-            "CODEX_HOME" => Some("/custom/home".into()),
-            cx_login::CODEX_ACCESS_TOKEN_ENV_VAR => Some("access-token".into()),
+            "CX_HOME" => Some("/custom/home".into()),
+            cx_login::CX_ACCESS_TOKEN_ENV_VAR => Some("access-token".into()),
             _ => None,
         },
     ));

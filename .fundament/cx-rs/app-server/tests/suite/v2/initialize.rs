@@ -147,7 +147,7 @@ async fn initialize_respects_originator_override_env_var() -> Result<()> {
         .with_cx_home(cx_home.path())
         .without_auto_env()
         .with_env_overrides(&[(
-            "CODEX_INTERNAL_ORIGINATOR_OVERRIDE",
+            "CX_INTERNAL_ORIGINATOR_OVERRIDE",
             Some("cx_originator_via_env_var"),
         )])
         .build()
@@ -191,7 +191,7 @@ async fn initialize_rejects_invalid_client_name() -> Result<()> {
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[("CODEX_INTERNAL_ORIGINATOR_OVERRIDE", None)])
+        .with_env_overrides(&[("CX_INTERNAL_ORIGINATOR_OVERRIDE", None)])
         .build()
         .await?;
 

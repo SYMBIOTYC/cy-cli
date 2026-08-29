@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_protocol::items::McpToolCallError;
 use cx_protocol::items::McpToolCallItem;
 use cx_protocol::items::McpToolCallStatus;
@@ -41,7 +41,7 @@ pub use list_mcp_resources::ListMcpResourcesHandler;
 pub use read_mcp_resource::ReadMcpResourceHandler;
 
 fn model_can_access_mcp_server(turn: &TurnContext, server: &str) -> bool {
-    turn.config.orchestrator_mcp_enabled || server != CODEX_APPS_MCP_SERVER_NAME
+    turn.config.orchestrator_mcp_enabled || server != CX_APPS_MCP_SERVER_NAME
 }
 
 fn ensure_model_can_access_mcp_server(

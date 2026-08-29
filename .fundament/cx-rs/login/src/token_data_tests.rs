@@ -30,7 +30,7 @@ fn fake_jwt(payload: serde_json::Value) -> String {
 fn id_token_info_parses_email_and_plan() {
     let fake_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "pro"
         }
     }));
@@ -44,7 +44,7 @@ fn id_token_info_parses_email_and_plan() {
 fn id_token_info_parses_go_plan() {
     let fake_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "go"
         }
     }));
@@ -58,7 +58,7 @@ fn id_token_info_parses_go_plan() {
 fn id_token_info_parses_hc_plan_as_enterprise() {
     let fake_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "hc"
         }
     }));
@@ -73,7 +73,7 @@ fn id_token_info_parses_hc_plan_as_enterprise() {
 fn id_token_info_parses_ent26_plan() {
     let fake_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "ent26"
         }
     }));
@@ -88,7 +88,7 @@ fn id_token_info_parses_ent26_plan() {
 fn id_token_info_parses_usage_based_business_plans() {
     let self_serve_business_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "self_serve_business_usage_based"
         }
     }));
@@ -106,7 +106,7 @@ fn id_token_info_parses_usage_based_business_plans() {
 
     let enterprise_cbp_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "enterprise_cbp_usage_based"
         }
     }));
@@ -126,7 +126,7 @@ fn id_token_info_parses_usage_based_business_plans() {
 fn id_token_info_parses_enterprise_cbp_automation_plan() {
     let jwt = fake_jwt(serde_json::json!({
         "email": "service-account@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "enterprise_cbp_automation"
         }
     }));
@@ -147,7 +147,7 @@ fn id_token_info_parses_enterprise_cbp_automation_plan() {
 fn id_token_info_parses_self_serve_business_prolite_plan() {
     let jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_plan_type": "self_serve_business_prolite"
         }
     }));
@@ -178,7 +178,7 @@ fn id_token_info_handles_missing_fields() {
 fn id_token_info_parses_fedramp_account_claim() {
     let fake_jwt = fake_jwt(serde_json::json!({
         "email": "user@example.com",
-        "https://api.openai.com/auth": {
+        "https://api.cy.symbiotyc.workers.dev/auth": {
             "gt_account_id": "account-fed",
             "gt_account_is_fedramp": true,
         }

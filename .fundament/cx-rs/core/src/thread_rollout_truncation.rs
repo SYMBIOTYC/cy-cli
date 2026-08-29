@@ -9,7 +9,7 @@ use cx_app_server_protocol::TurnStatus;
 use cx_app_server_protocol::build_turns_from_rollout_items;
 use cx_history::InitialHistory;
 use cx_history::RolloutItem;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::TurnItem;
 use cx_protocol::models::ResponseItem;
@@ -170,7 +170,7 @@ pub fn truncate_rollout_after_turn_id(
         .iter()
         .find(|turn| turn.id == last_turn_id)
         .ok_or_else(|| {
-            CodexErr::InvalidRequest(format!(
+            CxErr::InvalidRequest(format!(
                 "lastTurnId '{last_turn_id}' was not found in the source thread"
             ))
         })?;
@@ -185,13 +185,13 @@ pub fn truncate_rollout_after_turn_id(
             )
         })
         .ok_or_else(|| {
-            CodexErr::InvalidRequest(format!(
+            CxErr::InvalidRequest(format!(
                 "lastTurnId '{last_turn_id}' is not a persisted canonical turn in the source thread"
             ))
         })?;
 
     if matches!(turn.status, TurnStatus::InProgress) {
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "lastTurnId '{last_turn_id}' identifies an in-progress turn"
         )));
     }
@@ -227,12 +227,12 @@ pub fn truncate_rollout_before_turn_id(
             .iter()
             .any(|turn| turn.id == before_turn_id)
         {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "beforeTurnId '{before_turn_id}' is not a persisted canonical turn in the source thread"
             )));
         }
 
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "beforeTurnId '{before_turn_id}' was not found in the source thread"
         )));
     };
@@ -245,7 +245,7 @@ pub fn truncate_rollout_before_turn_id(
             .iter()
             .any(|turn| turn.id == before_turn_id)
     {
-        return Err(CodexErr::InvalidRequest(format!(
+        return Err(CxErr::InvalidRequest(format!(
             "beforeTurnId '{before_turn_id}' was not found in the source thread"
         )));
     }

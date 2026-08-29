@@ -6,7 +6,7 @@ use cx_app_server_protocol::ProcessExitedNotification;
 use cx_app_server_protocol::ProcessKillParams;
 use cx_app_server_protocol::ProcessSpawnParams;
 use cx_app_server_protocol::RequestId;
-use cx_exec_server::CODEX_EXEC_SERVER_URL_ENV_VAR;
+use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
@@ -38,8 +38,8 @@ async fn process_spawn_returns_before_exit_and_emits_exit_notification() -> Resu
             "-NonInteractive".to_string(),
             "-Command".to_string(),
             concat!(
-                "[IO.File]::WriteAllText($env:CODEX_PROCESS_EXEC_PROBE_FILE, 'process'); ",
-                "while (!(Test-Path -LiteralPath $env:CODEX_PROCESS_EXEC_RELEASE_FILE)) { ",
+                "[IO.File]::WriteAllText($env:CX_PROCESS_EXEC_PROBE_FILE, 'process'); ",
+                "while (!(Test-Path -LiteralPath $env:CX_PROCESS_EXEC_RELEASE_FILE)) { ",
                 "Start-Sleep -Milliseconds 20 ",
                 "}; ",
                 "[Console]::Out.Write(('process-out|{0}|{1}' -f $env:oi_Federation_Rule_Id, $env:OI_IDENTITY_TOKEN_FILE)); ",
@@ -52,8 +52,8 @@ async fn process_spawn_returns_before_exit_and_emits_exit_notification() -> Resu
             "sh".to_string(),
             "-c".to_string(),
             concat!(
-                "printf process > \"$CODEX_PROCESS_EXEC_PROBE_FILE\"; ",
-                "while [ ! -e \"$CODEX_PROCESS_EXEC_RELEASE_FILE\" ]; do sleep 0.05; done; ",
+                "printf process > \"$CX_PROCESS_EXEC_PROBE_FILE\"; ",
+                "while [ ! -e \"$CX_PROCESS_EXEC_RELEASE_FILE\" ]; do sleep 0.05; done; ",
                 "printf 'process-out|%s|%s' \"$oi_Federation_Rule_Id\" \"$OI_IDENTITY_TOKEN_FILE\"; ",
                 "printf process-err >&2",
             )
@@ -62,11 +62,11 @@ async fn process_spawn_returns_before_exit_and_emits_exit_notification() -> Resu
     };
     let env = HashMap::from([
         (
-            "CODEX_PROCESS_EXEC_PROBE_FILE".to_string(),
+            "CX_PROCESS_EXEC_PROBE_FILE".to_string(),
             Some(probe_file.display().to_string()),
         ),
         (
-            "CODEX_PROCESS_EXEC_RELEASE_FILE".to_string(),
+            "CX_PROCESS_EXEC_RELEASE_FILE".to_string(),
             Some(release_file.display().to_string()),
         ),
         (
@@ -119,7 +119,7 @@ async fn process_spawn_returns_error_when_local_environment_is_disabled() -> Res
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[(CODEX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
+        .with_env_overrides(&[(CX_EXEC_SERVER_URL_ENV_VAR, Some("none"))])
         .build()
         .await?;
     timeout(DEFAULT_READ_TIMEOUT, mcp.initialize()).await??;

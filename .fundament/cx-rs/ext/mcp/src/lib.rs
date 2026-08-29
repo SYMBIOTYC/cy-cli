@@ -4,7 +4,7 @@ use cx_extension_api::ExtensionRegistryBuilder;
 use cx_extension_api::McpServerContribution;
 use cx_extension_api::McpServerContributionContext;
 use cx_extension_api::McpServerContributor;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::hosted_plugin_runtime_mcp_server_config;
 
 mod executor_plugin;
@@ -22,7 +22,7 @@ impl McpServerContributor<Config> for HostedPluginRuntimeExtension {
     ) -> ExtensionFuture<'a, Vec<McpServerContribution>> {
         Box::pin(async move {
             let config = context.config();
-            let name = CODEX_APPS_MCP_SERVER_NAME.to_string();
+            let name = CX_APPS_MCP_SERVER_NAME.to_string();
             if !config.features.enabled(cx_features::Feature::Apps) {
                 return vec![McpServerContribution::Remove { name }];
             }

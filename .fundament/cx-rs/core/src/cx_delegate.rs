@@ -32,7 +32,7 @@ use crate::session::turn_context::TurnContext;
 use cx_history::InitialHistory;
 use cx_login::AuthManager;
 use cx_models_manager::manager::SharedModelsManager;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::protocol::MultiAgentVersion;
 use cx_protocol::turn_input::TurnInputMode;
 use cx_protocol::turn_input::TurnInputRequest;
@@ -59,9 +59,9 @@ pub(crate) async fn run_cx_thread_interactive(
     initial_history: Option<InitialHistory>,
     git_enrichment_policy: GitEnrichmentPolicy,
     windows_sandbox_proxy_settings_mode: cx_sandboxing::WindowsSandboxProxySettingsMode,
-) -> Result<(Arc<Session>, SessionIo), CodexErr> {
+) -> Result<(Arc<Session>, SessionIo), CxErr> {
     if config.permissions.approval_policy.value() != AskForApproval::Never {
-        return Err(CodexErr::InvalidRequest(
+        return Err(CxErr::InvalidRequest(
             "CX delegates require approval policy `never`".to_string(),
         ));
     }
@@ -182,7 +182,7 @@ pub(crate) async fn run_cx_thread_one_shot(
     subagent_source: SubAgentSource,
     final_output_json_schema: Option<Value>,
     initial_history: Option<InitialHistory>,
-) -> Result<(Arc<Session>, SessionIo), CodexErr> {
+) -> Result<(Arc<Session>, SessionIo), CxErr> {
     // Use a child token so we can stop the delegate after completion without
     // requiring the caller to cancel the parent token.
     let child_cancel = cancel_token.child_token();
@@ -218,7 +218,7 @@ pub(crate) async fn run_cx_thread_one_shot(
     match submission {
         TurnInputSubmission::Started { .. } => {}
         submission => {
-            return Err(CodexErr::InvalidRequest(format!(
+            return Err(CxErr::InvalidRequest(format!(
                 "delegate turn input was not started: {submission:?}"
             )));
         }

@@ -1,7 +1,7 @@
 use super::session::Session;
 use super::turn_context::TurnContext;
 use crate::context::ContextualUserFragment;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::TokenUsage;
 
@@ -30,7 +30,7 @@ impl Session {
             .rollout_budget()
             .record_usage(usage)?
         {
-            return Err(CodexErr::SessionBudgetExceeded);
+            return Err(CxErr::SessionBudgetExceeded);
         }
         Ok(())
     }

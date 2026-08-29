@@ -10,7 +10,7 @@ use cx_http_client::HttpClientFactory;
 use cx_http_client::OutboundProxyPolicy;
 use std::ffi::OsStr;
 
-const CODEX_LINUX_SANDBOX_EXE_ENV_VAR: &str = "CODEX_TEST_LINUX_SANDBOX_EXE";
+const CX_LINUX_SANDBOX_EXE_ENV_VAR: &str = "CX_TEST_LINUX_SANDBOX_EXE";
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut args = std::env::args_os();
@@ -26,7 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let current_exe = std::env::current_exe()?;
     let cx_linux_sandbox_exe =
-        std::env::var_os(CODEX_LINUX_SANDBOX_EXE_ENV_VAR).map(std::path::PathBuf::from);
+        std::env::var_os(CX_LINUX_SANDBOX_EXE_ENV_VAR).map(std::path::PathBuf::from);
     let runtime_paths = ExecServerRuntimePaths::new(current_exe, cx_linux_sandbox_exe)?;
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()

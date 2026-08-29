@@ -7,7 +7,7 @@ use cx_api::map_api_error;
 use cx_login::default_client::add_originator_header;
 use cx_login::default_client::create_client;
 use cx_model_provider::SharedModelProvider;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use http::HeaderMap;
 use http::HeaderValue;
 
@@ -15,7 +15,7 @@ const X_CODEX_IMAGE_TURN_ID_HEADER: &str = "x-cx-image-turn-id";
 
 pub(crate) struct ImageBackendError {
     message: String,
-    cx_error: CodexErr,
+    cx_error: CxErr,
 }
 
 impl ImageBackendError {
@@ -29,7 +29,7 @@ impl ImageBackendError {
 
     fn from_message(message: String) -> Self {
         Self {
-            cx_error: CodexErr::Stream(message.clone()),
+            cx_error: CxErr::Stream(message.clone()),
             message,
         }
     }
@@ -38,7 +38,7 @@ impl ImageBackendError {
         &self.message
     }
 
-    pub(crate) fn cx_error(&self) -> &CodexErr {
+    pub(crate) fn cx_error(&self) -> &CxErr {
         &self.cx_error
     }
 }

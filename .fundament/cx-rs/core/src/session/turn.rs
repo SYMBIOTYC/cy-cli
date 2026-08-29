@@ -80,7 +80,7 @@ use cx_protocol::ResponseItemId;
 use cx_protocol::config_types::AutoCompactTokenLimitScope;
 use cx_protocol::config_types::ModeKind;
 use cx_protocol::config_types::ServiceTier;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::PlanItem;
@@ -2273,7 +2273,7 @@ async fn try_run_sampling_request(
         {
             Ok(event) => event,
             Err(cx_async_utils::CancelErr::Cancelled) => {
-                break Err(CodexErr::TurnAborted);
+                break Err(CxErr::TurnAborted);
             }
         };
 
@@ -2281,7 +2281,7 @@ async fn try_run_sampling_request(
             Some(Ok(event)) => event,
             Some(Err(err)) => break Err(err),
             None => {
-                break Err(CodexErr::Stream(
+                break Err(CxErr::Stream(
                     "stream closed before response.completed".into(),
                 ));
             }
@@ -2760,7 +2760,7 @@ async fn try_run_sampling_request(
     }
 
     if cancellation_token.is_cancelled() {
-        return Err(CodexErr::TurnAborted);
+        return Err(CxErr::TurnAborted);
     }
 
     if should_emit_turn_diff {

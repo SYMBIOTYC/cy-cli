@@ -49,8 +49,8 @@ use cx_install_context::InstallMethod;
 use cx_install_context::StandalonePlatform;
 use cx_login::AuthDotJson;
 use cx_login::AuthManager;
-use cx_login::CODEX_ACCESS_TOKEN_ENV_VAR;
-use cx_login::CODEX_API_KEY_ENV_VAR;
+use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
+use cx_login::CX_API_KEY_ENV_VAR;
 use cx_login::CodexAuth;
 use cx_login::OPENAI_API_KEY_ENV_VAR;
 use cx_login::default_client::create_client_without_request_logging;
@@ -869,16 +869,16 @@ fn installation_check(show_details: bool) -> DoctorCheck {
     ));
     details.push(format!(
         "managed by bun: {}",
-        env::var_os("CODEX_MANAGED_BY_BUN").is_some()
+        env::var_os("CX_MANAGED_BY_BUN").is_some()
     ));
     details.push(format!(
         "managed by pnpm: {}",
-        env::var_os("CODEX_MANAGED_BY_PNPM").is_some()
+        env::var_os("CX_MANAGED_BY_PNPM").is_some()
     ));
     push_env_path_detail(
         &mut details,
         "managed package root",
-        "CODEX_MANAGED_PACKAGE_ROOT",
+        "CX_MANAGED_PACKAGE_ROOT",
     );
 
     let path_entries = cx_path_entries();
@@ -925,7 +925,7 @@ fn installation_check(show_details: bool) -> DoctorCheck {
                 status = status.max(CheckStatus::Warning);
                 summary = "npm-managed launch is missing package-root provenance".to_string();
                 remediation = Some(
-                    "Reinstall or update CX so the JS shim provides CODEX_MANAGED_PACKAGE_ROOT."
+                    "Reinstall or update CX so the JS shim provides CX_MANAGED_PACKAGE_ROOT."
                         .to_string(),
                 );
             }
@@ -956,14 +956,14 @@ fn doctor_install_context(current_exe: Option<&Path>) -> InstallContext {
 }
 
 fn doctor_managed_by_npm(current_exe: Option<&Path>) -> bool {
-    env::var_os("CODEX_MANAGED_BY_NPM").is_some()
+    env::var_os("CX_MANAGED_BY_NPM").is_some()
         && !inherited_managed_env_for_cargo_binary(current_exe)
 }
 
 fn inherited_managed_env_for_cargo_binary(current_exe: Option<&Path>) -> bool {
-    if env::var_os("CODEX_MANAGED_BY_NPM").is_none()
-        && env::var_os("CODEX_MANAGED_BY_BUN").is_none()
-        && env::var_os("CODEX_MANAGED_BY_PNPM").is_none()
+    if env::var_os("CX_MANAGED_BY_NPM").is_none()
+        && env::var_os("CX_MANAGED_BY_BUN").is_none()
+        && env::var_os("CX_MANAGED_BY_PNPM").is_none()
     {
         return false;
     }
@@ -1065,7 +1065,7 @@ enum NpmRootCheck {
 }
 
 fn npm_global_root_check() -> NpmRootCheck {
-    let Some(running_package_root) = env::var_os("CODEX_MANAGED_PACKAGE_ROOT").map(PathBuf::from)
+    let Some(running_package_root) = env::var_os("CX_MANAGED_PACKAGE_ROOT").map(PathBuf::from)
     else {
         return NpmRootCheck::MissingPackageRoot;
     };
@@ -1155,7 +1155,7 @@ where
 
 fn config_check(config: &Config) -> DoctorCheck {
     let mut details = Vec::new();
-    details.push(format!("CODEX_HOME: {}", config.cx_home.display()));
+    details.push(format!("CX_HOME: {}", config.cx_home.display()));
     details.push(format!("cwd: {}", config.cwd.display()));
     details.push(format!(
         "model: {}",
@@ -1260,8 +1260,8 @@ fn auth_check(config: &Config) -> DoctorCheck {
 
     let env_auth_vars = [
         OPENAI_API_KEY_ENV_VAR,
-        CODEX_API_KEY_ENV_VAR,
-        CODEX_ACCESS_TOKEN_ENV_VAR,
+        CX_API_KEY_ENV_VAR,
+        CX_ACCESS_TOKEN_ENV_VAR,
     ]
     .into_iter()
     .filter(|name| env_var_present(name))
@@ -1446,7 +1446,7 @@ fn stored_auth_issues(
                 .as_deref()
                 .is_some_and(|key| !key.trim().is_empty());
             let env_key_present =
-                env_var_present(OPENAI_API_KEY_ENV_VAR) || env_var_present(CODEX_API_KEY_ENV_VAR);
+                env_var_present(OPENAI_API_KEY_ENV_VAR) || env_var_present(CX_API_KEY_ENV_VAR);
             if !stored_key_present && !env_key_present {
                 issues.push("API key auth is missing an API key");
             }
@@ -2167,7 +2167,7 @@ fn non_empty_trimmed(value: String) -> Option<String> {
 
 async fn state_check(config: &Config) -> DoctorCheck {
     let mut details = Vec::new();
-    path_readiness(&mut details, "CODEX_HOME", &config.cx_home);
+    path_readiness(&mut details, "CX_HOME", &config.cx_home);
     path_readiness(&mut details, "log dir", &config.log_dir);
     path_readiness(&mut details, "sqlite home", config.sqlite_config().home());
     let mut integrity_failures = Vec::new();
@@ -2532,14 +2532,14 @@ fn fallback_state_check() -> DoctorCheck {
             "state.paths",
             "state",
             CheckStatus::Ok,
-            "CODEX_HOME was resolved without config",
+            "CX_HOME was resolved without config",
         )
-        .detail(format!("CODEX_HOME: {}", path.display())),
+        .detail(format!("CX_HOME: {}", path.display())),
         Err(err) => DoctorCheck::new(
             "state.paths",
             "state",
             CheckStatus::Warning,
-            "CODEX_HOME could not be resolved",
+            "CX_HOME could not be resolved",
         )
         .detail(err.to_string()),
     }
@@ -2630,11 +2630,11 @@ fn provider_auth_reachability_mode_from_auth(
     if provider_base_url.is_some_and(|url| !url.trim().is_empty())
         && provider_env_key
             .is_some_and(|env_key| !env_key.trim().is_empty() && env_var_present(env_key))
-        || env_var_present(CODEX_API_KEY_ENV_VAR)
+        || env_var_present(CX_API_KEY_ENV_VAR)
     {
         return ProviderAuthReachabilityMode::ApiKey;
     }
-    if env_var_present(CODEX_ACCESS_TOKEN_ENV_VAR) {
+    if env_var_present(CX_ACCESS_TOKEN_ENV_VAR) {
         return ProviderAuthReachabilityMode::Chatgpt;
     }
     match stored_auth.map(stored_auth_mode_value) {
@@ -2661,7 +2661,7 @@ fn provider_reachability_plan_from_parts(
 ) -> ReachabilityPlan {
     let provider_route_probe_url = provider_base_url
         .or_else(|| {
-            (mode == ProviderAuthReachabilityMode::ApiKey).then_some("https://api.openai.com/v1")
+            (mode == ProviderAuthReachabilityMode::ApiKey).then_some("https://api.cy.symbiotyc.workers.dev/v1")
         })
         .and_then(|url| {
             should_probe_models_route(provider_name, url, is_amazon_bedrock)
@@ -2671,7 +2671,7 @@ fn provider_reachability_plan_from_parts(
         (ProviderAuthReachabilityMode::ApiKey, _) | (_, Some(_)) => vec![ReachabilityEndpoint {
             label: format!("{provider_id} API"),
             url: provider_url_for_path(
-                provider_base_url.unwrap_or("https://api.openai.com/v1"),
+                provider_base_url.unwrap_or("https://api.cy.symbiotyc.workers.dev/v1"),
                 "responses",
                 provider_query_params,
             ),
@@ -2805,7 +2805,7 @@ async fn provider_reachability_check(plan: ReachabilityPlan) -> DoctorCheck {
                     )
                     .measured(format!("{route_probe_url} returned {status}"))
                     .expected("GET /models returns 2xx, 401, or 403")
-                    .remedy("Set base_url to the provider API root, for example https://api.openai.com/v1")
+                    .remedy("Set base_url to the provider API root, for example https://api.cy.symbiotyc.workers.dev/v1")
                     .field("route probe"),
                 );
             }
@@ -3415,7 +3415,7 @@ mod tests {
                 url = "http://127.0.0.1:9/mcp"
                 enabled = false
                 required = true
-                bearer_token_env_var = "CODEX_DOCTOR_DISABLED_MCP_TOKEN"
+                bearer_token_env_var = "CX_DOCTOR_DISABLED_MCP_TOKEN"
             "#,
         )
         .expect("should deserialize disabled MCP config");
@@ -3430,7 +3430,7 @@ mod tests {
             check
                 .details
                 .iter()
-                .all(|detail| !detail.contains("CODEX_DOCTOR_DISABLED_MCP_TOKEN"))
+                .all(|detail| !detail.contains("CX_DOCTOR_DISABLED_MCP_TOKEN"))
         );
         assert!(
             check
@@ -3640,7 +3640,7 @@ mod tests {
                 /*requires_openai_auth*/ true,
                 /*provider_env_key*/ None,
                 /*provider_base_url*/ None,
-                |name| name == CODEX_API_KEY_ENV_VAR,
+                |name| name == CX_API_KEY_ENV_VAR,
                 /*stored_auth*/ None,
             ),
             ProviderAuthReachabilityMode::ApiKey
@@ -3676,7 +3676,7 @@ mod tests {
                 /*requires_openai_auth*/ true,
                 /*provider_env_key*/ None,
                 /*provider_base_url*/ None,
-                |name| name == CODEX_API_KEY_ENV_VAR,
+                |name| name == CX_API_KEY_ENV_VAR,
                 Some(&gt_auth),
             ),
             ProviderAuthReachabilityMode::ApiKey
@@ -3777,9 +3777,9 @@ mod tests {
             plan.endpoints,
             vec![ReachabilityEndpoint {
                 label: "openai API".to_string(),
-                url: "https://api.openai.com/v1/responses".to_string(),
+                url: "https://api.cy.symbiotyc.workers.dev/v1/responses".to_string(),
                 required: true,
-                route_probe_url: Some("https://api.openai.com/v1/models".to_string()),
+                route_probe_url: Some("https://api.cy.symbiotyc.workers.dev/v1/models".to_string()),
             }]
         );
     }
@@ -3852,7 +3852,7 @@ mod tests {
         assert_eq!(check.issues.len(), 1);
         assert_eq!(
             check.issues[0].remedy.as_deref(),
-            Some("Set base_url to the provider API root, for example https://api.openai.com/v1")
+            Some("Set base_url to the provider API root, for example https://api.cy.symbiotyc.workers.dev/v1")
         );
     }
 

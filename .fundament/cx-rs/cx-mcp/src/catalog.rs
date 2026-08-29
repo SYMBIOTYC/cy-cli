@@ -8,7 +8,7 @@ use cx_config::McpServerDisabledReason;
 use cx_config::RequirementSource;
 use cx_protocol::mcp_policy::EnvironmentMcpPolicy;
 
-use crate::CODEX_APPS_MCP_SERVER_NAME;
+use crate::CX_APPS_MCP_SERVER_NAME;
 
 /// Plugin identity retained with an MCP registration for tool attribution.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -76,7 +76,7 @@ impl McpServerSource {
     }
 
     pub(crate) fn is_host_owned_apps(&self, name: &str, config: &McpServerConfig) -> bool {
-        name == CODEX_APPS_MCP_SERVER_NAME
+        name == CX_APPS_MCP_SERVER_NAME
             && config.is_local_environment()
             && matches!(
                 self,
@@ -202,7 +202,7 @@ impl McpServerRegistration {
     ) -> Self {
         let host_owned_apps = config.is_local_environment();
         Self::new(
-            CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            CX_APPS_MCP_SERVER_NAME.to_string(),
             McpServerSource::Extension {
                 id: id.into(),
                 host_owned_apps,

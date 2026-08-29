@@ -30,7 +30,7 @@ use cx_connectors::AppToolPolicy;
 use cx_connectors::AppToolPolicyEvaluator;
 use cx_connectors::AppToolPolicyInput;
 use cx_features::Feature;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::MCP_TOOL_CODEX_APPS_META_KEY;
 use cx_mcp::McpPermissionPromptAutoApproveContext;
 use cx_mcp::PreparedMcpCall;
@@ -165,7 +165,7 @@ pub(crate) async fn handle_mcp_tool_call(
     let metadata = mcp_tool_metadata(&prepared_call);
     let item_metadata = McpToolCallItemMetadata::from_tool_metadata(&server, Some(&metadata));
     let runtime_config = prepared_call.config();
-    let app_tool_policy = if server == CODEX_APPS_MCP_SERVER_NAME {
+    let app_tool_policy = if server == CX_APPS_MCP_SERVER_NAME {
         let annotations = metadata.annotations.as_ref();
         AppToolPolicyEvaluator::new(&runtime_config.config_layer_stack).policy(AppToolPolicyInput {
             connector_id: metadata.connector_id.as_deref(),
@@ -177,7 +177,7 @@ pub(crate) async fn handle_mcp_tool_call(
     } else {
         AppToolPolicy::default()
     };
-    let approval_mode = if server == CODEX_APPS_MCP_SERVER_NAME {
+    let approval_mode = if server == CX_APPS_MCP_SERVER_NAME {
         app_tool_policy.approval
     } else {
         prepared_call.tool_approval_mode()
@@ -186,7 +186,7 @@ pub(crate) async fn handle_mcp_tool_call(
     let connector_id = metadata.connector_id.clone();
     let connector_name = metadata.connector_name.clone();
 
-    if server == CODEX_APPS_MCP_SERVER_NAME && !app_tool_policy.enabled {
+    if server == CX_APPS_MCP_SERVER_NAME && !app_tool_policy.enabled {
         let result = notify_mcp_tool_call_skip(
             sess.as_ref(),
             turn_context.as_ref(),
@@ -353,7 +353,7 @@ struct McpToolCallItemMetadata {
 
 impl McpToolCallItemMetadata {
     fn from_tool_metadata(server: &str, metadata: Option<&McpToolApprovalMetadata>) -> Self {
-        let trusted_mcp_app_metadata = if server == CODEX_APPS_MCP_SERVER_NAME {
+        let trusted_mcp_app_metadata = if server == CX_APPS_MCP_SERVER_NAME {
             metadata
         } else {
             None
@@ -666,7 +666,7 @@ async fn maybe_request_cx_apps_auth_elicitation(
     metadata: Option<&McpToolApprovalMetadata>,
     result: CallToolResult,
 ) -> CallToolResult {
-    if server != CODEX_APPS_MCP_SERVER_NAME {
+    if server != CX_APPS_MCP_SERVER_NAME {
         return result;
     }
 
@@ -711,7 +711,7 @@ async fn maybe_request_cx_apps_auth_elicitation(
     let response = sess
         .request_mcp_server_elicitation(
             turn_context,
-            CODEX_APPS_MCP_SERVER_NAME.to_string(),
+            CX_APPS_MCP_SERVER_NAME.to_string(),
             request_id,
             request,
         )
@@ -1000,7 +1000,7 @@ async fn maybe_track_cx_app_used(
     server: &str,
     metadata: &McpToolApprovalMetadata,
 ) {
-    if server != CODEX_APPS_MCP_SERVER_NAME {
+    if server != CX_APPS_MCP_SERVER_NAME {
         return;
     }
     let connector_id = metadata.connector_id.clone();
@@ -1095,7 +1095,7 @@ impl Session {
         };
         turn_state.lock().await.insert_mcp_tool_approval_metadata(
             call_id.to_string(),
-            (invocation.server == CODEX_APPS_MCP_SERVER_NAME).then(|| invocation.clone()),
+            (invocation.server == CX_APPS_MCP_SERVER_NAME).then(|| invocation.clone()),
             metadata,
         );
     }
@@ -1197,7 +1197,7 @@ fn build_mcp_tool_call_request_meta(
         );
     }
 
-    if server == CODEX_APPS_MCP_SERVER_NAME {
+    if server == CX_APPS_MCP_SERVER_NAME {
         let mut cx_apps_meta = metadata
             .and_then(|metadata| metadata.cx_apps_meta.clone())
             .unwrap_or_default();
@@ -1353,7 +1353,7 @@ async fn maybe_request_mcp_tool_approval(
         connector_id: metadata.connector_id.clone(),
         connector_name: metadata.connector_name.clone(),
         connector_description: metadata.connector_description.clone(),
-        connected_account_email: (invocation.server == CODEX_APPS_MCP_SERVER_NAME)
+        connected_account_email: (invocation.server == CX_APPS_MCP_SERVER_NAME)
             .then(|| metadata.connected_account_email.clone())
             .flatten(),
         tool_title: metadata.tool_title.clone(),
@@ -1519,7 +1519,7 @@ fn session_mcp_tool_approval_key(
     }
 
     let connector_id = metadata.and_then(|metadata| metadata.connector_id.clone());
-    if invocation.server == CODEX_APPS_MCP_SERVER_NAME && connector_id.is_none() {
+    if invocation.server == CX_APPS_MCP_SERVER_NAME && connector_id.is_none() {
         return None;
     }
 
@@ -1551,7 +1551,7 @@ pub(crate) fn build_guardian_mcp_tool_review_request(
         connector_id: metadata.and_then(|metadata| metadata.connector_id.clone()),
         connector_name: metadata.and_then(|metadata| metadata.connector_name.clone()),
         connector_description: metadata.and_then(|metadata| metadata.connector_description.clone()),
-        connected_account_email: (invocation.server == CODEX_APPS_MCP_SERVER_NAME)
+        connected_account_email: (invocation.server == CX_APPS_MCP_SERVER_NAME)
             .then(|| metadata.and_then(|metadata| metadata.connected_account_email.clone()))
             .flatten(),
         tool_title: metadata.and_then(|metadata| metadata.tool_title.clone()),
@@ -1569,7 +1569,7 @@ pub(crate) fn build_guardian_mcp_tool_review_request(
 fn mcp_tool_metadata(prepared_call: &PreparedMcpCall) -> McpToolApprovalMetadata {
     let server = prepared_call.server_name();
     let tool_info = prepared_call.tool_info().clone();
-    let connector_description = (server == CODEX_APPS_MCP_SERVER_NAME)
+    let connector_description = (server == CX_APPS_MCP_SERVER_NAME)
         .then(|| tool_info.namespace_description.clone())
         .flatten();
 
@@ -1580,7 +1580,7 @@ fn mcp_tool_metadata(prepared_call: &PreparedMcpCall) -> McpToolApprovalMetadata
         .and_then(|meta| meta.get(MCP_TOOL_CODEX_APPS_META_KEY))
         .and_then(serde_json::Value::as_object)
         .cloned();
-    let connected_account_email = if server == CODEX_APPS_MCP_SERVER_NAME {
+    let connected_account_email = if server == CX_APPS_MCP_SERVER_NAME {
         cx_apps_meta
             .as_ref()
             .and_then(|meta| meta.get(MCP_TOOL_CONNECTED_ACCOUNT_EMAIL_META_KEY))
@@ -1622,7 +1622,7 @@ fn openai_file_input_optional_fields_for_server(
     server: &str,
     openai_file_input_optional_fields: &HashMap<String, Vec<String>>,
 ) -> Option<HashMap<String, Vec<String>>> {
-    (server == CODEX_APPS_MCP_SERVER_NAME)
+    (server == CX_APPS_MCP_SERVER_NAME)
         .then(|| openai_file_input_optional_fields.clone())
         .filter(|params| !params.is_empty())
 }
@@ -1703,7 +1703,7 @@ fn build_mcp_tool_approval_fallback_message(
         .filter(|name| !name.is_empty())
         .map(ToString::to_string)
         .unwrap_or_else(|| {
-            if server == CODEX_APPS_MCP_SERVER_NAME {
+            if server == CX_APPS_MCP_SERVER_NAME {
                 "this app".to_string()
             } else {
                 format!("the {server} MCP server")
@@ -1788,7 +1788,7 @@ fn build_mcp_tool_approval_elicitation_meta(
                 serde_json::Value::String(tool_description.clone()),
             );
         }
-        if server == CODEX_APPS_MCP_SERVER_NAME
+        if server == CX_APPS_MCP_SERVER_NAME
             && (metadata.connector_id.is_some()
                 || metadata.connector_name.is_some()
                 || metadata.connector_description.is_some())
@@ -2015,7 +2015,7 @@ async fn maybe_persist_mcp_tool_approval(
 ) {
     let tool_name = key.tool_name.clone();
 
-    let persist_result = if key.server == CODEX_APPS_MCP_SERVER_NAME {
+    let persist_result = if key.server == CX_APPS_MCP_SERVER_NAME {
         let Some(connector_id) = key.connector_id.clone() else {
             remember_mcp_tool_approval(sess, key).await;
             return;

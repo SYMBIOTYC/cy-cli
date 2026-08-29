@@ -35,7 +35,7 @@ use cx_secrets::SecretsBackendKind;
 use cx_secrets::SecretsManager;
 use once_cell::sync::Lazy;
 
-/// Expected structure for $CODEX_HOME/auth.json.
+/// Expected structure for $CX_HOME/auth.json.
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct AuthDotJson {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -176,7 +176,7 @@ impl FileAuthStorage {
         Self { cx_home }
     }
 
-    /// Attempt to read and parse the `auth.json` file in the given `CODEX_HOME` directory.
+    /// Attempt to read and parse the `auth.json` file in the given `CX_HOME` directory.
     /// Returns the full AuthDotJson structure.
     pub(super) fn try_read_auth_json(&self, auth_file: &Path) -> std::io::Result<AuthDotJson> {
         let mut file = File::open(auth_file)?;
@@ -223,10 +223,10 @@ impl AuthStorageBackend for FileAuthStorage {
     }
 }
 
-static CODEX_AUTH_SECRET_NAME: Lazy<SecretName> =
-    Lazy::new(|| match SecretName::new("CODEX_AUTH") {
+static CX_AUTH_SECRET_NAME: Lazy<SecretName> =
+    Lazy::new(|| match SecretName::new("CX_AUTH") {
         Ok(name) => name,
-        Err(err) => unreachable!("CODEX_AUTH should be a valid secret name: {err}"),
+        Err(err) => unreachable!("CX_AUTH should be a valid secret name: {err}"),
     });
 const KEYRING_SERVICE: &str = "CX Auth";
 
@@ -355,7 +355,7 @@ impl AuthStorageBackend for SecretsKeyringAuthStorage {
     fn load(&self) -> std::io::Result<Option<AuthDotJson>> {
         match self
             .secrets_manager
-            .get(&SecretScope::Global, &CODEX_AUTH_SECRET_NAME)
+            .get(&SecretScope::Global, &CX_AUTH_SECRET_NAME)
             .map_err(|err| {
                 std::io::Error::other(format!(
                     "failed to load CLI auth from encrypted auth storage: {err}"
@@ -373,7 +373,7 @@ impl AuthStorageBackend for SecretsKeyringAuthStorage {
     fn save(&self, auth: &AuthDotJson) -> std::io::Result<()> {
         let serialized = serde_json::to_string(auth).map_err(std::io::Error::other)?;
         self.secrets_manager
-            .set(&SecretScope::Global, &CODEX_AUTH_SECRET_NAME, &serialized)
+            .set(&SecretScope::Global, &CX_AUTH_SECRET_NAME, &serialized)
             .map_err(|err| {
                 let message =
                     format!("failed to write OAuth tokens to encrypted auth storage: {err}");
@@ -389,7 +389,7 @@ impl AuthStorageBackend for SecretsKeyringAuthStorage {
     fn delete(&self) -> std::io::Result<bool> {
         let keyring_removed = self
             .secrets_manager
-            .delete(&SecretScope::Global, &CODEX_AUTH_SECRET_NAME)
+            .delete(&SecretScope::Global, &CX_AUTH_SECRET_NAME)
             .map_err(|err| {
                 std::io::Error::other(format!(
                     "failed to delete auth from encrypted auth storage: {err}"

@@ -56,7 +56,7 @@ fn start_mock_issuer(gt_account_id: &str) -> (SocketAddr, thread::JoinHandle<()>
                 };
                 let payload = serde_json::json!({
                     "email": "user@example.com",
-                    "https://api.openai.com/auth": {
+                    "https://api.cy.symbiotyc.workers.dev/auth": {
                         "gt_plan_type": "pro",
                         "gt_account_id": gt_account_id,
                     }

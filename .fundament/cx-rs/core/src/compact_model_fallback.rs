@@ -1,12 +1,12 @@
 use cx_analytics::CompactionImplementation;
 use cx_analytics::CompactionReason;
 use cx_otel::SessionTelemetry;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use tracing::warn;
 
 /// Retries failures that may be model-specific and succeed with a different model.
-pub(crate) fn should_retry_with_current_model(error: &CodexErr) -> bool {
+pub(crate) fn should_retry_with_current_model(error: &CxErr) -> bool {
     matches!(
         error.details(),
         CodexErrorDetails::InvalidRequest(_)
@@ -25,7 +25,7 @@ pub(crate) fn record_model_fallback(
     current_model: &str,
     reason: CompactionReason,
     implementation: CompactionImplementation,
-    fallback_error: Option<&CodexErr>,
+    fallback_error: Option<&CxErr>,
 ) {
     let reason_tag = match reason {
         CompactionReason::UserRequested => "user_requested",

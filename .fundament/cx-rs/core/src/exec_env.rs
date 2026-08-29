@@ -1,4 +1,4 @@
-pub use cx_apply_patch::CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR;
+pub use cx_apply_patch::CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR;
 use cx_features::Feature;
 use cx_features::Features;
 use cx_protocol::SessionId;
@@ -10,12 +10,12 @@ use cx_protocol::models::ActivePermissionProfile;
 use cx_protocol::shell_environment;
 use std::collections::HashMap;
 
-pub use cx_protocol::shell_environment::CODEX_SESSION_ID_ENV_VAR;
-pub use cx_protocol::shell_environment::CODEX_THREAD_ID_ENV_VAR;
+pub use cx_protocol::shell_environment::CX_SESSION_ID_ENV_VAR;
+pub use cx_protocol::shell_environment::CX_THREAD_ID_ENV_VAR;
 
 /// Informational name of the active permission profile. Child processes can
 /// overwrite this value, so it must not be treated as proof of enforcement.
-pub const CODEX_PERMISSION_PROFILE_ENV_VAR: &str = "CODEX_PERMISSION_PROFILE";
+pub const CX_PERMISSION_PROFILE_ENV_VAR: &str = "CX_PERMISSION_PROFILE";
 
 /// Construct an environment map based on the rules in the specified policy. The
 /// resulting map can be passed directly to `Command::envs()` after calling
@@ -25,7 +25,7 @@ pub const CODEX_PERMISSION_PROFILE_ENV_VAR: &str = "CODEX_PERMISSION_PROFILE";
 /// The derivation follows the algorithm documented in the struct-level comment
 /// for [`ShellEnvironmentPolicy`].
 ///
-/// `CODEX_THREAD_ID` is injected when a thread id is provided, even when
+/// `CX_THREAD_ID` is injected when a thread id is provided, even when
 /// `include_only` is set.
 pub fn create_env(
     policy: &ShellEnvironmentPolicy,
@@ -37,7 +37,7 @@ pub fn create_env(
 
 /// Exposes the shared root-session identity to model-reachable shell commands.
 pub(crate) fn inject_session_id_env(env: &mut HashMap<String, String>, session_id: SessionId) {
-    env.insert(CODEX_SESSION_ID_ENV_VAR.to_string(), session_id.to_string());
+    env.insert(CX_SESSION_ID_ENV_VAR.to_string(), session_id.to_string());
 }
 
 /// Injects the selected named permission profile into a shell tool's environment.
@@ -49,13 +49,13 @@ pub(crate) fn inject_permission_profile_env(
     active_permission_profile: Option<&ActivePermissionProfile>,
 ) {
     if cfg!(windows) {
-        env.retain(|key, _| !key.eq_ignore_ascii_case(CODEX_PERMISSION_PROFILE_ENV_VAR));
+        env.retain(|key, _| !key.eq_ignore_ascii_case(CX_PERMISSION_PROFILE_ENV_VAR));
     } else {
-        env.remove(CODEX_PERMISSION_PROFILE_ENV_VAR);
+        env.remove(CX_PERMISSION_PROFILE_ENV_VAR);
     }
     if let Some(active_permission_profile) = active_permission_profile {
         env.insert(
-            CODEX_PERMISSION_PROFILE_ENV_VAR.to_string(),
+            CX_PERMISSION_PROFILE_ENV_VAR.to_string(),
             active_permission_profile.id.clone(),
         );
     }
@@ -68,10 +68,10 @@ pub(crate) fn inject_permission_profile_env(
 /// active feature configuration remains authoritative. The in-process
 /// apply-patch path reads the feature directly.
 pub fn inject_apply_patch_env(env: &mut HashMap<String, String>, features: &Features) {
-    env.retain(|key, _| !key.eq_ignore_ascii_case(CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR));
+    env.retain(|key, _| !key.eq_ignore_ascii_case(CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR));
     if features.enabled(Feature::ApplyPatchPreserveLineEndings) {
         env.insert(
-            CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
+            CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
             "1".to_string(),
         );
     }

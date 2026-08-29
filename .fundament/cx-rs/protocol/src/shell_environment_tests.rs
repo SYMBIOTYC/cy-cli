@@ -5,7 +5,7 @@ use pretty_assertions::assert_eq;
 
 use super::*;
 
-const CHILD_MODE_ENV_VAR: &str = "CODEX_SHELL_ENVIRONMENT_SCRUBBER_TEST_MODE";
+const CHILD_MODE_ENV_VAR: &str = "CX_SHELL_ENVIRONMENT_SCRUBBER_TEST_MODE";
 const TEST_NAME: &str =
     "shell_environment::tests::command_scrubber_removes_names_from_real_child_environment";
 
@@ -83,7 +83,7 @@ fn command_scrubber_removes_names_from_real_child_environment() {
         .env("NODE_REPL_AUTH_TOKEN", "configured-token")
         .env("oi_identity_token_file", "/run/identity-token")
         .env(
-            CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR,
+            CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR,
             "configured-noise-token",
         )
         .env("SAFE", "value");

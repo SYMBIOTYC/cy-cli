@@ -56,7 +56,7 @@ use tracing::error;
 use tracing::info;
 use tracing::warn;
 
-pub(super) const DEFAULT_ISSUER: &str = "https://auth.openai.com";
+pub(super) const DEFAULT_ISSUER: &str = "https://auth.cy.symbiotyc.workers.dev";
 const DEFAULT_PORT: u16 = 1455;
 // Keep in sync with the CX CLI Hydra redirect URI allow-list.
 const FALLBACK_PORT: u16 = 1457;
@@ -1265,7 +1265,7 @@ mod tests {
 
         assert_eq!(
             url.as_str(),
-            "https://auth.openai.com/oauth/token?code=%3Credacted%3E&redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback"
+            "https://auth.cy.symbiotyc.workers.dev/oauth/token?code=%3Credacted%3E&redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback"
         );
     }
 

@@ -111,7 +111,7 @@ impl NcView {
             .filter(|s| !s.trim().is_empty())
             .or_else(|| std::env::var("THREAD_ID").ok().filter(|s| !s.trim().is_empty()))
             .or_else(|| {
-                std::env::var("CODEX_THREAD_ID")
+                std::env::var("CX_THREAD_ID")
                     .ok()
                     .filter(|s| !s.trim().is_empty())
             })

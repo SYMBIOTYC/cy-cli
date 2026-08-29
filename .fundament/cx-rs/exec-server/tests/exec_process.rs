@@ -129,7 +129,7 @@ async fn remote_sandboxed_process_preserves_custom_arg0() -> Result<()> {
             argv: vec![
                 "/bin/sh".to_string(),
                 "-c".to_string(),
-                "printf '%s' \"$0\"; if /bin/cat \"$CODEX_TEST_DENIED_FILE\" >/dev/null 2>&1; then exit 42; fi"
+                "printf '%s' \"$0\"; if /bin/cat \"$CX_TEST_DENIED_FILE\" >/dev/null 2>&1; then exit 42; fi"
                     .to_string(),
             ],
             cwd,
@@ -137,7 +137,7 @@ async fn remote_sandboxed_process_preserves_custom_arg0() -> Result<()> {
             env: HashMap::from([
                 ("PATH".to_string(), std::env::var("PATH")?),
                 (
-                    "CODEX_TEST_DENIED_FILE".to_string(),
+                    "CX_TEST_DENIED_FILE".to_string(),
                     denied_file.to_string_lossy().into_owned(),
                 ),
             ]),

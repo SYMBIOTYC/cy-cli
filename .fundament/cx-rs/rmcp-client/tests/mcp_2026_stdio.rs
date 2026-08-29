@@ -41,7 +41,7 @@ async fn exercise_stdio_server(
     };
     let env = opt_in.then(|| {
         HashMap::from([(
-            OsString::from("CODEX_MCP_PROTOCOL_VERSION"),
+            OsString::from("CX_MCP_PROTOCOL_VERSION"),
             OsString::from("2026-07-28"),
         )])
     });

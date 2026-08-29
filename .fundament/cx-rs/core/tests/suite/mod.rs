@@ -14,7 +14,7 @@ use ctor::ctor;
 // based on the arg0.
 // NOTE: this doesn't work on ARM
 #[ctor]
-pub static CODEX_ALIASES_TEMP_DIR: Option<TestBinaryDispatchGuard> = {
+pub static CX_ALIASES_TEMP_DIR: Option<TestBinaryDispatchGuard> = {
     configure_test_binary_dispatch("cx-core-tests", |exe_name, argv1| {
         if argv1 == Some(CODEX_CORE_APPLY_PATCH_ARG1) {
             return TestBinaryDispatchMode::DispatchArg0Only;

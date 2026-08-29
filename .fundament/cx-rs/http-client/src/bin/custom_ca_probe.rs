@@ -1,6 +1,6 @@
 //! Helper binary for exercising shared custom CA environment handling in tests.
 //!
-//! The shared reqwest client honors `CODEX_CA_CERTIFICATE` and `SSL_CERT_FILE`, but those
+//! The shared reqwest client honors `CX_CA_CERTIFICATE` and `SSL_CERT_FILE`, but those
 //! environment variables are process-global and unsafe to mutate in parallel test execution. This
 //! probe keeps the behavior under test while letting integration tests (`tests/ca_env.rs`) set
 //! env vars per-process, proving:
@@ -20,8 +20,8 @@ use std::process;
 use std::time::Duration;
 
 const PROBE_TLS13_ENV: &str = "CODEX_CUSTOM_CA_PROBE_TLS13";
-const PROBE_PROXY_ENV: &str = "CODEX_CUSTOM_CA_PROBE_PROXY";
-const PROBE_URL_ENV: &str = "CODEX_CUSTOM_CA_PROBE_URL";
+const PROBE_PROXY_ENV: &str = "CX_CUSTOM_CA_PROBE_PROXY";
+const PROBE_URL_ENV: &str = "CX_CUSTOM_CA_PROBE_URL";
 
 fn main() {
     let runtime = match tokio::runtime::Builder::new_current_thread()

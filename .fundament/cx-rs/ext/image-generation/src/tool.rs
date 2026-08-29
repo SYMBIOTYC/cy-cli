@@ -23,7 +23,7 @@ use cx_extension_api::parse_tool_input_schema;
 use cx_extension_items::ExtensionItem;
 use cx_extension_items::image_generation::ImageGenerationFailure;
 use cx_extension_items::image_generation::ImageGenerationItem;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::models::ContentItem;
 use cx_protocol::models::DEFAULT_IMAGE_DETAIL;
@@ -232,7 +232,7 @@ impl ImageGenerationTool {
     }
 }
 
-fn usage_limit_failure(error: &CodexErr) -> Option<ImageGenerationFailure> {
+fn usage_limit_failure(error: &CxErr) -> Option<ImageGenerationFailure> {
     let CodexErrorDetails::UsageLimitReached(usage_limit) = error.details() else {
         return None;
     };

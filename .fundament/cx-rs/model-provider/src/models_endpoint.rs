@@ -24,7 +24,7 @@ use cx_model_provider_info::ModelProviderInfo;
 use cx_models_manager::manager::ModelsEndpointClient;
 use cx_models_manager::manager::ModelsEndpointFuture;
 use cx_otel::TelemetryAuthMode;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CoreResult;
 use cx_protocol::openai_models::ModelInfo;
 use cx_response_debug_context::extract_response_debug_context;
@@ -113,7 +113,7 @@ impl OpenAiModelsEndpoint {
                 .map_err(map_api_error)
         })
         .await
-        .map_err(|_| CodexErr::Timeout)?
+        .map_err(|_| CxErr::Timeout)?
     }
 
     fn auth_env(&self) -> AuthEnvTelemetry {

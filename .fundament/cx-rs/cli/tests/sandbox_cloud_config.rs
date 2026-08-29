@@ -102,10 +102,10 @@ async fn sandbox_fetches_and_enforces_cloud_managed_permission_profile() -> Resu
     let gt_base_url_override = format!("gt_base_url=\"{gt_base_url}\"");
     let output = Command::new(&cx)
         .current_dir(cx_home.path())
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .env("NO_PROXY", "127.0.0.1,localhost")
         .env("no_proxy", "127.0.0.1,localhost")
-        .env_remove("CODEX_ACCESS_TOKEN")
+        .env_remove("CX_ACCESS_TOKEN")
         .env_remove("OPENAI_API_KEY")
         .args(["-c", "cli_auth_credentials_store=\"file\""])
         .args(["-c", gt_base_url_override.as_str()])

@@ -3,16 +3,16 @@ use crate::config_types::ShellEnvironmentPolicy;
 use crate::config_types::ShellEnvironmentPolicyInherit;
 use std::collections::HashMap;
 
-pub const CODEX_SESSION_ID_ENV_VAR: &str = "CODEX_SESSION_ID";
-pub const CODEX_THREAD_ID_ENV_VAR: &str = "CODEX_THREAD_ID";
-pub const CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR: &str = "CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN";
+pub const CX_SESSION_ID_ENV_VAR: &str = "CX_SESSION_ID";
+pub const CX_THREAD_ID_ENV_VAR: &str = "CX_THREAD_ID";
+pub const CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR: &str = "CX_EXEC_SERVER_NOISE_AUTH_TOKEN";
 pub const OI_FEDERATION_RULE_ID_ENV_VAR: &str = "OI_RULE_ID";
 pub const OI_IDENTITY_TOKEN_FILE_ENV_VAR: &str = "OI_IDENTITY_TOKEN_FILE";
 pub const OI_WORKLOAD_IDENTITY_CONTEXT_ENV_VAR: &str = "OI_WORKLOAD_IDENTITY_CONTEXT";
 
 /// Environment variables that model-reachable child processes must not inherit.
 pub const NON_INHERITABLE_ENV_VARS: &[&str] = &[
-    CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR,
+    CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR,
     "NODE_REPL_AUTH_TOKEN",
     OI_FEDERATION_RULE_ID_ENV_VAR,
     OI_IDENTITY_TOKEN_FILE_ENV_VAR,
@@ -147,7 +147,7 @@ where
 
     // Step 6 - Populate the thread ID environment variable when provided.
     if let Some(thread_id) = thread_id {
-        env_map.insert(CODEX_THREAD_ID_ENV_VAR.to_string(), thread_id.to_string());
+        env_map.insert(CX_THREAD_ID_ENV_VAR.to_string(), thread_id.to_string());
     }
 
     // Restricted launch context cannot be restored through user-provided shell

@@ -20,7 +20,7 @@ use cx_utils_absolute_path::AbsolutePathBuf;
 pub const CODEX_WINDOWS_SANDBOX_ARG1: &str = "--run-as-windows-sandbox";
 
 const COMMAND_CWD_FLAG: &str = "--command-cwd";
-const CODEX_HOME_FLAG: &str = "--cx-home";
+const CX_HOME_FLAG: &str = "--cx-home";
 const DENY_READ_PATHS_JSON_FLAG: &str = "--deny-read-paths-json";
 const DENY_WRITE_PATHS_JSON_FLAG: &str = "--deny-write-paths-json";
 const ENV_JSON_FLAG: &str = "--env-json";
@@ -60,7 +60,7 @@ pub fn create_windows_sandbox_command_args_for_permission_profile(
         .unwrap_or_else(|err| panic!("failed to serialize env: {err}"));
     let mut args = vec![
         CODEX_WINDOWS_SANDBOX_ARG1.to_string(),
-        CODEX_HOME_FLAG.to_string(),
+        CX_HOME_FLAG.to_string(),
         cx_home.to_string_lossy().into_owned(),
         COMMAND_CWD_FLAG.to_string(),
         command_cwd.as_path().to_string_lossy().into_owned(),
@@ -227,7 +227,7 @@ fn parse_windows_sandbox_wrapper_args(args: Vec<String>) -> Result<WindowsSandbo
 
     while let Some(arg) = args.next() {
         match arg.as_str() {
-            CODEX_HOME_FLAG => cx_home = Some(PathBuf::from(next_flag_value(&mut args, &arg)?)),
+            CX_HOME_FLAG => cx_home = Some(PathBuf::from(next_flag_value(&mut args, &arg)?)),
             COMMAND_CWD_FLAG => {
                 command_cwd = Some(absolute_path_arg(next_flag_value(&mut args, &arg)?, &arg)?);
             }
@@ -283,10 +283,10 @@ fn parse_windows_sandbox_wrapper_args(args: Vec<String>) -> Result<WindowsSandbo
         }
     }
 
-    let cx_home = cx_home.ok_or_else(|| anyhow!("missing required {CODEX_HOME_FLAG}"))?;
+    let cx_home = cx_home.ok_or_else(|| anyhow!("missing required {CX_HOME_FLAG}"))?;
     if !cx_home.is_absolute() {
         bail!(
-            "{CODEX_HOME_FLAG} must be absolute: {}",
+            "{CX_HOME_FLAG} must be absolute: {}",
             cx_home.display()
         );
     }

@@ -188,7 +188,7 @@ async fn auto_store_remains_pinned_across_session_recovery() -> anyhow::Result<(
             "--ignored",
             "--nocapture",
         ])
-        .env("CODEX_HOME", cx_home.path())
+        .env("CX_HOME", cx_home.path())
         .env(CHILD_SERVER_URL_ENV, &base_url)
         .status()
         .await?;

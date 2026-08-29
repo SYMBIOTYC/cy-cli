@@ -24,7 +24,7 @@ use cx_goal_extension::GoalService;
 use cx_http_client::HttpClientFactory;
 use cx_login::AuthManager;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CodexErr;
+use cx_protocol::error::CxErr;
 use cx_protocol::protocol::Event;
 use cx_protocol::protocol::EventMsg;
 use cx_queue_extension::QueuedItemService;
@@ -55,7 +55,7 @@ pub(crate) fn thread_extensions<S>(
     dependencies: ThreadExtensionDependencies,
 ) -> Arc<ExtensionRegistry<Config>>
 where
-    S: AgentSpawner<StartThreadOptions, Spawned = NewThread, Error = CodexErr> + 'static,
+    S: AgentSpawner<StartThreadOptions, Spawned = NewThread, Error = CxErr> + 'static,
 {
     let ThreadExtensionDependencies {
         event_sink,
@@ -304,14 +304,14 @@ impl ExtensionEventSink for AppServerExtensionEventSink {
 
 pub(crate) fn guardian_agent_spawner(
     thread_manager: Weak<ThreadManager>,
-) -> impl AgentSpawner<StartThreadOptions, Spawned = NewThread, Error = CodexErr> {
+) -> impl AgentSpawner<StartThreadOptions, Spawned = NewThread, Error = CxErr> {
     move |forked_from_thread_id: ThreadId,
           options: StartThreadOptions|
-          -> AgentSpawnFuture<'static, NewThread, CodexErr> {
+          -> AgentSpawnFuture<'static, NewThread, CxErr> {
         let thread_manager = thread_manager.clone();
         Box::pin(async move {
             let thread_manager = thread_manager.upgrade().ok_or_else(|| {
-                CodexErr::UnsupportedOperation("thread manager dropped".to_string())
+                CxErr::UnsupportedOperation("thread manager dropped".to_string())
             })?;
             thread_manager
                 .spawn_subagent(forked_from_thread_id, options)

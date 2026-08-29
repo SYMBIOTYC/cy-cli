@@ -48,12 +48,12 @@ use wiremock::matchers::path;
 const DEFAULT_READ_TIMEOUT: Duration = Duration::from_secs(60);
 #[cfg(not(any(target_os = "macos", windows)))]
 const DEFAULT_READ_TIMEOUT: Duration = Duration::from_secs(10);
-const COMMIT_ATTRIBUTION: &str = "Co-authored-by: CX <noreply@openai.com>";
-const PR_ATTRIBUTION: &str = "Generated with [CX](https://openai.com/cx/).";
+const COMMIT_ATTRIBUTION: &str = "Co-authored-by: CX <noreply@cy.symbiotyc.workers.dev>";
+const PR_ATTRIBUTION: &str = "Generated with [CX](https://cy.symbiotyc.workers.dev/cx/).";
 const ATTRIBUTION_DISABLED: &str = "attribution is disabled for the current workspace";
 const LEGACY_COMMIT_ATTRIBUTION_INSTRUCTIONS: &str = "\
 When you write or edit a git commit message, ensure the message ends with this trailer exactly once:
-Co-authored-by: CX <noreply@openai.com>
+Co-authored-by: CX <noreply@cy.symbiotyc.workers.dev>
 
 Rules:
 - Keep existing trailers and append this trailer at the end if missing.
@@ -136,7 +136,7 @@ async fn git_attribution_follows_authenticated_workspace_policy() -> Result<()> 
 
     let mut app_server = TestAppServer::builder()
         .with_cx_home(cx_home.path())
-        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CODEX_ACCESS_TOKEN", None)])
+        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CX_ACCESS_TOKEN", None)])
         .build()
         .await?;
     timeout(DEFAULT_READ_TIMEOUT, app_server.initialize()).await??;
@@ -268,7 +268,7 @@ async fn cold_resume_replaces_legacy_attribution_without_duplication(
 
     let mut app_server = TestAppServer::builder()
         .with_cx_home(cx_home.path())
-        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CODEX_ACCESS_TOKEN", None)])
+        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CX_ACCESS_TOKEN", None)])
         .without_auto_env()
         .build()
         .await?;
@@ -290,7 +290,7 @@ async fn cold_resume_replaces_legacy_attribution_without_duplication(
 
     let mut app_server = TestAppServer::builder()
         .with_cx_home(cx_home.path())
-        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CODEX_ACCESS_TOKEN", None)])
+        .with_env_overrides(&[("OPENAI_API_KEY", None), ("CX_ACCESS_TOKEN", None)])
         .without_auto_env()
         .build()
         .await?;

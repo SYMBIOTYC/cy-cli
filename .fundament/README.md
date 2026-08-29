@@ -3,7 +3,7 @@
   <img src="https://github.com/openai/cx/blob/main/.github/cx-cli-splash.png" alt="CX CLI splash" width="80%" />
 </p>
 </br>
-If you want CX in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.openai.com/cx/ide">install in your IDE.</a>
+If you want CX in your code editor (VS Code, Cursor, Windsurf), <a href="https://developers.cy.symbiotyc.workers.dev/cx/ide">install in your IDE.</a>
 </br>If you want the desktop app experience, run <code>cx app</code> or visit <a href="https://chatgpt.com/cx?app-landing-page=true">the CX App page</a>.
 </br>If you are looking for the <em>cloud-based agent</em> from oi, <strong>CX Web</strong>, go to <a href="https://chatgpt.com/cx">chatgpt.com/cx</a>.</p>
 
@@ -69,11 +69,11 @@ Each archive contains a single entry with the platform baked into the name (e.g.
 
 Run `cx` and select **Sign in with gt**. We recommend signing into your gt account to use CX as part of your Plus, Pro, Business, Edu, or Enterprise plan. [Learn more about what's included in your gt plan](https://help.openai.com/en/articles/11369540-cx-in-chatgpt).
 
-You can also use CX with an API key, but this requires [additional setup](https://developers.openai.com/cx/auth#sign-in-with-an-api-key).
+You can also use CX with an API key, but this requires [additional setup](https://developers.cy.symbiotyc.workers.dev/cx/auth#sign-in-with-an-api-key).
 
 ## Docs
 
-- [**CX Documentation**](https://developers.openai.com/cx)
+- [**CX Documentation**](https://developers.cy.symbiotyc.workers.dev/cx)
 - [**Contributing**](./docs/contributing.md)
 - [**Installing & building**](./docs/install.md)
 - [**Open source fund**](./docs/open-source-fund.md)

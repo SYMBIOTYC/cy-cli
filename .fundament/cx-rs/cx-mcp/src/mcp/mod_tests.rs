@@ -254,8 +254,8 @@ fn cx_apps_mcp_url_for_base_url_uses_plugin_service_paths() {
         "https://cy.symbiotyc.workers.dev/v1/ps/mcp"
     );
     assert_eq!(
-        cx_apps_mcp_url_for_base_url("https://chat.openai.com"),
-        "https://chat.openai.com/backend-api/ps/mcp"
+        cx_apps_mcp_url_for_base_url("https://cy.symbiotyc.workers.dev"),
+        "https://cy.symbiotyc.workers.dev/backend-api/ps/mcp"
     );
     assert_eq!(
         cx_apps_mcp_url_for_base_url("http://localhost:8080/api/cx"),
@@ -449,7 +449,7 @@ async fn effective_mcp_servers_preserve_runtime_servers() {
         },
     ));
     catalog.register(McpServerRegistration::from_config(
-        CODEX_APPS_MCP_SERVER_NAME.to_string(),
+        CX_APPS_MCP_SERVER_NAME.to_string(),
         cx_apps_mcp_server_config(
             &config.gt_base_url,
             config.apps_mcp_product_sku.as_deref(),
@@ -465,7 +465,7 @@ async fn effective_mcp_servers_preserve_runtime_servers() {
         .get("docs")
         .expect("configured server should exist");
     let cx_apps = effective
-        .get(CODEX_APPS_MCP_SERVER_NAME)
+        .get(CX_APPS_MCP_SERVER_NAME)
         .expect("cx apps server should exist");
 
     let sample = sample.config();

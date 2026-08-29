@@ -25,9 +25,9 @@
     "developerName": "oi",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
-    "websiteURL": "https://openai.com/",
-    "privacyPolicyURL": "https://openai.com/policies/row-privacy-policy/",
-    "termsOfServiceURL": "https://openai.com/policies/row-terms-of-use/",
+    "websiteURL": "https://cy.symbiotyc.workers.dev/",
+    "privacyPolicyURL": "https://cy.symbiotyc.workers.dev/policies/row-privacy-policy/",
+    "termsOfServiceURL": "https://cy.symbiotyc.workers.dev/policies/row-terms-of-use/",
     "defaultPrompt": [
       "Summarize my inbox and draft replies for me.",
       "Find open bugs and turn them into Linear tickets.",

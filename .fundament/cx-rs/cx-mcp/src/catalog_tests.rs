@@ -11,7 +11,7 @@ use cx_protocol::mcp_policy::EnvironmentMcpPolicy;
 use cx_protocol::mcp_policy::PluginMcpRequirements;
 use pretty_assertions::assert_eq;
 
-use crate::CODEX_APPS_MCP_SERVER_NAME;
+use crate::CX_APPS_MCP_SERVER_NAME;
 
 use super::McpEnvironmentAuthority;
 use super::McpPluginAttribution;
@@ -427,7 +427,7 @@ fn environment_policy_exempts_only_explicitly_host_owned_apps() {
     for (registration, expected) in [
         (
             McpServerRegistration::from_extension(
-                CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                CX_APPS_MCP_SERVER_NAME.to_string(),
                 "apps",
                 /*contribution_order*/ 0,
                 server("https://apps.example/mcp"),
@@ -449,7 +449,7 @@ fn environment_policy_exempts_only_explicitly_host_owned_apps() {
             .build_with_environment_authority(|_| McpEnvironmentAuthority::Restricted(&policy));
         assert_eq!(
             catalog
-                .server(CODEX_APPS_MCP_SERVER_NAME)
+                .server(CX_APPS_MCP_SERVER_NAME)
                 .expect("Apps registration")
                 .config()
                 .enabled,

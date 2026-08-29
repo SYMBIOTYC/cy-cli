@@ -73,7 +73,7 @@ impl AgentControl {
                         )
                         .await
                 {
-                    return Err(CodexErr::Fatal(format!(
+                    return Err(CxErr::Fatal(format!(
                         "failed to persist stale thread-spawn edge status for {agent_id}: {err}"
                     )));
                 }

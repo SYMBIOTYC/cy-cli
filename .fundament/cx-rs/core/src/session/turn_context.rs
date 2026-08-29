@@ -778,7 +778,7 @@ impl Session {
                         new_config,
                     ))
                 }
-                Err(err) => Err(CodexErr::InvalidRequest(err.to_string())),
+                Err(err) => Err(CxErr::InvalidRequest(err.to_string())),
             }
         };
 
@@ -800,7 +800,7 @@ impl Session {
                     }),
                 })
                 .await;
-                return Err(CodexErr::InvalidRequest(message));
+                return Err(CxErr::InvalidRequest(message));
             }
         };
         self.emit_config_changed_contributors(previous_config.as_ref(), new_config.as_ref());

@@ -80,10 +80,10 @@ mod tests {
 
     #[tokio::test]
     async fn version_check_reuses_existing_ollama_client() {
-        if std::env::var(cx_core::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
+        if std::env::var(cx_core::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR).is_ok() {
             tracing::info!(
                 "{} set; skipping version_check_reuses_existing_ollama_client",
-                cx_core::spawn::CODEX_SANDBOX_NETWORK_DISABLED_ENV_VAR
+                cx_core::spawn::CX_SANDBOX_NETWORK_DISABLED_ENV_VAR
             );
             return;
         }

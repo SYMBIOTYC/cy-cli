@@ -28,18 +28,18 @@ use super::ConnectorRuntimeSnapshot;
 use super::emit_duration;
 
 const MCP_TOOLS_CACHE_WRITE_DURATION_METRIC: &str = "cx.mcp.tools.cache_write.duration_ms";
-const CODEX_APPS_TOOLS_CACHE_DIR: &str = "cache/cx_apps_tools";
-pub(crate) const CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION: u8 = 4;
-const CODEX_APPS_SERVER_INFO_CACHE_DIR: &str = "cache/cx_apps_server_info";
-const CODEX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION: u8 = 1;
-pub(crate) const CODEX_APPS_TOOLS_CACHE_MAX_BYTES: u64 = 32 * 1024 * 1024;
+const CX_APPS_TOOLS_CACHE_DIR: &str = "cache/cx_apps_tools";
+pub(crate) const CX_APPS_TOOLS_CACHE_SCHEMA_VERSION: u8 = 4;
+const CX_APPS_SERVER_INFO_CACHE_DIR: &str = "cache/cx_apps_server_info";
+const CX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION: u8 = 1;
+pub(crate) const CX_APPS_TOOLS_CACHE_MAX_BYTES: u64 = 32 * 1024 * 1024;
 
 pub(crate) fn tools_cache_path(identity: &ConnectorRuntimeIdentity) -> PathBuf {
-    cache_path_in(identity, CODEX_APPS_TOOLS_CACHE_DIR)
+    cache_path_in(identity, CX_APPS_TOOLS_CACHE_DIR)
 }
 
 pub(crate) fn server_info_cache_path(identity: &ConnectorRuntimeIdentity) -> PathBuf {
-    cache_path_in(identity, CODEX_APPS_SERVER_INFO_CACHE_DIR)
+    cache_path_in(identity, CX_APPS_SERVER_INFO_CACHE_DIR)
 }
 
 fn cache_path_in(identity: &ConnectorRuntimeIdentity, cache_dir: &str) -> PathBuf {
@@ -60,7 +60,7 @@ pub(crate) fn load_cached_connector_runtime_for_identity<T: ConnectorRuntimePayl
     let cache_path = tools_cache_path(identity);
     let (bytes, modified_at) = read_bounded_cache_file(&cache_path).ok()?;
     let cache: CodexAppsToolsDiskCache<T> = serde_json::from_slice(&bytes).ok()?;
-    (cache.schema_version == CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION).then_some(
+    (cache.schema_version == CX_APPS_TOOLS_CACHE_SCHEMA_VERSION).then_some(
         ConnectorRuntimeSnapshot {
             tools: cache.tools,
             refreshed_at: modified_at,
@@ -77,7 +77,7 @@ where
 {
     let cache_path = cache_context.tools_cache_path();
     let bytes = serde_json::to_vec_pretty(&CodexAppsToolsDiskCache {
-        schema_version: CODEX_APPS_TOOLS_CACHE_SCHEMA_VERSION,
+        schema_version: CX_APPS_TOOLS_CACHE_SCHEMA_VERSION,
         tools: snapshot.tools.clone(),
     })
     .context("failed to serialize connector runtime cache")?;
@@ -90,7 +90,7 @@ pub(crate) fn load_cached_cx_apps_server_info<T: ConnectorRuntimePayload>(
 ) -> Option<McpServerInfo> {
     let (bytes, _) = read_bounded_cache_file(&cache_context.server_info_cache_path()).ok()?;
     let cache: CodexAppsServerInfoDiskCache = serde_json::from_slice(&bytes).ok()?;
-    (cache.schema_version == CODEX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION)
+    (cache.schema_version == CX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION)
         .then_some(cache.server_info)
 }
 
@@ -100,7 +100,7 @@ fn write_cached_cx_apps_server_info<T: ConnectorRuntimePayload>(
 ) -> anyhow::Result<()> {
     let cache_path = cache_context.server_info_cache_path();
     let bytes = serde_json::to_vec_pretty(&CodexAppsServerInfoDiskCache {
-        schema_version: CODEX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION,
+        schema_version: CX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION,
         server_info: server_info.clone(),
     })
     .context("failed to serialize CX Apps server info cache")?;
@@ -141,24 +141,24 @@ fn read_bounded_cache_file(cache_path: &Path) -> anyhow::Result<(Vec<u8>, System
     let metadata = file
         .metadata()
         .with_context(|| format!("failed to stat cache `{}`", cache_path.display()))?;
-    if metadata.len() > CODEX_APPS_TOOLS_CACHE_MAX_BYTES {
+    if metadata.len() > CX_APPS_TOOLS_CACHE_MAX_BYTES {
         return Err(anyhow!(
             "cache `{}` is {} bytes, exceeding the {} byte limit",
             cache_path.display(),
             metadata.len(),
-            CODEX_APPS_TOOLS_CACHE_MAX_BYTES
+            CX_APPS_TOOLS_CACHE_MAX_BYTES
         ));
     }
     let mut bytes = Vec::with_capacity(metadata.len() as usize);
     std::io::Read::by_ref(&mut file)
-        .take(CODEX_APPS_TOOLS_CACHE_MAX_BYTES + 1)
+        .take(CX_APPS_TOOLS_CACHE_MAX_BYTES + 1)
         .read_to_end(&mut bytes)
         .with_context(|| format!("failed to read cache `{}`", cache_path.display()))?;
-    if bytes.len() as u64 > CODEX_APPS_TOOLS_CACHE_MAX_BYTES {
+    if bytes.len() as u64 > CX_APPS_TOOLS_CACHE_MAX_BYTES {
         return Err(anyhow!(
             "cache `{}` grew beyond the {} byte limit while reading",
             cache_path.display(),
-            CODEX_APPS_TOOLS_CACHE_MAX_BYTES
+            CX_APPS_TOOLS_CACHE_MAX_BYTES
         ));
     }
     Ok((bytes, metadata.modified().unwrap_or(UNIX_EPOCH)))

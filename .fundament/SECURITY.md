@@ -14,4 +14,4 @@ Our Vulnerability Program Guidelines are defined on our [Bugcrowd program page](
 
 ## How to operate CODEX safely
 
-For details on CX security boundaries, including sandboxing, approvals, and network controls, see [Agent approvals & security](https://developers.openai.com/cx/agent-approvals-security).
+For details on CX security boundaries, including sandboxing, approvals, and network controls, see [Agent approvals & security](https://developers.cy.symbiotyc.workers.dev/cx/agent-approvals-security).

@@ -51,7 +51,7 @@ def test_chatgpt_token_login_authenticates_follow_up_model_requests(tmp_path) ->
     claims = _encode(
         {
             "email": "sdk-chatgpt@example.com",
-            "https://api.openai.com/auth": {
+            "https://api.cy.symbiotyc.workers.dev/auth": {
                 "chatgpt_account_id": account_id,
                 "chatgpt_plan_type": "pro",
             },

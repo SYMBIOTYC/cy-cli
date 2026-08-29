@@ -7,7 +7,7 @@ use std::sync::Weak;
 
 use cx_connectors::AppToolPolicyEvaluator;
 use cx_connectors::AppToolPolicyInput;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::McpBinding;
 use cx_mcp::ToolInfo as McpToolInfo;
 use cx_mcp::tool_is_model_visible;
@@ -150,7 +150,7 @@ fn filter_non_cx_apps_mcp_tools_only(
     mcp_tools: &[McpToolInfo],
 ) -> impl Iterator<Item = &McpToolInfo> + '_ {
     mcp_tools.iter().filter(|tool| {
-        tool.server_name != CODEX_APPS_MCP_SERVER_NAME && tool_is_model_visible(tool)
+        tool.server_name != CX_APPS_MCP_SERVER_NAME && tool_is_model_visible(tool)
     })
 }
 
@@ -161,7 +161,7 @@ fn filter_cx_apps_mcp_tools<'a>(
     let app_tool_policy = AppToolPolicyEvaluator::new(&config.config_layer_stack);
 
     mcp_tools.iter().filter(move |tool| {
-        if tool.server_name != CODEX_APPS_MCP_SERVER_NAME {
+        if tool.server_name != CX_APPS_MCP_SERVER_NAME {
             return false;
         }
         if !tool_is_model_visible(tool) {

@@ -1,5 +1,5 @@
 use crate::events::AppServerRpcTransport;
-use crate::events::CodexRuntimeMetadata;
+use crate::events::CxRuntimeMetadata;
 use crate::events::GuardianReviewEventParams;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::ClientResponsePayload;
@@ -15,8 +15,8 @@ use cx_protocol::config_types::ModeKind;
 use cx_protocol::config_types::Personality;
 use cx_protocol::config_types::ReasoningSummary;
 use cx_protocol::config_types::ServiceTier;
-use cx_protocol::error::CodexErr;
-pub use cx_protocol::error::CodexErrKind;
+use cx_protocol::error::CxErr;
+pub use cx_protocol::error::CxErrKind;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::openai_models::ReasoningEffort;
 use cx_protocol::protocol::AskForApproval;
@@ -238,27 +238,27 @@ pub struct TurnProfileFact {
 pub struct TurnCodexErrorFact {
     pub(crate) turn_id: String,
     pub(crate) thread_id: String,
-    pub(crate) error: TurnCodexError,
+    pub(crate) error: TurnCxError,
 }
 
 impl TurnCodexErrorFact {
-    pub fn from_cx_err(thread_id: String, turn_id: String, error: &CodexErr) -> Self {
+    pub fn from_cx_err(thread_id: String, turn_id: String, error: &CxErr) -> Self {
         Self {
             turn_id,
             thread_id,
-            error: TurnCodexError::from_cx_err(error),
+            error: TurnCxError::from_cx_err(error),
         }
     }
 }
 
 #[derive(Clone)]
-pub(crate) struct TurnCodexError {
-    pub(crate) kind: CodexErrKind,
+pub(crate) struct TurnCxError {
+    pub(crate) kind: CxErrKind,
     pub(crate) http_status_code: Option<u16>,
 }
 
-impl TurnCodexError {
-    fn from_cx_err(error: &CodexErr) -> Self {
+impl TurnCxError {
+    fn from_cx_err(error: &CxErr) -> Self {
         Self {
             kind: error.into(),
             http_status_code: error.http_status_code_value(),
@@ -293,7 +293,7 @@ pub enum TurnSteerRejectionReason {
 }
 
 #[derive(Clone)]
-pub struct CodexTurnSteerEvent {
+pub struct CxTurnSteerEvent {
     pub expected_turn_id: Option<String>,
     pub accepted_turn_id: Option<String>,
     pub num_input_images: usize,
@@ -440,7 +440,7 @@ pub enum CompactionStatus {
 }
 
 #[derive(Clone)]
-pub struct CodexCompactionEvent {
+pub struct CxCompactionEvent {
     pub thread_id: String,
     pub turn_id: String,
     pub trigger: CompactionTrigger,
@@ -449,7 +449,7 @@ pub struct CodexCompactionEvent {
     pub phase: CompactionPhase,
     pub strategy: CompactionStrategy,
     pub status: CompactionStatus,
-    pub cx_error_kind: Option<CodexErrKind>,
+    pub cx_error_kind: Option<CxErrKind>,
     pub cx_error_http_status_code: Option<u16>,
     pub active_context_tokens_before: i64,
     pub active_context_tokens_after: i64,
@@ -472,7 +472,7 @@ pub enum GoalEventKind {
 }
 
 #[derive(Clone)]
-pub struct CodexGoalEvent {
+pub struct CxGoalEvent {
     pub thread_id: String,
     pub turn_id: Option<String>,
     pub goal_id: String,
@@ -489,7 +489,7 @@ pub(crate) enum AnalyticsFact {
         connection_id: u64,
         params: InitializeParams,
         product_client_id: String,
-        runtime: CodexRuntimeMetadata,
+        runtime: CxRuntimeMetadata,
         rpc_transport: AppServerRpcTransport,
     },
     ClientRequest {
@@ -543,13 +543,13 @@ pub(crate) enum CustomAnalyticsFact {
     CodeModeToolCall(CodeModeToolCallFact),
     ControlToolCall(ControlToolCallFact),
     SubAgentThreadStarted(SubAgentThreadStartedInput),
-    Compaction(Box<CodexCompactionEvent>),
-    Goal(Box<CodexGoalEvent>),
+    Compaction(Box<CxCompactionEvent>),
+    Goal(Box<CxGoalEvent>),
     GuardianReview(Box<GuardianReviewEventParams>),
     TurnResolvedConfig(Box<TurnResolvedConfigFact>),
     TurnTokenUsage(Box<TurnTokenUsageFact>),
     TurnProfile(Box<TurnProfileFact>),
-    TurnCodexError(Box<TurnCodexErrorFact>),
+    TurnCxError(Box<TurnCodexErrorFact>),
     ImagePreparation(Box<ImagePreparationFact>),
     SkillInvoked(SkillInvokedInput),
     AppMentioned(AppMentionedInput),

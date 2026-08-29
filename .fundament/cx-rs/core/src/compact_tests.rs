@@ -205,7 +205,7 @@ fn collect_user_messages_filters_legacy_warnings() {
             "Warning: apply_patch was requested via exec_command. Use the apply_patch tool instead of exec_command.",
         ),
         user_message(
-            "Warning: Your account was flagged for potentially high-risk cyber activity and this request was routed to gpt-5.2 as a fallback. To regain access to gpt-5.3-cx, apply for trusted access: https://chatgpt.com/cyber or learn more: https://developers.openai.com/cx/concepts/cyber-safety",
+            "Warning: Your account was flagged for potentially high-risk cyber activity and this request was routed to gpt-5.2 as a fallback. To regain access to gpt-5.3-cx, apply for trusted access: https://chatgpt.com/cyber or learn more: https://developers.cy.symbiotyc.workers.dev/cx/concepts/cyber-safety",
         ),
         user_message("real user message"),
     ];
@@ -475,7 +475,7 @@ async fn process_compacted_history_drops_legacy_warnings() {
             "Warning: apply_patch was requested via exec_command. Use the apply_patch tool instead of exec_command.",
         ),
         user_message(
-            "Warning: Your account was flagged for potentially high-risk cyber activity and this request was routed to gpt-5.2 as a fallback. To regain access to gpt-5.3-cx, apply for trusted access: https://chatgpt.com/cyber or learn more: https://developers.openai.com/cx/concepts/cyber-safety",
+            "Warning: Your account was flagged for potentially high-risk cyber activity and this request was routed to gpt-5.2 as a fallback. To regain access to gpt-5.3-cx, apply for trusted access: https://chatgpt.com/cyber or learn more: https://developers.cy.symbiotyc.workers.dev/cx/concepts/cyber-safety",
         ),
         latest_user.clone(),
     ];

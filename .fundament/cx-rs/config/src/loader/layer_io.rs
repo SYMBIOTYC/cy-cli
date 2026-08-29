@@ -19,7 +19,7 @@ use std::path::PathBuf;
 use toml::Value as TomlValue;
 
 #[cfg(unix)]
-const CODEX_MANAGED_CONFIG_SYSTEM_PATH: &str = "/etc/cx/managed_config.toml";
+const CX_MANAGED_CONFIG_SYSTEM_PATH: &str = "/etc/cx/managed_config.toml";
 
 #[derive(Debug, Clone)]
 pub(super) struct MangedConfigFromFile {
@@ -83,7 +83,7 @@ pub(super) async fn load_config_layers_internal(
             .await
         {
             Ok(_) => vec![format!(
-                "Ignoring deprecated managed config file at {}; CODEX_HOME/managed_config.toml is no longer supported on Windows. Use %ProgramData%\\oi\\CX\\requirements.toml for enforced settings or config.toml for defaults.",
+                "Ignoring deprecated managed config file at {}; CX_HOME/managed_config.toml is no longer supported on Windows. Use %ProgramData%\\oi\\CX\\requirements.toml for enforced settings or config.toml for defaults.",
                 managed_config_path.as_path().display()
             )],
             Err(err) if err.kind() == io::ErrorKind::NotFound => Vec::new(),
@@ -223,7 +223,7 @@ pub(super) fn managed_config_default_path(cx_home: &Path) -> PathBuf {
     #[cfg(unix)]
     {
         let _ = cx_home;
-        PathBuf::from(CODEX_MANAGED_CONFIG_SYSTEM_PATH)
+        PathBuf::from(CX_MANAGED_CONFIG_SYSTEM_PATH)
     }
 
     #[cfg(not(unix))]

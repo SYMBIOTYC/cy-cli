@@ -7,7 +7,7 @@ use cx_analytics::PluginInstallRequestedPlugin;
 use cx_analytics::build_track_events_context;
 use cx_config::types::ToolSuggestDisabledTool;
 use cx_core_plugins::remote::REMOTE_GLOBAL_MARKETPLACE_NAME;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_rmcp_client::ElicitationAction;
 use cx_rmcp_client::ElicitationResponse;
 use cx_tools::DiscoverableTool;
@@ -240,7 +240,7 @@ impl RequestPluginInstallHandler {
         let elicitation = session
             .request_mcp_server_elicitation(
                 turn.as_ref(),
-                CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                CX_APPS_MCP_SERVER_NAME.to_string(),
                 request_id,
                 request,
             )

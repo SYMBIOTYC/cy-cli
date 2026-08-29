@@ -12,7 +12,7 @@ use cx_extension_api::ExtensionRegistry;
 use cx_extension_api::ExtensionRegistryBuilder;
 use cx_features::Feature;
 use cx_login::CodexAuth;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use cx_model_provider_info::OPENAI_PROVIDER_ID;
 use cx_plugin::PluginId;
@@ -366,7 +366,7 @@ async fn persisted_remote_plugin_command_attribution_flows_through_turn_context(
     let script_path = write_remote_plugin_script_and_config(cx_home.as_ref());
     std::fs::write(
         &script_path,
-        r#"printf '%s' '{"version":1,"measurements":[{"name":"files_scanned","value":7}]}' > "$CODEX_PLUGIN_METRICS_OUTPUT"
+        r#"printf '%s' '{"version":1,"measurements":[{"name":"files_scanned","value":7}]}' > "$CX_PLUGIN_METRICS_OUTPUT"
 "#,
     )?;
     let plugin_root = script_path
@@ -544,7 +544,7 @@ async fn agent_plugin_skills_use_shared_catalog_and_direct_child_discovery() -> 
 }
 
 #[test_case("CHATGPT", false, None; "product restricted skill is unavailable")]
-#[test_case("CODEX", true, Some("native review skill"); "native skill wins over migrated command")]
+#[test_case("CX", true, Some("native review skill"); "native skill wins over migrated command")]
 #[test_case("CHATGPT", true, Some("migrated review command"); "migrated command replaces filtered native skill")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn plugin_skill_product_policy_and_migrated_command_precedence_reach_agent_turns(
@@ -1078,7 +1078,7 @@ async fn explicit_plugin_mentions_use_apps_for_gt_dual_surface_plugins(
         build_apps_enabled_plugin_test_codex(&server, cx_home, apps_server.gt_base_url)
             .await?;
     let cx = Arc::clone(&test_codex.cx);
-    wait_for_mcp_server(&cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     cx
         .start_or_steer_turn(TurnInputRequest::user_input(vec![

@@ -191,7 +191,7 @@ async fn ensure_goal_output_dir(
         return Ok(output_dir.clone());
     }
     let cx_home = cx_home
-        .context("App server did not report $CODEX_HOME; cannot materialize goal files")?;
+        .context("App server did not report $CX_HOME; cannot materialize goal files")?;
     let path = cx_home
         .join(GOAL_ATTACHMENT_DIR)
         .join(Uuid::new_v4().to_string());

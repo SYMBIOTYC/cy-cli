@@ -14,7 +14,7 @@
 //! keystore that always encrypts secrets when they are transferred across the bus. If DBus isn't installed the keystore will fall back to the json
 //! file because we don't use the "vendored" feature.
 //!
-//! If the keyring is not available or fails, we fall back to CODEX_HOME/.credentials.json which is consistent with other coding CLI agents.
+//! If the keyring is not available or fails, we fall back to CX_HOME/.credentials.json which is consistent with other coding CLI agents.
 
 mod issuer_binding;
 mod refresh_lock;
@@ -1296,7 +1296,7 @@ mod tests {
     #[test]
     fn fallback_file_is_private_at_creation() -> Result<()> {
         use std::os::unix::fs::PermissionsExt;
-        const CHILD: &str = "CODEX_TEST_OAUTH_PERMISSIVE_UMASK";
+        const CHILD: &str = "CX_TEST_OAUTH_PERMISSIVE_UMASK";
 
         if std::env::var_os(CHILD).is_none() {
             // Change umask only in the child running this one test.

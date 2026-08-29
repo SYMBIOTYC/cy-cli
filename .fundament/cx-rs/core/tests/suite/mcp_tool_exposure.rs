@@ -13,7 +13,7 @@ use cx_extension_api::ThreadStartInput;
 use cx_features::Feature;
 use cx_history::RolloutItem;
 use cx_history::RolloutLine;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::McpResourceClient;
 use cx_protocol::capabilities::CapabilityRootLocation;
 use cx_protocol::capabilities::SelectedCapabilityRoot;
@@ -162,7 +162,7 @@ impl McpServerContributor<Config> for AppsMcpServerContributor {
                 McpServerContribution::HostedApps { config }
             } else {
                 McpServerContribution::Set {
-                    name: CODEX_APPS_MCP_SERVER_NAME.to_string(),
+                    name: CX_APPS_MCP_SERVER_NAME.to_string(),
                     config,
                 }
             };
@@ -673,7 +673,7 @@ async fn elevated_apps_catalog_limit_requires_host_owned_registration() -> Resul
             builder = builder.with_extensions(Arc::new(extensions.build()));
         }
         let test = builder.build_with_auto_env(&server).await?;
-        let startup = wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await;
+        let startup = wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await;
 
         if extension_id == Some("test-extension") {
             let error = startup.expect_err("an extension must retain the standard catalog limit");
@@ -836,7 +836,7 @@ async fn deferred_tool_world_state_tracks_initial_unchanged_and_removed_namespac
     let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
         .with_config(enable_deferred_tool_world_state_without_agents);
     let test = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
 
     test.submit_turn("inspect initially available deferred tools")
         .await?;
@@ -929,7 +929,7 @@ async fn deferred_tool_world_state_survives_resume_without_duplicate_updates() -
     let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
         .with_config(enable_deferred_tool_world_state_without_agents);
     let initial = builder.build_with_auto_env(&server).await?;
-    wait_for_mcp_server(&initial.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&initial.cx, CX_APPS_MCP_SERVER_NAME).await?;
     initial
         .submit_turn("inspect deferred tools before resume")
         .await?;
@@ -963,7 +963,7 @@ async fn deferred_tool_world_state_survives_resume_without_duplicate_updates() -
         .with_config(enable_deferred_tool_world_state_without_agents);
     let resumed = resume_builder.restart(&server, &initial).await?;
     drop(initial);
-    wait_for_mcp_server(&resumed.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&resumed.cx, CX_APPS_MCP_SERVER_NAME).await?;
     resumed
         .submit_turn("inspect unchanged deferred tools after resume")
         .await?;
@@ -1100,7 +1100,7 @@ async fn apps_guidance_and_deferred_namespace_appear_after_recovery_within_a_tur
         matches!(
             event,
             EventMsg::McpStartupUpdate(update)
-                if update.server == CODEX_APPS_MCP_SERVER_NAME
+                if update.server == CX_APPS_MCP_SERVER_NAME
                     && matches!(update.status, cx_protocol::protocol::McpStartupStatus::Ready)
         )
     })
@@ -1223,7 +1223,7 @@ async fn later_follow_up_uses_background_recovered_apps_after_mid_thread_startup
                 vec![SEARCH_CALENDAR_NAMESPACE.to_string()];
         });
     let test = builder.build(&server).await?;
-    wait_for_mcp_server(&test.cx, CODEX_APPS_MCP_SERVER_NAME).await?;
+    wait_for_mcp_server(&test.cx, CX_APPS_MCP_SERVER_NAME).await?;
     test.submit_turn("use Calendar before refreshing MCP")
         .await?;
 
@@ -1259,7 +1259,7 @@ async fn later_follow_up_uses_background_recovered_apps_after_mid_thread_startup
             match event.msg {
                 EventMsg::TurnComplete(_) => turn_complete = true,
                 EventMsg::McpStartupUpdate(update)
-                    if update.server == CODEX_APPS_MCP_SERVER_NAME
+                    if update.server == CX_APPS_MCP_SERVER_NAME
                         && matches!(
                             update.status,
                             cx_protocol::protocol::McpStartupStatus::Ready

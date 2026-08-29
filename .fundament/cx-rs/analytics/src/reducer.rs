@@ -36,7 +36,7 @@ use crate::events::CodexPluginMeasurementEventRequest;
 use crate::events::CodexPluginUsedEventRequest;
 use crate::events::CodexReviewEventParams;
 use crate::events::CodexReviewEventRequest;
-use crate::events::CodexRuntimeMetadata;
+use crate::events::CxRuntimeMetadata;
 use crate::events::CodexToolItemEventBase;
 use crate::events::CodexTurnEventParams;
 use crate::events::CodexTurnEventRequest;
@@ -82,8 +82,8 @@ use crate::facts::AppUsedInput;
 use crate::facts::ArtifactOperationInput;
 use crate::facts::CodeModeToolCallFact;
 use crate::facts::CodeModeToolCallStatus;
-use crate::facts::CodexCompactionEvent;
-use crate::facts::CodexGoalEvent;
+use crate::facts::CxCompactionEvent;
+use crate::facts::CxGoalEvent;
 use crate::facts::ControlToolCallFact;
 use crate::facts::ControlToolCallStatus;
 use crate::facts::CustomAnalyticsFact;
@@ -104,7 +104,7 @@ use crate::facts::SkillInvocationLocation;
 use crate::facts::SkillInvokedInput;
 use crate::facts::SubAgentThreadStartedInput;
 use crate::facts::ThreadInitializationMode;
-use crate::facts::TurnCodexError;
+use crate::facts::TurnCxError;
 use crate::facts::TurnCodexErrorFact;
 use crate::facts::TurnProfile;
 use crate::facts::TurnProfileFact;
@@ -206,7 +206,7 @@ pub(crate) struct AnalyticsReducer {
 
 struct ConnectionState {
     app_server_client: CodexAppServerClientMetadata,
-    runtime: CodexRuntimeMetadata,
+    runtime: CxRuntimeMetadata,
 }
 
 #[derive(Default)]
@@ -259,7 +259,7 @@ impl<'a> AnalyticsDropSite<'a> {
         }
     }
 
-    fn compaction(input: &'a CodexCompactionEvent) -> Self {
+    fn compaction(input: &'a CxCompactionEvent) -> Self {
         Self {
             event_name: "compaction",
             thread_id: &input.thread_id,
@@ -269,7 +269,7 @@ impl<'a> AnalyticsDropSite<'a> {
         }
     }
 
-    fn goal(input: &'a CodexGoalEvent) -> Self {
+    fn goal(input: &'a CxGoalEvent) -> Self {
         Self {
             event_name: "goal",
             thread_id: &input.thread_id,
@@ -423,7 +423,7 @@ struct TurnState {
     profile: Option<TurnProfile>,
     completed: Option<CompletedTurnState>,
     explicit_client_interrupt_requested_at_ms: Option<u64>,
-    cx_error: Option<TurnCodexError>,
+    cx_error: Option<TurnCxError>,
     latest_diff: Option<String>,
     steer_count: usize,
     tool_counts: TurnToolCounts,
@@ -617,7 +617,7 @@ impl AnalyticsReducer {
                 CustomAnalyticsFact::TurnProfile(input) => {
                     self.ingest_turn_profile(*input, out).await;
                 }
-                CustomAnalyticsFact::TurnCodexError(input) => {
+                CustomAnalyticsFact::TurnCxError(input) => {
                     self.ingest_turn_cx_error(*input);
                 }
                 CustomAnalyticsFact::ImagePreparation(input) => {
@@ -1027,7 +1027,7 @@ impl AnalyticsReducer {
         connection_id: u64,
         params: InitializeParams,
         product_client_id: String,
-        runtime: CodexRuntimeMetadata,
+        runtime: CxRuntimeMetadata,
         rpc_transport: AppServerRpcTransport,
     ) {
         self.connections.insert(
@@ -2000,7 +2000,7 @@ impl AnalyticsReducer {
         ));
     }
 
-    fn ingest_compaction(&mut self, input: CodexCompactionEvent, out: &mut Vec<TrackEventRequest>) {
+    fn ingest_compaction(&mut self, input: CxCompactionEvent, out: &mut Vec<TrackEventRequest>) {
         let Some((connection_state, thread_state, thread_metadata)) =
             self.thread_context_or_warn(AnalyticsDropSite::compaction(&input))
         else {
@@ -2022,7 +2022,7 @@ impl AnalyticsReducer {
         )));
     }
 
-    fn ingest_goal(&mut self, input: CodexGoalEvent, out: &mut Vec<TrackEventRequest>) {
+    fn ingest_goal(&mut self, input: CxGoalEvent, out: &mut Vec<TrackEventRequest>) {
         let Some((connection_state, thread_state, thread_metadata)) =
             self.thread_context_or_warn(AnalyticsDropSite::goal(&input))
         else {
@@ -3277,7 +3277,7 @@ fn accepted_line_event_input(
 
 fn cx_turn_event_params(
     app_server_client: CodexAppServerClientMetadata,
-    runtime: CodexRuntimeMetadata,
+    runtime: CxRuntimeMetadata,
     turn_id: String,
     turn_state: &TurnState,
     thread_metadata: &ThreadMetadataState,

@@ -381,7 +381,7 @@ mod tests {
             "http://cy.symbiotyc.workers.dev/v1",
             "http://example.com/backend-api",
             "https://example.com/backend-api",
-            "https://chat.openai.com/backend-api",
+            "https://cy.symbiotyc.workers.dev/backend-api",
             "https://chatgpt.com.evil.com/backend-api",
             "https://evilchatgpt.com/backend-api",
             "https://foo.localhost/backend-api",

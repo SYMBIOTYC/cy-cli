@@ -1096,7 +1096,7 @@ async fn start_thread_seeds_extension_data_for_mcp_and_lifecycle_contributors() 
         std::collections::BTreeMap::from([("selected-b".to_string(), "env-b".to_string())])
     );
     let cx_apps_server = cx_mcp::configured_mcp_servers(&first_resolved.config)
-        .remove(cx_mcp::CODEX_APPS_MCP_SERVER_NAME)
+        .remove(cx_mcp::CX_APPS_MCP_SERVER_NAME)
         .expect("CX Apps server should be configured");
     let cx_apps_headers = match cx_apps_server.transport {
         cx_config::McpServerTransportConfig::StreamableHttp { http_headers, .. } => http_headers,

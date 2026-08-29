@@ -22,7 +22,7 @@ use cx_extension_api::ToolName;
 use cx_extension_api::ToolOutput;
 use cx_extension_api::ToolSpec;
 use cx_extension_api::parse_tool_input_schema;
-use cx_mcp::CODEX_APPS_MCP_SERVER_NAME;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_mcp::McpResourceClient;
 use cx_tools::ResponsesApiNamespace;
 use cx_tools::ResponsesApiNamespaceTool;
@@ -233,7 +233,7 @@ impl SkillToolAuthority {
 
     pub(crate) fn from_authority(authority: &SkillAuthority) -> Option<Self> {
         match &authority.kind {
-            SkillSourceKind::Orchestrator if authority.id == CODEX_APPS_MCP_SERVER_NAME => {
+            SkillSourceKind::Orchestrator if authority.id == CX_APPS_MCP_SERVER_NAME => {
                 Some(Self::Orchestrator)
             }
             SkillSourceKind::Executor => Some(Self::Executor {

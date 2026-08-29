@@ -46,12 +46,12 @@ where
         TestBinaryDispatchMode::InstallAliases => {
             let cx_home = match tempfile::Builder::new().prefix(cx_home_prefix).tempdir() {
                 Ok(cx_home) => cx_home,
-                Err(error) => panic!("failed to create test CODEX_HOME: {error}"),
+                Err(error) => panic!("failed to create test CX_HOME: {error}"),
             };
-            let previous_cx_home = std::env::var_os("CODEX_HOME");
+            let previous_cx_home = std::env::var_os("CX_HOME");
             // Safety: this runs from a test ctor before test threads begin.
             unsafe {
-                std::env::set_var("CODEX_HOME", cx_home.path());
+                std::env::set_var("CX_HOME", cx_home.path());
             }
 
             let arg0 = match arg0_dispatch() {
@@ -60,10 +60,10 @@ where
             };
             match previous_cx_home.as_ref() {
                 Some(value) => unsafe {
-                    std::env::set_var("CODEX_HOME", value);
+                    std::env::set_var("CX_HOME", value);
                 },
                 None => unsafe {
-                    std::env::remove_var("CODEX_HOME");
+                    std::env::remove_var("CX_HOME");
                 },
             }
 

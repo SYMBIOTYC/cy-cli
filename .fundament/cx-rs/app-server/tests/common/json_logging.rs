@@ -86,9 +86,9 @@ pub fn app_server_json_shutdown_event(
     )?;
     let output = Command::new(cx_utils_cargo_bin::cargo_bin(binary)?)
         .stdin(Stdio::null())
-        .env("CODEX_HOME", cx_home)
+        .env("CX_HOME", cx_home)
         .env(
-            "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
+            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
             cx_home.join("managed_config.toml"),
         )
         .env("LOG_FORMAT", "json")
