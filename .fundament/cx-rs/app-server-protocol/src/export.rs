@@ -232,10 +232,7 @@ pub fn generate_json_with_experimental(out_dir: &Path, experimental_api: bool) -
     if !experimental_api {
         filter_experimental_schema(&mut bundle)?;
     }
-    write_pretty_json(
-        out_dir.join("cx_app_server_protocol.schemas.json"),
-        &bundle,
-    )?;
+    write_pretty_json(out_dir.join("cx_app_server_protocol.schemas.json"), &bundle)?;
     let flat_v2_bundle = build_flat_v2_schema(&bundle)?;
     write_pretty_json(
         out_dir.join("cx_app_server_protocol.v2.schemas.json"),

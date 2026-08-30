@@ -2,6 +2,28 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::PathExt;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::responses::assert_root_turn;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_config::types::AppToolApproval;
 use cx_core::TurnInputRequest;
@@ -28,28 +50,6 @@ use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::request_user_input::RequestUserInputAnswer;
 use cx_protocol::request_user_input::RequestUserInputResponse;
 use cx_protocol::user_input::UserInput;
-use core_test_support::PathExt;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::responses::assert_root_turn;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -229,8 +229,8 @@ async fn approved_mcp_tool_call_metadata_records_prior_user_input_request(
     ]));
     let mock = mount_sse_sequence(&server, response_sequence).await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(move |config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(move |config| {
             // The permission grant needs user review before strict review applies to the turn.
             config.approvals_reviewer = if strict_auto_review {
                 ApprovalsReviewer::User
@@ -320,10 +320,7 @@ async fn approved_mcp_tool_call_metadata_records_prior_user_input_request(
             .await?;
     }
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let response_requests = mock.requests();
     assert_eq!(
@@ -352,8 +349,7 @@ async fn approved_mcp_tool_call_metadata_records_prior_user_input_request(
         Some(&json!(call_id))
     );
     assert_eq!(
-        apps_tool_call
-            .pointer("/params/_meta/x-cx-turn-metadata/user_input_requested_during_turn"),
+        apps_tool_call.pointer("/params/_meta/x-cx-turn-metadata/user_input_requested_during_turn"),
         (!strict_auto_review).then_some(&json!(true))
     );
 
@@ -411,8 +407,8 @@ async fn apps_default_prompt_with_auto_review_routes_actual_mcp_approval_to_guar
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(move |config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(move |config| {
             let (reviewer, app_reviewer) = if protected_model {
                 (ApprovalsReviewer::AutoReview, ApprovalsReviewer::User)
             } else {
@@ -529,8 +525,8 @@ async fn apps_default_writes_prompts_for_writes_but_not_reads() -> Result<()> {
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(|config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(|config| {
             config
                 .features
                 .enable(Feature::ToolCallMcpElicitation)
@@ -612,10 +608,7 @@ async fn apps_default_writes_prompts_for_writes_but_not_reads() -> Result<()> {
         wait_for_mcp_tool_call_item(&test, write_call_id, McpToolCallStatus::Completed).await,
         Some(false)
     );
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(responses.requests().len(), 3);
     recorded_apps_tool_call_by_call_id(&server, read_call_id).await;
@@ -708,8 +701,8 @@ async fn mcp_tool_call_metadata_records_prior_request_user_input_tool() -> Resul
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(|config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(|config| {
             set_calendar_approval_mode(config, AppToolApproval::Approve);
         });
     let test = builder.build(&server).await?;
@@ -760,17 +753,13 @@ async fn mcp_tool_call_metadata_records_prior_request_user_input_tool() -> Resul
     };
     assert_eq!(begin.call_id, calendar_call_id);
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(mock.requests().len(), 3);
     let apps_tool_call = recorded_apps_tool_call_by_call_id(&server, calendar_call_id).await;
 
     assert_eq!(
-        apps_tool_call
-            .pointer("/params/_meta/x-cx-turn-metadata/user_input_requested_during_turn"),
+        apps_tool_call.pointer("/params/_meta/x-cx-turn-metadata/user_input_requested_during_turn"),
         Some(&json!(true))
     );
 

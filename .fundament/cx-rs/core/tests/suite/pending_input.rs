@@ -1,6 +1,25 @@
 use core_test_support::test_codex::local_selections;
 use std::sync::Arc;
 
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_reasoning_item;
+use core_test_support::responses::ev_reasoning_item_added;
+use core_test_support::responses::ev_response_created;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::StreamingSseServer;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_core::CodexThread;
 use cx_core::StartIfIdleSubmission;
 use cx_core::TurnInput;
@@ -24,25 +43,6 @@ use cx_protocol::protocol::InterAgentCommunication;
 use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_reasoning_item;
-use core_test_support::responses::ev_reasoning_item_added;
-use core_test_support::responses::ev_response_created;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::StreamingSseServer;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::from_slice;
@@ -278,13 +278,12 @@ async fn build_codex(server: &StreamingSseServer) -> Arc<CodexThread> {
 }
 
 async fn submit_user_input(cx: &CodexThread, text: &str) {
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: text.to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .expect("submit user input");
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: text.to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .expect("submit user input");
 }
 
 async fn submit_danger_full_access_user_turn(test: &TestCodex, text: &str) {
@@ -328,24 +327,22 @@ async fn steer_user_input(cx: &CodexThread, text: &str) {
 }
 
 async fn enqueue_queue_only_agent_mail(cx: &CodexThread, text: &str) {
-    cx
-        .submit(Op::InterAgentCommunication {
-            communication: InterAgentCommunication::new(
-                AgentPath::try_from("/root/worker").expect("worker path should parse"),
-                AgentPath::root(),
-                Vec::new(),
-                text.to_string(),
-                /*trigger_turn*/ false,
-            ),
-        })
-        .await
-        .expect("submit queue-only agent mail");
+    cx.submit(Op::InterAgentCommunication {
+        communication: InterAgentCommunication::new(
+            AgentPath::try_from("/root/worker").expect("worker path should parse"),
+            AgentPath::root(),
+            Vec::new(),
+            text.to_string(),
+            /*trigger_turn*/ false,
+        ),
+    })
+    .await
+    .expect("submit queue-only agent mail");
 }
 
 async fn submit_queue_only_agent_mail(cx: &CodexThread, text: &str) {
     enqueue_queue_only_agent_mail(cx, text).await;
-    cx
-        .submit(Op::RealtimeConversationListVoices)
+    cx.submit(Op::RealtimeConversationListVoices)
         .await
         .expect("submit list-voices barrier");
     wait_for_event(cx, |event| {
@@ -747,26 +744,24 @@ async fn injected_user_input_triggers_follow_up_request_with_deltas() {
         .unwrap()
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "first prompt".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "first prompt".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |event| {
         matches!(event, EventMsg::AgentMessageContentDelta(_))
     })
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "second prompt".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "second prompt".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     let _ = gate_completed_tx.send(());
 
@@ -1002,8 +997,7 @@ async fn injected_response_item_reopens_turn_after_final_answer() {
     wait_for_reasoning_item_started(&cx).await;
 
     assert!(
-        cx
-            .inject_if_running(vec![responses::user_message_item(INJECTED_CONTEXT)])
+        cx.inject_if_running(vec![responses::user_message_item(INJECTED_CONTEXT)])
             .await
             .is_ok()
     );

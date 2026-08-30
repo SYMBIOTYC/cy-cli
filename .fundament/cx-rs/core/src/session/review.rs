@@ -126,9 +126,7 @@ pub(super) async fn spawn_review_thread(
         turn_metadata_state.set_root_turn_id(review_turn_id.clone());
     }
 
-    let extension_data = Arc::new(cx_extension_api::ExtensionData::new(
-        review_turn_id.clone(),
-    ));
+    let extension_data = Arc::new(cx_extension_api::ExtensionData::new(review_turn_id.clone()));
     extension_data.insert(parent_turn_context.skills_snapshot().as_ref().clone());
 
     let review_turn_context = TurnContext {

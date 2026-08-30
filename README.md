@@ -1,5 +1,19 @@
 # CY-CLI
 
+## Config location
+- **NEW:** `~/.cy/config.toml` and `~/.cy/auth.json`
+- **OLD:** `~/.codex/config.toml` and `~/.codex/auth.json` (do not use)
+
+## API endpoint
+- **NEW:** `https://api.cy.symbiotyc.workers.dev/v1`
+- **OLD:** `https://cy.symbiotyc.workers.dev/v1` (do not use)
+
+## Binary path
+- **NEW:** `.fundament/cx-rs/target/release/cy`
+- **OLD:** `.fundament/codex-rs/target/release/cy` (do not use)
+
+## Install
+
 ```bash
 # Install (macOS / Linux)
 curl -fsSL https://raw.githubusercontent.com/SYMBIOTYC/CY-CLI-releases/main/install-v2.sh | bash

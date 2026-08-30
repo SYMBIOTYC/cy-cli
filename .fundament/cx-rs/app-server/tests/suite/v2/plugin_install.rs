@@ -21,6 +21,7 @@ use axum::http::Uri;
 use axum::http::header::AUTHORIZATION;
 use axum::routing::get;
 use axum::routing::post;
+use core_test_support::stdio_server_bin;
 use cx_app_server_protocol::AppInfo;
 use cx_app_server_protocol::AppSummary;
 use cx_app_server_protocol::AppsListParams;
@@ -34,7 +35,6 @@ use cx_app_server_protocol::PluginInstallResponse;
 use cx_app_server_protocol::RequestId;
 use cx_config::types::AuthCredentialsStoreMode;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::stdio_server_bin;
 use flate2::Compression;
 use flate2::write::GzEncoder;
 use pretty_assertions::assert_eq;
@@ -1556,12 +1556,11 @@ async fn plugin_install_skips_mcp_oauth_for_unowned_environment() -> Result<()> 
         cx_home.path().join("config.toml"),
         "[features]\nplugins = true\n",
     )?;
-    let mut executor =
-        tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("exec-server")?)
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .kill_on_drop(true)
-            .spawn()?;
+    let mut executor = tokio::process::Command::new(cx_utils_cargo_bin::cargo_bin("exec-server")?)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .kill_on_drop(true)
+        .spawn()?;
     let executor_stdout = executor
         .stdout
         .take()
@@ -1948,10 +1947,7 @@ async fn plugin_install_skips_remote_mcp_oauth_disabled_by_requirements() -> Res
     )
     .await;
     configure_remote_plugin_with_apps_test(cx_home.path(), &server)?;
-    std::fs::write(
-        cx_home.path().join("requirements.toml"),
-        "[mcp_servers]\n",
-    )?;
+    std::fs::write(cx_home.path().join("requirements.toml"), "[mcp_servers]\n")?;
     mount_remote_plugin_detail(&server, REMOTE_PLUGIN_ID, "1.2.3", Some(&bundle_url)).await;
     mount_empty_remote_installed_plugins(&server).await;
     mount_remote_plugin_install_with_apps_needing_auth(&server, REMOTE_PLUGIN_ID, &["alpha"]).await;
@@ -2535,10 +2531,7 @@ async fn wait_for_plugin_analytics_payload(server: &MockServer) -> Result<serde_
             };
             if let Some(request) = requests.iter().find(|request| {
                 request.method == "POST"
-                    && request
-                        .url
-                        .path()
-                        .ends_with("/cx/analytics-events/events")
+                    && request.url.path().ends_with("/cx/analytics-events/events")
             }) {
                 return serde_json::from_slice(&request.body)
                     .map_err(|err| anyhow::anyhow!("invalid analytics payload: {err}"));

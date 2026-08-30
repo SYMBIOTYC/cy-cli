@@ -8,7 +8,8 @@ use cx_exec_server::HttpResponseBodyStream;
 use futures::future::BoxFuture;
 
 const OPENAI_DEVELOPER_DOCS_MCP_URL: &str = "https://developers.cy.symbiotyc.workers.dev/mcp";
-const OPENAI_DEVELOPER_DOCS_MCP_CODEX_URL: &str = "https://developers.cy.symbiotyc.workers.dev/mcp?source=cx";
+const OPENAI_DEVELOPER_DOCS_MCP_CODEX_URL: &str =
+    "https://developers.cy.symbiotyc.workers.dev/mcp?source=cx";
 
 pub(crate) fn maybe_with_openai_docs_source_attribution(
     mcp_server_url: &str,

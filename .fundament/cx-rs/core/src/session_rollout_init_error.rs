@@ -61,7 +61,5 @@ fn map_rollout_io_error(io_err: &std::io::Error, cx_home: &Path) -> Option<CxErr
         _ => return None,
     };
 
-    Some(CxErr::Fatal(format!(
-        "{hint} (underlying error: {io_err})"
-    )))
+    Some(CxErr::Fatal(format!("{hint} (underlying error: {io_err})")))
 }

@@ -36,11 +36,7 @@ async fn deleting_custom_section_preserves_threads_and_clears_section_ordering()
         (retained, &retained_section.id),
     ] {
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await?;
         runtime
             .move_thread_to_section(thread_id, Some(section_id), /*before_thread_id*/ None)
@@ -90,11 +86,7 @@ async fn concurrent_section_deletion_and_membership_moves_preserve_thread_invari
         .await?;
     let thread_id = ThreadId::new();
     runtime
-        .upsert_thread(&test_thread_metadata(
-            &cx_home,
-            thread_id,
-            cx_home.clone(),
-        ))
+        .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
         .await?;
 
     let (deleted, moved) = tokio::join!(

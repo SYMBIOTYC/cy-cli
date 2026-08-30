@@ -2,6 +2,8 @@ mod common;
 
 use std::collections::HashMap;
 
+use common::exec_server::exec_server;
+use common::exec_server::exec_server_with_env;
 use cx_exec_server::EnvironmentInfo;
 use cx_exec_server::EnvironmentStatus;
 use cx_exec_server::EnvironmentStatusKind;
@@ -17,8 +19,6 @@ use cx_exec_server_protocol::JSONRPCMessage;
 use cx_exec_server_protocol::JSONRPCResponse;
 use cx_exec_server_protocol::ProcessSandboxType;
 use cx_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
-use common::exec_server::exec_server_with_env;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

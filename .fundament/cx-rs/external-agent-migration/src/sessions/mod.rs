@@ -223,9 +223,8 @@ mod tests {
         ledger::record_imported_session(&cx_home, &source_path, ThreadId::new())
             .expect("record import");
 
-        let pending =
-            prepare_validated_session_import(&cx_home, session_migration(&source_path))
-                .expect("already imported session should be skipped");
+        let pending = prepare_validated_session_import(&cx_home, session_migration(&source_path))
+            .expect("already imported session should be skipped");
 
         assert!(pending.is_none());
     }
@@ -244,10 +243,9 @@ mod tests {
         std::fs::write(&source_path, session_record(root.path(), "changed request"))
             .expect("changed session");
 
-        let pending =
-            prepare_validated_session_import(&cx_home, session_migration(&source_path))
-                .expect("prepare changed session")
-                .expect("changed session should be eligible");
+        let pending = prepare_validated_session_import(&cx_home, session_migration(&source_path))
+            .expect("prepare changed session")
+            .expect("changed session should be eligible");
 
         assert_eq!(
             pending.target,
@@ -279,9 +277,8 @@ mod tests {
         )
         .expect("record ambiguous imports");
 
-        let pending =
-            prepare_validated_session_import(&cx_home, session_migration(&source_path))
-                .expect("prepare ambiguous session");
+        let pending = prepare_validated_session_import(&cx_home, session_migration(&source_path))
+            .expect("prepare ambiguous session");
 
         assert!(pending.is_none());
     }

@@ -265,9 +265,7 @@ async fn plugin_search_stitches_local_results_into_the_first_remote_page() -> Re
     let server = MockServer::start().await;
     std::fs::create_dir_all(cx_home.path().join(".tmp"))?;
     std::fs::write(
-        cx_home
-            .path()
-            .join(".tmp/plugin-share-local-paths-v1.json"),
+        cx_home.path().join(".tmp/plugin-share-local-paths-v1.json"),
         "{invalid json",
     )?;
     let overflow_plugin_names = (0..101)
@@ -596,9 +594,7 @@ async fn plugin_search_deduplicates_shared_remote_identities_while_ignoring_loca
     let shared_plugin_path = repo_root.path().join("plugins/local-planner");
     std::fs::create_dir_all(cx_home.path().join(".tmp"))?;
     std::fs::write(
-        cx_home
-            .path()
-            .join(".tmp/plugin-share-local-paths-v1.json"),
+        cx_home.path().join(".tmp/plugin-share-local-paths-v1.json"),
         serde_json::to_string(&json!({
             "localPluginPathsByRemotePluginId": {
                 "remote-shared": shared_plugin_path,

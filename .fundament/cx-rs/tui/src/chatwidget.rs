@@ -78,6 +78,10 @@ use crate::text_formatting::proper_join;
 use crate::token_usage::TokenUsage;
 use crate::token_usage::TokenUsageInfo;
 use crate::version::CX_CLI_VERSION;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use cx_app_server_protocol::AddCreditsNudgeCreditType;
 use cx_app_server_protocol::AddCreditsNudgeEmailStatus;
 use cx_app_server_protocol::AppSummary;
@@ -161,10 +165,6 @@ use cx_terminal_detection::terminal_info;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_cli::resume_hint;
 use cx_utils_path_uri::PathUri;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Modifier;
@@ -1055,8 +1055,7 @@ impl ChatWidget {
         let snapshot = self.feedback.snapshot(self.thread_id);
         #[cfg(target_os = "windows")]
         let include_windows_sandbox_log =
-            cx_windows_sandbox::current_log_file_path_for_cx_home(&self.config.cx_home)
-                .is_file();
+            cx_windows_sandbox::current_log_file_path_for_cx_home(&self.config.cx_home).is_file();
         #[cfg(not(target_os = "windows"))]
         let include_windows_sandbox_log = false;
         let params = crate::bottom_pane::feedback_upload_consent_params(

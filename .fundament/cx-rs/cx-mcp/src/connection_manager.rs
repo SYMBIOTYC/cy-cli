@@ -14,8 +14,8 @@ mod startup;
 #[path = "connection_manager/tool_catalog.rs"]
 mod tool_catalog;
 
-use startup::gt_auth_provider_for_server;
 use startup::emit_update;
+use startup::gt_auth_provider_for_server;
 use startup::mcp_init_error_display;
 use startup::mcp_startup_failure_reason;
 use startup::should_share_cx_apps_tools_cache;
@@ -267,22 +267,22 @@ impl McpConnectionSet {
             .filter(|auth| auth.uses_cx_backend())
             .map(cx_model_provider::auth_provider_from_auth);
         let cx_apps_auth_provider = cx_apps_auth_manager.and_then(|auth_manager| {
-            auth.filter(|auth| auth.uses_cx_backend()).map(|auth| {
-                cx_model_provider::auth_provider_from_auth_manager(auth_manager, auth)
-            })
+            auth.filter(|auth| auth.uses_cx_backend())
+                .map(|auth| cx_model_provider::auth_provider_from_auth_manager(auth_manager, auth))
         });
         for (server_name, server) in mcp_servers
             .into_iter()
             .filter(|(_, server)| server.enabled())
         {
-            let is_host_owned_cx_apps = config
-                .mcp_server_catalog
-                .server(&server_name)
-                .is_some_and(|server| {
-                    server
-                        .source()
-                        .is_host_owned_apps(&server_name, server.config())
-                });
+            let is_host_owned_cx_apps =
+                config
+                    .mcp_server_catalog
+                    .server(&server_name)
+                    .is_some_and(|server| {
+                        server
+                            .source()
+                            .is_host_owned_apps(&server_name, server.config())
+                    });
             let catalog_item_limit = if is_host_owned_cx_apps {
                 MAX_CODEX_APPS_TOOL_CATALOG_ITEMS
             } else {
@@ -311,8 +311,7 @@ impl McpConnectionSet {
             let shares_cx_apps_tools_cache = is_host_owned_cx_apps
                 && should_share_cx_apps_tools_cache(&server_name, uses_env_bearer_token);
             let cx_apps_tools_cache_context = shares_cx_apps_tools_cache.then(|| {
-                cx_apps_tools_cache
-                    .context(cx_home.clone(), cx_apps_tools_cache_key.clone())
+                cx_apps_tools_cache.context(cx_home.clone(), cx_apps_tools_cache_key.clone())
             });
             // The reserved CX Apps registration follows the shared
             // AuthManager across refreshes. In the hosted-plugin path, this

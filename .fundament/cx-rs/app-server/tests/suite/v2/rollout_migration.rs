@@ -1,6 +1,7 @@
 use anyhow::Result;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
 use cx_app_server_protocol::ThreadHistoryMode;
 use cx_app_server_protocol::ThreadResumeParams;
 use cx_app_server_protocol::ThreadResumeResponse;
@@ -14,7 +15,6 @@ use cx_thread_store::RolloutMigrationMode;
 use cx_thread_store::RolloutMigrationOptions;
 use cx_thread_store::RolloutMigrationStatus;
 use cx_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use tokio::time::timeout;

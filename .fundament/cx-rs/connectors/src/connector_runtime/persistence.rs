@@ -90,8 +90,7 @@ pub(crate) fn load_cached_cx_apps_server_info<T: ConnectorRuntimePayload>(
 ) -> Option<McpServerInfo> {
     let (bytes, _) = read_bounded_cache_file(&cache_context.server_info_cache_path()).ok()?;
     let cache: CodexAppsServerInfoDiskCache = serde_json::from_slice(&bytes).ok()?;
-    (cache.schema_version == CX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION)
-        .then_some(cache.server_info)
+    (cache.schema_version == CX_APPS_SERVER_INFO_CACHE_SCHEMA_VERSION).then_some(cache.server_info)
 }
 
 fn write_cached_cx_apps_server_info<T: ConnectorRuntimePayload>(

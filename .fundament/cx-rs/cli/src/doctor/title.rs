@@ -174,13 +174,15 @@ fn terminal_title_project_root(config: &Config, cwd: &Path) -> Option<ProjectTit
         .config_layer_stack
         .all_layers_low_to_high()
         .find_map(|layer| match &layer.name {
-            ConfigLayerSource::Project { dot_cx_folder } => dot_cx_folder
-                .as_path()
-                .parent()
-                .map(|root| ProjectTitleRoot {
-                    source: "project config",
-                    path: root.to_path_buf(),
-                }),
+            ConfigLayerSource::Project { dot_cx_folder } => {
+                dot_cx_folder
+                    .as_path()
+                    .parent()
+                    .map(|root| ProjectTitleRoot {
+                        source: "project config",
+                        path: root.to_path_buf(),
+                    })
+            }
             _ => None,
         })
 }

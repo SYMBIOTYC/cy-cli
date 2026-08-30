@@ -1419,15 +1419,9 @@ async fn load_project_layers(
     cx_home: &Path,
     strict_config: bool,
 ) -> io::Result<LoadedProjectLayers> {
-    let discovered = discover_project_layers(
-        fs,
-        cwd,
-        project_root,
-        trust_context,
-        cx_home,
-        strict_config,
-    )
-    .await?;
+    let discovered =
+        discover_project_layers(fs, cwd, project_root, trust_context, cx_home, strict_config)
+            .await?;
     let mut layers = Vec::with_capacity(discovered.layers.len());
     for layer in discovered.layers {
         let config =

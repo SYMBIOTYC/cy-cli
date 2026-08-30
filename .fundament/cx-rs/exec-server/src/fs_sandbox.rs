@@ -559,9 +559,8 @@ mod tests {
         let path_key = path_key.to_string_lossy().into_owned();
         let path = path.to_string_lossy().into_owned();
         let cx_self_exe = std::env::current_exe().expect("current exe");
-        let runtime_paths =
-            ExecServerRuntimePaths::new(cx_self_exe.clone(), Some(cx_self_exe))
-                .expect("runtime paths");
+        let runtime_paths = ExecServerRuntimePaths::new(cx_self_exe.clone(), Some(cx_self_exe))
+            .expect("runtime paths");
         let runner = FileSystemSandboxRunner::new(runtime_paths);
         let native_cwd = AbsolutePathBuf::current_dir().expect("cwd");
         let cwd = PathUri::from_abs_path(&native_cwd);
@@ -693,9 +692,7 @@ mod tests {
             cwd.as_path(),
         );
 
-        assert!(
-            policy.can_read_path_with_cwd(runtime_paths.cx_self_exe.as_path(), cwd.as_path())
-        );
+        assert!(policy.can_read_path_with_cwd(runtime_paths.cx_self_exe.as_path(), cwd.as_path()));
         assert!(!policy.can_read_path_with_cwd(parent.as_path(), cwd.as_path()));
         assert!(!policy.can_read_path_with_cwd(sibling.as_path(), cwd.as_path()));
     }
@@ -705,9 +702,8 @@ mod tests {
         let root = tempfile::tempdir().expect("temp dir");
         let cx_self_exe = root.path().join("bin").join("cx");
         let cx_linux_sandbox_exe = root.path().join("aliases").join("cx-linux-sandbox");
-        let runtime_paths =
-            ExecServerRuntimePaths::new(cx_self_exe, Some(cx_linux_sandbox_exe))
-                .expect("runtime paths");
+        let runtime_paths = ExecServerRuntimePaths::new(cx_self_exe, Some(cx_linux_sandbox_exe))
+            .expect("runtime paths");
         let cwd = AbsolutePathBuf::from_absolute_path(std::env::temp_dir().as_path())
             .expect("absolute cwd");
         let mut policy = restricted_policy(Vec::new());
@@ -724,9 +720,7 @@ mod tests {
             cwd.as_path(),
         );
 
-        assert!(
-            policy.can_read_path_with_cwd(runtime_paths.cx_self_exe.as_path(), cwd.as_path())
-        );
+        assert!(policy.can_read_path_with_cwd(runtime_paths.cx_self_exe.as_path(), cwd.as_path()));
         assert!(policy.can_read_path_with_cwd(alias.as_path(), cwd.as_path()));
         assert!(!policy.can_read_path_with_cwd(cx_parent.as_path(), cwd.as_path()));
         assert!(!policy.can_read_path_with_cwd(alias_parent.as_path(), cwd.as_path()));

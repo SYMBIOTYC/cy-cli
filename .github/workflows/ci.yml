@@ -19,11 +19,11 @@ jobs:
           components: rustfmt,clippy
 
       - name: Check formatting
-        working-directory: .fundament/codex-rs
+        working-directory: .fundament/cx-rs
         run: cargo fmt -- --check
 
       - name: Clippy
-        working-directory: .fundament/codex-rs
+        working-directory: .fundament/cx-rs
         run: cargo clippy --bin cy --all-targets -- -D warnings
 
   test:
@@ -49,13 +49,13 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            .fundament/codex-rs/target
+            .fundament/cx-rs/target
           key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-test-
 
       - name: Run tests
-        working-directory: .fundament/codex-rs
+        working-directory: .fundament/cx-rs
         run: cargo test --bin cy --target ${{ matrix.target }}
 
   build-check:
@@ -78,5 +78,5 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Build
-        working-directory: .fundament/codex-rs
+        working-directory: .fundament/cx-rs
         run: cargo build --bin cy --target ${{ matrix.target }} --release

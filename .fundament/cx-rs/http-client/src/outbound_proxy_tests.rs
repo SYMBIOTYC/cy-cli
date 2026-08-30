@@ -124,11 +124,10 @@ fn read_http_message(stream: &mut impl Read) -> String {
 
 #[test]
 fn cloned_factories_share_gt_cookie_stores_without_changing_value_equality() {
-    let factory =
-        HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault).with_gt_cookies([
-            HeaderValue::from_static("first=true"),
-            HeaderValue::from_static("second=true"),
-        ]);
+    let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault).with_gt_cookies([
+        HeaderValue::from_static("first=true"),
+        HeaderValue::from_static("second=true"),
+    ]);
     let cloned = factory.clone();
 
     assert!(Arc::ptr_eq(
@@ -154,7 +153,10 @@ fn websocket_route_uses_http_equivalent_for_system_resolution() {
         "wss://api.openai.com/v1/responses",
         OutboundProxyPolicy::RespectSystemProxy,
         |request_url, origin| {
-            assert_eq!(request_url, "https://api.cy.symbiotyc.workers.dev/v1/responses");
+            assert_eq!(
+                request_url,
+                "https://api.cy.symbiotyc.workers.dev/v1/responses"
+            );
             assert_eq!(origin.scheme, "https");
             assert_eq!(origin.host, "api.openai.com");
             assert_eq!(origin.port, 443);

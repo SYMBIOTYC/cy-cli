@@ -4,6 +4,23 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::TempDirExt;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_core::config::Constrained;
 use cx_extension_api::ApprovalReviewContributor;
@@ -35,23 +52,6 @@ use cx_protocol::request_permissions::PermissionGrantScope;
 use cx_protocol::request_permissions::RequestPermissionProfile;
 use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::user_input::UserInput;
-use core_test_support::TempDirExt;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
@@ -426,21 +426,20 @@ async fn remote_model_override_uses_catalog_model_for_strict_auto_review() -> Re
     let cwd_path = cwd.abs();
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::read_only(), cwd_path.as_path());
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "run the Guardian model override check".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd_path)),
-                approval_policy: Some(AskForApproval::OnRequest),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                ..Default::default()
-            }),
-        )
-        .await?;
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "run the Guardian model override check".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd_path)),
+            approval_policy: Some(AskForApproval::OnRequest),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let permissions_request = wait_for_event(&cx, |event| {
         matches!(
@@ -453,16 +452,15 @@ async fn remote_model_override_uses_catalog_model_for_strict_auto_review() -> Re
         panic!("expected request_permissions before completion");
     };
     assert_eq!(permissions_request.call_id, permissions_call_id);
-    cx
-        .submit(Op::RequestPermissionsResponse {
-            id: permissions_request.call_id,
-            response: RequestPermissionsResponse {
-                permissions: permissions_request.permissions,
-                scope: PermissionGrantScope::Turn,
-                strict_auto_review: true,
-            },
-        })
-        .await?;
+    cx.submit(Op::RequestPermissionsResponse {
+        id: permissions_request.call_id,
+        response: RequestPermissionsResponse {
+            permissions: permissions_request.permissions,
+            scope: PermissionGrantScope::Turn,
+            strict_auto_review: true,
+        },
+    })
+    .await?;
 
     wait_for_event_with_timeout(
         &cx,

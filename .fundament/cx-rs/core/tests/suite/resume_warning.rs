@@ -2,6 +2,9 @@
 
 use std::sync::Arc;
 
+use core::time::Duration;
+use core_test_support::load_default_config_for_test;
+use core_test_support::wait_for_event;
 use cx_core::NewThread;
 use cx_history::InitialHistory;
 use cx_history::ResumedHistory;
@@ -17,9 +20,6 @@ use cx_protocol::protocol::TurnContextItem;
 use cx_protocol::protocol::TurnStartedEvent;
 use cx_protocol::protocol::UserMessageEvent;
 use cx_protocol::protocol::WarningEvent;
-use core::time::Duration;
-use core_test_support::load_default_config_for_test;
-use core_test_support::wait_for_event;
 use tempfile::TempDir;
 
 fn resume_history(

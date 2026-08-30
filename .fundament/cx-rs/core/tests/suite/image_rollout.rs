@@ -1,6 +1,21 @@
 use anyhow::Context;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::TempDirExt;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata;
+use core_test_support::responses::strip_response_item_id;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_core::TurnInputRequest;
 use cx_features::Feature;
 use cx_history::RolloutItem;
@@ -20,21 +35,6 @@ use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
 use cx_utils_image::data_url_from_bytes;
-use core_test_support::TempDirExt;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata;
-use core_test_support::responses::strip_response_item_id;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use image::GenericImageView;
 use image::ImageBuffer;
 use image::Rgba;
@@ -129,35 +129,34 @@ async fn copy_paste_local_image_persists_rollout_request_shape() -> anyhow::Resu
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.path());
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![
-                UserInput::LocalImage {
-                    path: abs_path.clone(),
-                    detail: None,
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![
+            UserInput::LocalImage {
+                path: abs_path.clone(),
+                detail: None,
+            },
+            UserInput::Text {
+                text: "pasted image".to_string(),
+                text_elements: Vec::new(),
+            },
+        ])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd.abs())),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Default,
+                settings: Settings {
+                    model: session_model,
+                    reasoning_effort: None,
+                    developer_instructions: None,
                 },
-                UserInput::Text {
-                    text: "pasted image".to_string(),
-                    text_elements: Vec::new(),
-                },
-            ])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd.abs())),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Default,
-                    settings: Settings {
-                        model: session_model,
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     cx.submit(Op::Shutdown).await?;
@@ -225,35 +224,34 @@ async fn drag_drop_image_persists_rollout_request_shape() -> anyhow::Result<()> 
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.path());
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![
-                UserInput::Image {
-                    image_url: image_url.clone(),
-                    detail: None,
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![
+            UserInput::Image {
+                image_url: image_url.clone(),
+                detail: None,
+            },
+            UserInput::Text {
+                text: "dropped image".to_string(),
+                text_elements: Vec::new(),
+            },
+        ])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd.abs())),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Default,
+                settings: Settings {
+                    model: session_model,
+                    reasoning_effort: None,
+                    developer_instructions: None,
                 },
-                UserInput::Text {
-                    text: "dropped image".to_string(),
-                    text_elements: Vec::new(),
-                },
-            ])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd.abs())),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Default,
-                    settings: Settings {
-                        model: session_model,
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     cx.submit(Op::Shutdown).await?;

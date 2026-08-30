@@ -133,8 +133,7 @@ fn is_known_contextual_user_text(text: &str) -> bool {
                 .split_once('>')
                 .and_then(|(start, _)| start.strip_prefix("<external_"))
                 .is_some_and(|key| text.ends_with(&format!("</external_{key}>"))))
-        || (text.starts_with("<cx_internal_context")
-            && text.ends_with("</cx_internal_context>"))
+        || (text.starts_with("<cx_internal_context") && text.ends_with("</cx_internal_context>"))
         || text.starts_with(
             "Warning: The maximum number of unified exec processes you can keep open is",
         )

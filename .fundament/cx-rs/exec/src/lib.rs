@@ -1240,9 +1240,7 @@ fn sandbox_mode_from_permission_profile(
     cwd: &Path,
 ) -> Option<cx_app_server_protocol::SandboxMode> {
     match permission_profile {
-        PermissionProfile::Disabled => {
-            Some(cx_app_server_protocol::SandboxMode::DangerFullAccess)
-        }
+        PermissionProfile::Disabled => Some(cx_app_server_protocol::SandboxMode::DangerFullAccess),
         PermissionProfile::External { .. } => None,
         PermissionProfile::Managed { .. } => {
             let file_system_policy = permission_profile.file_system_sandbox_policy();

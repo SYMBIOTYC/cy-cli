@@ -45,9 +45,7 @@ async fn sandbox_fetches_and_enforces_cloud_managed_permission_profile() -> Resu
     let cx_home = TempDir::new()?;
     std::fs::write(
         cx_home.path().join("config.toml"),
-        format!(
-            "cli_auth_credentials_store = \"file\"\ngt_base_url = \"{gt_base_url}\"\n",
-        ),
+        format!("cli_auth_credentials_store = \"file\"\ngt_base_url = \"{gt_base_url}\"\n",),
     )?;
     let bootstrap_config = load_config_toml_with_layer_stack(
         cx_home.path(),
@@ -67,8 +65,7 @@ async fn sandbox_fetches_and_enforces_cloud_managed_permission_profile() -> Resu
     .await?;
     if bootstrap_config.config_toml.cli_auth_credentials_store
         != Some(AuthCredentialsStoreMode::File)
-        || bootstrap_config.config_toml.gt_base_url.as_deref()
-            != Some(gt_base_url.as_str())
+        || bootstrap_config.config_toml.gt_base_url.as_deref() != Some(gt_base_url.as_str())
     {
         eprintln!(
             "skipping cloud-managed sandbox subprocess: host-managed authentication or backend routing prevents isolated mock credentials"

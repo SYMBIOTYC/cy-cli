@@ -125,7 +125,9 @@ pub(crate) fn jwt_auth_claims(jwt: &str) -> serde_json::Map<String, serde_json::
                 {
                     return claims.clone();
                 }
-                eprintln!("JWT payload missing expected 'https://api.cy.symbiotyc.workers.dev/auth' object");
+                eprintln!(
+                    "JWT payload missing expected 'https://api.cy.symbiotyc.workers.dev/auth' object"
+                );
             }
             Err(error) => {
                 eprintln!("Failed to parse JWT JSON payload: {error}");

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use core_test_support::test_path_buf;
 use cx_protocol::SessionId;
 use cx_protocol::ThreadId;
 use cx_protocol::protocol::EventMsg;
@@ -11,7 +12,6 @@ use cx_protocol::protocol::ThreadSource;
 use cx_protocol::protocol::TokenCountEvent;
 use cx_protocol::protocol::TokenUsage;
 use cx_protocol::protocol::TokenUsageInfo;
-use core_test_support::test_path_buf;
 use serde_json::json;
 use std::fs;
 use std::fs::FileTimes;

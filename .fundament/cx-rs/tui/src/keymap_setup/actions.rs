@@ -11,9 +11,9 @@
 
 use std::collections::BTreeSet;
 
+use crossterm::event::KeyEvent;
 use cx_config::types::KeybindingsSpec;
 use cx_config::types::TuiKeymap;
-use crossterm::event::KeyEvent;
 
 use crate::keymap::RuntimeKeymap;
 use crate::keymap::bindings_for_action;

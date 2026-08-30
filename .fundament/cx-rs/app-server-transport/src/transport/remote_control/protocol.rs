@@ -297,15 +297,16 @@ mod tests {
     #[test]
     fn normalize_remote_control_url_accepts_gt_https_urls() {
         assert_eq!(
-            normalize_remote_control_url("https://cy.symbiotyc.workers.dev/v1")
+            normalize_remote_control_url("https://api.cy.symbiotyc.workers.dev/v1")
                 .expect("chatgpt.com URL should normalize"),
             RemoteControlTarget {
-                websocket_url: "wss://cy.symbiotyc.workers.dev/v1/wham/remote/control/server"
+                websocket_url: "wss://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server"
                     .to_string(),
-                enroll_url: "https://cy.symbiotyc.workers.dev/v1/wham/remote/control/server/enroll"
+                enroll_url: "https://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server/enroll"
                     .to_string(),
-                refresh_url: "https://cy.symbiotyc.workers.dev/v1/wham/remote/control/server/refresh"
-                    .to_string(),
+                refresh_url:
+                    "https://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server/refresh"
+                        .to_string(),
                 pair_url: "https://cy.symbiotyc.workers.dev/v1/wham/remote/control/server/pair"
                     .to_string(),
                 pair_status_url:
@@ -317,18 +318,16 @@ mod tests {
             normalize_remote_control_url("https://api.gt-staging.com/backend-api")
                 .expect("gt-staging.com subdomain URL should normalize"),
             RemoteControlTarget {
-                websocket_url:
-                    "wss://api.gt-staging.com/backend-api/wham/remote/control/server"
-                        .to_string(),
+                websocket_url: "wss://api.gt-staging.com/backend-api/wham/remote/control/server"
+                    .to_string(),
                 enroll_url:
                     "https://api.gt-staging.com/backend-api/wham/remote/control/server/enroll"
                         .to_string(),
                 refresh_url:
                     "https://api.gt-staging.com/backend-api/wham/remote/control/server/refresh"
                         .to_string(),
-                pair_url:
-                    "https://api.gt-staging.com/backend-api/wham/remote/control/server/pair"
-                        .to_string(),
+                pair_url: "https://api.gt-staging.com/backend-api/wham/remote/control/server/pair"
+                    .to_string(),
                 pair_status_url:
                     "https://api.gt-staging.com/backend-api/wham/remote/control/server/pair/status"
                         .to_string(),
@@ -378,10 +377,10 @@ mod tests {
     #[test]
     fn normalize_remote_control_url_rejects_unsupported_urls() {
         for remote_control_url in [
-            "http://cy.symbiotyc.workers.dev/v1",
+            "http://api.cy.symbiotyc.workers.dev/v1",
             "http://example.com/backend-api",
             "https://example.com/backend-api",
-            "https://cy.symbiotyc.workers.dev/backend-api",
+            "https://api.cy.symbiotyc.workers.dev/backend-api",
             "https://chatgpt.com.evil.com/backend-api",
             "https://evilchatgpt.com/backend-api",
             "https://foo.localhost/backend-api",

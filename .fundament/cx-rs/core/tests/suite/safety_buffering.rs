@@ -1,8 +1,4 @@
 use anyhow::Ok;
-use cx_core::TurnInputRequest;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::SafetyBufferingEvent;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_response_created;
 use core_test_support::responses::mount_response_once;
@@ -13,6 +9,10 @@ use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use cx_core::TurnInputRequest;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::SafetyBufferingEvent;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -69,10 +69,7 @@ async fn emits_safety_buffering_from_response_metadata_with_the_header_fallback_
             faster_model: Some(FASTER_MODEL.to_string()),
         }
     );
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }
@@ -118,10 +115,7 @@ async fn emits_safety_buffering_with_the_responses_api_model_without_header_gati
             faster_model: Some(FASTER_MODEL.to_string()),
         }
     );
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }

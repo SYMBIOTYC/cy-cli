@@ -41,8 +41,8 @@ use cx_models_manager::manager::SharedModelsManager;
 use cx_otel::SessionTelemetry;
 use cx_protocol::ThreadId;
 use cx_protocol::auth::AuthMode;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::models::BaseInstructions;
 use cx_protocol::models::ContentItem;
 use cx_protocol::models::ResponseItem;
@@ -726,9 +726,7 @@ impl ModelProvider for TestRecoveryProvider {
         self.attempts.fetch_add(1, Ordering::Relaxed);
         Box::pin(async move {
             if self.should_fail {
-                Err(CxErr::Io(std::io::Error::other(
-                    "provider recovery failed",
-                )))
+                Err(CxErr::Io(std::io::Error::other("provider recovery failed")))
             } else {
                 Ok(ProviderUnauthorizedRecovery::Recovered)
             }

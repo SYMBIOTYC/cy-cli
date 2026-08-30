@@ -20,18 +20,18 @@ use crate::session::turn::get_last_assistant_message_from_turn;
 use crate::session::turn_context::TurnContext;
 use crate::state::AutoCompactWindowIds;
 use crate::util::backoff;
-use cx_analytics::CxCompactionEvent;
 use cx_analytics::CompactionImplementation;
 use cx_analytics::CompactionPhase;
 use cx_analytics::CompactionReason;
 use cx_analytics::CompactionStatus;
 use cx_analytics::CompactionStrategy;
 use cx_analytics::CompactionTrigger;
+use cx_analytics::CxCompactionEvent;
 use cx_analytics::now_unix_seconds;
 use cx_history::CodexHarnessMetadata;
 use cx_history::ResponseItemEnvelope;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::ContextCompactionItem;
 use cx_protocol::items::TurnItem;
@@ -466,8 +466,7 @@ impl CompactionAnalyticsAttempt {
                 strategy: CompactionStrategy::Memento,
                 status,
                 cx_error_kind: cx_error.map(Into::into),
-                cx_error_http_status_code: cx_error
-                    .and_then(CxErr::http_status_code_value),
+                cx_error_http_status_code: cx_error.and_then(CxErr::http_status_code_value),
                 active_context_tokens_before,
                 active_context_tokens_after,
                 retained_image_count,

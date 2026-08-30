@@ -285,8 +285,7 @@ async fn deletes_valid_duplicate_after_stale_sqlite_hit() -> color_eyre::Result<
         "preview",
         SessionSource::Cli,
     )?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "saved-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "saved-session").await?;
 
     let mut app_server = start_app_server(config.clone()).await?;
     let message = run_session_archive_action_with_app_server(
@@ -348,8 +347,7 @@ async fn trusts_sqlite_name_over_legacy_index_for_delete() -> color_eyre::Result
         ))
         .await
         .map_err(std::io::Error::other)?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "old-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "old-session").await?;
 
     let mut app_server = start_app_server(config.clone()).await?;
     let error = run_session_queue_action_with_app_server(
@@ -475,12 +473,8 @@ async fn queues_non_interactive_and_custom_sessions_without_scanning_rollouts()
         "preview",
         SessionSource::Cli,
     )?;
-    cx_rollout::append_thread_name(
-        config.cx_home.as_path(),
-        legacy_thread_id,
-        "saved-session",
-    )
-    .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), legacy_thread_id, "saved-session")
+        .await?;
     let (resolved_custom_thread_id, _) = run_session_queue_action_with_app_server(
         &mut app_server,
         config.cx_home.as_path(),

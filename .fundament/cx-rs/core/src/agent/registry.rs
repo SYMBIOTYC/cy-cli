@@ -1,7 +1,7 @@
 use cx_protocol::AgentPath;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result;
 use cx_protocol::protocol::SessionSource;
 use cx_protocol::protocol::SubAgentSource;
@@ -283,11 +283,8 @@ impl AgentRegistry {
                 active_agents.used_agent_nicknames.clear();
                 active_agents.nickname_reset_count += 1;
                 if let Some(metrics) = cx_otel::global() {
-                    let _ = metrics.counter(
-                        "cx.multi_agent.nickname_pool_reset",
-                        /*inc*/ 1,
-                        &[],
-                    );
+                    let _ =
+                        metrics.counter("cx.multi_agent.nickname_pool_reset", /*inc*/ 1, &[]);
                 }
                 format_agent_nickname(
                     names.choose(&mut rand::rng())?,

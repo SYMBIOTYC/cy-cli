@@ -238,9 +238,7 @@ fn append_transcript_preview_lines<'a>(
                 let text = content
                     .iter()
                     .filter_map(|input| match input {
-                        cx_app_server_protocol::UserInput::Text { text, .. } => {
-                            Some(text.as_str())
-                        }
+                        cx_app_server_protocol::UserInput::Text { text, .. } => Some(text.as_str()),
                         _ => None,
                     })
                     .collect::<Vec<_>>()

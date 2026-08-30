@@ -19,6 +19,7 @@ use crate::shell_snapshot::ShellSnapshot;
 use crate::test_support::models_manager_with_provider;
 use crate::tools::format_exec_output_str;
 use crate::tools::registry::ToolRegistry;
+use core_test_support::test_codex::TurnInputRequest as ExternalTurnInputRequest;
 use cx_config::ConfigLayerStack;
 use cx_config::DEFAULT_MCP_SERVER_ENVIRONMENT_ID;
 use cx_config::LoaderOverrides;
@@ -31,7 +32,6 @@ use cx_config::loader::project_trust_key;
 use cx_config::types::McpServerConfig;
 use cx_config::types::McpServerTransportConfig;
 use cx_config::types::ToolSuggestDisabledTool;
-use core_test_support::test_codex::TurnInputRequest as ExternalTurnInputRequest;
 
 use cx_features::Feature;
 use cx_http_client::ClientRouteClass;
@@ -99,6 +99,24 @@ use crate::tools::handlers::RequestPermissionsHandler;
 use crate::tools::registry::ToolExecutor;
 use crate::tools::router::ToolCallSource;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::ContextSnapshotRenderMode;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::strip_metadata_from_items;
+use core_test_support::responses::strip_response_item_ids;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::test_codex::local;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_path_buf;
+use core_test_support::tracing::install_test_tracing;
+use core_test_support::wait_for_event;
 use cx_config::config_toml::ConfigToml;
 use cx_config::config_toml::ProjectConfig;
 use cx_config::permissions_toml::FilesystemPermissionToml;
@@ -156,24 +174,6 @@ use cx_protocol::protocol::TurnStartedEvent;
 use cx_protocol::protocol::UserMessageEvent;
 use cx_protocol::protocol::W3cTraceContext;
 use cx_rmcp_client::ElicitationAction;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::ContextSnapshotRenderMode;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::strip_metadata_from_items;
-use core_test_support::responses::strip_response_item_ids;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::test_codex::local;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_path_buf;
-use core_test_support::tracing::install_test_tracing;
-use core_test_support::wait_for_event;
 use opentelemetry::trace::TraceContextExt;
 use opentelemetry::trace::TraceId;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
@@ -221,9 +221,7 @@ impl StepContext {
             environments,
             selected_capability_roots: Vec::new(),
             executor_capability_discovery: None,
-            mcp: Arc::new(cx_mcp::McpBinding::empty(mcp_config_for_test(
-                &turn.config,
-            ))),
+            mcp: Arc::new(cx_mcp::McpBinding::empty(mcp_config_for_test(&turn.config))),
             tool_router: Arc::new(ToolRouter::from_parts(
                 ToolRegistry::empty_for_test(),
                 Vec::new(),
@@ -821,18 +819,16 @@ async fn preview_session_start_hooks(
     )
     .expect("initialize hooks for session-start preview");
 
-    Ok(
-        hooks.preview_session_start(&cx_hooks::SessionStartRequest {
-            session_id: thread_id,
-            cwd: config.cwd.clone(),
-            transcript_path: None,
-            model: "gpt-5.2".to_string(),
-            permission_mode: "default".to_string(),
-            target: cx_hooks::StartHookTarget::SessionStart {
-                source: cx_hooks::SessionStartSource::Startup,
-            },
-        }),
-    )
+    Ok(hooks.preview_session_start(&cx_hooks::SessionStartRequest {
+        session_id: thread_id,
+        cwd: config.cwd.clone(),
+        transcript_path: None,
+        model: "gpt-5.2".to_string(),
+        permission_mode: "default".to_string(),
+        target: cx_hooks::StartHookTarget::SessionStart {
+            source: cx_hooks::SessionStartSource::Startup,
+        },
+    }))
 }
 
 pub(crate) fn tool_registry_for_test_step(
@@ -1551,8 +1547,8 @@ async fn reload_user_config_layer_updates_effective_apps_config() {
         .and_then(|table| table.get("apps"))
         .cloned()
         .expect("apps table");
-    let apps = cx_config::types::AppsConfigToml::deserialize(apps_toml)
-        .expect("deserialize apps config");
+    let apps =
+        cx_config::types::AppsConfigToml::deserialize(apps_toml).expect("deserialize apps config");
     let app = apps
         .apps
         .get("calendar")
@@ -1881,8 +1877,8 @@ disabled_tools = [
         .and_then(|table| table.get("apps"))
         .cloned()
         .expect("apps table");
-    let apps = cx_config::types::AppsConfigToml::deserialize(apps_toml)
-        .expect("deserialize apps config");
+    let apps =
+        cx_config::types::AppsConfigToml::deserialize(apps_toml).expect("deserialize apps config");
     let app = apps
         .apps
         .get("calendar")
@@ -8311,8 +8307,7 @@ async fn refresh_mcp_servers_uses_latest_state_for_existing_turns() {
             .mcp_servers
             .set(refreshed_mcp_servers.clone())
             .expect("set refreshed MCP servers");
-        config.mcp_oauth_credentials_store_mode =
-            cx_config::types::OAuthCredentialsStoreMode::Auto;
+        config.mcp_oauth_credentials_store_mode = cx_config::types::OAuthCredentialsStoreMode::Auto;
         config
             .features
             .set_enabled(Feature::SecretAuthStorage, /*enabled*/ true)
@@ -8678,8 +8673,7 @@ async fn conflicting_ready_environment_root_ids_keep_first_location() {
     let mut turn_environments = Vec::new();
     for selected_root in &selected_roots {
         let cx_protocol::capabilities::CapabilityRootLocation::Environment {
-            environment_id,
-            ..
+            environment_id, ..
         } = &selected_root.location;
         let mut environment_config = local_environment.config().clone();
         environment_config.selected_capability_roots = vec![selected_root.clone()];
@@ -9231,9 +9225,7 @@ impl cx_extension_api::ContextContributor for PromptExtensionTestContributor {
                 .get::<PromptExtensionTestState>()
                 .is_some()
                 .then(|| {
-                    cx_extension_api::PromptFragment::developer_policy(
-                        "prompt extension enabled",
-                    )
+                    cx_extension_api::PromptFragment::developer_policy("prompt extension enabled")
                 })
                 .into_iter()
                 .collect()
@@ -9263,9 +9255,7 @@ impl cx_extension_api::ContextContributor for TurnContextExtensionTestContributo
                 && input.model_context_window.is_some()
                 && !input.turn_id.is_empty())
             .then(|| {
-                cx_extension_api::PromptFragment::developer_policy(
-                    "turn context extension enabled",
-                )
+                cx_extension_api::PromptFragment::developer_policy("turn context extension enabled")
             })
             .into_iter()
             .collect()

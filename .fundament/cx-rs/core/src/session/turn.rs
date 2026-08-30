@@ -80,8 +80,8 @@ use cx_protocol::ResponseItemId;
 use cx_protocol::config_types::AutoCompactTokenLimitScope;
 use cx_protocol::config_types::ModeKind;
 use cx_protocol::config_types::ServiceTier;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::items::PlanItem;
 use cx_protocol::items::TurnItem;
@@ -556,10 +556,7 @@ pub(crate) async fn run_turn(
                 return Err(err);
             }
             Err(cx_error)
-                if matches!(
-                    cx_error.details(),
-                    CodexErrorDetails::InvalidImageRequest()
-                ) =>
+                if matches!(cx_error.details(), CodexErrorDetails::InvalidImageRequest()) =>
             {
                 sess.track_turn_cx_error(turn_context.as_ref(), &cx_error);
                 let error = CodexErrorInfo::BadRequest;

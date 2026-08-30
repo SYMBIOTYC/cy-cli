@@ -232,9 +232,7 @@ pub trait ModelProvider: fmt::Debug + Send + Sync {
     }
 
     /// Returns the auth provider used to attach request credentials.
-    fn api_auth(
-        &self,
-    ) -> ModelProviderFuture<'_, cx_protocol::error::Result<SharedAuthProvider>> {
+    fn api_auth(&self) -> ModelProviderFuture<'_, cx_protocol::error::Result<SharedAuthProvider>> {
         Box::pin(async move {
             let auth = self.auth().await;
             resolve_provider_auth(auth.as_ref(), self.info())
@@ -1028,8 +1026,7 @@ mod tests {
             ModelProviderInfo::create_amazon_bedrock_provider(/*aws*/ None),
             /*auth_manager*/ None,
         );
-        let manager =
-            provider.models_manager(test_cx_home(), /*config_model_catalog*/ None);
+        let manager = provider.models_manager(test_cx_home(), /*config_model_catalog*/ None);
         let uncached_manager =
             provider.models_manager_without_cache(/*config_model_catalog*/ None);
 
@@ -1173,8 +1170,7 @@ mod tests {
             )),
         );
 
-        let manager =
-            provider.models_manager(test_cx_home(), /*config_model_catalog*/ None);
+        let manager = provider.models_manager(test_cx_home(), /*config_model_catalog*/ None);
         let catalog = manager
             .raw_model_catalog(
                 RefreshStrategy::Online,

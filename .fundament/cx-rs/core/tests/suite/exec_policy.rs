@@ -1,6 +1,19 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_target_windows;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_core::EnvironmentConfig;
 use cx_core::TurnInputRequest;
@@ -23,19 +36,6 @@ use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ReviewDecision;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_target_windows;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -168,10 +168,7 @@ async fn git_status_requires_approval_under_unless_trusted() -> Result<()> {
             decision: ReviewDecision::denied("git status was not approved"),
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert!(
         initial_mock
             .single_request()
@@ -283,10 +280,7 @@ async fn granular_complex_forced_rm_denial_explains_why_the_command_was_rejected
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     let output = output_item
@@ -369,10 +363,7 @@ async fn granular_complex_forced_rm_requests_approval_when_allowed() -> Result<(
             decision: ReviewDecision::denied("rejected by user"),
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }
@@ -420,10 +411,7 @@ async fn deeply_nested_forced_rm_is_rejected_before_execution_when_approvals_are
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     let output = output_item
@@ -493,10 +481,7 @@ async fn unified_exec_disabled_windows_sandbox_rejects_managed_read_only_command
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     let output = output_item
@@ -588,10 +573,7 @@ async fn execpolicy_blocks_shell_invocation() -> Result<()> {
     else {
         unreachable!()
     };
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert!(
         end.aggregated_output
@@ -899,10 +881,7 @@ async fn environment_command_policy_changes_invalidate_session_approvals() -> Re
                 decision,
             })
             .await?;
-        wait_for_event(&test.cx, |event| {
-            matches!(event, EventMsg::TurnComplete(_))
-        })
-        .await;
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     }
 
     Ok(())
@@ -952,10 +931,7 @@ async fn shell_command_empty_script_with_collaboration_mode_does_not_panic() -> 
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     assert_no_matched_rules_invariant(&output_item);
@@ -1011,10 +987,7 @@ async fn unified_exec_empty_script_with_collaboration_mode_does_not_panic() -> R
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     assert_no_matched_rules_invariant(&output_item);
@@ -1066,10 +1039,7 @@ async fn shell_command_whitespace_script_with_collaboration_mode_does_not_panic(
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     assert_no_matched_rules_invariant(&output_item);
@@ -1125,10 +1095,7 @@ async fn unified_exec_whitespace_script_with_collaboration_mode_does_not_panic()
     )
     .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output_item = results_mock.single_request().function_call_output(call_id);
     assert_no_matched_rules_invariant(&output_item);

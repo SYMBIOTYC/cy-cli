@@ -105,9 +105,7 @@ pub(super) fn endpoint_check(inspection: EndpointInspection) -> DoctorCheck {
             "Jamf Protect" => {
                 "Jamf Protect: Add an Override Threat Prevention exception for CX app and helper signing identities. If analytics cause delays, add an Ignore System Events for Analytics exception."
             }
-            _ => {
-                "Add an exclusion for CX and its helpers. Use the endpoint product instructions."
-            }
+            _ => "Add an exclusion for CX and its helpers. Use the endpoint product instructions.",
         };
         check = check.issue(
             DoctorIssue::new(

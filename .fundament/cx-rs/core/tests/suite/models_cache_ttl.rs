@@ -1,5 +1,5 @@
-use cx_core::TurnInputRequest;
 use core_test_support::test_codex::local_selections;
+use cx_core::TurnInputRequest;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -7,6 +7,15 @@ use anyhow::Result;
 use chrono::DateTime;
 use chrono::TimeZone;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_login::CodexAuth;
 use cx_models_manager::client_version_to_whole;
 use cx_models_manager::manager::RefreshStrategy;
@@ -27,15 +36,6 @@ use cx_protocol::openai_models::default_input_modalities;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde::Deserialize;
 use serde::Serialize;
@@ -101,29 +101,28 @@ async fn renews_cache_ttl_on_matching_models_etag() -> Result<()> {
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, test.cwd_path());
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "hi".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(test.config.cwd.clone())),
-                approval_policy: Some(cx_protocol::protocol::AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Default,
-                    settings: Settings {
-                        model: test.session_configured.model.clone(),
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "hi".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(test.config.cwd.clone())),
+            approval_policy: Some(cx_protocol::protocol::AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Default,
+                settings: Settings {
+                    model: test.session_configured.model.clone(),
+                    reasoning_effort: None,
+                    developer_instructions: None,
+                },
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let _ = wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 

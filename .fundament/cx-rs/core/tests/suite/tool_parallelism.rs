@@ -1,20 +1,12 @@
 #![cfg(not(target_os = "windows"))]
 #![allow(clippy::unwrap_used)]
 
-use cx_core::TurnInputRequest;
 use core_test_support::test_codex::local_selections;
+use cx_core::TurnInputRequest;
 use std::fs;
 use std::time::Duration;
 use std::time::Instant;
 
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
@@ -31,6 +23,14 @@ use core_test_support::test_codex::TestCodex;
 use core_test_support::test_codex::test_codex;
 use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

@@ -575,11 +575,7 @@ mod tests {
         ] {
             let thread_id = ThreadId::from_string(thread_id).expect("valid thread id");
             runtime
-                .upsert_thread(&test_thread_metadata(
-                    &cx_home,
-                    thread_id,
-                    cx_home.clone(),
-                ))
+                .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
                 .await
                 .expect("thread should be stored");
             sqlx::query("UPDATE threads SET updated_at_ms = ?, recency_at_ms = ? WHERE id = ?")

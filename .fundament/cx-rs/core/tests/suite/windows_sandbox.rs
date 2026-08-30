@@ -1,4 +1,13 @@
 use anyhow::Context;
+use core_test_support::PathExt;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::test_codex::TestCodexHarness;
+use core_test_support::test_codex::test_codex;
 use cx_core::exec::ExecCapturePolicy;
 use cx_core::exec::ExecParams;
 use cx_core::exec::process_exec_tool_call;
@@ -14,15 +23,6 @@ use cx_protocol::permissions::FileSystemSandboxEntry;
 use cx_protocol::permissions::FileSystemSandboxPolicy;
 use cx_protocol::permissions::FileSystemSpecialPath;
 use cx_protocol::permissions::NetworkSandboxPolicy;
-use core_test_support::PathExt;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::test_codex::TestCodexHarness;
-use core_test_support::test_codex::test_codex;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use serial_test::serial;
@@ -127,8 +127,7 @@ fn stage_windows_sandbox_helpers() -> anyhow::Result<()> {
 #[tokio::test]
 #[serial(cx_home)]
 async fn windows_restricted_token_rejects_exact_and_glob_deny_read_policy() -> anyhow::Result<()> {
-    let cx_home =
-        cx_home_for_windows_sandbox_test("windows-restricted-token-deny-read-cx-home")?;
+    let cx_home = cx_home_for_windows_sandbox_test("windows-restricted-token-deny-read-cx-home")?;
     let _cx_home_guard = EnvVarGuard::set("CX_HOME", cx_home.path().as_os_str());
     let workspace = TempDir::new()?;
     let cwd = dunce::canonicalize(workspace.path())?.abs();
@@ -214,8 +213,7 @@ async fn windows_restricted_token_rejects_exact_and_glob_deny_read_policy() -> a
 #[tokio::test]
 #[serial(cx_home)]
 async fn windows_elevated_does_not_create_missing_workspace_metadata() -> anyhow::Result<()> {
-    let cx_home =
-        cx_home_for_windows_sandbox_test("windows-elevated-missing-metadata-cx-home")?;
+    let cx_home = cx_home_for_windows_sandbox_test("windows-elevated-missing-metadata-cx-home")?;
     let _cx_home_guard = EnvVarGuard::set("CX_HOME", cx_home.path().as_os_str());
     stage_windows_sandbox_helpers()?;
     let workspace = TempDir::new()?;

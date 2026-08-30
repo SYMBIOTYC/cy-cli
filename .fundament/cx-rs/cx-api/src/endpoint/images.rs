@@ -214,10 +214,7 @@ mod tests {
         assert_eq!(response, expected_response());
 
         let request = captured_request(&transport);
-        assert_eq!(
-            request.url,
-            "https://example.com/api/cx/images/generations"
-        );
+        assert_eq!(request.url, "https://example.com/api/cx/images/generations");
         assert_eq!(
             request.body.as_ref().and_then(RequestBody::json),
             Some(&json!({

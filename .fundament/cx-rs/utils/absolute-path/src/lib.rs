@@ -440,16 +440,12 @@ mod tests {
         std::fs::remove_dir(&removed_cwd).expect("remove current dir");
         std::env::current_dir().expect_err("current dir should be unavailable");
 
-        let path = AbsolutePathBuf::from_absolute_path(test_path_buf(
-            "/tmp/cx/../cx-home/plugins/cache",
-        ))
-        .expect("absolute path should not require current dir");
+        let path =
+            AbsolutePathBuf::from_absolute_path(test_path_buf("/tmp/cx/../cx-home/plugins/cache"))
+                .expect("absolute path should not require current dir");
 
         std::env::set_current_dir(original_cwd).expect("restore cwd");
-        assert_eq!(
-            path.as_path(),
-            test_path_buf("/tmp/cx-home/plugins/cache")
-        );
+        assert_eq!(path.as_path(), test_path_buf("/tmp/cx-home/plugins/cache"));
     }
 
     #[test]

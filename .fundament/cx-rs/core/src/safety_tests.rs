@@ -1,4 +1,5 @@
 use super::*;
+use core_test_support::PathExt;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::permissions::NetworkSandboxPolicy;
 use cx_protocol::protocol::FileSystemAccessMode;
@@ -8,7 +9,6 @@ use cx_protocol::protocol::FileSystemSpecialPath;
 use cx_protocol::protocol::GranularApprovalConfig;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 

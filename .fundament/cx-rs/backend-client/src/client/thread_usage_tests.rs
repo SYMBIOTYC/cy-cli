@@ -18,8 +18,8 @@ fn thread_usage_contract_uses_expected_paths_and_payload() {
         "https://example.test/api/cx/usage/thread_usage/query"
     );
     assert_eq!(
-        Client::new("https://cy.symbiotyc.workers.dev/v1", factory).thread_usage_url(),
-        "https://cy.symbiotyc.workers.dev/v1/wham/usage/thread_usage/query"
+        Client::new("https://api.cy.symbiotyc.workers.dev/v1", factory).thread_usage_url(),
+        "https://api.cy.symbiotyc.workers.dev/v1/wham/usage/thread_usage/query"
     );
     assert_eq!(
         serde_json::to_value(ThreadUsageQueryRequest {

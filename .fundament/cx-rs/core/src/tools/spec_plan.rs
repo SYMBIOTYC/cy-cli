@@ -1234,10 +1234,7 @@ fn append_dynamic_tool_runtimes(dynamic_tools: &[DynamicToolSpec], registry: &mu
         match spec {
             DynamicToolSpec::Function(tool) => {
                 let Some(handler) = DynamicToolHandler::new(tool) else {
-                    tracing::error!(
-                        "Failed to convert dynamic tool {:?} to oi tool",
-                        tool.name
-                    );
+                    tracing::error!("Failed to convert dynamic tool {:?} to oi tool", tool.name);
                     continue;
                 };
                 registry.register_external(Arc::new(handler));

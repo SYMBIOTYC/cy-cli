@@ -1,4 +1,23 @@
 use anyhow::Result;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_image_generation_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_completed;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use cx_config::types::Personality;
 use cx_core::CodexThread;
 use cx_core::ForkSnapshot;
@@ -36,25 +55,6 @@ use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::request_user_input::RequestUserInputAnswer;
 use cx_protocol::request_user_input::RequestUserInputResponse;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_image_generation_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_completed;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;
@@ -310,20 +310,10 @@ async fn rollback_first_turn_model_change_removes_its_instructions(
     let mut builder = test_codex().with_model(initial_model);
     let test = builder.build_with_auto_env(&server).await?;
 
-    submit_model_turn(
-        &test.cx,
-        switched_model,
-        ThreadSettingsOverrides::default(),
-    )
-    .await?;
+    submit_model_turn(&test.cx, switched_model, ThreadSettingsOverrides::default()).await?;
 
-    test.cx
-        .submit(Op::ThreadRollback { num_turns: 1 })
-        .await?;
-    wait_for_event(&test.cx, |ev| {
-        matches!(ev, EventMsg::ThreadRolledBack(_))
-    })
-    .await;
+    test.cx.submit(Op::ThreadRollback { num_turns: 1 }).await?;
+    wait_for_event(&test.cx, |ev| matches!(ev, EventMsg::ThreadRolledBack(_))).await;
 
     let test = match followup {
         RollbackFollowup::ColdResume => {
@@ -336,12 +326,7 @@ async fn rollback_first_turn_model_change_removes_its_instructions(
         RollbackFollowup::StartupModel => initial_model,
         RollbackFollowup::SwitchedModel | RollbackFollowup::ColdResume => switched_model,
     };
-    submit_model_turn(
-        &test.cx,
-        followup_model,
-        ThreadSettingsOverrides::default(),
-    )
-    .await?;
+    submit_model_turn(&test.cx, followup_model, ThreadSettingsOverrides::default()).await?;
 
     let request = &response_mock.requests()[1];
     assert_eq!(request.body_json()["model"], followup_model);
@@ -619,10 +604,7 @@ async fn settings_update_during_active_turn_applies_to_next_turn_only() -> Resul
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_text_turn("start the next turn").await?;
 
     let requests = response_mock.requests();
@@ -1266,13 +1248,8 @@ async fn thread_rollback_after_generated_image_drops_entire_image_turn_history()
         .await?;
     wait_for_event(&test.cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    test.cx
-        .submit(Op::ThreadRollback { num_turns: 1 })
-        .await?;
-    wait_for_event(&test.cx, |ev| {
-        matches!(ev, EventMsg::ThreadRolledBack(_))
-    })
-    .await;
+    test.cx.submit(Op::ThreadRollback { num_turns: 1 }).await?;
+    wait_for_event(&test.cx, |ev| matches!(ev, EventMsg::ThreadRolledBack(_))).await;
 
     test.cx
         .start_or_steer_turn(read_only_user_turn(

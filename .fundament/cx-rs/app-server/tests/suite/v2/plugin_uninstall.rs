@@ -168,10 +168,7 @@ plugins = false
 async fn plugin_uninstall_writes_remote_plugin_to_cloud_when_remote_plugin_enabled() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -266,10 +263,7 @@ async fn plugin_uninstall_writes_remote_plugin_to_cloud_when_remote_plugin_enabl
 async fn plugin_uninstall_uses_detail_scope_for_cache_namespace() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -330,10 +324,7 @@ async fn plugin_uninstall_uses_detail_scope_for_cache_namespace() -> Result<()> 
 async fn plugin_uninstall_accepts_workspace_remote_plugin_id_shape() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -395,10 +386,7 @@ async fn plugin_uninstall_accepts_workspace_remote_plugin_id_shape() -> Result<(
 async fn plugin_uninstall_rejects_before_post_when_remote_detail_fetch_fails() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -453,10 +441,7 @@ async fn plugin_uninstall_rejects_before_post_when_remote_detail_fetch_fails() -
 async fn plugin_uninstall_rejects_remote_plugin_id_with_spaces_before_network_call() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)
@@ -490,10 +475,7 @@ async fn plugin_uninstall_rejects_remote_plugin_id_with_spaces_before_network_ca
 async fn plugin_uninstall_rejects_invalid_remote_plugin_id_before_network_call() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)
@@ -527,10 +509,7 @@ async fn plugin_uninstall_rejects_invalid_remote_plugin_id_before_network_call()
 async fn plugin_uninstall_rejects_empty_remote_plugin_id() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .build_initialized_with_timeout(DEFAULT_TIMEOUT)
@@ -672,10 +651,7 @@ async fn wait_for_plugin_analytics_payload(server: &MockServer) -> Result<serde_
             };
             if let Some(request) = requests.iter().find(|request| {
                 request.method == "POST"
-                    && request
-                        .url
-                        .path()
-                        .ends_with("/cx/analytics-events/events")
+                    && request.url.path().ends_with("/cx/analytics-events/events")
             }) {
                 return serde_json::from_slice(&request.body)
                     .map_err(|err| anyhow::anyhow!("invalid analytics payload: {err}"));

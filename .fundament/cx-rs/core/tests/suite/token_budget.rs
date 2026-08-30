@@ -1,29 +1,4 @@
 use anyhow::Result;
-use cx_config::types::McpServerConfig;
-use cx_config::types::McpServerTransportConfig;
-use cx_core::TurnInputRequest;
-use cx_core::config::Config;
-use cx_core::config::TokenBudgetConfig;
-use cx_extension_api::ExtensionRegistryBuilder;
-use cx_features::Feature;
-use cx_model_provider_info::built_in_model_providers;
-use cx_protocol::config_types::AutoCompactTokenLimitScope;
-use cx_protocol::items::TurnItem;
-use cx_protocol::openai_models::ModelTokenBudgetConfig;
-use cx_protocol::protocol::CONTEXT_WINDOW_CLOSE_TAG;
-use cx_protocol::protocol::CONTEXT_WINDOW_GUIDANCE_CLOSE_TAG;
-use cx_protocol::protocol::CONTEXT_WINDOW_GUIDANCE_OPEN_TAG;
-use cx_protocol::protocol::CONTEXT_WINDOW_OPEN_TAG;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::HookEventName;
-use cx_protocol::protocol::HookRunStatus;
-use cx_protocol::protocol::ItemCompletedEvent;
-use cx_protocol::protocol::ItemStartedEvent;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
-use cx_skills_extension::SkillsExtensionConfig;
-use cx_skills_extension::install;
 use core_test_support::PathBufExt;
 use core_test_support::assert_regex_match;
 use core_test_support::context_snapshot;
@@ -49,6 +24,31 @@ use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_mcp_server;
+use cx_config::types::McpServerConfig;
+use cx_config::types::McpServerTransportConfig;
+use cx_core::TurnInputRequest;
+use cx_core::config::Config;
+use cx_core::config::TokenBudgetConfig;
+use cx_extension_api::ExtensionRegistryBuilder;
+use cx_features::Feature;
+use cx_model_provider_info::built_in_model_providers;
+use cx_protocol::config_types::AutoCompactTokenLimitScope;
+use cx_protocol::items::TurnItem;
+use cx_protocol::openai_models::ModelTokenBudgetConfig;
+use cx_protocol::protocol::CONTEXT_WINDOW_CLOSE_TAG;
+use cx_protocol::protocol::CONTEXT_WINDOW_GUIDANCE_CLOSE_TAG;
+use cx_protocol::protocol::CONTEXT_WINDOW_GUIDANCE_OPEN_TAG;
+use cx_protocol::protocol::CONTEXT_WINDOW_OPEN_TAG;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::HookEventName;
+use cx_protocol::protocol::HookRunStatus;
+use cx_protocol::protocol::ItemCompletedEvent;
+use cx_protocol::protocol::ItemStartedEvent;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
+use cx_skills_extension::SkillsExtensionConfig;
+use cx_skills_extension::install;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -435,10 +435,7 @@ async fn token_budget_defaults_follow_the_active_model() -> Result<()> {
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2);
@@ -1099,10 +1096,7 @@ async fn token_budget_compaction_runs_compact_hooks() -> Result<()> {
     })
     .await;
     assert_eq!(post_compact.run.status, HookRunStatus::Completed);
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }

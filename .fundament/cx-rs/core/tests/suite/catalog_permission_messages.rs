@@ -1,4 +1,12 @@
 use anyhow::Result;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::TurnInputRequest;
 use cx_core::config::Constrained;
 use cx_login::CodexAuth;
@@ -12,14 +20,6 @@ use cx_protocol::protocol::AskForApproval;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use wiremock::MockServer;
 
@@ -89,10 +89,7 @@ async fn catalog_permission_message_loaded_from_remote_models_is_sent() -> Resul
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(models_mock.single_request_path(), "/v1/models");
     let permissions = response_mock

@@ -223,11 +223,10 @@ impl AuthStorageBackend for FileAuthStorage {
     }
 }
 
-static CX_AUTH_SECRET_NAME: Lazy<SecretName> =
-    Lazy::new(|| match SecretName::new("CX_AUTH") {
-        Ok(name) => name,
-        Err(err) => unreachable!("CX_AUTH should be a valid secret name: {err}"),
-    });
+static CX_AUTH_SECRET_NAME: Lazy<SecretName> = Lazy::new(|| match SecretName::new("CX_AUTH") {
+    Ok(name) => name,
+    Err(err) => unreachable!("CX_AUTH should be a valid secret name: {err}"),
+});
 const KEYRING_SERVICE: &str = "CX Auth";
 
 // turns cx_home path into a stable, short key string

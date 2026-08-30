@@ -88,6 +88,12 @@ use crate::update_action::UpdateAction;
 use crate::version::CX_CLI_VERSION;
 use crate::workspace_command::AppServerWorkspaceCommandRunner;
 use crate::workspace_command::WorkspaceCommandRunner;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use cx_ansi_escape::ansi_escape_line;
 use cx_app_server_client::AppServerRequestHandle;
 use cx_app_server_client::TypedRequestError;
@@ -168,12 +174,6 @@ use cx_rollout::StateDbHandle;
 use cx_terminal_detection::user_agent;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_approval_presets::builtin_permission_profile_for_active_permission_profile;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::backend::Backend;
 use ratatui::layout::Rect;
 use ratatui::layout::Size;
@@ -324,9 +324,7 @@ fn collab_receiver_is_not_found(
 fn default_exec_approval_decisions(
     network_approval_context: Option<&cx_app_server_protocol::NetworkApprovalContext>,
     proposed_execpolicy_amendment: Option<&cx_app_server_protocol::ExecPolicyAmendment>,
-    proposed_network_policy_amendments: Option<
-        &[cx_app_server_protocol::NetworkPolicyAmendment],
-    >,
+    proposed_network_policy_amendments: Option<&[cx_app_server_protocol::NetworkPolicyAmendment]>,
     additional_permissions: Option<&cx_app_server_protocol::AdditionalPermissionProfile>,
 ) -> Vec<cx_app_server_protocol::CommandExecutionApprovalDecision> {
     use cx_app_server_protocol::CommandExecutionApprovalDecision;

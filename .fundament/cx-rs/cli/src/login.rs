@@ -35,10 +35,8 @@ use tracing_subscriber::Layer;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 
-const CHATGPT_LOGIN_DISABLED_MESSAGE: &str =
-    "gt login is disabled. Use API key login instead.";
-const API_KEY_LOGIN_DISABLED_MESSAGE: &str =
-    "API key login is disabled. Use gt login instead.";
+const CHATGPT_LOGIN_DISABLED_MESSAGE: &str = "gt login is disabled. Use API key login instead.";
+const API_KEY_LOGIN_DISABLED_MESSAGE: &str = "API key login is disabled. Use gt login instead.";
 const ACCESS_TOKEN_LOGIN_DISABLED_MESSAGE: &str =
     "Access token login is disabled. Use API key login instead.";
 const LOGIN_SUCCESS_MESSAGE: &str = "Successfully logged in";
@@ -455,10 +453,7 @@ pub async fn run_login_status(cli_config_overrides: CliConfigOverrides) -> ! {
     }
 
     let auth_config = config.auth_config();
-    match auth_config
-        .load_auth(/*enable_cx_api_key_env*/ false)
-        .await
-    {
+    match auth_config.load_auth(/*enable_cx_api_key_env*/ false).await {
         Ok(Some(auth)) => match auth.auth_mode() {
             AuthMode::ApiKey => match auth.get_token() {
                 Ok(api_key) => {

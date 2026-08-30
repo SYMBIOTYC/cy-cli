@@ -66,10 +66,7 @@ fn env_overlay_for_exec_server_keeps_runtime_changes_only() {
             cx_apply_patch::CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
             "1".to_string(),
         ),
-        (
-            "CX_SANDBOX_NETWORK_DISABLED".to_string(),
-            "1".to_string(),
-        ),
+        ("CX_SANDBOX_NETWORK_DISABLED".to_string(), "1".to_string()),
     ]);
 
     assert_eq!(
@@ -85,10 +82,7 @@ fn env_overlay_for_exec_server_keeps_runtime_changes_only() {
                 cx_apply_patch::CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR.to_string(),
                 "1".to_string(),
             ),
-            (
-                "CX_SANDBOX_NETWORK_DISABLED".to_string(),
-                "1".to_string()
-            ),
+            ("CX_SANDBOX_NETWORK_DISABLED".to_string(), "1".to_string()),
         ])
     );
 }
@@ -230,9 +224,8 @@ fn exec_server_params_use_path_uri_and_env_policy_overlay_contract() {
             ("CX_NETWORK_PROXY_ACTIVE".to_string(), "1".to_string(),),
         ])
     );
-    request.exec_server_sandbox = Some(
-        cx_exec_server::FileSystemSandboxContext::from_permission_profile(permission_profile),
-    );
+    request.exec_server_sandbox =
+        Some(cx_exec_server::FileSystemSandboxContext::from_permission_profile(permission_profile));
     let first = params_for_request(&request);
     let second = params_for_request(&request);
     assert_eq!(

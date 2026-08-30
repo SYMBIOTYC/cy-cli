@@ -850,8 +850,7 @@ mod metrics {
     const FILE_COUNTER: &str = "cx.rollout_compression.file";
     const FILE_DURATION_HISTOGRAM: &str = "cx.rollout_compression.file.duration_ms";
     const FILE_SOURCE_BYTES_HISTOGRAM: &str = "cx.rollout_compression.file.source_bytes";
-    const FILE_COMPRESSION_RATIO_HISTOGRAM: &str =
-        "cx.rollout_compression.file.compression_ratio";
+    const FILE_COMPRESSION_RATIO_HISTOGRAM: &str = "cx.rollout_compression.file.compression_ratio";
     const MATERIALIZE_COUNTER: &str = "cx.rollout_compression.materialize";
     const RUN_COUNTER: &str = "cx.rollout_compression.run";
     const RUN_DURATION_HISTOGRAM: &str = "cx.rollout_compression.run.duration_ms";

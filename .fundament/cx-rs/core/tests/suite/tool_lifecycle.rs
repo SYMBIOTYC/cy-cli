@@ -5,6 +5,11 @@ use std::sync::Mutex;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::test_codex;
 use cx_core::config::Config;
 use cx_extension_api::ExtensionRegistryBuilder;
 use cx_extension_api::ResponseItem;
@@ -12,11 +17,6 @@ use cx_extension_api::ToolLifecycleContributor;
 use cx_extension_api::ToolLifecycleFuture;
 use cx_extension_api::ToolStartInput;
 use cx_protocol::models::ContentItem;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::test_codex;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 

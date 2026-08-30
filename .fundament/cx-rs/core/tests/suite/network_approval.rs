@@ -1,5 +1,31 @@
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 use cx_config::types::ApprovalsReviewer;
 use cx_core::TurnInputRequest;
 use cx_core::config::Constrained;
@@ -35,32 +61,6 @@ use cx_protocol::request_permissions::RequestPermissionProfile;
 use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::user_input::UserInput;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -757,10 +757,8 @@ async fn background_network_approval_uses_active_turn_after_original_turn_comple
         AskForApproval::OnRequest,
     )
     .await?;
-    let EventMsg::TurnComplete(first_turn) = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await
+    let EventMsg::TurnComplete(first_turn) =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await
     else {
         unreachable!("matched first turn completion")
     };
@@ -774,10 +772,8 @@ async fn background_network_approval_uses_active_turn_after_original_turn_comple
         AskForApproval::OnRequest,
     )
     .await?;
-    let EventMsg::TurnStarted(active_turn) = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnStarted(_))
-    })
-    .await
+    let EventMsg::TurnStarted(active_turn) =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnStarted(_))).await
     else {
         unreachable!("matched second turn start")
     };
@@ -1019,10 +1015,7 @@ async fn user_network_approval_once_session_and_denial_semantics() -> Result<()>
             decision: ReviewDecision::Abort,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     abort_response.single_request();
 
     Ok(())
@@ -1394,10 +1387,7 @@ async fn unattributed_network_request_uses_active_turn_environment_fallback() ->
     assert!(response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.1 502"));
 
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
 
     Ok(())
 }
@@ -1480,10 +1470,7 @@ async fn ambiguous_unattributed_network_request_is_not_assigned_to_active_calls(
     );
 
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     test.cx.submit(Op::CleanBackgroundTerminals).await?;
     tokio::time::timeout(Duration::from_secs(10), async {
         loop {
@@ -2439,8 +2426,5 @@ async fn wait_for_paths(paths: &[&std::path::Path]) -> Result<()> {
 }
 
 async fn wait_for_turn_complete(test: &TestCodex) {
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 }

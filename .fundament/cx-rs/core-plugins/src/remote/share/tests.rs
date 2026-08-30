@@ -539,8 +539,7 @@ async fn update_remote_plugin_share_targets_updates_targets() {
 #[tokio::test]
 async fn list_remote_plugin_shares_fetches_created_workspace_plugins() {
     let cx_home = TempDir::new().unwrap();
-    let local_plugin_path =
-        AbsolutePathBuf::try_from(cx_home.path().join("local-plugin")).unwrap();
+    let local_plugin_path = AbsolutePathBuf::try_from(cx_home.path().join("local-plugin")).unwrap();
     write_plugin_share_local_path_mapping(cx_home.path(), "plugins_123", &local_plugin_path);
     let server = MockServer::start().await;
     let config = test_config(&server);
@@ -643,9 +642,7 @@ async fn list_remote_plugin_shares_fetches_created_workspace_plugins() {
                         remote_plugin_id: "plugins_123".to_string(),
                         remote_version: Some("0.1.0".to_string()),
                         discoverability: RemotePluginShareDiscoverability::Private,
-                        share_url: Some(
-                            "https://gt.example/plugins/share/share-key-1".to_string(),
-                        ),
+                        share_url: Some("https://gt.example/plugins/share/share-key-1".to_string(),),
                         creator_account_user_id: None,
                         creator_name: None,
                         share_principals: Some(vec![
@@ -731,8 +728,7 @@ async fn list_remote_plugin_shares_fetches_created_workspace_plugins() {
 #[tokio::test]
 async fn delete_remote_plugin_share_deletes_workspace_plugin() {
     let cx_home = TempDir::new().unwrap();
-    let local_plugin_path =
-        AbsolutePathBuf::try_from(cx_home.path().join("local-plugin")).unwrap();
+    let local_plugin_path = AbsolutePathBuf::try_from(cx_home.path().join("local-plugin")).unwrap();
     write_plugin_share_local_path_mapping(cx_home.path(), "plugins_123", &local_plugin_path);
     let server = MockServer::start().await;
     let config = test_config(&server);

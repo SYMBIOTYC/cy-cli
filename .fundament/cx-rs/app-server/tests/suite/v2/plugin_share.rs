@@ -713,9 +713,7 @@ async fn plugin_share_checkout_adds_personal_marketplace_entry() -> Result<()> {
     );
 
     let mapping: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(
-        cx_home
-            .path()
-            .join(".tmp/plugin-share-local-paths-v1.json"),
+        cx_home.path().join(".tmp/plugin-share-local-paths-v1.json"),
     )?)?;
     assert_eq!(
         mapping,

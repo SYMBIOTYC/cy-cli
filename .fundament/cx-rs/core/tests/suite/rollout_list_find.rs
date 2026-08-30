@@ -112,10 +112,9 @@ async fn find_handles_gitignore_covering_cx_home_directory() {
     let id = Uuid::new_v4();
     let expected = write_minimal_rollout_with_id(&cx_home, id);
 
-    let found =
-        find_thread_path_by_id_str(&cx_home, &id.to_string(), /*state_db_ctx*/ None)
-            .await
-            .unwrap();
+    let found = find_thread_path_by_id_str(&cx_home, &id.to_string(), /*state_db_ctx*/ None)
+        .await
+        .unwrap();
 
     assert_eq!(found, Some(expected));
 }

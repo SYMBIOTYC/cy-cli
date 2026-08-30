@@ -416,7 +416,7 @@ async fn queued_settings_selection_applies_before_next_input() {
 
     let popup = render_bottom_popup(&chat, /*width*/ 80);
     assert!(
-        popup.contains("Select Model and Effort"),
+        popup.contains("Select Model"),
         "expected model menu to open; popup:\n{popup}"
     );
 

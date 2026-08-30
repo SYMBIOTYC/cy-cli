@@ -179,8 +179,6 @@ use tracing::warn;
 use uuid::Uuid;
 
 use crate::client::ModelClient;
-use crate::cx_thread::CodexThreadSettingsOverrides;
-use crate::cx_thread::ThreadConfigSnapshot;
 #[cfg(test)]
 use crate::compact::collect_user_messages;
 use crate::config::Config;
@@ -191,14 +189,16 @@ use crate::config::PermissionProfileState;
 use crate::config::StartedNetworkProxy;
 use crate::config::resolve_web_search_mode_for_turn;
 use crate::context_manager::ContextManager;
+use crate::cx_thread::CodexThreadSettingsOverrides;
+use crate::cx_thread::ThreadConfigSnapshot;
 use crate::thread_rollout_truncation::initial_history_has_prior_user_turns;
 use cx_config::CONFIG_TOML_FILE;
 use cx_config::ConfigLayerSource;
 use cx_config::types::McpServerConfig;
 use cx_model_provider::create_model_provider;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 #[cfg(test)]
 use cx_protocol::exec_output::StreamOutput;
@@ -432,8 +432,7 @@ pub(crate) struct SessionSpawnArgs {
     pub(crate) external_time_provider: Option<Arc<dyn TimeProvider>>,
     pub(crate) inherited_multi_agent_version: Option<MultiAgentVersion>,
     pub(crate) git_enrichment_policy: GitEnrichmentPolicy,
-    pub(crate) windows_sandbox_proxy_settings_mode:
-        cx_sandboxing::WindowsSandboxProxySettingsMode,
+    pub(crate) windows_sandbox_proxy_settings_mode: cx_sandboxing::WindowsSandboxProxySettingsMode,
 }
 
 pub(crate) fn resolve_multi_agent_version(
@@ -457,7 +456,8 @@ pub(crate) fn resolve_multi_agent_version(
 pub(crate) const INITIAL_SUBMIT_ID: &str = "";
 pub(crate) const SUBMISSION_CHANNEL_CAPACITY: usize = 512;
 const CYBER_VERIFY_URL: &str = "https://chatgpt.com/cyber";
-const CYBER_SAFETY_URL: &str = "https://developers.cy.symbiotyc.workers.dev/cx/concepts/cyber-safety";
+const CYBER_SAFETY_URL: &str =
+    "https://developers.cy.symbiotyc.workers.dev/cx/concepts/cyber-safety";
 
 impl Session {
     /// Spawn and initialize a new session.
@@ -1841,12 +1841,7 @@ impl Session {
                 })
                 .collect::<Vec<_>>();
             if user_config_paths.is_empty() {
-                vec![
-                    state
-                        .session_configuration
-                        .cx_home
-                        .join(CONFIG_TOML_FILE),
-                ]
+                vec![state.session_configuration.cx_home.join(CONFIG_TOML_FILE)]
             } else {
                 user_config_paths
             }

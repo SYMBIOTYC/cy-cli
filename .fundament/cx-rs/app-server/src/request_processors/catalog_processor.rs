@@ -99,9 +99,7 @@ fn hooks_to_info(hooks: &[cx_hooks::HookListEntry]) -> Vec<HookMetadata> {
         .collect()
 }
 
-fn errors_to_info(
-    errors: &[cx_skills::SkillError],
-) -> Vec<cx_app_server_protocol::SkillErrorInfo> {
+fn errors_to_info(errors: &[cx_skills::SkillError]) -> Vec<cx_app_server_protocol::SkillErrorInfo> {
     errors
         .iter()
         .map(|err| cx_app_server_protocol::SkillErrorInfo {

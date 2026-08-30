@@ -108,10 +108,7 @@ gt_base_url = "https://managed.example/backend-api/"
 
     for (field, value) in [
         ("cli_auth_credentials_store", json!("file")),
-        (
-            "gt_base_url",
-            json!("https://user.example/backend-api/"),
-        ),
+        ("gt_base_url", json!("https://user.example/backend-api/")),
     ] {
         let write_id = app_server
             .send_config_value_write_request(ConfigValueWriteParams {
@@ -974,10 +971,7 @@ writable_roots = [{}]
     let mut mcp = TestAppServer::builder()
         .with_cx_home(cx_home.path())
         .without_auto_env()
-        .with_env_overrides(&[(
-            "CX_APP_SERVER_MANAGED_CONFIG_PATH",
-            Some(&managed_path_str),
-        )])
+        .with_env_overrides(&[("CX_APP_SERVER_MANAGED_CONFIG_PATH", Some(&managed_path_str))])
         .build_initialized_with_timeout(DEFAULT_READ_TIMEOUT)
         .await?;
 

@@ -47,10 +47,7 @@ pub fn cloud_config_bundle_loader(
 ) -> CloudConfigBundleLoader {
     let service = CloudConfigBundleService::new(
         auth_manager,
-        Arc::new(BackendBundleClient::new(
-            gt_base_url,
-            http_client_factory,
-        )),
+        Arc::new(BackendBundleClient::new(gt_base_url, http_client_factory)),
         cx_home,
         CLOUD_CONFIG_BUNDLE_TIMEOUT,
     );

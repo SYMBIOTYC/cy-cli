@@ -438,7 +438,10 @@ mod tests {
 
         let request = transport.last_request.lock().unwrap().clone().unwrap();
         assert_eq!(request.method, Method::POST);
-        assert_eq!(request.url, "https://api.cy.symbiotyc.workers.dev/v1/realtime/calls");
+        assert_eq!(
+            request.url,
+            "https://api.cy.symbiotyc.workers.dev/v1/realtime/calls"
+        );
         assert_eq!(
             request.headers.get(CONTENT_TYPE).unwrap(),
             HeaderValue::from_static("application/sdp")
@@ -462,7 +465,7 @@ mod tests {
             CapturingTransport::with_location("/v1/realtime/calls/calls/rtc_backend_test");
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://cy.symbiotyc.workers.dev/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -649,7 +652,7 @@ mod tests {
         let transport = CapturingTransport::new();
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://cy.symbiotyc.workers.dev/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
 
@@ -698,7 +701,7 @@ mod tests {
         let transport = CapturingTransport::with_location("/v1/live/rtc_backend_frameless");
         let client = RealtimeCallClient::new(
             transport.clone(),
-            provider("https://cy.symbiotyc.workers.dev/v1"),
+            provider("https://api.cy.symbiotyc.workers.dev/v1"),
             Arc::new(DummyAuth),
         );
         let mut session_config = frameless_bidi_session_config("sess-backend");

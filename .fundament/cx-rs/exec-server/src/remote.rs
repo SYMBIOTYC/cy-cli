@@ -845,10 +845,7 @@ mod tests {
                     http::header::AUTHORIZATION,
                     HeaderValue::from_static("Bearer registry-token"),
                 );
-                let _ = headers.insert(
-                    "gt-Account-ID",
-                    HeaderValue::from_static("workspace-123"),
-                );
+                let _ = headers.insert("gt-Account-ID", HeaderValue::from_static("workspace-123"));
                 Ok(headers)
             })
         }

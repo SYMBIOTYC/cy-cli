@@ -166,18 +166,12 @@ async fn remote_installed_plugins_paginate_across_all_scopes_without_download_ur
 fn cached_remote_plugin_catalog_scopes_returns_existing_scopes() {
     let cx_home = tempfile::tempdir().expect("create cx home");
     let config = RemotePluginServiceConfig::new(
-        "https://cy.symbiotyc.workers.dev/v1".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
         crate::test_support::test_http_client_factory(),
     );
     let auth = CodexAuth::create_dummy_gt_auth_for_testing();
     for scope in [RemotePluginScope::Global, RemotePluginScope::Workspace] {
-        catalog_cache::write_cached_directory_plugins(
-            cx_home.path(),
-            &config,
-            &auth,
-            scope,
-            &[],
-        );
+        catalog_cache::write_cached_directory_plugins(cx_home.path(), &config, &auth, scope, &[]);
     }
 
     assert_eq!(

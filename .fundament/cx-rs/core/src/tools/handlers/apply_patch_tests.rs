@@ -1,12 +1,12 @@
 use super::*;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 use cx_apply_patch::MaybeApplyPatchVerified;
 use cx_exec_server::LOCAL_FS;
 use cx_protocol::permissions::FileSystemAccessMode;
 use cx_protocol::permissions::FileSystemSandboxEntry;
 use cx_protocol::permissions::FileSystemSandboxPolicy;
 use cx_protocol::protocol::FileChange;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::collections::HashMap;

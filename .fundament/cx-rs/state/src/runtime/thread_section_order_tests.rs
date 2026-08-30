@@ -27,11 +27,7 @@ async fn thread_section_ordering_batches_persisted_positions_and_entry_times() -
 
     for thread_id in [first, second, unsectioned] {
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await?;
     }
 
@@ -327,11 +323,7 @@ async fn concurrent_section_moves_preserve_unique_positions() -> Result<()> {
 
     for thread_id in [first, second, third, fourth, fifth] {
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await?;
     }
 
@@ -457,11 +449,7 @@ async fn section_moves_preserve_entry_order_and_renumber_exhausted_ranks() {
 
     for thread_id in [first, second, third] {
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await
             .unwrap();
         assert!(

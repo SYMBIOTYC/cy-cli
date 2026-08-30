@@ -102,9 +102,7 @@ async fn initial_noise_connection_refreshes_bundle_after_unauthorized_handshake(
     let _connection = ExecServerClient::open_initial_noise_rendezvous_connection(
         &provider,
         &identity,
-        cx_http_client::HttpClientFactory::new(
-            cx_http_client::OutboundProxyPolicy::ReqwestDefault,
-        ),
+        cx_http_client::HttpClientFactory::new(cx_http_client::OutboundProxyPolicy::ReqwestDefault),
     )
     .await?;
 

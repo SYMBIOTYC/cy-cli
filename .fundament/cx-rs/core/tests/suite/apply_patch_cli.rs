@@ -1,12 +1,12 @@
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
-use cx_core::StartThreadOptions;
-use cx_core::TurnInputRequest;
 use core_test_support::responses::ev_apply_patch_custom_tool_call;
 use core_test_support::responses::ev_apply_patch_shell_command_call_via_heredoc;
 use core_test_support::responses::ev_shell_command_call;
 use core_test_support::test_codex::ApplyPatchModelOutput;
+use cx_core::StartThreadOptions;
+use cx_core::TurnInputRequest;
 use pretty_assertions::assert_eq;
 use std::fs;
 use std::path::PathBuf;
@@ -16,6 +16,31 @@ use std::time::Duration;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 
+use core_test_support::PathBufExt;
+use core_test_support::TestTargetOs;
+use core_test_support::assert_regex_match;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::ev_shell_command_call_with_args;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_target_windows;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::TestCodexBuilder;
+use core_test_support::test_codex::TestCodexHarness;
+use core_test_support::test_codex::executor_path_uri;
+use core_test_support::test_codex::local;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
 use cx_exec_server::CreateDirectoryOptions;
 use cx_exec_server::LOCAL_ENVIRONMENT_ID;
 use cx_exec_server::REMOTE_ENVIRONMENT_ID;
@@ -48,31 +73,6 @@ use cx_protocol::user_input::UserInput;
 use cx_sandboxing::landlock::CODEX_LINUX_SANDBOX_ARG0;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::TestTargetOs;
-use core_test_support::assert_regex_match;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::ev_shell_command_call_with_args;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_target_windows;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::TestCodexBuilder;
-use core_test_support::test_codex::TestCodexHarness;
-use core_test_support::test_codex::executor_path_uri;
-use core_test_support::test_codex::local;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
 use serde_json::json;
 use test_case::test_case;
 use wiremock::Mock;
@@ -1009,10 +1009,7 @@ async fn escalated_patch_rejects_symlink_swapped_after_approval_request() -> Res
             decision: ReviewDecision::Approved,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let output = harness.apply_patch_output(call_id).await;
     assert_eq!(fs::read_to_string(&outside)?, "original\n", "{output:?}");
@@ -1832,19 +1829,18 @@ async fn apply_patch_turn_diff_skips_git_root_when_feature_is_enabled(
     let patch = "*** Begin Patch\n*** Update File: work.txt\n@@\n-before\n+after\n*** End Patch";
     mount_apply_patch(&harness, "apply-work-diff-root", patch, "updated work file").await;
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "update the work file".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(SandboxPolicy::DangerFullAccess),
-                ..Default::default()
-            }),
-        )
-        .await?;
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "update the work file".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(SandboxPolicy::DangerFullAccess),
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let mut last_diff = None;
     wait_for_event(&cx, |event| match event {

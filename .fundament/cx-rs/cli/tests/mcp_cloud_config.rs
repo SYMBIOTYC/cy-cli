@@ -49,9 +49,8 @@ impl CloudManagedMcpFixture {
         let server = MockServer::start().await;
         let gt_base_url = format!("{}/backend-api", server.uri());
         let cx_home = TempDir::new()?;
-        let user_config = format!(
-            "cli_auth_credentials_store = \"file\"\ngt_base_url = \"{gt_base_url}\"\n"
-        );
+        let user_config =
+            format!("cli_auth_credentials_store = \"file\"\ngt_base_url = \"{gt_base_url}\"\n");
         std::fs::write(cx_home.path().join("config.toml"), &user_config)?;
 
         let bootstrap_config = load_config_toml_with_layer_stack(
@@ -63,8 +62,7 @@ impl CloudManagedMcpFixture {
         .await?;
         if bootstrap_config.config_toml.cli_auth_credentials_store
             != Some(AuthCredentialsStoreMode::File)
-            || bootstrap_config.config_toml.gt_base_url.as_deref()
-                != Some(gt_base_url.as_str())
+            || bootstrap_config.config_toml.gt_base_url.as_deref() != Some(gt_base_url.as_str())
         {
             eprintln!(
                 "skipping cloud-managed MCP subprocess: host-managed authentication or backend routing prevents isolated mock credentials"

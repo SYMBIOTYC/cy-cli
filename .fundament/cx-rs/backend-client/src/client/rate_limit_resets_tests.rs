@@ -21,19 +21,19 @@ fn rate_limit_reset_contract_uses_expected_paths_and_payloads() {
         "https://example.test/api/cx/rate-limit-reset-credits/consume"
     );
     assert_eq!(
-        test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
+        test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
             .rate_limit_status_url(),
-        "https://cy.symbiotyc.workers.dev/v1/wham/usage"
+        "https://api.cy.symbiotyc.workers.dev/v1/wham/usage"
     );
     assert_eq!(
-        test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
+        test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
             .rate_limit_reset_credits_url(),
-        "https://cy.symbiotyc.workers.dev/v1/wham/rate-limit-reset-credits"
+        "https://api.cy.symbiotyc.workers.dev/v1/wham/rate-limit-reset-credits"
     );
     assert_eq!(
-        test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
+        test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi)
             .consume_rate_limit_reset_credit_url(),
-        "https://cy.symbiotyc.workers.dev/v1/wham/rate-limit-reset-credits/consume"
+        "https://api.cy.symbiotyc.workers.dev/v1/wham/rate-limit-reset-credits/consume"
     );
 
     assert_eq!(

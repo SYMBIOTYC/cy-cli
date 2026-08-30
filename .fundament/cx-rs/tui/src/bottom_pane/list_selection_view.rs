@@ -148,6 +148,7 @@ pub(crate) struct SelectionItem {
     pub disabled_reason: Option<String>,
     /// Optional marker rendered in place of the number for a disabled row.
     pub disabled_gutter_marker: Option<&'static str>,
+    pub hide_current_marker: bool,
 }
 
 /// Construction-time configuration for [`ListSelectionView`].
@@ -576,7 +577,7 @@ impl ListSelectionView {
                     let is_selected = self.state.selected_idx == Some(visible_idx);
                     let prefix = if is_selected { '›' } else { ' ' };
                     let name = item.name.as_str();
-                    let marker = if item.is_current {
+                    let marker = if item.is_current && !item.hide_current_marker {
                         " (current)"
                     } else if item.is_default {
                         " (default)"

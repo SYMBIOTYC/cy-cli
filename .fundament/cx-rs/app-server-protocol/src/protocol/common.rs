@@ -3101,11 +3101,9 @@ mod tests {
                 service_tier: None,
                 cwd,
                 runtime_workspace_roots: Vec::new(),
-                instruction_sources: vec![
-                    cx_utils_path_uri::LegacyAppPathString::from_abs_path(&absolute_path(
-                        "/tmp/AGENTS.md",
-                    )),
-                ],
+                instruction_sources: vec![cx_utils_path_uri::LegacyAppPathString::from_abs_path(
+                    &absolute_path("/tmp/AGENTS.md"),
+                )],
                 approval_policy: v2::AskForApproval::OnRequest,
                 approvals_reviewer: v2::ApprovalsReviewer::User,
                 sandbox: v2::SandboxPolicy::DangerFullAccess,

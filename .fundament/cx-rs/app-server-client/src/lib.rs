@@ -326,8 +326,7 @@ impl InProcessAppServerClient {
     /// Request queues remain bounded without blocking on unread notifications.
     pub async fn start(args: InProcessClientStartArgs) -> IoResult<Self> {
         let channel_capacity = args.channel_capacity.max(1);
-        let mut handle =
-            cx_app_server::in_process::start(args.into_runtime_start_args()).await?;
+        let mut handle = cx_app_server::in_process::start(args.into_runtime_start_args()).await?;
         let request_sender = handle.sender();
         let (command_tx, mut command_rx) = mpsc::channel::<ClientCommand>(channel_capacity);
         // e9996ec62a preserved transcript events by awaiting a bounded queue, but that can

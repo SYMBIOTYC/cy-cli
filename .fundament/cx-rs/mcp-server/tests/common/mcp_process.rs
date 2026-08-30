@@ -182,16 +182,12 @@ impl McpProcess {
 
     /// Returns the id used to make the request so it can be used when
     /// correlating notifications.
-    pub async fn send_cx_tool_call(
-        &mut self,
-        params: CodexToolCallParam,
-    ) -> anyhow::Result<i64> {
-        let cx_tool_call_params = CallToolRequestParams::new("cx").with_arguments(
-            match serde_json::to_value(params)? {
+    pub async fn send_cx_tool_call(&mut self, params: CodexToolCallParam) -> anyhow::Result<i64> {
+        let cx_tool_call_params =
+            CallToolRequestParams::new("cx").with_arguments(match serde_json::to_value(params)? {
                 serde_json::Value::Object(map) => map,
                 _ => unreachable!("params serialize to object"),
-            },
-        );
+            });
         self.send_request(
             "tools/call",
             Some(serde_json::to_value(cx_tool_call_params)?),

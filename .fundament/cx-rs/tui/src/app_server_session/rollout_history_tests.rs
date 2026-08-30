@@ -3,10 +3,10 @@ use crate::legacy_core::config::Config;
 use crate::legacy_core::config::ConfigBuilder;
 use app_test_support::create_fake_paginated_rollout;
 use app_test_support::create_fake_rollout;
+use color_eyre::eyre::Result;
 use cx_app_server_protocol::ThreadHistoryMode;
 use cx_features::Feature;
 use cx_protocol::ThreadId;
-use color_eyre::eyre::Result;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 
@@ -146,9 +146,8 @@ async fn rollout_maintenance_contention_disables_cached_legacy_resume_shortcut()
     )?;
     let mut app_server = crate::start_embedded_app_server_for_picker(&config).await?;
     app_server.remember_thread_history_mode(thread_id, ThreadHistoryMode::Legacy);
-    let _maintenance_guard =
-        cx_rollout::try_acquire_rollout_maintenance_lock(cx_home.path())?
-            .expect("acquire rollout maintenance lock");
+    let _maintenance_guard = cx_rollout::try_acquire_rollout_maintenance_lock(cx_home.path())?
+        .expect("acquire rollout maintenance lock");
     let next_request_id = app_server.next_request_id;
 
     let resumed = app_server

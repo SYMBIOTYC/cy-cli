@@ -2507,10 +2507,7 @@ mod tests {
         .expect_err("missing auth should fail remote control");
 
         assert_eq!(err.kind(), ErrorKind::PermissionDenied);
-        assert_eq!(
-            err.to_string(),
-            "remote control requires gt authentication"
-        );
+        assert_eq!(err.to_string(), "remote control requires gt authentication");
         assert_eq!(*current_enrollment.lock().await, None);
         assert_eq!(
             status_rx.borrow().clone(),

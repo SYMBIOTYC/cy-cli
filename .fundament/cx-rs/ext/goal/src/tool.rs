@@ -493,9 +493,7 @@ fn protocol_status_from_state(status: cx_state::ThreadGoalStatus) -> ThreadGoalS
     }
 }
 
-pub(crate) fn state_status_from_protocol(
-    status: ThreadGoalStatus,
-) -> cx_state::ThreadGoalStatus {
+pub(crate) fn state_status_from_protocol(status: ThreadGoalStatus) -> cx_state::ThreadGoalStatus {
     match status {
         ThreadGoalStatus::Active => cx_state::ThreadGoalStatus::Active,
         ThreadGoalStatus::Paused => cx_state::ThreadGoalStatus::Paused,

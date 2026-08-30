@@ -108,8 +108,7 @@ fn managed_auth_restrictions_intersect_workspaces_and_fail_closed() {
         Some(vec!["allowed".to_string()])
     );
 
-    requirements.allowed_gt_workspaces =
-        Some(Sourced::new(Vec::new(), RequirementSource::Unknown));
+    requirements.allowed_gt_workspaces = Some(Sourced::new(Vec::new(), RequirementSource::Unknown));
     let bootstrap_config = ConfigTomlLoadResult {
         config_toml: config,
         config_layer_stack: ConfigLayerStack::new(

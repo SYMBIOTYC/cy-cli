@@ -88,10 +88,7 @@ fn syntax_set() -> &'static SyntaxSet {
 ///
 /// Returns user-facing warnings for actionable configuration issues, such as
 /// unknown/invalid theme names or duplicate override persistence.
-pub(crate) fn set_theme_override(
-    name: Option<String>,
-    cx_home: Option<PathBuf>,
-) -> Option<String> {
+pub(crate) fn set_theme_override(name: Option<String>, cx_home: Option<PathBuf>) -> Option<String> {
     let warning = validate_theme_name(name.as_deref(), cx_home.as_deref());
     let override_set_ok = THEME_OVERRIDE.set(name.clone()).is_ok();
     let cx_home_set_ok = CX_HOME.set(cx_home.clone()).is_ok();
@@ -237,9 +234,7 @@ fn resolve_theme_with_override(name: Option<&str>, cx_home: Option<&Path>) -> Th
 /// Extracted from the old `theme()` init closure so it can be reused.
 fn build_default_theme() -> Theme {
     let name = THEME_OVERRIDE.get().and_then(|name| name.as_deref());
-    let cx_home = CX_HOME
-        .get()
-        .and_then(|cx_home| cx_home.as_deref());
+    let cx_home = CX_HOME.get().and_then(|cx_home| cx_home.as_deref());
     resolve_theme_with_override(name, cx_home)
 }
 

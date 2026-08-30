@@ -7,6 +7,10 @@
 
 #![allow(clippy::unwrap_used)]
 
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyEventKind;
+use crossterm::event::KeyModifiers;
 use cx_app_server_client::AppServerRequestHandle;
 use cx_app_server_protocol::AccountLoginCompletedNotification;
 use cx_app_server_protocol::AccountUpdatedNotification;
@@ -18,10 +22,6 @@ use cx_app_server_protocol::LoginAccountResponse;
 use cx_login::AuthConfig;
 use cx_login::read_openai_api_key_from_env;
 use cx_protocol::auth::AuthMode;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyEventKind;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Constraint;
 use ratatui::layout::Layout;
@@ -563,11 +563,7 @@ impl AuthModeWidget {
         );
 
         let lines = vec![
-            HyperlinkLine::new(
-                "✓ Signed in with your gt account"
-                    .fg(Color::Green)
-                    .into(),
-            ),
+            HyperlinkLine::new("✓ Signed in with your gt account".fg(Color::Green).into()),
             "".into(),
             "  Before you start:".into(),
             "".into(),
@@ -598,11 +594,7 @@ impl AuthModeWidget {
     }
 
     fn render_gt_success(&self, area: Rect, buf: &mut Buffer) {
-        let lines = vec![
-            "✓ Signed in with your gt account"
-                .fg(Color::Green)
-                .into(),
-        ];
+        let lines = vec!["✓ Signed in with your gt account".fg(Color::Green).into()];
 
         Paragraph::new(lines)
             .wrap(Wrap { trim: false })
@@ -1263,7 +1255,11 @@ mod tests {
         widget.render_gt_success_message(area, &mut buf);
 
         assert_eq!(
-            collect_osc8_chars(&buf, area, "https://developers.cy.symbiotyc.workers.dev/cx/security"),
+            collect_osc8_chars(
+                &buf,
+                area,
+                "https://developers.cy.symbiotyc.workers.dev/cx/security"
+            ),
             "CX docs"
         );
         assert_eq!(

@@ -24,6 +24,8 @@ pub use app::AppExitInfo;
 pub use app::ExitReason;
 use app_server_session::AppServerSession;
 use app_server_session::ThreadParamsMode;
+use color_eyre::eyre::WrapErr;
+use cwd_prompt::CwdPromptAction;
 use cx_app_server_client::AppServerClient;
 use cx_app_server_client::DEFAULT_IN_PROCESS_CHANNEL_CAPACITY;
 use cx_app_server_client::InProcessAppServerClient;
@@ -67,8 +69,6 @@ use cx_utils_absolute_path::canonicalize_existing_preserving_symlinks;
 use cx_utils_home_dir::find_cx_home;
 use cx_utils_oss::ensure_oss_provider_ready;
 use cx_utils_oss::get_default_model_for_oss_provider;
-use color_eyre::eyre::WrapErr;
-use cwd_prompt::CwdPromptAction;
 pub use session_archive_commands::DeleteConfirmation;
 pub use session_archive_commands::SessionArchiveAction;
 pub use session_archive_commands::SessionArchiveCommandOptions;
@@ -101,7 +101,6 @@ mod app_event_sender;
 mod app_info;
 mod app_server_approval_conversions;
 mod app_server_session;
-pub mod ncview;
 mod approval_events;
 mod ascii_animation;
 mod bottom_pane;
@@ -114,6 +113,7 @@ mod collaboration_modes;
 mod color;
 mod config_update;
 pub(crate) mod custom_terminal;
+pub mod ncview;
 mod pets;
 pub use custom_terminal::Terminal;
 mod auto_review_denials;
@@ -2441,8 +2441,7 @@ mod tests {
     #[tokio::test]
     async fn default_daemon_auto_connect_probes_socket_only() -> color_eyre::Result<()> {
         let cx_home = TempDir::new()?;
-        let socket_path =
-            cx_app_server_client::app_server_control_socket_path(cx_home.path())?;
+        let socket_path = cx_app_server_client::app_server_control_socket_path(cx_home.path())?;
         std::fs::create_dir_all(socket_path.as_path().parent().expect("socket parent"))?;
         let _listener = tokio::net::UnixListener::bind(socket_path.as_path())?;
 
@@ -3129,10 +3128,7 @@ mod tests {
                         .iter()
                         .flat_map(|turn| &turn.items)
                         .any(|item| {
-                            matches!(
-                                item,
-                                cx_app_server_protocol::ThreadItem::UserMessage { .. }
-                            )
+                            matches!(item, cx_app_server_protocol::ThreadItem::UserMessage { .. })
                         })
                 );
                 let preview = crate::resume_picker::load_transcript_preview(
@@ -3193,8 +3189,7 @@ mod tests {
         let mut config = build_config(&temp_dir).await?;
         let occupied_sqlite_home = temp_dir.path().join("sqlite-home");
         std::fs::write(&occupied_sqlite_home, "occupied")?;
-        let sqlite =
-            cx_state::SqliteConfig::new_for_testing(occupied_sqlite_home.as_path().abs());
+        let sqlite = cx_state::SqliteConfig::new_for_testing(occupied_sqlite_home.as_path().abs());
         config.sqlite = sqlite.clone();
 
         let err =

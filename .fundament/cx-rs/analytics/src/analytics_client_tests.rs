@@ -18,9 +18,9 @@ use crate::events::CodexPluginInstallFailedMetadata;
 use crate::events::CodexPluginUsedEventRequest;
 use crate::events::CodexReviewEventParams;
 use crate::events::CodexReviewEventRequest;
-use crate::events::CxRuntimeMetadata;
 use crate::events::CodexToolItemEventBase;
 use crate::events::CodexTurnEventRequest;
+use crate::events::CxRuntimeMetadata;
 use crate::events::FinalApprovalOutcome;
 use crate::events::GuardianApprovalRequestSource;
 use crate::events::GuardianReviewDecision;
@@ -37,11 +37,11 @@ use crate::events::ThreadInitializedEvent;
 use crate::events::ThreadInitializedEventParams;
 use crate::events::ToolItemTerminalStatus;
 use crate::events::TrackEventRequest;
+use crate::events::current_runtime_metadata;
 use crate::events::cx_app_metadata;
 use crate::events::cx_hook_run_metadata;
 use crate::events::cx_plugin_metadata;
 use crate::events::cx_plugin_used_metadata;
-use crate::events::current_runtime_metadata;
 use crate::events::subagent_thread_started_event_request;
 use crate::facts::AnalyticsFact;
 use crate::facts::AnalyticsJsonRpcError;
@@ -53,8 +53,6 @@ use crate::facts::ArtifactOperationInput;
 use crate::facts::ArtifactOperationLifecycle;
 use crate::facts::CodeModeToolCallFact;
 use crate::facts::CodeModeToolCallStatus;
-use crate::facts::CxCompactionEvent;
-use crate::facts::CxErrKind;
 use crate::facts::CompactionImplementation;
 use crate::facts::CompactionPhase;
 use crate::facts::CompactionReason;
@@ -62,6 +60,8 @@ use crate::facts::CompactionStatus;
 use crate::facts::CompactionStrategy;
 use crate::facts::CompactionTrigger;
 use crate::facts::CustomAnalyticsFact;
+use crate::facts::CxCompactionEvent;
+use crate::facts::CxErrKind;
 use crate::facts::ExternalAgentConfigImportCompletedInput;
 use crate::facts::ExternalAgentConfigImportFailureInput;
 use crate::facts::HookRunFact;
@@ -3987,8 +3987,7 @@ async fn reducer_includes_plugin_ids_for_plugin_skill_invocations() {
     let mut reducer = AnalyticsReducer::default();
     let mut events = Vec::new();
     let tracking = test_tracking_context("thread-1", "turn-1");
-    let skill_path =
-        PathBuf::from("/Users/abc/.cx/plugins/cache/test/sample/skills/doc/SKILL.md");
+    let skill_path = PathBuf::from("/Users/abc/.cx/plugins/cache/test/sample/skills/doc/SKILL.md");
 
     reducer
         .ingest(

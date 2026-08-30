@@ -186,17 +186,9 @@ impl TraceReducer {
                 cx_turn_id,
                 thread_id,
             } => {
-                self.start_cx_turn(
-                    event.seq,
-                    event.wall_time_unix_ms,
-                    cx_turn_id,
-                    thread_id,
-                )?;
+                self.start_cx_turn(event.seq, event.wall_time_unix_ms, cx_turn_id, thread_id)?;
             }
-            RawTraceEventPayload::CodexTurnEnded {
-                cx_turn_id,
-                status,
-            } => {
+            RawTraceEventPayload::CodexTurnEnded { cx_turn_id, status } => {
                 self.end_cx_turn(
                     event.seq,
                     event.wall_time_unix_ms,

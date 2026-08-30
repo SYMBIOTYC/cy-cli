@@ -1,6 +1,18 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_mcp_server;
 use cx_config::ConfigLayerEntry;
 use cx_config::ConfigLayerSource;
 use cx_config::ConfigLayerStack;
@@ -44,18 +56,6 @@ use cx_skills_extension::provider::SkillSearchRequest;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
 use cx_utils_string::approx_token_count;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -602,10 +602,8 @@ async fn capability_sections_render_in_order_with_host_repo_and_plugin_skills() 
         ]))
         .await?;
 
-    core_test_support::wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    core_test_support::wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_)))
+        .await;
 
     let request = response.single_request();
     let developer_messages = request.message_input_texts("developer");
@@ -682,9 +680,7 @@ async fn agent_plugin_skill_prompt_stays_bounded_without_skills_extension() -> R
     .await;
 
     let cx_home = Arc::new(TempDir::new()?);
-    let plugin_root = cx_home
-        .path()
-        .join("plugins/cache/test/acme.tools/local");
+    let plugin_root = cx_home.path().join("plugins/cache/test/acme.tools/local");
     let skill_dir = plugin_root.join("skills/review");
     std::fs::create_dir_all(&skill_dir)?;
     std::fs::write(
@@ -720,10 +716,8 @@ async fn agent_plugin_skill_prompt_stays_bounded_without_skills_extension() -> R
         )
     })
     .await;
-    core_test_support::wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    core_test_support::wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_)))
+        .await;
 
     let user_text = response
         .single_request()
@@ -769,9 +763,7 @@ async fn explicit_skill_prompt_precedes_plugin_instructions() -> Result<()> {
     let skill_path = dunce::canonicalize(skill_dir.join("SKILL.md"))?;
     let (extensions, _) =
         catalog_extensions(SkillCatalog::default(), /*include_host_provider*/ true);
-    let mut builder = test_codex()
-        .with_home(cx_home)
-        .with_extensions(extensions);
+    let mut builder = test_codex().with_home(cx_home).with_extensions(extensions);
     let test = builder.build_with_auto_env(&server).await?;
 
     test.cx
@@ -786,10 +778,8 @@ async fn explicit_skill_prompt_precedes_plugin_instructions() -> Result<()> {
             },
         ]))
         .await?;
-    core_test_support::wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    core_test_support::wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_)))
+        .await;
 
     let input = response.single_request().input();
     let prompt_position = |expected: &str| {

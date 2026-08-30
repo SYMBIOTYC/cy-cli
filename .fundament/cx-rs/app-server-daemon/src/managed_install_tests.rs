@@ -5,10 +5,7 @@ use super::parse_cx_version;
 
 #[test]
 fn parses_cx_cli_version_output() {
-    assert_eq!(
-        parse_cx_version("cx 1.2.3\n").expect("version"),
-        "1.2.3"
-    );
+    assert_eq!(parse_cx_version("cx 1.2.3\n").expect("version"), "1.2.3");
 }
 
 #[test]

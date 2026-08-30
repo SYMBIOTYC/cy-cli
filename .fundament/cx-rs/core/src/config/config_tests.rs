@@ -4344,8 +4344,7 @@ async fn runtime_config_resolves_terminal_resize_reflow_defaults_and_overrides()
 }
 
 #[tokio::test]
-async fn forced_gt_workspace_id_empty_values_disable_runtime_restriction()
--> std::io::Result<()> {
+async fn forced_gt_workspace_id_empty_values_disable_runtime_restriction() -> std::io::Result<()> {
     let cases: Vec<(&str, &str, Option<Vec<&str>>)> = vec![
         ("unset", "", None),
         ("empty string", r#"forced_gt_workspace_id = """#, None),
@@ -6056,9 +6055,11 @@ async fn config_applies_managed_auth_store_and_gt_base_url() -> std::io::Result<
     assert!(config.startup_warnings.iter().any(|warning| {
         warning.contains("Configured value for `cli_auth_credentials_store` is overridden")
     }));
-    assert!(config.startup_warnings.iter().any(|warning| {
-        warning.contains("Configured value for `gt_base_url` is overridden")
-    }));
+    assert!(
+        config.startup_warnings.iter().any(|warning| {
+            warning.contains("Configured value for `gt_base_url` is overridden")
+        })
+    );
 
     Ok(())
 }
@@ -6631,10 +6632,7 @@ async fn managed_config_wins_over_cli_overrides() -> anyhow::Result<()> {
     let cx_home = TempDir::new()?;
     let managed_path = cx_home.path().join("managed_config.toml");
 
-    std::fs::write(
-        cx_home.path().join(CONFIG_TOML_FILE),
-        "model = \"base\"\n",
-    )?;
+    std::fs::write(cx_home.path().join(CONFIG_TOML_FILE), "model = \"base\"\n")?;
     std::fs::write(&managed_path, "model = \"managed_config\"\n")?;
 
     let overrides = LoaderOverrides::with_managed_config_path_for_tests(managed_path);
@@ -6891,10 +6889,7 @@ async fn to_mcp_config_flows_mcp_2026_feature_from_config() -> std::io::Result<(
 
     let _ = config.features.enable(Feature::Mcp20260728);
     let mcp_config = config.to_mcp_config(&plugins_manager).await;
-    assert_eq!(
-        mcp_config.protocol_mode,
-        cx_mcp::McpProtocolMode::V20260728
-    );
+    assert_eq!(mcp_config.protocol_mode, cx_mcp::McpProtocolMode::V20260728);
 
     Ok(())
 }

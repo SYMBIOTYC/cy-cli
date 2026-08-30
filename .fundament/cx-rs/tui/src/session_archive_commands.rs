@@ -20,6 +20,9 @@ use crate::named_session_lookup::NamedSessionCandidates;
 use crate::named_session_lookup::SessionCollection;
 use crate::named_session_lookup::SessionNameLookupMode;
 use crate::named_session_lookup::current_name_is_compatible;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
+use color_eyre::eyre::eyre;
 use cx_app_server_protocol::Thread as AppServerThread;
 use cx_arg0::Arg0DispatchPaths;
 use cx_config::CloudConfigBundleLoader;
@@ -31,9 +34,6 @@ use cx_protocol::ThreadId;
 use cx_utils_cli::CliConfigOverrides;
 use cx_utils_home_dir::find_cx_home;
 use cx_utils_oss::get_default_model_for_oss_provider;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
-use color_eyre::eyre::eyre;
 
 use super::RemoteAppServerEndpoint;
 
@@ -91,13 +91,8 @@ pub async fn run_session_archive_command(
     let cx_home = find_cx_home().wrap_err("failed to find CX home")?;
     let mut app_server =
         start_app_server_for_session_command(options, cx_home.to_path_buf()).await?;
-    run_session_archive_action_with_app_server(
-        &mut app_server,
-        cx_home.as_path(),
-        action,
-        &target,
-    )
-    .await
+    run_session_archive_action_with_app_server(&mut app_server, cx_home.as_path(), action, &target)
+        .await
 }
 
 async fn run_session_archive_action_with_app_server(

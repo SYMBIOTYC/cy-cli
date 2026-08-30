@@ -726,8 +726,7 @@ impl TurnRequestProcessor {
             || collaboration_mode.is_some()
             || personality.is_some();
 
-        let approval_policy =
-            approval_policy.map(cx_app_server_protocol::AskForApproval::to_core);
+        let approval_policy = approval_policy.map(cx_app_server_protocol::AskForApproval::to_core);
         let approvals_reviewer =
             approvals_reviewer.map(cx_app_server_protocol::ApprovalsReviewer::to_core);
         let sandbox_policy = sandbox_policy.map(|policy| policy.to_core());
@@ -1098,8 +1097,7 @@ impl TurnRequestProcessor {
                 cx_responses_as_items: params.cx_responses_as_items.unwrap_or(false),
                 cx_response_item_prefix: params.cx_response_item_prefix,
                 cx_response_handoff_mode: params.cx_response_handoff_mode.unwrap_or_default(),
-                cx_response_handoff_channel_prefixes: params
-                    .cx_response_handoff_channel_prefixes,
+                cx_response_handoff_channel_prefixes: params.cx_response_handoff_channel_prefixes,
                 model: params.model,
                 output_modality: params.output_modality,
                 include_startup_context: params.include_startup_context.unwrap_or(true),

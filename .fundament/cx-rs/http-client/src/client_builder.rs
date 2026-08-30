@@ -17,9 +17,9 @@ use crate::ClientRouteClass;
 use crate::HttpClient;
 use crate::HttpClientFactory;
 use crate::OutboundProxyRoute;
-use crate::gt_cloudflare_cookies::ChatGptCookieStore;
 use crate::client::RequestLogging;
 use crate::custom_ca::build_reqwest_client_with_custom_ca;
+use crate::gt_cloudflare_cookies::ChatGptCookieStore;
 use crate::with_gt_cloudflare_cookie_store;
 
 /// Configures an [`HttpClient`] without exposing the underlying HTTP implementation.

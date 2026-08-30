@@ -11,9 +11,7 @@ use std::path::PathBuf;
 /// - If `CX_HOME` is not set, this function does not verify that the
 ///   directory exists.
 pub fn find_cx_home() -> std::io::Result<AbsolutePathBuf> {
-    let cx_home_env = std::env::var("CX_HOME")
-        .ok()
-        .filter(|val| !val.is_empty());
+    let cx_home_env = std::env::var("CX_HOME").ok().filter(|val| !val.is_empty());
     find_cx_home_from_env(cx_home_env.as_deref())
 }
 
@@ -124,8 +122,7 @@ mod tests {
 
     #[test]
     fn find_cx_home_without_env_uses_default_home_dir() {
-        let resolved =
-            find_cx_home_from_env(/*cx_home_env*/ None).expect("default CX_HOME");
+        let resolved = find_cx_home_from_env(/*cx_home_env*/ None).expect("default CX_HOME");
         let mut expected = home_dir().expect("home dir");
         expected.push(".cx");
         let expected = AbsolutePathBuf::from_absolute_path(expected).expect("absolute home");

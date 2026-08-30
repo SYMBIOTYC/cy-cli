@@ -585,12 +585,7 @@ pub(crate) fn gather_read_roots(
     cx_home: &Path,
 ) -> Vec<PathBuf> {
     if permissions.has_full_disk_read_access() {
-        return gather_full_read_roots_for_permissions(
-            command_cwd,
-            permissions,
-            env_map,
-            cx_home,
-        );
+        return gather_full_read_roots_for_permissions(command_cwd, permissions, env_map, cx_home);
     }
 
     let mut roots = gather_helper_read_roots(cx_home);
@@ -886,11 +881,7 @@ fn verify_setup_completed(cx_home: &Path) -> Result<()> {
     }
 }
 
-fn run_setup_exe(
-    payload: &ElevationPayload,
-    needs_elevation: bool,
-    cx_home: &Path,
-) -> Result<()> {
+fn run_setup_exe(payload: &ElevationPayload, needs_elevation: bool, cx_home: &Path) -> Result<()> {
     let payload_json = serde_json::to_string(payload).map_err(|err| {
         failure(
             SetupErrorCode::OrchestratorPayloadSerializeFailed,
@@ -903,11 +894,7 @@ fn run_setup_exe(
     })
 }
 
-fn run_setup_exe_payload(
-    payload_b64: &str,
-    needs_elevation: bool,
-    cx_home: &Path,
-) -> Result<()> {
+fn run_setup_exe_payload(payload_b64: &str, needs_elevation: bool, cx_home: &Path) -> Result<()> {
     use windows_sys::Win32::System::Threading::GetExitCodeProcess;
     use windows_sys::Win32::System::Threading::INFINITE;
     use windows_sys::Win32::System::Threading::WaitForSingleObject;
@@ -2020,8 +2007,7 @@ mod tests {
         let permissions = permissions_for(&permission_profile, workspace_roots.as_slice());
 
         let roots = gather_read_roots(&command_cwd, &permissions, &HashMap::new(), &cx_home);
-        let expected =
-            dunce::canonicalize(helper_bin_dir(&cx_home)).expect("canonical helper dir");
+        let expected = dunce::canonicalize(helper_bin_dir(&cx_home)).expect("canonical helper dir");
 
         assert!(roots.contains(&expected));
     }

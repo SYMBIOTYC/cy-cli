@@ -1,17 +1,20 @@
 #!/bin/bash
 # CY launcher with embedded bridge
+# IMPORTANT: CY-CLI uses ~/.cy/ for config, NOT ~/.codex/
+# ~/.codex/ is the OLD location from the upstream Codex CLI fork.
 set -u
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 CY_HOME="${CY_HOME:-$HOME/.cy}"
 mkdir -p "$CY_HOME" 2>/dev/null
+export CX_HOME="$CY_HOME"
 export CODEX_HOME="$CY_HOME"
-export CY_API_BASE_URL="${CY_API_BASE_URL:-https://cy.symbiotyc.workers.dev/v1}"
+export CY_API_BASE_URL="${CY_API_BASE_URL:-https://api.cy.symbiotyc.workers.dev/v1}"
 export CY_API_KEY="${CY_API_KEY:-cfat_KbYOsjGncELIzKQn3WxUIz9jL97n9nJK2I1EG4hg35627bee}"
 export CY_MODEL="${CY_MODEL:-cy/i1a}"
 export CY_BRIDGE_PORT="${CY_BRIDGE_PORT:-8790}"
 BRIDGE="$REPO_ROOT/bin/cy-adapter.mjs"
-BACKEND="$REPO_ROOT/.fundament/codex-rs/target/release/cy"
+BACKEND="$REPO_ROOT/.fundament/cx-rs/target/release/cy"
 NODE_BIN="$(command -v node || true)"
 CONFIG="$CY_HOME/config.toml"
 if [ ! -f "$CONFIG" ] || ! grep -q "cy-symbiotyc-bridge-v2" "$CONFIG" 2>/dev/null; then

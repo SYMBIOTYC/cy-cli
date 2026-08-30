@@ -47,8 +47,7 @@ pub(crate) struct Session {
     /// The set of enabled features should be invariant for the lifetime of the
     /// session.
     pub(super) features: ManagedFeatures,
-    pub(crate) windows_sandbox_proxy_settings_mode:
-        cx_sandboxing::WindowsSandboxProxySettingsMode,
+    pub(crate) windows_sandbox_proxy_settings_mode: cx_sandboxing::WindowsSandboxProxySettingsMode,
     pub(super) multi_agent_version: OnceLock<MultiAgentVersion>,
     /// Owns invalidation and serializes refreshes without blocking captured calls.
     pub(super) mcp_refresh: McpRefresh,

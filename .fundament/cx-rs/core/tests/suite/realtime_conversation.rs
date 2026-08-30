@@ -1,6 +1,18 @@
 use anyhow::Context;
 use anyhow::Result;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::responses::start_websocket_server_with_headers;
+use core_test_support::skip_if_no_network;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use cx_config::config_toml::RealtimeWsVersion;
 use cx_core::TurnInputRequest;
 use cx_core::test_support::auth_manager_from_auth;
@@ -31,18 +43,6 @@ use cx_protocol::protocol::RealtimeTranscriptEntry;
 use cx_protocol::protocol::RealtimeVoice;
 use cx_protocol::protocol::SessionSource;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::responses::start_websocket_server_with_headers;
-use core_test_support::skip_if_no_network;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use futures::SinkExt;
 use futures::StreamExt;
 use pretty_assertions::assert_eq;
@@ -300,8 +300,7 @@ async fn conversation_start_audio_text_close_round_trip() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -453,8 +452,7 @@ async fn conversation_start_defaults_to_v2_and_gpt_realtime_1_5() -> Result<()> 
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -547,8 +545,7 @@ async fn conversation_webrtc_frameless_gt_sends_cx_headers_to_backend() -> Resul
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: Some("session-override-model".to_string()),
             output_modality: RealtimeOutputModality::Audio,
@@ -674,8 +671,7 @@ async fn conversation_webrtc_start_posts_generated_session() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: Some("session-override-model".to_string()),
             output_modality: RealtimeOutputModality::Audio,
@@ -988,8 +984,7 @@ async fn conversation_webrtc_live_reconnects_sideband_after_unclean_disconnect()
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1138,8 +1133,7 @@ async fn conversation_webrtc_start_uses_avas_query() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1243,8 +1237,7 @@ async fn conversation_webrtc_default_v1_ignores_configured_v2_voice() -> Result<
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1310,8 +1303,7 @@ async fn conversation_webrtc_default_v1_rejects_explicit_v2_voice() -> Result<()
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1387,8 +1379,7 @@ async fn conversation_webrtc_start_uses_configured_call_base_url_for_avas() -> R
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1501,8 +1492,7 @@ async fn conversation_webrtc_close_while_sideband_connecting_drops_pending_join(
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1608,8 +1598,7 @@ async fn conversation_webrtc_sideband_connect_failure_closes_with_error() -> Res
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1708,8 +1697,7 @@ async fn conversation_start_uses_openai_env_key_fallback_with_gt_auth() -> Resul
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1806,8 +1794,7 @@ async fn assert_transport_close_tail_flush(
             flush_transcript_tail_on_session_end,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1929,8 +1916,7 @@ async fn conversation_start_preflight_failure_emits_realtime_error_only() -> Res
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -1987,8 +1973,7 @@ async fn conversation_start_connect_failure_emits_realtime_error_only() -> Resul
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2093,8 +2078,7 @@ async fn conversation_second_start_replaces_runtime() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2130,8 +2114,7 @@ async fn conversation_second_start_replaces_runtime() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2238,8 +2221,7 @@ async fn conversation_uses_experimental_realtime_ws_base_url_override() -> Resul
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2314,8 +2296,7 @@ async fn conversation_uses_default_realtime_backend_prompt() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2398,8 +2379,7 @@ async fn conversation_uses_empty_instructions_for_null_or_empty_prompt() -> Resu
                 flush_transcript_tail_on_session_end: false,
                 cx_responses_as_items: false,
                 cx_response_item_prefix: None,
-                cx_response_handoff_mode:
-                    cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+                cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
                 cx_response_handoff_channel_prefixes: None,
                 model: None,
                 output_modality: RealtimeOutputModality::Audio,
@@ -2475,8 +2455,7 @@ async fn conversation_uses_explicit_start_voice() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2544,8 +2523,7 @@ async fn conversation_uses_configured_realtime_voice() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2601,8 +2579,7 @@ async fn conversation_rejects_voice_for_wrong_realtime_version() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2659,8 +2636,7 @@ async fn conversation_uses_experimental_realtime_ws_backend_prompt_override() ->
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2743,8 +2719,7 @@ async fn conversation_uses_experimental_realtime_ws_startup_context_override() -
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2821,8 +2796,7 @@ async fn conversation_disables_realtime_startup_context_with_empty_override() ->
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -2892,8 +2866,7 @@ async fn conversation_start_injects_startup_context_from_thread_history() -> Res
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3012,29 +2985,27 @@ async fn conversation_startup_context_current_thread_selects_many_turns_by_budge
         .await?;
     let cx = resumed_thread.thread;
 
-    cx
-        .submit(Op::RealtimeConversationStart(ConversationStartParams {
-            client_managed_handoffs: false,
-            delegation_ack_filler: None,
-            flush_transcript_tail_on_session_end: false,
-            cx_responses_as_items: false,
-            cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
-            cx_response_handoff_channel_prefixes: None,
-            model: None,
-            output_modality: RealtimeOutputModality::Audio,
-            include_startup_context: true,
-            initial_items: Vec::new(),
-            realtime_start_instructions: None,
-            realtime_end_instructions: None,
-            prompt: Some(Some("backend prompt".to_string())),
-            realtime_session_id: None,
-            transport: None,
-            version: None,
-            voice: None,
-        }))
-        .await?;
+    cx.submit(Op::RealtimeConversationStart(ConversationStartParams {
+        client_managed_handoffs: false,
+        delegation_ack_filler: None,
+        flush_transcript_tail_on_session_end: false,
+        cx_responses_as_items: false,
+        cx_response_item_prefix: None,
+        cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+        cx_response_handoff_channel_prefixes: None,
+        model: None,
+        output_modality: RealtimeOutputModality::Audio,
+        include_startup_context: true,
+        initial_items: Vec::new(),
+        realtime_start_instructions: None,
+        realtime_end_instructions: None,
+        prompt: Some(Some("backend prompt".to_string())),
+        realtime_session_id: None,
+        transport: None,
+        version: None,
+        voice: None,
+    }))
+    .await?;
 
     let startup_context_request = wait_for_matching_websocket_request(
         &realtime_server,
@@ -3138,8 +3109,7 @@ async fn conversation_startup_context_falls_back_to_workspace_map() -> Result<()
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3209,8 +3179,7 @@ async fn conversation_startup_context_is_truncated_and_sent_once_per_start() -> 
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3301,8 +3270,7 @@ async fn conversation_user_text_turn_is_not_sent_to_realtime() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3403,8 +3371,7 @@ async fn realtime_v2_noop_tool_call_returns_empty_function_output_without_respon
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3513,8 +3480,7 @@ async fn conversation_mirrors_assistant_message_text_to_realtime_handoff() -> Re
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3551,10 +3517,7 @@ async fn conversation_mirrors_assistant_message_text_to_realtime_handoff() -> Re
     })
     .await;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let deadline = tokio::time::Instant::now() + Duration::from_secs(2);
     while tokio::time::Instant::now() < deadline {
@@ -3684,8 +3647,7 @@ async fn conversation_flushes_assistant_deltas_every_200ms_for_v3_handoff() -> R
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::BemTags,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::BemTags,
             cx_response_handoff_channel_prefixes: Some(BTreeMap::from([
                 (
                     "commentary".to_string(),
@@ -3777,10 +3739,7 @@ async fn conversation_flushes_assistant_deltas_every_200ms_for_v3_handoff() -> R
         .expect("missing delegated turn completion")
         .await
         .expect("delegated turn request did not complete");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     tokio::time::sleep(Duration::from_millis(50)).await;
     assert_eq!(
         realtime_server.single_connection().len(),
@@ -3863,8 +3822,7 @@ async fn conversation_handoff_persists_across_item_done_until_turn_complete() ->
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::BemTags,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::BemTags,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -3949,10 +3907,7 @@ async fn conversation_handoff_persists_across_item_done_until_turn_complete() ->
     completion
         .await
         .expect("delegated turn request did not complete");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     realtime_server.shutdown().await;
     api_server.shutdown().await;
@@ -4026,8 +3981,7 @@ async fn inbound_handoff_request_starts_turn() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4076,10 +4030,7 @@ async fn inbound_handoff_request_starts_turn() -> Result<()> {
     };
     Uuid::parse_str(&turn_id).context("realtime-routed turn ID should be a UUID")?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response_mock.single_request();
     let user_texts = request.message_input_texts("user");
@@ -4147,8 +4098,7 @@ async fn inbound_handoff_request_uses_active_transcript() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4176,10 +4126,7 @@ async fn inbound_handoff_request_uses_active_transcript() -> Result<()> {
     })
     .await;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response_mock.single_request();
     let user_texts = request.message_input_texts("user");
@@ -4261,8 +4208,7 @@ async fn inbound_handoff_request_sends_transcript_delta_after_each_handoff() -> 
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4290,10 +4236,7 @@ async fn inbound_handoff_request_sends_transcript_delta_after_each_handoff() -> 
     })
     .await;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     test.cx
         .submit(Op::RealtimeConversationAudio(ConversationAudioParams {
@@ -4307,10 +4250,7 @@ async fn inbound_handoff_request_sends_transcript_delta_after_each_handoff() -> 
         }))
         .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = response_mock.requests();
     assert_eq!(requests.len(), 2);
@@ -4394,8 +4334,7 @@ async fn conversation_close_routes_only_remaining_transcript_tail_once() -> Resu
             flush_transcript_tail_on_session_end: true,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4411,10 +4350,7 @@ async fn conversation_close_routes_only_remaining_transcript_tail_once() -> Resu
         }))
         .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.cx.submit(Op::RealtimeConversationClose).await?;
 
     let closed = wait_for_event_match(&test.cx, |msg| match msg {
@@ -4488,8 +4424,7 @@ async fn inbound_conversation_item_does_not_start_turn_and_still_forwards_audio(
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4622,8 +4557,7 @@ async fn delegated_turn_user_role_echo_does_not_redelegate_and_still_forwards_au
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4716,10 +4650,7 @@ async fn delegated_turn_user_role_echo_does_not_redelegate_and_still_forwards_au
         "[realtime test +{}ms] delegated completion resolved",
         start.elapsed().as_millis()
     );
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = api_server.requests().await;
     assert_eq!(requests.len(), 1);
@@ -4786,8 +4717,7 @@ async fn inbound_handoff_request_does_not_block_realtime_event_forwarding() -> R
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -4844,10 +4774,7 @@ async fn inbound_handoff_request_does_not_block_realtime_event_forwarding() -> R
     completion
         .await
         .expect("delegated turn request did not complete");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     realtime_server.shutdown().await;
     api_server.shutdown().await;
@@ -4939,8 +4866,7 @@ async fn inbound_handoff_request_steers_active_turn() -> Result<()> {
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -5010,10 +4936,7 @@ async fn inbound_handoff_request_steers_active_turn() -> Result<()> {
     second_completion
         .await
         .expect("second request did not complete");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = api_server.requests().await;
     assert_eq!(requests.len(), 2);
@@ -5097,8 +5020,7 @@ async fn inbound_handoff_request_starts_turn_and_does_not_block_realtime_audio()
             flush_transcript_tail_on_session_end: false,
             cx_responses_as_items: false,
             cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+            cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
             cx_response_handoff_channel_prefixes: None,
             model: None,
             output_modality: RealtimeOutputModality::Audio,
@@ -5156,10 +5078,7 @@ async fn inbound_handoff_request_starts_turn_and_does_not_block_realtime_audio()
     completion
         .await
         .expect("delegated turn request did not complete");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = api_server.requests().await;
     assert_eq!(requests.len(), 1);

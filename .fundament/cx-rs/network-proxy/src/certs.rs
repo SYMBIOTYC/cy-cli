@@ -184,8 +184,7 @@ pub(crate) struct ManagedMitmCaTrustBundle {
 }
 
 fn managed_ca_dir() -> Result<PathBuf> {
-    let cx_home =
-        find_cx_home().context("failed to resolve CX_HOME for managed MITM CA")?;
+    let cx_home = find_cx_home().context("failed to resolve CX_HOME for managed MITM CA")?;
     Ok(cx_home.join(MANAGED_MITM_CA_DIR).to_path_buf())
 }
 

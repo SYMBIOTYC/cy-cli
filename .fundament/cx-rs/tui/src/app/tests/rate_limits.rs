@@ -1,4 +1,6 @@
 use super::*;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
 use cx_app_server_protocol::AccountRateLimitsUpdatedNotification;
 use cx_app_server_protocol::CodexErrorInfo;
 use cx_app_server_protocol::CreditsSnapshot;
@@ -8,8 +10,6 @@ use cx_app_server_protocol::RateLimitReachedType;
 use cx_app_server_protocol::RateLimitResetCreditsSummary;
 use cx_app_server_protocol::RateLimitSnapshot;
 use cx_app_server_protocol::RateLimitWindow;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
 use pretty_assertions::assert_eq;
 
 fn rate_limit_snapshot(

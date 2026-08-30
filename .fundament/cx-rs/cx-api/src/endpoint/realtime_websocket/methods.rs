@@ -2055,7 +2055,7 @@ mod tests {
     fn webrtc_frameless_sideband_ignores_provider_base_url() {
         let client = RealtimeWebsocketClient::new(Provider {
             name: "gt".to_string(),
-            base_url: "https://cy.symbiotyc.workers.dev/v1".to_string(),
+            base_url: "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
             query_params: None,
             headers: HeaderMap::new(),
             retry: RetryConfig {

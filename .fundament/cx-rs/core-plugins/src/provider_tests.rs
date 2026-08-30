@@ -375,9 +375,8 @@ async fn malformed_preferred_manifest_does_not_fall_through_to_alternate() {
         ".claude-plugin/plugin.json",
         MANIFEST_CONTENTS,
     );
-    let expected_path =
-        PathUri::from_host_native_path(plugin_root.join(".cx-plugin/plugin.json"))
-            .expect("manifest URI");
+    let expected_path = PathUri::from_host_native_path(plugin_root.join(".cx-plugin/plugin.json"))
+        .expect("manifest URI");
     let provider = ExecutorPluginProvider::new(Arc::new(EnvironmentManager::default_for_tests()));
 
     let err = provider

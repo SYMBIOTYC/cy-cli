@@ -22,6 +22,7 @@ use crate::tools::handlers::multi_agents_v2::SendMessageHandler as SendMessageHa
 use crate::tools::handlers::multi_agents_v2::SpawnAgentHandler as SpawnAgentHandlerV2;
 use crate::tools::handlers::multi_agents_v2::WaitAgentHandler as WaitAgentHandlerV2;
 use crate::turn_diff_tracker::TurnDiffTracker;
+use core_test_support::TempDirExt;
 use cx_extension_api::empty_extension_registry;
 use cx_features::Feature;
 use cx_history::InitialHistory;
@@ -65,7 +66,6 @@ use cx_protocol::protocol::TurnAbortedEvent;
 use cx_protocol::protocol::TurnCompleteEvent;
 use cx_protocol::user_input::UserInput;
 use cx_state::DirectionalThreadSpawnEdgeStatus;
-use core_test_support::TempDirExt;
 use pretty_assertions::assert_eq;
 use serde::Deserialize;
 use serde_json::json;
@@ -140,11 +140,7 @@ async fn install_role_with_model_override(turn: &mut TurnContext) -> String {
     tokio::fs::create_dir_all(&turn.config.cx_home)
         .await
         .expect("cx home should be created");
-    let role_config_path = turn
-        .config
-        .cx_home
-        .as_path()
-        .join("fork-context-role.toml");
+    let role_config_path = turn.config.cx_home.as_path().join("fork-context-role.toml");
     tokio::fs::write(
         &role_config_path,
         r#"model = "gpt-5-role-override"
@@ -601,11 +597,7 @@ async fn spawn_agent_service_tier_inheritance_preserves_supported_or_configured_
         tokio::fs::create_dir_all(&turn.config.cx_home)
             .await
             .expect("cx home should be created");
-        let role_config_path = turn
-            .config
-            .cx_home
-            .as_path()
-            .join("service-tier-role.toml");
+        let role_config_path = turn.config.cx_home.as_path().join("service-tier-role.toml");
         tokio::fs::write(
             &role_config_path,
             r#"model = "gpt-5.4"

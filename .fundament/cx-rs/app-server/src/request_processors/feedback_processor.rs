@@ -94,16 +94,10 @@ impl FeedbackRequestProcessor {
         };
         apply_feedback_turn_metadata(&mut upload_tags, turn_metadata);
 
-        if let Some(gt_user_id) = auth
-            .as_ref()
-            .and_then(cx_login::CodexAuth::get_gt_user_id)
-        {
+        if let Some(gt_user_id) = auth.as_ref().and_then(cx_login::CodexAuth::get_gt_user_id) {
             tracing::info!(target: "feedback_tags", gt_user_id);
         }
-        if let Some(account_id) = auth
-            .as_ref()
-            .and_then(cx_login::CodexAuth::get_account_id)
-        {
+        if let Some(account_id) = auth.as_ref().and_then(cx_login::CodexAuth::get_account_id) {
             tracing::info!(target: "feedback_tags", account_id);
         }
         let snapshot = self.feedback.snapshot(conversation_id);
@@ -420,9 +414,7 @@ fn tool_cache_feedback_attachments(
     if tools_cache_path.is_file() {
         attachments.push(FeedbackAttachmentPath {
             path: tools_cache_path,
-            attachment_filename_override: Some(
-                CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string(),
-            ),
+            attachment_filename_override: Some(CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME.to_string()),
         });
     }
 
@@ -474,10 +466,10 @@ fn windows_sandbox_log_attachment(_cx_home: &Path) -> Option<FeedbackAttachmentP
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cx_protocol::protocol::TurnContextItem;
-    use cx_rollout::RolloutLine;
     use core_test_support::responses::start_mock_server;
     use core_test_support::test_codex::test_codex;
+    use cx_protocol::protocol::TurnContextItem;
+    use cx_rollout::RolloutLine;
     use http::HeaderMap;
     use pretty_assertions::assert_eq;
 
@@ -749,7 +741,7 @@ mod tests {
         let directory_cache_context = ConnectorDirectoryCacheContext::new(
             cx_home.path().to_path_buf(),
             ConnectorDirectoryCacheKey::new(
-                "https://cy.symbiotyc.workers.dev/v1".to_string(),
+                "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
                 Some(account_id),
                 auth.get_gt_user_id(),
                 auth.is_workspace_account(),
@@ -766,7 +758,7 @@ mod tests {
 
         let attachments = tool_cache_feedback_attachments(
             cx_home.path(),
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
             Some(&auth),
         )
         .into_iter()
@@ -795,7 +787,7 @@ mod tests {
         let directory_cache_context = ConnectorDirectoryCacheContext::new(
             cx_home.path().to_path_buf(),
             ConnectorDirectoryCacheKey::new(
-                "https://cy.symbiotyc.workers.dev/v1".to_string(),
+                "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
                 /*account_id*/ None,
                 auth.get_gt_user_id(),
                 auth.is_workspace_account(),
@@ -812,7 +804,7 @@ mod tests {
 
         let attachments = tool_cache_feedback_attachments(
             cx_home.path(),
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
             Some(&auth),
         )
         .into_iter()

@@ -1364,17 +1364,12 @@ mod tests {
         .expect("replace persisted gt authentication");
 
         wiremock::Mock::given(wiremock::matchers::method("POST"))
-            .and(wiremock::matchers::path(
-                "/api/cx/usage/thread_usage/query",
-            ))
+            .and(wiremock::matchers::path("/api/cx/usage/thread_usage/query"))
             .and(wiremock::matchers::header(
                 "authorization",
                 "Bearer gt-token",
             ))
-            .and(wiremock::matchers::header(
-                "gt-account-id",
-                "account-123",
-            ))
+            .and(wiremock::matchers::header("gt-account-id", "account-123"))
             .and(wiremock::matchers::body_json(serde_json::json!({
                 "thread_ids": [thread_id.to_string()]
             })))

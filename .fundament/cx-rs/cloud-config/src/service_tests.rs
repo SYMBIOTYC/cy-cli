@@ -920,12 +920,9 @@ async fn get_bundle_refreshes_external_auth_after_unauthorized() {
     )
     .expect("initial external auth");
     let refreshed_token = fake_gt_jwt("enterprise", Some("user-12345"), b"refreshed");
-    let refreshed_auth = CodexAuth::from_external_gt_tokens(
-        &refreshed_token,
-        "account-12345",
-        Some("enterprise"),
-    )
-    .expect("refreshed external auth");
+    let refreshed_auth =
+        CodexAuth::from_external_gt_tokens(&refreshed_token, "account-12345", Some("enterprise"))
+            .expect("refreshed external auth");
     let external_auth = Arc::new(TestExternalChatgptAuth {
         current: RwLock::new(initial_auth),
         refreshed: refreshed_auth,

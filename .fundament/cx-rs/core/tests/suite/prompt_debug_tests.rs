@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use core_test_support::responses::strip_metadata;
+use core_test_support::responses::strip_response_item_id;
 use cx_core::build_prompt_input;
 use cx_core::config::ConfigBuilder;
 use cx_core::config::ConfigOverrides;
@@ -9,8 +11,6 @@ use cx_home::CodexHomeUserInstructionsProvider;
 use cx_protocol::models::ContentItem;
 use cx_protocol::models::ResponseItem;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::strip_metadata;
-use core_test_support::responses::strip_response_item_id;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 

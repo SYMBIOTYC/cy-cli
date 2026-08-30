@@ -235,10 +235,7 @@ pub async fn sync_remote_installed_plugin_bundles_once(
     }
 
     let stale_cache_cleanup = tokio::task::spawn_blocking(move || {
-        remove_stale_remote_plugin_caches(
-            cx_home.as_path(),
-            &installed_plugin_names_by_marketplace,
-        )
+        remove_stale_remote_plugin_caches(cx_home.as_path(), &installed_plugin_names_by_marketplace)
     })
     .await;
     let removed_cache_plugin_ids = match stale_cache_cleanup {
@@ -341,8 +338,7 @@ fn remove_stale_remote_plugin_caches(
             if installed_plugin_names.contains(&plugin_name) {
                 continue;
             }
-            if is_remote_plugin_cache_mutation_in_flight(cx_home, marketplace_name, &plugin_name)
-            {
+            if is_remote_plugin_cache_mutation_in_flight(cx_home, marketplace_name, &plugin_name) {
                 continue;
             }
 
@@ -632,11 +628,7 @@ mod tests {
                 .join(PLUGINS_CACHE_DIR)
                 .join(marketplace_name)
                 .join(plugin_name);
-            assert!(
-                plugin_root
-                    .join("1.2.3/.cx-plugin/plugin.json")
-                    .is_file()
-            );
+            assert!(plugin_root.join("1.2.3/.cx-plugin/plugin.json").is_file());
             assert_eq!(
                 serde_json::from_str::<serde_json::Value>(
                     &std::fs::read_to_string(plugin_root.join(".cx-remote-plugin-install.json"))

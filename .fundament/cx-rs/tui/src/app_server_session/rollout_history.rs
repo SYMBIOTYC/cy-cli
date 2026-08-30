@@ -10,13 +10,13 @@ use super::is_history_pagination_unsupported;
 use super::started_thread_from_resume_response;
 use super::thread_resume_params_from_config;
 use crate::legacy_core::config::Config;
+use color_eyre::eyre::Result;
 use cx_app_server_client::TypedRequestError;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::ThreadHistoryMode;
 use cx_app_server_protocol::ThreadResumeResponse;
 use cx_features::Feature;
 use cx_protocol::ThreadId;
-use color_eyre::eyre::Result;
 
 impl AppServerSession {
     /// Captures the server's startup migration policy before workspace config can change.

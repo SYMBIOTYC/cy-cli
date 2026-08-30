@@ -479,9 +479,9 @@ async fn run_add(config_overrides: &CliConfigOverrides, add_args: AddArgs) -> Re
             println!("Successfully logged in.");
         }
         McpOAuthLoginSupport::Unsupported => {}
-        McpOAuthLoginSupport::Unknown(_) => println!(
-            "MCP server may or may not require login. Run `cx mcp login {name}` to login."
-        ),
+        McpOAuthLoginSupport::Unknown(_) => {
+            println!("MCP server may or may not require login. Run `cx mcp login {name}` to login.")
+        }
     }
 
     Ok(())

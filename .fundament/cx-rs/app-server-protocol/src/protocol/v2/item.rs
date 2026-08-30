@@ -797,9 +797,7 @@ pub(crate) fn web_search_action_from_core(
         cx_protocol::models::WebSearchAction::Search { query, queries } => {
             WebSearchAction::Search { query, queries }
         }
-        cx_protocol::models::WebSearchAction::OpenPage { url } => {
-            WebSearchAction::OpenPage { url }
-        }
+        cx_protocol::models::WebSearchAction::OpenPage { url } => WebSearchAction::OpenPage { url },
         cx_protocol::models::WebSearchAction::FindInPage { url, pattern } => {
             WebSearchAction::FindInPage { url, pattern }
         }

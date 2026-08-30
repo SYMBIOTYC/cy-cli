@@ -173,10 +173,7 @@ fn resolves_primary_runtime_scripts_from_the_installed_plugin_cache() {
     );
 }
 fn roots_for(cx_home: &Path, plugins: Vec<LoadedPlugin>) -> TrustedPluginRoots {
-    TrustedPluginRoots::from_plugin_load_outcome(
-        &PluginLoadOutcome::from_plugins(plugins),
-        cx_home,
-    )
+    TrustedPluginRoots::from_plugin_load_outcome(&PluginLoadOutcome::from_plugins(plugins), cx_home)
 }
 
 #[tokio::test]
@@ -199,9 +196,8 @@ async fn resolves_relocated_script_through_executor_filesystem() {
         .expect("create executor scripts");
     fs::copy(script.as_path(), &executor_script).expect("copy script to executor");
     let cwd = PathUri::from_host_native_path(&executor_root).expect("executor root URI");
-    let environment =
-        cx_exec_server::Environment::create_for_tests(/*exec_server_url*/ None)
-            .expect("local executor environment");
+    let environment = cx_exec_server::Environment::create_for_tests(/*exec_server_url*/ None)
+        .expect("local executor environment");
 
     assert_eq!(
         roots

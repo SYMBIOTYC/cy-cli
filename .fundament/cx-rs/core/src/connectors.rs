@@ -251,9 +251,8 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
         McpRuntimeContext::new(Arc::clone(&environment_manager), config.cwd.to_path_buf());
 
     let cancel_token = CancellationToken::new();
-    let cx_apps_auth_manager =
-        cx_mcp::host_owned_cx_apps_enabled(&mcp_config, auth.as_ref())
-            .then(|| Arc::clone(&auth_manager));
+    let cx_apps_auth_manager = cx_mcp::host_owned_cx_apps_enabled(&mcp_config, auth.as_ref())
+        .then(|| Arc::clone(&auth_manager));
     let mcp_runtime = McpRuntime::new(McpRuntimeInput {
         startup_policy: McpStartupPolicy::Eager,
         config: Arc::clone(&mcp_config),
@@ -278,10 +277,7 @@ pub async fn list_accessible_connectors_from_mcp_tools_with_mcp_manager(
     .await;
 
     let refreshed_tools = if force_refetch {
-        match mcp_runtime
-            .latest_hard_refresh_cx_apps_tools_cache()
-            .await
-        {
+        match mcp_runtime.latest_hard_refresh_cx_apps_tools_cache().await {
             Ok(tools) => Some(tools),
             Err(err) => {
                 warn!(

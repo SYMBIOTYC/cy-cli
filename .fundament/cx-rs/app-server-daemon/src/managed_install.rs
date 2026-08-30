@@ -26,12 +26,9 @@ pub(crate) fn managed_cx_bin(cx_home: &Path) -> PathBuf {
 
 #[cfg(unix)]
 pub(crate) async fn resolved_managed_cx_bin(cx_bin: &Path) -> Result<PathBuf> {
-    fs::canonicalize(cx_bin).await.with_context(|| {
-        format!(
-            "failed to resolve managed CX binary {}",
-            cx_bin.display()
-        )
-    })
+    fs::canonicalize(cx_bin)
+        .await
+        .with_context(|| format!("failed to resolve managed CX binary {}", cx_bin.display()))
 }
 
 #[cfg(unix)]
@@ -40,12 +37,7 @@ pub(crate) async fn managed_cx_version(cx_bin: &Path) -> Result<String> {
         .arg("--version")
         .output()
         .await
-        .with_context(|| {
-            format!(
-                "failed to invoke managed CX binary {}",
-                cx_bin.display()
-            )
-        })?;
+        .with_context(|| format!("failed to invoke managed CX binary {}", cx_bin.display()))?;
     if !output.status.success() {
         return Err(anyhow!(
             "managed CX binary {} exited with status {}",
@@ -54,12 +46,8 @@ pub(crate) async fn managed_cx_version(cx_bin: &Path) -> Result<String> {
         ));
     }
 
-    let stdout = String::from_utf8(output.stdout).with_context(|| {
-        format!(
-            "managed CX version was not utf-8: {}",
-            cx_bin.display()
-        )
-    })?;
+    let stdout = String::from_utf8(output.stdout)
+        .with_context(|| format!("managed CX version was not utf-8: {}", cx_bin.display()))?;
     parse_cx_version(&stdout)
 }
 

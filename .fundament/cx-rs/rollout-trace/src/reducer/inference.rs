@@ -55,9 +55,7 @@ impl TraceReducer {
         let cx_turn_id = started.cx_turn_id.clone();
         let request_payload = started.request_payload.clone();
         let Some(turn) = self.rollout.cx_turns.get(&cx_turn_id) else {
-            bail!(
-                "inference start {inference_call_id} referenced unknown cx turn {cx_turn_id}"
-            );
+            bail!("inference start {inference_call_id} referenced unknown cx turn {cx_turn_id}");
         };
         if turn.thread_id != thread_id {
             bail!(

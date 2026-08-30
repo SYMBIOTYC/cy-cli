@@ -5,9 +5,10 @@ use crate::sandboxing::ExecOptions;
 use crate::shell::ShellType;
 use crate::tools::sandboxing::SandboxAttempt;
 use crate::tools::sandboxing::managed_network_for_sandbox_permissions;
+use core_test_support::PathBufExt;
+use cx_network_proxy::CUSTOM_CA_ENV_KEYS;
 #[cfg(target_os = "macos")]
 use cx_network_proxy::CX_PROXY_GIT_SSH_COMMAND_MARKER;
-use cx_network_proxy::CUSTOM_CA_ENV_KEYS;
 use cx_network_proxy::ConfigReloader;
 use cx_network_proxy::ConfigReloaderFuture;
 use cx_network_proxy::ConfigState;
@@ -25,7 +26,6 @@ use cx_sandboxing::SandboxManager;
 use cx_sandboxing::SandboxType;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
 use pretty_assertions::assert_eq;
 use std::path::PathBuf;
 use std::process::Command;
@@ -281,8 +281,7 @@ fn apply_zsh_fork_path_prepend_uses_shell_parent() {
 fn apply_zsh_fork_path_prepend_moves_existing_shell_parent_to_front() {
     let mut env = HashMap::from([(
         "PATH".to_string(),
-        "/usr/bin:/package/cx-resources/zsh/bin:/bin:/package/cx-resources/zsh/bin"
-            .to_string(),
+        "/usr/bin:/package/cx-resources/zsh/bin:/bin:/package/cx-resources/zsh/bin".to_string(),
     )]);
     let mut runtime_path_prepends = RuntimePathPrepends::default();
 

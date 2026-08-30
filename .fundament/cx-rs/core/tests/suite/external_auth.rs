@@ -1,3 +1,10 @@
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
 use cx_login::AuthHeaders;
 use cx_login::CodexAuth;
 use cx_login::ExternalAuth;
@@ -8,13 +15,6 @@ use cx_model_provider_info::ModelProviderAwsAuthInfo;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_model_provider_info::WireApi;
 use cx_model_provider_info::create_oss_provider_with_base_url;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
@@ -82,10 +82,7 @@ async fn header_auth_is_attached_to_responses_requests() -> anyhow::Result<()> {
     .await;
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, HeaderValue::from_static("Bearer external"));
-    headers.insert(
-        "gt-Account-ID",
-        HeaderValue::from_static("account-123"),
-    );
+    headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
     headers.insert("x-external-auth", HeaderValue::from_static("enabled"));
     let mut builder = test_codex().with_auth(CodexAuth::Headers(AuthHeaders::new(headers)));
     let test = builder.build_with_auto_env(&server).await?;
@@ -120,10 +117,7 @@ async fn custom_provider_does_not_receive_ambient_auth_headers() -> anyhow::Resu
     .await;
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, HeaderValue::from_static("Bearer ambient"));
-    headers.insert(
-        "gt-Account-ID",
-        HeaderValue::from_static("account-123"),
-    );
+    headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
     let provider =
         create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
     let mut builder = test_codex()
@@ -154,10 +148,7 @@ async fn custom_provider_uses_explicit_bearer_without_ambient_account() -> anyho
     .await;
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, HeaderValue::from_static("Bearer ambient"));
-    headers.insert(
-        "gt-Account-ID",
-        HeaderValue::from_static("account-123"),
-    );
+    headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
     let mut provider =
         create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
     provider.experimental_bearer_token = Some("provider-token".to_string());

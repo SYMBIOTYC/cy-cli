@@ -231,14 +231,7 @@ fn editor_directory_rejects_workspace_fallback_symlink_to_writable_target() {
 
     assert!(!policy.can_write_path_with_cwd(&workspace_cx_home, &paths.cwd));
     assert!(policy.can_write_path_with_cwd(&paths.cx_home, &paths.cwd));
-    assert!(
-        editor_directory(
-            &[&paths.cx_home, &workspace_cx_home],
-            &policy,
-            &paths.cwd,
-        )
-        .is_err()
-    );
+    assert!(editor_directory(&[&paths.cx_home, &workspace_cx_home], &policy, &paths.cwd,).is_err());
 }
 
 #[test]
@@ -304,15 +297,9 @@ async fn editor_process_receives_buffer_in_isolated_cx_home() {
         editor_directory.to_string_lossy().into_owned(),
     ];
 
-    let content = run_editor(
-        "seed",
-        &editor_command,
-        &paths.cx_home,
-        &policy,
-        &paths.cwd,
-    )
-    .await
-    .expect("run editor with isolated buffer");
+    let content = run_editor("seed", &editor_command, &paths.cx_home, &policy, &paths.cwd)
+        .await
+        .expect("run editor with isolated buffer");
 
     assert_eq!(content, "edited");
 }
@@ -326,8 +313,8 @@ async fn editor_process_uses_protected_workspace_fallback_with_default_temporary
     fs::create_dir(&cx_home).expect("create CX home");
     fs::create_dir(&cwd).expect("create workspace");
     let default_cx_home = dirs::home_dir().expect("home directory").join(".cx");
-    let writable_default_cx_home = AbsolutePathBuf::from_absolute_path(&default_cx_home)
-        .expect("absolute default CX home");
+    let writable_default_cx_home =
+        AbsolutePathBuf::from_absolute_path(&default_cx_home).expect("absolute default CX home");
     let policy = FileSystemSandboxPolicy::workspace_write(
         &[writable_default_cx_home],
         /*exclude_tmpdir_env_var*/ false,

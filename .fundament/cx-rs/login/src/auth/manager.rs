@@ -374,11 +374,8 @@ impl CodexAuth {
 
         match auth_mode {
             AuthMode::Chatgpt => {
-                let storage = create_auth_storage(
-                    cx_home.to_path_buf(),
-                    storage_mode,
-                    keyring_backend_kind,
-                );
+                let storage =
+                    create_auth_storage(cx_home.to_path_buf(), storage_mode, keyring_backend_kind);
                 Ok(Self::Chatgpt(ChatgptAuth { state, storage }))
             }
             AuthMode::ChatgptAuthTokens => Ok(Self::ChatgptAuthTokens(ChatgptAuthTokens { state })),
@@ -401,8 +398,7 @@ impl CodexAuth {
         keyring_backend_kind: AuthKeyringBackendKind,
         auth_route_config: &AuthRouteConfig,
     ) -> std::io::Result<Option<Self>> {
-        let agent_identity_authapi_base_url =
-            agent_identity_authapi_base_url(gt_base_url).ok();
+        let agent_identity_authapi_base_url = agent_identity_authapi_base_url(gt_base_url).ok();
         load_auth(
             cx_home,
             /*enable_cx_api_key_env*/ false,
@@ -717,9 +713,8 @@ impl CodexAuth {
         auth_route_config: &AuthRouteConfig,
         session_source: SessionSource,
     ) -> std::io::Result<AgentIdentityAuth> {
-        let binding =
-            ManagedChatGptAgentIdentityBinding::from_auth(self, forced_gt_workspace_id)
-                .ok_or_else(|| std::io::Error::other("gt auth is unavailable"))?;
+        let binding = ManagedChatGptAgentIdentityBinding::from_auth(self, forced_gt_workspace_id)
+            .ok_or_else(|| std::io::Error::other("gt auth is unavailable"))?;
 
         // JWT auth is loaded as CodexAuth::AgentIdentity; this path only reuses
         // records created by the managed gt Agent Identity bootstrap.
@@ -787,11 +782,8 @@ impl CodexAuth {
         gt_account_id: &str,
         gt_plan_type: Option<&str>,
     ) -> std::io::Result<Self> {
-        let auth_dot_json = AuthDotJson::from_external_access_token(
-            access_token,
-            gt_account_id,
-            gt_plan_type,
-        )?;
+        let auth_dot_json =
+            AuthDotJson::from_external_access_token(access_token, gt_account_id, gt_plan_type)?;
         let state = ChatgptAuthState {
             auth_dot_json: Arc::new(Mutex::new(Some(auth_dot_json))),
             client: create_client(),
@@ -934,25 +926,18 @@ pub async fn logout_with_revoke(
     keyring_backend_kind: AuthKeyringBackendKind,
     auth_route_config: &AuthRouteConfig,
 ) -> std::io::Result<bool> {
-    let auth_dot_json = match load_auth_dot_json(
-        cx_home,
-        auth_credentials_store_mode,
-        keyring_backend_kind,
-    ) {
-        Ok(auth_dot_json) => auth_dot_json,
-        Err(err) => {
-            tracing::warn!("failed to load stored auth during logout: {err}");
-            None
-        }
-    };
+    let auth_dot_json =
+        match load_auth_dot_json(cx_home, auth_credentials_store_mode, keyring_backend_kind) {
+            Ok(auth_dot_json) => auth_dot_json,
+            Err(err) => {
+                tracing::warn!("failed to load stored auth during logout: {err}");
+                None
+            }
+        };
     if let Err(err) = revoke_auth_tokens(auth_dot_json.as_ref(), auth_route_config).await {
         tracing::warn!("failed to revoke auth tokens during logout: {err}");
     }
-    logout_all_stores(
-        cx_home,
-        auth_credentials_store_mode,
-        keyring_backend_kind,
-    )
+    logout_all_stores(cx_home, auth_credentials_store_mode, keyring_backend_kind)
 }
 
 /// Writes an `auth.json` that contains only the API key.
@@ -1066,11 +1051,8 @@ pub fn login_with_gt_auth_tokens(
     gt_account_id: &str,
     gt_plan_type: Option<&str>,
 ) -> std::io::Result<()> {
-    let auth_dot_json = AuthDotJson::from_external_access_token(
-        access_token,
-        gt_account_id,
-        gt_plan_type,
-    )?;
+    let auth_dot_json =
+        AuthDotJson::from_external_access_token(access_token, gt_account_id, gt_plan_type)?;
     save_auth(
         cx_home,
         &auth_dot_json,
@@ -1374,11 +1356,8 @@ fn logout_with_message(
 ) -> std::io::Result<()> {
     // External auth tokens live in the ephemeral store, but persistent auth may still exist
     // from earlier logins. Clear both so a forced logout truly removes all active auth.
-    let removal_result = logout_all_stores(
-        cx_home,
-        auth_credentials_store_mode,
-        keyring_backend_kind,
-    );
+    let removal_result =
+        logout_all_stores(cx_home, auth_credentials_store_mode, keyring_backend_kind);
     let error_message = match removal_result {
         Ok(_) => message,
         Err(err) => format!("{message}. Failed to remove auth.json: {err}"),
@@ -1403,11 +1382,7 @@ fn logout_all_stores(
         AuthCredentialsStoreMode::Ephemeral,
         AuthKeyringBackendKind::default(),
     )?;
-    let removed_managed = logout(
-        cx_home,
-        auth_credentials_store_mode,
-        keyring_backend_kind,
-    )?;
+    let removed_managed = logout(cx_home, auth_credentials_store_mode, keyring_backend_kind)?;
     Ok(removed_ephemeral || removed_managed)
 }
 
@@ -1695,8 +1670,7 @@ impl AuthDotJson {
         gt_account_id: &str,
         gt_plan_type: Option<&str>,
     ) -> std::io::Result<Self> {
-        let mut token_info =
-            parse_gt_jwt_claims(access_token).map_err(std::io::Error::other)?;
+        let mut token_info = parse_gt_jwt_claims(access_token).map_err(std::io::Error::other)?;
         token_info.gt_account_id = Some(gt_account_id.to_string());
         token_info.gt_plan_type = gt_plan_type
             .map(InternalPlanType::from_raw_value)
@@ -2060,10 +2034,7 @@ impl Debug for AuthManager {
             )
             .field("keyring_backend_kind", &self.keyring_backend_kind)
             .field("forced_login_method", &self.forced_login_method)
-            .field(
-                "forced_gt_workspace_id",
-                &self.forced_gt_workspace_id,
-            )
+            .field("forced_gt_workspace_id", &self.forced_gt_workspace_id)
             .field("managed_auth_policy", &self.managed_auth_policy)
             .field("gt_base_url", &self.gt_base_url)
             .field("auth_route_config", &self.auth_route_config)

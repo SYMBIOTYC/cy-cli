@@ -2,9 +2,9 @@
 
 use anyhow::Context as _;
 use anyhow::ensure;
+use ctor::ctor;
 use cx_arg0::Arg0PathEntryGuard;
 use cx_utils_cargo_bin::CargoBinError;
-use ctor::ctor;
 use std::sync::OnceLock;
 use tempfile::TempDir;
 
@@ -259,10 +259,7 @@ pub fn find_cx_linux_sandbox_exe() -> Result<PathBuf, CargoBinError> {
     cx_utils_cargo_bin::cargo_bin("cx-linux-sandbox")
 }
 
-pub async fn wait_for_event<F>(
-    cx: &CodexThread,
-    predicate: F,
-) -> cx_protocol::protocol::EventMsg
+pub async fn wait_for_event<F>(cx: &CodexThread, predicate: F) -> cx_protocol::protocol::EventMsg
 where
     F: FnMut(&cx_protocol::protocol::EventMsg) -> bool,
 {
@@ -376,8 +373,7 @@ pub fn format_with_current_shell_display(command: &str) -> String {
 }
 
 pub fn format_with_current_shell_non_login(command: &str) -> Vec<String> {
-    cx_core::shell::default_user_shell()
-        .derive_exec_args(command, /*use_login_shell*/ false)
+    cx_core::shell::default_user_shell().derive_exec_args(command, /*use_login_shell*/ false)
 }
 
 pub fn format_with_current_shell_display_non_login(command: &str) -> String {

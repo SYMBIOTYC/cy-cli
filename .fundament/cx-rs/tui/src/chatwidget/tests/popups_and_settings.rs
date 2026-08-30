@@ -1245,8 +1245,7 @@ async fn plugins_popup_remote_section_fallback_states_when_remote_plugin_disable
             plugins_test_curated_marketplace(Vec::new()),
         ])),
     );
-    let curated_loading_popup =
-        select_tab_containing(&mut chat, "Loading oi Curated plugins...");
+    let curated_loading_popup = select_tab_containing(&mut chat, "Loading oi Curated plugins...");
     let workspace_loading_popup = select_tab_containing(&mut chat, "Loading Workspace plugins.");
     let shared_loading_popup = select_tab_containing(&mut chat, "Loading Shared with me plugins.");
     let _ = select_tab_containing(&mut chat, "Loading Workspace plugins.");

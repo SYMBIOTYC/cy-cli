@@ -53,18 +53,17 @@ pub fn features_schema(schema_gen: &mut SchemaGenerator) -> Schema {
         if feature.id == cx_features::Feature::CodeMode {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::CodeModeConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::CodeModeConfigToml>>(),
             );
             continue;
         }
         if feature.id == cx_features::Feature::CodeModeHost {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::CodeModeHostConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::CodeModeHostConfigToml>>(
+                    ),
             );
             continue;
         }
@@ -80,27 +79,26 @@ pub fn features_schema(schema_gen: &mut SchemaGenerator) -> Schema {
         if feature.id == cx_features::Feature::GuardianV2 {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::GuardianV2ConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::GuardianV2ConfigToml>>(),
             );
             continue;
         }
         if feature.id == cx_features::Feature::MultiAgentV2 {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::MultiAgentV2ConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::MultiAgentV2ConfigToml>>(
+                    ),
             );
             continue;
         }
         if feature.id == cx_features::Feature::TokenBudget {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::TokenBudgetConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::TokenBudgetConfigToml>>(
+                    ),
             );
             continue;
         }
@@ -132,9 +130,9 @@ pub fn features_schema(schema_gen: &mut SchemaGenerator) -> Schema {
         if feature.id == cx_features::Feature::NetworkProxy {
             validation.properties.insert(
                 feature.key.to_string(),
-                schema_gen.subschema_for::<cx_features::FeatureToml<
-                    cx_features::NetworkProxyConfigToml,
-                >>(),
+                schema_gen
+                    .subschema_for::<cx_features::FeatureToml<cx_features::NetworkProxyConfigToml>>(
+                    ),
             );
             continue;
         }

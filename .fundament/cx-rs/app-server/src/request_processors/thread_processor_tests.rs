@@ -761,10 +761,7 @@ mod thread_processor_behavior_tests {
             &persisted_metadata,
         );
 
-        assert_eq!(
-            typesafe_overrides.model,
-            Some("gpt-5.1-cx-max".to_string())
-        );
+        assert_eq!(typesafe_overrides.model, Some("gpt-5.1-cx-max".to_string()));
         assert_eq!(
             typesafe_overrides.model_provider,
             Some("mock_provider".to_string())

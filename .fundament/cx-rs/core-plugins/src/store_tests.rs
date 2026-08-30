@@ -36,8 +36,8 @@ fn write_plugin(root: &Path, dir_name: &str, manifest_name: &str) {
 
 #[test]
 fn try_new_rejects_relative_cx_home() {
-    let err = PluginStore::try_new(PathBuf::from("relative"))
-        .expect_err("relative cx home should fail");
+    let err =
+        PluginStore::try_new(PathBuf::from("relative")).expect_err("relative cx home should fail");
     let err = err.to_string().replace('\\', "/");
 
     assert_eq!(

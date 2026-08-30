@@ -18,10 +18,7 @@ fn fixture_paths() -> (TempDir, PathBuf, PathBuf) {
     (root, external_agent_home, cx_home)
 }
 
-fn service_for_paths(
-    external_agent_home: PathBuf,
-    cx_home: PathBuf,
-) -> ExternalAgentConfigService {
+fn service_for_paths(external_agent_home: PathBuf, cx_home: PathBuf) -> ExternalAgentConfigService {
     ExternalAgentConfigService::new_for_test(cx_home, external_agent_home)
 }
 

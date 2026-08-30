@@ -23,9 +23,9 @@ use tracing::trace;
 use tracing::trace_span;
 use tracing::warn;
 
-use crate::cx_thread::BackgroundTerminalInfo;
 use crate::config::Config;
 use crate::context::ContextualUserFragment;
+use crate::cx_thread::BackgroundTerminalInfo;
 use crate::session::TurnInput;
 use crate::session::session::Session;
 use crate::session::turn::run_hooks_and_record_inputs;
@@ -52,11 +52,11 @@ use cx_protocol::protocol::TurnCompleteEvent;
 use cx_protocol::protocol::WarningEvent;
 use cx_thread_store::PersistContext;
 
+pub(crate) use compact::CompactTask;
 use cx_features::Feature;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::models::ContentItem;
-pub(crate) use compact::CompactTask;
 pub(crate) use regular::RegularTask;
 pub(crate) use review::ReviewTask;
 pub(crate) use user_shell::UserShellCommandMode;
@@ -580,11 +580,8 @@ impl Session {
             }
             Err(err) => {
                 warn!(%err, "session task returned an unexpected error");
-                self.emit_turn_error_lifecycle(
-                    turn_context.as_ref(),
-                    err.to_cx_protocol_error(),
-                )
-                .await;
+                self.emit_turn_error_lifecycle(turn_context.as_ref(), err.to_cx_protocol_error())
+                    .await;
                 self.track_turn_cx_error(turn_context.as_ref(), &err);
                 self.send_event(
                     turn_context.as_ref(),

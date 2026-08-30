@@ -3,6 +3,15 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::apps_enabled_builder;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use cx_core::TurnInputRequest;
 use cx_core::config::Config;
 use cx_extension_api::ExtensionRegistry;
@@ -20,15 +29,6 @@ use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::Op;
 use cx_protocol::user_input::UserInput;
 use cx_web_search_extension::install as install_web_search_extension;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::apps_enabled_builder;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 
@@ -260,10 +260,7 @@ async fn responses_lite_prepares_images() -> Result<()> {
             },
         ]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response_mock.single_request();
     let user_content = request
@@ -540,10 +537,7 @@ async fn responses_lite_compact_request_uses_lite_transport_contract() -> Result
 
     test.submit_turn("Compact this conversation").await?;
     test.cx.submit(Op::Compact).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     response_mock.single_request();
     let compact_request = compact_mock.single_request();

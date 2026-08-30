@@ -53,14 +53,12 @@ fn cursor_to_anchor_preserves_recency_tie_breaker() {
 #[tokio::test]
 async fn list_threads_db_rejects_mismatched_sqlite_config_without_cleanup() -> anyhow::Result<()> {
     let root = TempDir::new().expect("temp dir");
-    let runtime_sqlite = cx_state::SqliteConfig::new_for_testing(
-        root.path().join("runtime-sqlite").as_path().abs(),
-    );
+    let runtime_sqlite =
+        cx_state::SqliteConfig::new_for_testing(root.path().join("runtime-sqlite").as_path().abs());
     let requested_sqlite = cx_state::SqliteConfig::new_for_testing(
         root.path().join("requested-sqlite").as_path().abs(),
     );
-    let runtime =
-        cx_state::StateRuntime::init(runtime_sqlite, "test-provider".to_string()).await?;
+    let runtime = cx_state::StateRuntime::init(runtime_sqlite, "test-provider".to_string()).await?;
     let thread_id = ThreadId::new();
     let metadata = ThreadMetadataBuilder::new(
         thread_id,

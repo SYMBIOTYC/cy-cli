@@ -1050,8 +1050,7 @@ plugins = true
 [plugins."counter-sample@test"]
 enabled = true
 "#;
-    let outcome =
-        load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
+    let outcome = load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
 
     assert_eq!(outcome.plugins()[0].error, None);
     assert_eq!(
@@ -1134,8 +1133,7 @@ disabled_tools = ["delete"]
 approval_mode = "approve"
 "#;
 
-    let outcome =
-        load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
+    let outcome = load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
     let server = outcome.plugins()[0]
         .mcp_servers
         .get("sample")
@@ -1280,9 +1278,7 @@ async fn installed_agent_plugin_telemetry_metadata_uses_portable_capabilities() 
         ("skills/group/nested/SKILL.md", false),
     ] {
         let cx_home = TempDir::new().unwrap();
-        let plugin_root = cx_home
-            .path()
-            .join("plugins/cache/test/agent-plugin/local");
+        let plugin_root = cx_home.path().join("plugins/cache/test/agent-plugin/local");
         write_file(
             &plugin_root.join("plugin.json"),
             r#"{"$schema":"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json","name":"agent.tools"}"#,
@@ -1817,8 +1813,7 @@ enabled = false
 [plugins."sample@test"]
 enabled = true
 "#;
-    let outcome =
-        load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
+    let outcome = load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
     let skill_path = std::fs::canonicalize(skill_path)
         .expect("skill path should canonicalize")
         .abs();
@@ -1858,8 +1853,7 @@ enabled = false
 [plugins."sample@test"]
 enabled = true
 "#;
-    let outcome =
-        load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
+    let outcome = load_plugins_from_config(config_toml, cx_home.path(), /*auth_mode*/ None).await;
 
     assert!(outcome.plugins()[0].disabled_skill_paths.is_empty());
     assert!(outcome.plugins()[0].has_enabled_skills);
@@ -2285,9 +2279,11 @@ async fn install_plugin_materializes_default_command_skills() {
             )
             .unwrap(),
             AbsolutePathBuf::from_absolute_path_checked(
-                fs::canonicalize(result.installed_path.join(
-                    ".cx-plugin/migrated-command-skills/source-command-summarize/SKILL.md"
-                ))
+                fs::canonicalize(
+                    result.installed_path.join(
+                        ".cx-plugin/migrated-command-skills/source-command-summarize/SKILL.md"
+                    )
+                )
                 .unwrap()
             )
             .unwrap()
@@ -3235,8 +3231,7 @@ source = {marketplace_root:?}
 "#
     );
     write_file(&cx_home.path().join(CONFIG_TOML_FILE), &user_config);
-    let config =
-        config_layer_stack_with_requirements(cx_home.path(), &user_config, &requirements);
+    let config = config_layer_stack_with_requirements(cx_home.path(), &user_config, &requirements);
     let outcome = manager
         .install_plugin(
             &config,

@@ -1,8 +1,8 @@
 use cx_analytics::CompactionImplementation;
 use cx_analytics::CompactionReason;
 use cx_otel::SessionTelemetry;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use tracing::warn;
 
 /// Retries failures that may be model-specific and succeed with a different model.

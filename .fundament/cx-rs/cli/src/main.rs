@@ -8,15 +8,13 @@ use cx_app_server_daemon::LifecycleCommand as AppServerLifecycleCommand;
 use cx_app_server_daemon::RemoteControlMode as AppServerRemoteControlMode;
 use cx_arg0::Arg0DispatchPaths;
 use cx_arg0::arg0_dispatch_or_else;
-use cx_gt::apply_command::ApplyCommand;
-use cx_gt::apply_command::run_apply_command;
 use cx_cli::read_access_token_from_stdin;
 use cx_cli::read_api_key_from_stdin;
 use cx_cli::run_login_status;
 use cx_cli::run_login_with_access_token;
 use cx_cli::run_login_with_api_key;
-use cx_cli::run_login_with_gt;
 use cx_cli::run_login_with_device_code;
+use cx_cli::run_login_with_gt;
 use cx_cli::run_logout;
 use cx_cloud_config::cloud_config_bundle_loader_for_storage;
 use cx_cloud_tasks::Cli as CloudTasksCli;
@@ -24,6 +22,8 @@ use cx_exec::Cli as ExecCli;
 use cx_exec::Command as ExecCommand;
 use cx_exec::ReviewArgs;
 use cx_execpolicy::ExecPolicyCheckCommand;
+use cx_gt::apply_command::ApplyCommand;
+use cx_gt::apply_command::run_apply_command;
 use cx_responses_api_proxy::Args as ResponsesApiProxyArgs;
 use cx_rollout_trace::REDUCED_STATE_FILE_NAME;
 use cx_rollout_trace::replay_bundle;
@@ -68,11 +68,16 @@ use crate::plugin_cmd::PluginCli;
 use crate::plugin_cmd::PluginSubcommand;
 use crate::queue_cmd::QueueCommand;
 use crate::remote_control_cmd::RemoteControlCommand;
-use doctor::DoctorCommand;
-use cx_state::log_db;
 use cx_rollout::state_db;
+use cx_state::log_db;
+use doctor::DoctorCommand;
 use state_db_recovery as local_state_db;
 
+use cx_app_server::in_process::{InProcessStartArgs, start};
+use cx_app_server_protocol::{
+    ClientInfo, ClientRequest, InitializeParams, RequestId, ThreadListCwdFilter, ThreadListParams,
+    ThreadListResponse, ThreadSortKey,
+};
 use cx_config::LoaderOverrides;
 use cx_config::NoopThreadConfigLoader;
 use cx_core::build_models_manager;
@@ -85,14 +90,11 @@ use cx_core::config::edit::ConfigEditsBuilder;
 use cx_core::config::find_cx_home;
 use cx_core::config::load_config_toml_with_layer_stack;
 use cx_core::config::resolve_profile_v2_config_path;
-use cx_app_server::in_process::{start, InProcessStartArgs};
-use cx_app_server_protocol::{ThreadListParams, ThreadListCwdFilter, ThreadSortKey, InitializeParams, ClientInfo, ThreadListResponse, RequestId, ClientRequest};
-use cx_protocol::protocol::SessionSource;
 use cx_exec_server::{EnvironmentManager, ExecServerRuntimePaths};
-use cx_feedback::CodexFeedback;
 use cx_features::FEATURES;
 use cx_features::Stage;
 use cx_features::is_known_feature_key;
+use cx_feedback::CodexFeedback;
 use cx_home::CodexHomeUserInstructionsProvider;
 use cx_login::AuthManager;
 use cx_login::CodexAuth;
@@ -102,10 +104,11 @@ use cx_memories_write::clear_memory_roots_contents;
 use cx_models_manager::bundled_models_response;
 use cx_models_manager::manager::RefreshStrategy;
 use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::SessionSource;
 use cx_protocol::user_input::UserInput;
 use cx_terminal_detection::TerminalName;
 
-/// CX CLI
+/// CY CLI
 ///
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
@@ -117,8 +120,8 @@ use cx_terminal_detection::TerminalName;
     // The executable is sometimes invoked via a platform‑specific name like
     // `cx-x86_64-unknown-linux-musl`, but the help output should always use
     // the generic `cx` command name that users run.
-    bin_name = "cx",
-    override_usage = "cx [OPTIONS] [PROMPT]\n       cx [OPTIONS] <COMMAND> [ARGS]"
+    bin_name = "cy",
+    override_usage = "cy [OPTIONS] [PROMPT]\n       cy [OPTIONS] <COMMAND> [ARGS]"
 )]
 struct MultitoolCli {
     #[clap(flatten)]
@@ -1069,8 +1072,7 @@ async fn run_debug_app_server_command(cmd: DebugAppServerCommand) -> anyhow::Res
     match cmd.subcommand {
         DebugAppServerSubcommand::SendMessageV2(cmd) => {
             let cx_bin = std::env::current_exe()?;
-            cx_app_server_test_client::send_message_v2(&cx_bin, &[], cmd.user_message, &None)
-                .await
+            cx_app_server_test_client::send_message_v2(&cx_bin, &[], cmd.user_message, &None).await
         }
     }
 }
@@ -1235,9 +1237,7 @@ async fn cli_main(
                     );
                 }
                 if is_workload_identity_selected() {
-                    anyhow::bail!(
-                        "`cx agents` is unavailable while workload identity is active"
-                    );
+                    anyhow::bail!("`cx agents` is unavailable while workload identity is active");
                 }
                 if root_remote.is_none() {
                     resolve_remote_endpoint(
@@ -1287,7 +1287,7 @@ async fn cli_main(
                 root_remote_auth_token_env.as_deref(),
                 "review",
             )?;
-            let mut exec_cli = ExecCli::try_parse_from(["cx", "exec"])?;
+            let mut exec_cli = ExecCli::try_parse_from(["cy", "exec"])?;
             exec_cli
                 .shared
                 .inherit_exec_root_options(&interactive.shared);
@@ -1393,9 +1393,7 @@ async fn cli_main(
                         code_mode_host_transport: code_mode_host.into(),
                         remote_control_startup_mode: match (remote_control, remote_control_disabled)
                         {
-                            (true, _) => {
-                                cx_app_server::RemoteControlStartupMode::EnabledEphemeral
-                            }
+                            (true, _) => cx_app_server::RemoteControlStartupMode::EnabledEphemeral,
                             (false, true) => {
                                 cx_app_server::RemoteControlStartupMode::DisabledEphemeral
                             }
@@ -1423,11 +1421,10 @@ async fn cli_main(
                         print_app_server_daemon_output(AppServerLifecycleCommand::Start).await?;
                     }
                     AppServerDaemonSubcommand::Bootstrap(bootstrap_cli) => {
-                        let output =
-                            cx_app_server_daemon::bootstrap(AppServerBootstrapOptions {
-                                remote_control_enabled: bootstrap_cli.remote_control,
-                            })
-                            .await?;
+                        let output = cx_app_server_daemon::bootstrap(AppServerBootstrapOptions {
+                            remote_control_enabled: bootstrap_cli.remote_control,
+                        })
+                        .await?;
                         println!("{}", serde_json::to_string(&output)?);
                     }
                     AppServerDaemonSubcommand::Restart => {
@@ -1652,7 +1649,10 @@ async fn cli_main(
             // Build ExecCli directly to avoid clap parsing issues with spaces in prompt
             let mut exec_cli = cx_exec::Cli {
                 command: None,
-                strict_config: config_overrides.raw_overrides.iter().any(|s| s.starts_with("strict-config")),
+                strict_config: config_overrides
+                    .raw_overrides
+                    .iter()
+                    .any(|s| s.starts_with("strict-config")),
                 shared: Default::default(),
                 skip_git_repo_check,
                 ephemeral: false,
@@ -1663,7 +1663,11 @@ async fn cli_main(
                 color: Default::default(),
                 json,
                 last_message_file: None,
-                prompt: if prompt.is_empty() { None } else { Some(prompt.join(" ")) },
+                prompt: if prompt.is_empty() {
+                    None
+                } else {
+                    Some(prompt.join(" "))
+                },
             };
             cx_exec::run_main(exec_cli, arg0_paths.clone()).await?;
         }
@@ -1740,8 +1744,7 @@ async fn cli_main(
                     .cli_overrides(cli_overrides)
                     .build()
                     .await?;
-                let auth_manager =
-                    AuthManager::shared_from_config(&config, true).await?;
+                let auth_manager = AuthManager::shared_from_config(&config, true).await?;
                 let models_manager = build_models_manager(&config, auth_manager);
                 models_manager
                     .raw_model_catalog(
@@ -1757,7 +1760,11 @@ async fn cli_main(
                 models
             };
             for m in filtered {
-                let name = if m.display_name.is_empty() { &m.slug } else { &m.display_name };
+                let name = if m.display_name.is_empty() {
+                    &m.slug
+                } else {
+                    &m.display_name
+                };
                 println!("{} — {}", m.slug, name);
             }
         }
@@ -1784,16 +1791,16 @@ async fn cli_main(
             // Start embedded app-server and query thread list
             let arg0_paths = Arg0DispatchPaths::default();
             let cx_home = find_cx_home()?;
-            let prepared_environment_manager = EnvironmentManager::prepare_from_cx_home(&cx_home).await?;
+            let prepared_environment_manager =
+                EnvironmentManager::prepare_from_cx_home(&cx_home).await?;
             let current_exe = std::env::current_exe()?;
             let runtime_paths = ExecServerRuntimePaths::new(current_exe, None)?;
-            let environment_manager = prepared_environment_manager.build(
-                Some(runtime_paths),
-                config.http_client_factory(),
-            )?;
-            let state_db = state_db::try_init(&config).await.map(Some).map_err(|err| {
-                std::io::Error::other(format!("Failed to init state db: {err}"))
-            })?;
+            let environment_manager = prepared_environment_manager
+                .build(Some(runtime_paths), config.http_client_factory())?;
+            let state_db = state_db::try_init(&config)
+                .await
+                .map(Some)
+                .map_err(|err| std::io::Error::other(format!("Failed to init state db: {err}")))?;
             let log_db = state_db.clone().map(log_db::start);
 
             let initialize = InitializeParams {
@@ -1808,14 +1815,19 @@ async fn cli_main(
             let app_server_handle = start(InProcessStartArgs {
                 arg0_paths: arg0_paths.clone(),
                 config: Arc::new(config.clone()),
-                cli_overrides: config_overrides.raw_overrides.iter().cloned()
+                cli_overrides: config_overrides
+                    .raw_overrides
+                    .iter()
+                    .cloned()
                     .filter_map(|s| {
                         let parts: Vec<&str> = s.splitn(2, '=').collect();
                         if parts.len() == 2 {
                             let key = parts[0].to_string();
                             let value = parts[1].parse().ok()?;
                             Some((key, value))
-                        } else { None }
+                        } else {
+                            None
+                        }
                     })
                     .collect(),
                 loader_overrides: LoaderOverrides::default(),
@@ -1835,14 +1847,21 @@ async fn cli_main(
                 initialize,
                 channel_capacity: 1000,
                 thread_config_loader: Arc::new(NoopThreadConfigLoader),
-            }).await?;
+            })
+            .await?;
 
             let app_server = app_server_handle;
             let params = ThreadListParams {
                 cursor: None,
                 limit: Some(limit as u32),
                 sort_key: Some(ThreadSortKey::UpdatedAt),
-                cwd: if all { None } else { Some(ThreadListCwdFilter::One(config.cwd.to_string_lossy().to_string())) },
+                cwd: if all {
+                    None
+                } else {
+                    Some(ThreadListCwdFilter::One(
+                        config.cwd.to_string_lossy().to_string(),
+                    ))
+                },
                 sort_direction: None,
                 model_providers: None,
                 source_kinds: None,
@@ -1864,22 +1883,23 @@ async fn cli_main(
                 Ok(response) => {
                     // response is Result<Value, JSONRPCErrorError>
                     match response {
-                        Ok(value) => {
-                            match serde_json::from_value::<ThreadListResponse>(value) {
-                                Ok(response) => {
-                                    for thread in response.data {
-                                        let name = thread.name.as_deref().unwrap_or("unnamed");
-                                        let matches = query.as_ref().map_or(true, |q| name.contains(q));
-                                        if matches {
-                                            println!("{} — {} — {}", thread.id, name, thread.updated_at);
-                                        }
+                        Ok(value) => match serde_json::from_value::<ThreadListResponse>(value) {
+                            Ok(response) => {
+                                for thread in response.data {
+                                    let name = thread.name.as_deref().unwrap_or("unnamed");
+                                    let matches = query.as_ref().map_or(true, |q| name.contains(q));
+                                    if matches {
+                                        println!(
+                                            "{} — {} — {}",
+                                            thread.id, name, thread.updated_at
+                                        );
                                     }
                                 }
-                                Err(_) => {
-                                    eprintln!("Error parsing thread list response");
-                                }
                             }
-                        }
+                            Err(_) => {
+                                eprintln!("Error parsing thread list response");
+                            }
+                        },
                         Err(e) => {
                             eprintln!("Error listing sessions: {:?}", e);
                         }
@@ -1938,7 +1958,12 @@ async fn cli_main(
                     let instruction = instruction.clone();
                     handles.push(tokio::spawn(async move {
                         let content = tokio::fs::read_to_string(&file).await?;
-                        let prompt = format!("{}\n\nFile: {}\n---\n{}", instruction, file.display(), content);
+                        let prompt = format!(
+                            "{}\n\nFile: {}\n---\n{}",
+                            instruction,
+                            file.display(),
+                            content
+                        );
                         let output = tokio::process::Command::new(&cy_exe)
                             .args(["q", "--skip-git-repo-check", &prompt])
                             .output()
@@ -2060,8 +2085,7 @@ async fn cli_main(
                 &mut cloud_cli.config_overrides,
                 root_config_overrides.clone(),
             );
-            cx_cloud_tasks::run_main(cloud_cli, arg0_paths.cx_linux_sandbox_exe.clone())
-                .await?;
+            cx_cloud_tasks::run_main(cloud_cli, arg0_paths.cx_linux_sandbox_exe.clone()).await?;
         }
         Some(Subcommand::Sandbox(mut sandbox_cli)) => {
             let config_profile = sandbox_cli
@@ -2195,8 +2219,7 @@ async fn cli_main(
                 root_remote_auth_token_env.as_deref(),
                 "responses-api-proxy",
             )?;
-            tokio::task::spawn_blocking(move || cx_responses_api_proxy::run_main(args))
-                .await??;
+            tokio::task::spawn_blocking(move || cx_responses_api_proxy::run_main(args)).await??;
         }
         Some(Subcommand::StdioToUds(cmd)) => {
             reject_remote_mode_for_subcommand(
@@ -2726,9 +2749,7 @@ async fn run_debug_prompt_input_command(
             max_context_tokens: config.skill_max_context_tokens,
             bundled_skills_enabled: config.bundled_skills_enabled(),
             orchestrator_skills_enabled: config.orchestrator_skills_enabled,
-            shadow_selection_enabled: config
-                .features
-                .enabled(cx_features::Feature::SkillSearch),
+            shadow_selection_enabled: config.features.enabled(cx_features::Feature::SkillSearch),
         }
     });
     let prompt_input = cx_core::build_prompt_input(
@@ -3296,7 +3317,7 @@ fn merge_interactive_cli_flags(interactive: &mut TuiCli, subcommand_cli: TuiCli)
 
 fn print_completion(cmd: CompletionCommand) {
     let mut app = MultitoolCli::command();
-    let name = "cx";
+    let name = "cy";
     generate(cmd.shell, &mut app, name, &mut std::io::stdout());
 }
 
@@ -3311,7 +3332,7 @@ mod tests {
     #[test]
     fn interactive_tui_future_stays_bounded() {
         let future = run_interactive_tui(
-            TuiCli::parse_from(["cx"]),
+            TuiCli::parse_from(["cy"]),
             /*remote*/ None,
             /*remote_auth_token_env*/ None,
             Arg0DispatchPaths::default(),
@@ -3530,8 +3551,7 @@ mod tests {
         let cx_home = tempfile::tempdir()?;
         let profile: ProfileV2Name = "work".parse()?;
 
-        let overrides =
-            loader_overrides_for_profile_at_cx_home(Some(&profile), cx_home.path());
+        let overrides = loader_overrides_for_profile_at_cx_home(Some(&profile), cx_home.path());
 
         assert_eq!(
             overrides.user_config_path,
@@ -3543,31 +3563,31 @@ mod tests {
 
     #[test]
     fn profile_v2_is_rejected_for_config_management_subcommands() {
-        assert!(profile_v2_for_args(&["cx", "--profile", "work", "features", "list"]).is_err());
+        assert!(profile_v2_for_args(&["cy", "--profile", "work", "features", "list"]).is_err());
     }
 
     #[test]
     fn profile_v2_is_allowed_for_runtime_subcommands() {
         assert_eq!(
-            profile_v2_for_args(&["cx", "--profile", "work", "resume"])
+            profile_v2_for_args(&["cy", "--profile", "work", "resume"])
                 .expect("resume supports profile-v2")
                 .as_deref(),
             Some("work")
         );
         assert_eq!(
-            profile_v2_for_args(&["cx", "--profile", "work", "debug", "prompt-input"])
+            profile_v2_for_args(&["cy", "--profile", "work", "debug", "prompt-input"])
                 .expect("debug prompt-input supports profile-v2")
                 .as_deref(),
             Some("work")
         );
         assert_eq!(
-            profile_v2_for_args(&["cx", "--profile", "work", "mcp", "list"])
+            profile_v2_for_args(&["cy", "--profile", "work", "mcp", "list"])
                 .expect("mcp supports profile-v2")
                 .as_deref(),
             Some("work")
         );
         assert_eq!(
-            profile_v2_for_args(&["cx", "--profile", "work", "sandbox"])
+            profile_v2_for_args(&["cy", "--profile", "work", "sandbox"])
                 .expect("sandbox supports config profile")
                 .as_deref(),
             Some("work")
@@ -3576,7 +3596,7 @@ mod tests {
 
     #[test]
     fn import_remains_an_interactive_prompt() {
-        let cli = MultitoolCli::try_parse_from(["cx", "import"]).expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "import"]).expect("parse");
 
         assert!(cli.subcommand.is_none());
         assert_eq!(cli.interactive.prompt.as_deref(), Some("import"));
@@ -3585,15 +3605,14 @@ mod tests {
     #[test]
     fn profile_v2_rejects_non_plain_names_at_parse_time() {
         assert!(
-            MultitoolCli::try_parse_from(["cx", "--profile", "nested/work", "resume"]).is_err()
+            MultitoolCli::try_parse_from(["cy", "--profile", "nested/work", "resume"]).is_err()
         );
     }
 
     #[test]
     fn exec_resume_last_accepts_prompt_positional() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "exec", "--json", "resume", "--last", "2+2"])
-                .expect("parse should succeed");
+        let cli = MultitoolCli::try_parse_from(["cy", "exec", "--json", "resume", "--last", "2+2"])
+            .expect("parse should succeed");
 
         let Some(Subcommand::Exec(exec)) = cli.subcommand else {
             panic!("expected exec subcommand");
@@ -3610,7 +3629,7 @@ mod tests {
     #[test]
     fn exec_resume_accepts_output_flags_after_subcommand() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "exec",
             "resume",
             "session-123",
@@ -3644,7 +3663,7 @@ mod tests {
     #[test]
     fn dangerous_bypass_conflicts_with_approval_policy() {
         let err = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "--dangerously-bypass-approvals-and-sandbox",
             "--ask-for-approval",
             "on-request",
@@ -3657,7 +3676,7 @@ mod tests {
     #[test]
     fn approve_for_me_configures_interactive_mode() {
         for flag in ["--approve-for-me", "--not-so-yolo"] {
-            let mut cli = MultitoolCli::try_parse_from(["cx", flag]).expect("parse flag");
+            let mut cli = MultitoolCli::try_parse_from(["cy", flag]).expect("parse flag");
 
             assert!(cli.interactive.auto_review);
             cli.interactive
@@ -3677,7 +3696,7 @@ mod tests {
 
     #[test]
     fn not_so_yolo_alias_is_hidden_from_help() {
-        for args in [&["cx", "--help"][..], &["cx", "exec", "--help"][..]] {
+        for args in [&["cy", "--help"][..], &["cy", "exec", "--help"][..]] {
             let help = help_from_args(args);
 
             assert!(!help.contains("--not-so-yolo"), "{help}");
@@ -3686,7 +3705,7 @@ mod tests {
 
     #[test]
     fn approve_for_me_defaults_propagate_from_root_to_exec() {
-        let exec = finalize_exec_from_args(&["cx", "--approve-for-me", "exec", "summarize"]);
+        let exec = finalize_exec_from_args(&["cy", "--approve-for-me", "exec", "summarize"]);
 
         assert_eq!(
             exec.config_overrides.raw_overrides,
@@ -3701,13 +3720,8 @@ mod tests {
 
     #[test]
     fn later_exec_sandbox_partially_overrides_approve_for_me() {
-        let exec = finalize_exec_from_args(&[
-            "cx",
-            "--approve-for-me",
-            "exec",
-            "--sandbox",
-            "read-only",
-        ]);
+        let exec =
+            finalize_exec_from_args(&["cy", "--approve-for-me", "exec", "--sandbox", "read-only"]);
 
         assert_matches!(
             exec.sandbox_mode,
@@ -3725,13 +3739,8 @@ mod tests {
 
     #[test]
     fn later_approve_for_me_overrides_root_exec_sandbox() {
-        let exec = finalize_exec_from_args(&[
-            "cx",
-            "--sandbox",
-            "read-only",
-            "exec",
-            "--approve-for-me",
-        ]);
+        let exec =
+            finalize_exec_from_args(&["cy", "--sandbox", "read-only", "exec", "--approve-for-me"]);
 
         assert!(exec.sandbox_mode.is_none());
         assert_eq!(
@@ -3747,7 +3756,7 @@ mod tests {
     #[test]
     fn later_resume_approval_policy_partially_overrides_approve_for_me() {
         let interactive = finalize_resume_from_args(&[
-            "cx",
+            "cy",
             "--approve-for-me",
             "resume",
             "--ask-for-approval",
@@ -3771,7 +3780,7 @@ mod tests {
     #[test]
     fn later_approve_for_me_overrides_root_tui_approval_policy() {
         let interactive = finalize_resume_from_args(&[
-            "cx",
+            "cy",
             "--ask-for-approval",
             "never",
             "resume",
@@ -3796,7 +3805,7 @@ mod tests {
             vec!["--ask-for-approval", "on-request"],
             vec!["--dangerously-bypass-approvals-and-sandbox"],
         ] {
-            let mut args = vec!["cx", "--approve-for-me"];
+            let mut args = vec!["cy", "--approve-for-me"];
             args.extend(conflicting_args);
 
             let error =
@@ -3822,7 +3831,7 @@ mod tests {
     #[test]
     fn debug_prompt_input_parses_prompt_and_images() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "debug",
             "prompt-input",
             "hello",
@@ -3848,7 +3857,7 @@ mod tests {
     #[test]
     fn debug_models_parses_bundled_flag() {
         let cli =
-            MultitoolCli::try_parse_from(["cx", "debug", "models", "--bundled"]).expect("parse");
+            MultitoolCli::try_parse_from(["cy", "debug", "models", "--bundled"]).expect("parse");
 
         let Some(Subcommand::Debug(DebugCommand {
             subcommand: DebugSubcommand::Models(cmd),
@@ -3878,7 +3887,7 @@ mod tests {
 
     #[test]
     fn plugin_marketplace_help_uses_plugin_namespace() {
-        let help = help_from_args(&["cx", "plugin", "marketplace", "--help"]);
+        let help = help_from_args(&["cy", "plugin", "marketplace", "--help"]);
         assert!(
             help.contains("Usage: cx plugin marketplace [OPTIONS] <COMMAND>"),
             "{help}"
@@ -3890,7 +3899,7 @@ mod tests {
             ("upgrade", "Usage: cx plugin marketplace upgrade"),
             ("remove", "Usage: cx plugin marketplace remove"),
         ] {
-            let help = help_from_args(&["cx", "plugin", "marketplace", subcommand, "--help"]);
+            let help = help_from_args(&["cy", "plugin", "marketplace", subcommand, "--help"]);
             assert!(help.contains(usage), "{help}");
         }
     }
@@ -3898,7 +3907,7 @@ mod tests {
     #[test]
     fn plugin_marketplace_add_parses_under_plugin() {
         let cli =
-            MultitoolCli::try_parse_from(["cx", "plugin", "marketplace", "add", "owner/repo"])
+            MultitoolCli::try_parse_from(["cy", "plugin", "marketplace", "add", "owner/repo"])
                 .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
@@ -3906,9 +3915,8 @@ mod tests {
 
     #[test]
     fn plugin_marketplace_upgrade_parses_under_plugin() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "plugin", "marketplace", "upgrade", "debug"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "plugin", "marketplace", "upgrade", "debug"])
+            .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
     }
@@ -3916,7 +3924,7 @@ mod tests {
     #[test]
     fn plugin_add_parses_under_plugin() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "plugin",
             "add",
             "sample",
@@ -3930,9 +3938,8 @@ mod tests {
 
     #[test]
     fn plugin_list_parses_under_plugin() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "plugin", "list", "--marketplace", "debug"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "plugin", "list", "--marketplace", "debug"])
+            .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
     }
@@ -3940,7 +3947,7 @@ mod tests {
     #[test]
     fn plugin_remove_parses_under_plugin() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "plugin",
             "remove",
             "sample",
@@ -3954,7 +3961,7 @@ mod tests {
 
     #[test]
     fn update_parses_as_update_subcommand() {
-        let cli = MultitoolCli::try_parse_from(["cx", "update"]).expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "update"]).expect("parse");
         assert!(matches!(cli.subcommand, Some(Subcommand::Update)));
     }
 
@@ -3962,7 +3969,7 @@ mod tests {
     fn archive_merges_scoped_tui_flags() {
         let (target, interactive, remote) = finalize_archive_from_args(
             [
-                "cx",
+                "cy",
                 "-C",
                 "/root",
                 "archive",
@@ -4009,7 +4016,7 @@ mod tests {
     #[test]
     fn sandbox_parses_permission_profile() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "sandbox",
             "--permission-profile",
             ":workspace",
@@ -4030,7 +4037,7 @@ mod tests {
     #[test]
     fn sandbox_parses_legacy_permissions_profile_alias() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "sandbox",
             "--permissions-profile",
             ":workspace",
@@ -4050,7 +4057,7 @@ mod tests {
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     #[test]
     fn sandbox_help_only_shows_singular_permission_profile() {
-        let help = help_from_args(&["cx", "sandbox", "--help"]);
+        let help = help_from_args(&["cy", "sandbox", "--help"]);
         assert!(help.contains("--permission-profile"), "{help}");
         assert!(!help.contains("--permissions-profile"), "{help}");
     }
@@ -4058,9 +4065,8 @@ mod tests {
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     #[test]
     fn sandbox_parses_permissions_profile_short_alias() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "sandbox", "-P", ":workspace", "--", "echo"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "sandbox", "-P", ":workspace", "--", "echo"])
+            .expect("parse");
 
         let Some(Subcommand::Sandbox(command)) = cli.subcommand else {
             panic!("expected sandbox command");
@@ -4074,7 +4080,7 @@ mod tests {
     #[test]
     fn sandbox_parses_config_profile() {
         let cli =
-            MultitoolCli::try_parse_from(["cx", "sandbox", "--profile", "work", "--", "echo"])
+            MultitoolCli::try_parse_from(["cy", "sandbox", "--profile", "work", "--", "echo"])
                 .expect("parse");
 
         let Some(Subcommand::Sandbox(command)) = cli.subcommand else {
@@ -4088,7 +4094,7 @@ mod tests {
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     #[test]
     fn sandbox_rejects_explicit_profile_controls_without_profile() {
-        let err = MultitoolCli::try_parse_from(["cx", "sandbox", "-C", "/tmp"])
+        let err = MultitoolCli::try_parse_from(["cy", "sandbox", "-C", "/tmp"])
             .expect_err("parse should fail");
 
         assert_eq!(err.kind(), clap::error::ErrorKind::MissingRequiredArgument);
@@ -4096,25 +4102,22 @@ mod tests {
 
     #[test]
     fn plugin_marketplace_remove_parses_under_plugin() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "plugin", "marketplace", "remove", "debug"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "plugin", "marketplace", "remove", "debug"])
+            .expect("parse");
 
         assert!(matches!(cli.subcommand, Some(Subcommand::Plugin(_))));
     }
 
     #[test]
     fn marketplace_no_longer_parses_at_top_level() {
-        let add_result =
-            MultitoolCli::try_parse_from(["cx", "marketplace", "add", "owner/repo"]);
+        let add_result = MultitoolCli::try_parse_from(["cy", "marketplace", "add", "owner/repo"]);
         assert!(add_result.is_err());
 
         let upgrade_result =
-            MultitoolCli::try_parse_from(["cx", "marketplace", "upgrade", "debug"]);
+            MultitoolCli::try_parse_from(["cy", "marketplace", "upgrade", "debug"]);
         assert!(upgrade_result.is_err());
 
-        let remove_result =
-            MultitoolCli::try_parse_from(["cx", "marketplace", "remove", "debug"]);
+        let remove_result = MultitoolCli::try_parse_from(["cy", "marketplace", "remove", "debug"]);
         assert!(remove_result.is_err());
     }
 
@@ -4230,7 +4233,7 @@ mod tests {
     #[test]
     fn resume_model_flag_applies_when_no_root_flags() {
         let interactive =
-            finalize_resume_from_args(["cx", "resume", "-m", "gpt-5.1-test"].as_ref());
+            finalize_resume_from_args(["cy", "resume", "-m", "gpt-5.1-test"].as_ref());
 
         assert_eq!(interactive.model.as_deref(), Some("gpt-5.1-test"));
         assert!(interactive.resume_picker);
@@ -4244,15 +4247,15 @@ mod tests {
             ("resume", finalize_resume_from_args as fn(&[&str]) -> TuiCli),
             ("fork", finalize_fork_from_args as fn(&[&str]) -> TuiCli),
         ] {
-            assert!(finalize(&["cx", command, "--no-alt-screen"]).no_alt_screen);
-            assert!(finalize(&["cx", "--no-alt-screen", command]).no_alt_screen);
-            assert!(!finalize(&["cx", command]).no_alt_screen);
+            assert!(finalize(&["cy", command, "--no-alt-screen"]).no_alt_screen);
+            assert!(finalize(&["cy", "--no-alt-screen", command]).no_alt_screen);
+            assert!(!finalize(&["cy", command]).no_alt_screen);
         }
     }
 
     #[test]
     fn resume_picker_logic_none_and_not_last() {
-        let interactive = finalize_resume_from_args(["cx", "resume"].as_ref());
+        let interactive = finalize_resume_from_args(["cy", "resume"].as_ref());
         assert!(interactive.resume_picker);
         assert!(!interactive.resume_last);
         assert_eq!(interactive.resume_session_id, None);
@@ -4261,7 +4264,7 @@ mod tests {
 
     #[test]
     fn resume_picker_logic_last() {
-        let interactive = finalize_resume_from_args(["cx", "resume", "--last"].as_ref());
+        let interactive = finalize_resume_from_args(["cy", "resume", "--last"].as_ref());
         assert!(!interactive.resume_picker);
         assert!(interactive.resume_last);
         assert_eq!(interactive.resume_session_id, None);
@@ -4271,7 +4274,7 @@ mod tests {
     #[test]
     fn resume_last_accepts_prompt_positional() {
         let interactive = finalize_resume_from_args(
-            ["cx", "resume", "--last", "/compact focus on auth"].as_ref(),
+            ["cy", "resume", "--last", "/compact focus on auth"].as_ref(),
         );
 
         assert!(!interactive.resume_picker);
@@ -4285,16 +4288,15 @@ mod tests {
 
     #[test]
     fn resume_last_rejects_explicit_session_and_prompt() {
-        let err =
-            MultitoolCli::try_parse_from(["cx", "resume", "--last", "1234", "continue here"])
-                .expect_err("--last with an explicit session and prompt should be rejected");
+        let err = MultitoolCli::try_parse_from(["cy", "resume", "--last", "1234", "continue here"])
+            .expect_err("--last with an explicit session and prompt should be rejected");
 
         assert_eq!(err.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
 
     #[test]
     fn resume_picker_logic_with_session_id() {
-        let interactive = finalize_resume_from_args(["cx", "resume", "1234"].as_ref());
+        let interactive = finalize_resume_from_args(["cy", "resume", "1234"].as_ref());
         assert!(!interactive.resume_picker);
         assert!(!interactive.resume_last);
         assert_eq!(interactive.resume_session_id.as_deref(), Some("1234"));
@@ -4304,7 +4306,7 @@ mod tests {
     #[test]
     fn resume_with_session_id_accepts_prompt_positional() {
         let interactive =
-            finalize_resume_from_args(["cx", "resume", "1234", "continue here"].as_ref());
+            finalize_resume_from_args(["cy", "resume", "1234", "continue here"].as_ref());
 
         assert!(!interactive.resume_picker);
         assert!(!interactive.resume_last);
@@ -4314,7 +4316,7 @@ mod tests {
 
     #[test]
     fn resume_all_flag_sets_show_all() {
-        let interactive = finalize_resume_from_args(["cx", "resume", "--all"].as_ref());
+        let interactive = finalize_resume_from_args(["cy", "resume", "--all"].as_ref());
         assert!(interactive.resume_picker);
         assert!(interactive.resume_show_all);
     }
@@ -4322,7 +4324,7 @@ mod tests {
     #[test]
     fn resume_include_non_interactive_flag_sets_source_filter_override() {
         let interactive =
-            finalize_resume_from_args(["cx", "resume", "--include-non-interactive"].as_ref());
+            finalize_resume_from_args(["cy", "resume", "--include-non-interactive"].as_ref());
 
         assert!(interactive.resume_picker);
         assert!(interactive.resume_include_non_interactive);
@@ -4332,7 +4334,7 @@ mod tests {
     fn resume_merges_option_flags() {
         let interactive = finalize_resume_from_args(
             [
-                "cx",
+                "cy",
                 "resume",
                 "sid",
                 "--oss",
@@ -4388,12 +4390,7 @@ mod tests {
     #[test]
     fn resume_merges_dangerously_bypass_flag() {
         let interactive = finalize_resume_from_args(
-            [
-                "cx",
-                "resume",
-                "--dangerously-bypass-approvals-and-sandbox",
-            ]
-            .as_ref(),
+            ["cy", "resume", "--dangerously-bypass-approvals-and-sandbox"].as_ref(),
         );
         assert!(interactive.dangerously_bypass_approvals_and_sandbox);
         assert!(interactive.resume_picker);
@@ -4403,9 +4400,8 @@ mod tests {
 
     #[test]
     fn resume_merges_bypass_hook_trust_flag() {
-        let interactive = finalize_resume_from_args(
-            ["cx", "resume", "--dangerously-bypass-hook-trust"].as_ref(),
-        );
+        let interactive =
+            finalize_resume_from_args(["cy", "resume", "--dangerously-bypass-hook-trust"].as_ref());
 
         assert!(interactive.bypass_hook_trust);
         assert!(interactive.resume_picker);
@@ -4415,7 +4411,7 @@ mod tests {
 
     #[test]
     fn fork_picker_logic_none_and_not_last() {
-        let interactive = finalize_fork_from_args(["cx", "fork"].as_ref());
+        let interactive = finalize_fork_from_args(["cy", "fork"].as_ref());
         assert!(interactive.fork_picker);
         assert!(!interactive.fork_last);
         assert_eq!(interactive.fork_session_id, None);
@@ -4424,7 +4420,7 @@ mod tests {
 
     #[test]
     fn fork_picker_logic_last() {
-        let interactive = finalize_fork_from_args(["cx", "fork", "--last"].as_ref());
+        let interactive = finalize_fork_from_args(["cy", "fork", "--last"].as_ref());
         assert!(!interactive.fork_picker);
         assert!(interactive.fork_last);
         assert_eq!(interactive.fork_session_id, None);
@@ -4434,7 +4430,7 @@ mod tests {
     #[test]
     fn fork_last_accepts_prompt_positional() {
         let interactive =
-            finalize_fork_from_args(["cx", "fork", "--last", "/compact focus on auth"].as_ref());
+            finalize_fork_from_args(["cy", "fork", "--last", "/compact focus on auth"].as_ref());
 
         assert!(!interactive.fork_picker);
         assert!(interactive.fork_last);
@@ -4447,16 +4443,15 @@ mod tests {
 
     #[test]
     fn fork_last_rejects_explicit_session_and_prompt() {
-        let err =
-            MultitoolCli::try_parse_from(["cx", "fork", "--last", "1234", "continue here"])
-                .expect_err("--last with an explicit session and prompt should be rejected");
+        let err = MultitoolCli::try_parse_from(["cy", "fork", "--last", "1234", "continue here"])
+            .expect_err("--last with an explicit session and prompt should be rejected");
 
         assert_eq!(err.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
 
     #[test]
     fn fork_picker_logic_with_session_id() {
-        let interactive = finalize_fork_from_args(["cx", "fork", "1234"].as_ref());
+        let interactive = finalize_fork_from_args(["cy", "fork", "1234"].as_ref());
         assert!(!interactive.fork_picker);
         assert!(!interactive.fork_last);
         assert_eq!(interactive.fork_session_id.as_deref(), Some("1234"));
@@ -4465,8 +4460,7 @@ mod tests {
 
     #[test]
     fn fork_with_session_id_accepts_prompt_positional() {
-        let interactive =
-            finalize_fork_from_args(["cx", "fork", "1234", "continue here"].as_ref());
+        let interactive = finalize_fork_from_args(["cy", "fork", "1234", "continue here"].as_ref());
 
         assert!(!interactive.fork_picker);
         assert!(!interactive.fork_last);
@@ -4476,42 +4470,39 @@ mod tests {
 
     #[test]
     fn fork_all_flag_sets_show_all() {
-        let interactive = finalize_fork_from_args(["cx", "fork", "--all"].as_ref());
+        let interactive = finalize_fork_from_args(["cy", "fork", "--all"].as_ref());
         assert!(interactive.fork_picker);
         assert!(interactive.fork_show_all);
     }
 
     #[test]
     fn app_server_analytics_default_disabled_without_flag() {
-        let app_server = app_server_from_args(["cx", "app-server"].as_ref());
+        let app_server = app_server_from_args(["cy", "app-server"].as_ref());
         assert!(!app_server.analytics_default_enabled);
         assert!(!app_server.remote_control);
-        assert_eq!(
-            app_server.listen,
-            cx_app_server::AppServerTransport::Stdio
-        );
+        assert_eq!(app_server.listen, cx_app_server::AppServerTransport::Stdio);
     }
 
     #[test]
     fn app_server_remote_control_startup_flag_enables_remote_control() {
-        let enabled = app_server_from_args(["cx", "app-server", "--remote-control"].as_ref());
+        let enabled = app_server_from_args(["cy", "app-server", "--remote-control"].as_ref());
         assert!(enabled.remote_control);
     }
 
     #[test]
     fn app_server_analytics_default_enabled_with_flag() {
         let app_server =
-            app_server_from_args(["cx", "app-server", "--analytics-default-enabled"].as_ref());
+            app_server_from_args(["cy", "app-server", "--analytics-default-enabled"].as_ref());
         assert!(app_server.analytics_default_enabled);
     }
 
     #[test]
     fn strict_config_parses_for_supported_commands() {
-        let cli = MultitoolCli::try_parse_from(["cx", "--strict-config"]).expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "--strict-config"]).expect("parse");
         assert!(cli.interactive.strict_config);
 
-        let cli = MultitoolCli::try_parse_from(["cx", "mcp-server", "--strict-config"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["cy", "mcp-server", "--strict-config"]).expect("parse");
         assert_matches!(
             cli.subcommand,
             Some(Subcommand::McpServer(McpServerCommand {
@@ -4520,7 +4511,7 @@ mod tests {
         );
 
         let cli =
-            MultitoolCli::try_parse_from(["cx", "review", "--strict-config", "--uncommitted"])
+            MultitoolCli::try_parse_from(["cy", "review", "--strict-config", "--uncommitted"])
                 .expect("parse");
         assert_matches!(
             cli.subcommand,
@@ -4530,8 +4521,8 @@ mod tests {
             }))
         );
 
-        let cli = MultitoolCli::try_parse_from(["cx", "exec-server", "--strict-config"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["cy", "exec-server", "--strict-config"]).expect("parse");
         assert_matches!(
             cli.subcommand,
             Some(Subcommand::ExecServer(ExecServerCommand {
@@ -4544,7 +4535,7 @@ mod tests {
     #[test]
     fn exec_server_forward_parses_shared_remote_options() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "exec-server",
             "forward",
             "--connect",
@@ -4592,7 +4583,7 @@ mod tests {
             ],
         ] {
             assert!(
-                MultitoolCli::try_parse_from(["cx", "exec-server"].into_iter().chain(args))
+                MultitoolCli::try_parse_from(["cy", "exec-server"].into_iter().chain(args))
                     .is_err()
             );
         }
@@ -4600,8 +4591,8 @@ mod tests {
 
     #[test]
     fn root_strict_config_is_supported_for_exec_server() {
-        let cli = MultitoolCli::try_parse_from(["cx", "--strict-config", "exec-server"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["cy", "--strict-config", "exec-server"]).expect("parse");
 
         reject_root_strict_config_for_subcommand(cli.interactive.strict_config, &cli.subcommand)
             .expect("exec-server should support root --strict-config");
@@ -4609,8 +4600,8 @@ mod tests {
 
     #[test]
     fn root_strict_config_is_rejected_for_unsupported_subcommands() {
-        let cli = MultitoolCli::try_parse_from(["cx", "--strict-config", "mcp", "list"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["cy", "--strict-config", "mcp", "list"]).expect("parse");
         let err = reject_root_strict_config_for_subcommand(
             cli.interactive.strict_config,
             &cli.subcommand,
@@ -4622,7 +4613,7 @@ mod tests {
             "`--strict-config` is not supported for `cx mcp`"
         );
 
-        let cli = MultitoolCli::try_parse_from(["cx", "--strict-config", "remote-control"])
+        let cli = MultitoolCli::try_parse_from(["cy", "--strict-config", "remote-control"])
             .expect("parse");
         let err = reject_root_strict_config_for_subcommand(
             cli.interactive.strict_config,
@@ -4639,7 +4630,7 @@ mod tests {
     #[test]
     fn app_server_subcommands_reject_strict_config() {
         let app_server =
-            app_server_from_args(["cx", "app-server", "--strict-config", "proxy"].as_ref());
+            app_server_from_args(["cy", "app-server", "--strict-config", "proxy"].as_ref());
         let err = reject_strict_config_for_app_server_subcommand(
             app_server.strict_config,
             app_server.subcommand.as_ref(),
@@ -4654,7 +4645,7 @@ mod tests {
 
     #[test]
     fn reject_remote_flag_for_remote_control() {
-        let cli = MultitoolCli::try_parse_from(["cx", "--remote", "unix://", "remote-control"])
+        let cli = MultitoolCli::try_parse_from(["cy", "--remote", "unix://", "remote-control"])
             .expect("parse");
         let Some(Subcommand::RemoteControl(remote_control)) = &cli.subcommand else {
             panic!("expected remote-control subcommand");
@@ -4673,7 +4664,7 @@ mod tests {
 
     #[test]
     fn remote_control_pair_parses() {
-        let cli = MultitoolCli::try_parse_from(["cx", "remote-control", "pair"]).expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "remote-control", "pair"]).expect("parse");
         let Some(Subcommand::RemoteControl(remote_control)) = &cli.subcommand else {
             panic!("expected remote-control subcommand");
         };
@@ -4682,15 +4673,15 @@ mod tests {
 
     #[test]
     fn remote_flag_parses_for_interactive_root() {
-        let cli = MultitoolCli::try_parse_from(["cx", "--remote", "unix://cx.sock"])
-            .expect("parse");
+        let cli =
+            MultitoolCli::try_parse_from(["cy", "--remote", "unix://cx.sock"]).expect("parse");
         assert_eq!(cli.remote.remote.as_deref(), Some("unix://cx.sock"));
     }
 
     #[test]
     fn remote_auth_token_env_flag_parses_for_interactive_root() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "--remote-auth-token-env",
             "CX_REMOTE_AUTH_TOKEN",
             "--remote",
@@ -4705,9 +4696,8 @@ mod tests {
 
     #[test]
     fn remote_flag_parses_for_resume_subcommand() {
-        let cli =
-            MultitoolCli::try_parse_from(["cx", "resume", "--remote", "unix://cx.sock"])
-                .expect("parse");
+        let cli = MultitoolCli::try_parse_from(["cy", "resume", "--remote", "unix://cx.sock"])
+            .expect("parse");
         let Subcommand::Resume(ResumeCommand { remote, .. }) =
             cli.subcommand.expect("resume present")
         else {
@@ -4719,7 +4709,7 @@ mod tests {
     #[test]
     fn agents_subcommand_accepts_remote_session_options() {
         let cli = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "agents",
             "--remote",
             "ws://127.0.0.1:4500",
@@ -4803,11 +4793,10 @@ mod tests {
 
     #[test]
     fn read_remote_auth_token_from_env_var_trims_values() {
-        let auth_token =
-            read_remote_auth_token_from_env_var_with("CX_REMOTE_AUTH_TOKEN", |_| {
-                Ok("  bearer-token  ".to_string())
-            })
-            .expect("env var should parse");
+        let auth_token = read_remote_auth_token_from_env_var_with("CX_REMOTE_AUTH_TOKEN", |_| {
+            Ok("  bearer-token  ".to_string())
+        })
+        .expect("env var should parse");
         assert_eq!(auth_token, "bearer-token");
     }
 
@@ -4824,7 +4813,7 @@ mod tests {
     fn app_server_code_mode_host_url_parses_independently_of_listen_transport() {
         let app_server = app_server_from_args(
             [
-                "cx",
+                "cy",
                 "app-server",
                 "--code-mode-host",
                 "wss://example.test/code-mode",
@@ -4853,7 +4842,7 @@ mod tests {
     fn app_server_grpc_code_mode_host_url_parses_independently_of_listen_transport() {
         let app_server = app_server_from_args(
             [
-                "cx",
+                "cy",
                 "app-server",
                 "--code-mode-host",
                 "https://example.test",
@@ -4881,7 +4870,7 @@ mod tests {
             "http://example.test/?token=secret",
         ] {
             let error =
-                MultitoolCli::try_parse_from(["cx", "app-server", "--code-mode-host", endpoint])
+                MultitoolCli::try_parse_from(["cy", "app-server", "--code-mode-host", endpoint])
                     .expect_err("invalid code-mode host endpoint should fail argument parsing");
 
             assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
@@ -4893,9 +4882,8 @@ mod tests {
 
     #[test]
     fn app_server_listen_websocket_url_parses() {
-        let app_server = app_server_from_args(
-            ["cx", "app-server", "--listen", "ws://127.0.0.1:4500"].as_ref(),
-        );
+        let app_server =
+            app_server_from_args(["cy", "app-server", "--listen", "ws://127.0.0.1:4500"].as_ref());
         assert_eq!(
             app_server.listen,
             cx_app_server::AppServerTransport::WebSocket {
@@ -4907,36 +4895,27 @@ mod tests {
     #[test]
     fn app_server_listen_stdio_url_parses() {
         let app_server =
-            app_server_from_args(["cx", "app-server", "--listen", "stdio://"].as_ref());
-        assert_eq!(
-            app_server.listen,
-            cx_app_server::AppServerTransport::Stdio
-        );
+            app_server_from_args(["cy", "app-server", "--listen", "stdio://"].as_ref());
+        assert_eq!(app_server.listen, cx_app_server::AppServerTransport::Stdio);
     }
 
     #[test]
     fn app_server_stdio_flag_parses() {
-        let app_server = app_server_from_args(["cx", "app-server", "--stdio"].as_ref());
+        let app_server = app_server_from_args(["cy", "app-server", "--stdio"].as_ref());
         assert!(app_server.stdio);
     }
 
     #[test]
     fn app_server_stdio_flag_conflicts_with_listen() {
-        let err = MultitoolCli::try_parse_from([
-            "cx",
-            "app-server",
-            "--stdio",
-            "--listen",
-            "stdio://",
-        ])
-        .expect_err("--stdio and --listen should be rejected together");
+        let err =
+            MultitoolCli::try_parse_from(["cy", "app-server", "--stdio", "--listen", "stdio://"])
+                .expect_err("--stdio and --listen should be rejected together");
         assert_eq!(err.kind(), clap::error::ErrorKind::ArgumentConflict);
     }
 
     #[test]
     fn app_server_listen_unix_socket_url_parses() {
-        let app_server =
-            app_server_from_args(["cx", "app-server", "--listen", "unix://"].as_ref());
+        let app_server = app_server_from_args(["cy", "app-server", "--listen", "unix://"].as_ref());
         assert_eq!(
             app_server.listen,
             cx_app_server::AppServerTransport::UnixSocket {
@@ -4947,9 +4926,8 @@ mod tests {
 
     #[test]
     fn app_server_listen_unix_socket_path_parses() {
-        let app_server = app_server_from_args(
-            ["cx", "app-server", "--listen", "unix:///tmp/cx.sock"].as_ref(),
-        );
+        let app_server =
+            app_server_from_args(["cy", "app-server", "--listen", "unix:///tmp/cx.sock"].as_ref());
         assert_eq!(
             app_server.listen,
             cx_app_server::AppServerTransport::UnixSocket {
@@ -4961,20 +4939,20 @@ mod tests {
 
     #[test]
     fn app_server_listen_off_parses() {
-        let app_server = app_server_from_args(["cx", "app-server", "--listen", "off"].as_ref());
+        let app_server = app_server_from_args(["cy", "app-server", "--listen", "off"].as_ref());
         assert_eq!(app_server.listen, cx_app_server::AppServerTransport::Off);
     }
 
     #[test]
     fn app_server_listen_invalid_url_fails_to_parse() {
         let parse_result =
-            MultitoolCli::try_parse_from(["cx", "app-server", "--listen", "http://foo"]);
+            MultitoolCli::try_parse_from(["cy", "app-server", "--listen", "http://foo"]);
         assert!(parse_result.is_err());
     }
 
     #[test]
     fn app_server_proxy_subcommand_parses() {
-        let app_server = app_server_from_args(["cx", "app-server", "proxy"].as_ref());
+        let app_server = app_server_from_args(["cy", "app-server", "proxy"].as_ref());
         assert!(matches!(
             app_server.subcommand,
             Some(AppServerSubcommand::Proxy(AppServerProxyCommand {
@@ -4988,7 +4966,7 @@ mod tests {
         assert!(matches!(
             app_server_from_args(
                 [
-                    "cx",
+                    "cy",
                     "app-server",
                     "daemon",
                     "bootstrap",
@@ -5004,43 +4982,39 @@ mod tests {
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["cx", "app-server", "daemon", "start"].as_ref()).subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "start"].as_ref()).subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Start
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["cx", "app-server", "daemon", "restart"].as_ref()).subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "restart"].as_ref()).subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Restart
             }))
         ));
         assert!(matches!(
-            app_server_from_args(
-                ["cx", "app-server", "daemon", "enable-remote-control"].as_ref()
-            )
-            .subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "enable-remote-control"].as_ref())
+                .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::EnableRemoteControl
             }))
         ));
         assert!(matches!(
-            app_server_from_args(
-                ["cx", "app-server", "daemon", "disable-remote-control"].as_ref()
-            )
-            .subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "disable-remote-control"].as_ref())
+                .subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::DisableRemoteControl
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["cx", "app-server", "daemon", "stop"].as_ref()).subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "stop"].as_ref()).subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Stop
             }))
         ));
         assert!(matches!(
-            app_server_from_args(["cx", "app-server", "daemon", "version"].as_ref()).subcommand,
+            app_server_from_args(["cy", "app-server", "daemon", "version"].as_ref()).subcommand,
             Some(AppServerSubcommand::Daemon(AppServerDaemonCommand {
                 subcommand: AppServerDaemonSubcommand::Version
             }))
@@ -5050,7 +5024,7 @@ mod tests {
     #[test]
     fn app_server_proxy_sock_path_parses() {
         let app_server =
-            app_server_from_args(["cx", "app-server", "proxy", "--sock", "cx.sock"].as_ref());
+            app_server_from_args(["cy", "app-server", "proxy", "--sock", "cx.sock"].as_ref());
         let Some(AppServerSubcommand::Proxy(proxy)) = app_server.subcommand else {
             panic!("expected proxy subcommand");
         };
@@ -5093,7 +5067,7 @@ mod tests {
     fn app_server_capability_token_flags_parse() {
         let app_server = app_server_from_args(
             [
-                "cx",
+                "cy",
                 "app-server",
                 "--ws-auth",
                 "capability-token",
@@ -5116,7 +5090,7 @@ mod tests {
     fn app_server_signed_bearer_flags_parse() {
         let app_server = app_server_from_args(
             [
-                "cx",
+                "cy",
                 "app-server",
                 "--ws-auth",
                 "signed-bearer-token",
@@ -5147,7 +5121,7 @@ mod tests {
     #[test]
     fn app_server_rejects_removed_insecure_non_loopback_flag() {
         let parse_result = MultitoolCli::try_parse_from([
-            "cx",
+            "cy",
             "app-server",
             "--allow-unauthenticated-non-loopback-ws",
         ]);
@@ -5156,7 +5130,7 @@ mod tests {
 
     #[test]
     fn features_enable_parses_feature_name() {
-        let cli = MultitoolCli::try_parse_from(["cx", "features", "enable", "unified_exec"])
+        let cli = MultitoolCli::try_parse_from(["cy", "features", "enable", "unified_exec"])
             .expect("parse should succeed");
         let Some(Subcommand::Features(FeaturesCli { sub })) = cli.subcommand else {
             panic!("expected features subcommand");
@@ -5169,7 +5143,7 @@ mod tests {
 
     #[test]
     fn features_disable_parses_feature_name() {
-        let cli = MultitoolCli::try_parse_from(["cx", "features", "disable", "shell_tool"])
+        let cli = MultitoolCli::try_parse_from(["cy", "features", "disable", "shell_tool"])
             .expect("parse should succeed");
         let Some(Subcommand::Features(FeaturesCli { sub })) = cli.subcommand else {
             panic!("expected features subcommand");
@@ -5278,7 +5252,7 @@ mod tests {
     }
 
     fn strict_config_feature_toggle_error(args: &[&str]) -> anyhow::Error {
-        let cli_args = std::iter::once("cx")
+        let cli_args = std::iter::once("cy")
             .chain(std::iter::once("--strict-config"))
             .chain(args.iter().copied());
         let cli = MultitoolCli::try_parse_from(cli_args).expect("parse should succeed");

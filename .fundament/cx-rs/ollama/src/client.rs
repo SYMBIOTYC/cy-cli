@@ -437,10 +437,7 @@ mod tests {
             OllamaClient::try_from_provider_with_base_url(&format!("{}/v1", server.uri()))
                 .await
                 .expect("probe oi compat");
-        ollama_client
-            .probe_server()
-            .await
-            .expect("probe oi compat");
+        ollama_client.probe_server().await.expect("probe oi compat");
     }
 
     #[tokio::test]
@@ -516,10 +513,8 @@ mod tests {
         }
 
         let Ok(policy_name) = std::env::var(CHILD_POLICY_ENV) else {
-            let invalid_ca_path = std::env::temp_dir().join(format!(
-                "cx-ollama-invalid-ca-{}.pem",
-                std::process::id()
-            ));
+            let invalid_ca_path = std::env::temp_dir()
+                .join(format!("cx-ollama-invalid-ca-{}.pem", std::process::id()));
             std::fs::write(&invalid_ca_path, "not a PEM certificate")
                 .expect("invalid CA fixture should be written");
 

@@ -1,15 +1,15 @@
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_login::CodexAuth;
 use cx_protocol::protocol::CodexErrorInfo;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::Op;
 use cx_protocol::turn_input::TurnInputRequest;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::net::TcpListener;
@@ -223,10 +223,8 @@ async fn submit_user_input(test: &TestCodex, text: &str) -> Result<()> {
 }
 
 async fn wait_for_turn_completion(test: &TestCodex) {
-    let EventMsg::TurnComplete(completed) = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await
+    let EventMsg::TurnComplete(completed) =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await
     else {
         unreachable!("predicate guarantees a turn complete event");
     };
@@ -340,10 +338,7 @@ async fn responses_http_overload_without_retry_after_exhausts_request_retries() 
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert_eq!(
                     error.message,
                     "Selected model is at capacity. Please try a different model."
@@ -834,10 +829,7 @@ async fn compact_v2_overload_without_retry_after_exhausts_request_retries() -> R
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert!(
                     error
                         .message
@@ -1169,10 +1161,7 @@ async fn sse_overload_with_retry_after_is_terminal() -> Result<()> {
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert_eq!(
                     error.message,
                     "Selected model is at capacity. Please try a different model."
@@ -1241,10 +1230,7 @@ async fn sse_overload_without_retry_after_is_terminal() -> Result<()> {
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert_eq!(
                     error.message,
                     "Selected model is at capacity. Please try a different model."
@@ -1603,10 +1589,7 @@ async fn websocket_overload_with_nested_retry_after_is_terminal() -> Result<()> 
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert_eq!(
                     error.message,
                     "Selected model is at capacity. Please try a different model."
@@ -1684,10 +1667,7 @@ async fn websocket_overload_without_retry_after_is_terminal() -> Result<()> {
         match wait_for_event(&test.cx, |_| true).await {
             EventMsg::Error(error) => {
                 error_events += 1;
-                assert_eq!(
-                    error.cx_error_info,
-                    Some(CodexErrorInfo::ServerOverloaded)
-                );
+                assert_eq!(error.cx_error_info, Some(CodexErrorInfo::ServerOverloaded));
                 assert_eq!(
                     error.message,
                     "Selected model is at capacity. Please try a different model."

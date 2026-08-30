@@ -1097,10 +1097,7 @@ impl ThreadHistoryBuilder {
         self.upsert_item_in_current_turn(item);
     }
 
-    fn handle_collab_resume_end(
-        &mut self,
-        payload: &cx_protocol::protocol::CollabResumeEndEvent,
-    ) {
+    fn handle_collab_resume_end(&mut self, payload: &cx_protocol::protocol::CollabResumeEndEvent) {
         let status = match &payload.status {
             AgentStatus::Errored(_) | AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
             _ => CollabAgentToolCallStatus::Completed,
@@ -3030,16 +3027,14 @@ mod tests {
                 local_images: Vec::new(),
                 ..Default::default()
             }),
-            EventMsg::DynamicToolCallRequest(
-                cx_protocol::dynamic_tools::DynamicToolCallRequest {
-                    call_id: "dyn-1".into(),
-                    turn_id: "turn-1".into(),
-                    started_at_ms: 0,
-                    namespace: Some("cx_app".into()),
-                    tool: "lookup_ticket".into(),
-                    arguments: serde_json::json!({"id":"ABC-123"}),
-                },
-            ),
+            EventMsg::DynamicToolCallRequest(cx_protocol::dynamic_tools::DynamicToolCallRequest {
+                call_id: "dyn-1".into(),
+                turn_id: "turn-1".into(),
+                started_at_ms: 0,
+                namespace: Some("cx_app".into()),
+                tool: "lookup_ticket".into(),
+                arguments: serde_json::json!({"id":"ABC-123"}),
+            }),
             EventMsg::DynamicToolCallResponse(DynamicToolCallResponseEvent {
                 call_id: "dyn-1".into(),
                 turn_id: "turn-1".into(),
@@ -3845,9 +3840,7 @@ mod tests {
                     error: Some(TurnError {
                         message: "Selected model is at capacity. Please try a different model."
                             .into(),
-                        cx_error_info: Some(
-                            crate::protocol::v2::CodexErrorInfo::ServerOverloaded,
-                        ),
+                        cx_error_info: Some(crate::protocol::v2::CodexErrorInfo::ServerOverloaded,),
                         additional_details: None,
                     }),
                     started_at: Some(10),

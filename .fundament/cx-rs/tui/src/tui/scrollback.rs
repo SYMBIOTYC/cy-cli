@@ -3,11 +3,11 @@
 use crate::custom_terminal::Terminal;
 use crate::insert_history::HistoryLineWrapPolicy;
 use crate::insert_history::InsertHistoryMode;
-use cx_terminal_detection::TerminalInfo;
-use cx_terminal_detection::TerminalName;
 use crossterm::cursor::MoveTo;
 use crossterm::queue;
 use crossterm::style::Print;
+use cx_terminal_detection::TerminalInfo;
+use cx_terminal_detection::TerminalName;
 use ratatui::backend::Backend;
 use ratatui::layout::Position;
 use ratatui::layout::Size;

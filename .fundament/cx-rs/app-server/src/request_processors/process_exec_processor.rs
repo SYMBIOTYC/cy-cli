@@ -318,8 +318,7 @@ impl ProcessExecManager {
             )
             .await
         } else if stream_stdin {
-            cx_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0, &[])
-                .await
+            cx_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0, &[]).await
         } else {
             cx_utils_pty::spawn_pipe_process_no_stdin(
                 program,

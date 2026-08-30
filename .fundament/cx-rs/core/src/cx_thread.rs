@@ -522,9 +522,7 @@ impl CodexThread {
         items: Vec<ResponseItem>,
     ) -> CodexResult<()> {
         if items.is_empty() {
-            return Err(CxErr::InvalidRequest(
-                "items must not be empty".to_string(),
-            ));
+            return Err(CxErr::InvalidRequest("items must not be empty".to_string()));
         }
 
         let turn_context = self.session.new_default_turn().await;
@@ -775,9 +773,10 @@ impl CodexThread {
 
     pub async fn increment_out_of_band_elicitation_count(&self) -> CodexResult<i64> {
         let mut elicitations = self.out_of_band_elicitations.lock().await;
-        let incremented = elicitations.count.checked_add(1).ok_or_else(|| {
-            CxErr::Fatal("out-of-band elicitation count overflowed".to_string())
-        })?;
+        let incremented = elicitations
+            .count
+            .checked_add(1)
+            .ok_or_else(|| CxErr::Fatal("out-of-band elicitation count overflowed".to_string()))?;
         if elicitations.count == 0 {
             elicitations.registration = Some(self.session.services.elicitations.register());
         }

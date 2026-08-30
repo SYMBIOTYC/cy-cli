@@ -239,9 +239,7 @@ async fn run_exec_like(args: RunExecLikeArgs) -> Result<FunctionToolOutput, Func
         .finish(event_ctx, out, /*applied_patch_delta*/ None)
         .await?;
     Ok(FunctionToolOutput {
-        body: vec![
-            cx_protocol::models::FunctionCallOutputContentItem::InputText { text: content },
-        ],
+        body: vec![cx_protocol::models::FunctionCallOutputContentItem::InputText { text: content }],
         success: Some(true),
         post_tool_use_response,
     })

@@ -8,6 +8,10 @@ use app_test_support::create_shell_command_sse_response;
 use app_test_support::to_response;
 use app_test_support::write_gt_auth;
 use app_test_support::write_mock_responses_config_toml_with_gt_base_url;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
 use cx_app_server_protocol::JSONRPCResponse;
 use cx_app_server_protocol::RequestId;
 use cx_app_server_protocol::SandboxPolicy;
@@ -22,10 +26,6 @@ use cx_core::config::ConfigBuilder;
 use cx_core_plugins::loader::curated_plugin_cache_version;
 use cx_core_plugins::store::PluginStore;
 use cx_plugin::PluginId;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -179,9 +179,7 @@ pub(crate) async fn wait_for_matching_analytics_event(
                 continue;
             };
             for request in &requests {
-                if request.method != "POST"
-                    || request.url.path() != "/cx/analytics-events/events"
-                {
+                if request.method != "POST" || request.url.path() != "/cx/analytics-events/events" {
                     continue;
                 }
                 let payload: Value = serde_json::from_slice(&request.body)

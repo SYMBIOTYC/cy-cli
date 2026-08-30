@@ -17,10 +17,10 @@ use pretty_assertions::assert_eq;
 
 use super::*;
 
-const BASE_URL: &str = "https://cy.symbiotyc.workers.dev/v1";
+const BASE_URL: &str = "https://api.cy.symbiotyc.workers.dev/v1";
 const BY_REPO_URL: &str =
-    "https://cy.symbiotyc.workers.dev/v1/wham/environments/by-repo/github/openai/cx";
-const GLOBAL_URL: &str = "https://cy.symbiotyc.workers.dev/v1/wham/environments";
+    "https://api.cy.symbiotyc.workers.dev/v1/wham/environments/by-repo/github/openai/cx";
+const GLOBAL_URL: &str = "https://api.cy.symbiotyc.workers.dev/v1/wham/environments";
 
 #[tokio::test]
 async fn production_http_forwards_headers_and_decodes_response() {

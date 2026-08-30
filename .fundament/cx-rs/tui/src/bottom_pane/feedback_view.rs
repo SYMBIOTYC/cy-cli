@@ -1,12 +1,12 @@
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyModifiers;
 use cx_feedback::CX_APP_DIRECTORY_CACHE_ATTACHMENT_FILENAME;
 use cx_feedback::CX_APPS_TOOLS_CACHE_ATTACHMENT_FILENAME;
 use cx_feedback::DOCTOR_REPORT_ATTACHMENT_FILENAME;
 use cx_feedback::FEEDBACK_DIAGNOSTICS_ATTACHMENT_FILENAME;
 use cx_feedback::FeedbackDiagnostics;
 use cx_feedback::WINDOWS_SANDBOX_LOG_ATTACHMENT_FILENAME;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyModifiers;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize;
@@ -30,8 +30,7 @@ use super::popup_consts::standard_popup_hint_line;
 use super::textarea::TextArea;
 use super::textarea::TextAreaState;
 
-const BASE_CLI_BUG_ISSUE_URL: &str =
-    "https://github.com/openai/cx/issues/new?template=3-cli.yml";
+const BASE_CLI_BUG_ISSUE_URL: &str = "https://github.com/openai/cx/issues/new?template=3-cli.yml";
 /// Internal routing link for employee feedback follow-ups. This must not be shown to external users.
 const CX_FEEDBACK_INTERNAL_URL: &str = "http://go/cx-feedback-internal";
 

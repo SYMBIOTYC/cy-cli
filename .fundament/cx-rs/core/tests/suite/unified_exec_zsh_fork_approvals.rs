@@ -1,5 +1,23 @@
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
+use core_test_support::zsh_fork::build_unified_exec_zsh_fork_test;
+use core_test_support::zsh_fork::restrictive_workspace_write_profile;
+use core_test_support::zsh_fork::zsh_fork_runtime;
 use cx_config::permissions_toml::FilesystemPermissionToml;
 use cx_config::permissions_toml::PermissionProfileToml;
 use cx_config::types::ApprovalsReviewer;
@@ -25,24 +43,6 @@ use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ReviewDecision;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
-use core_test_support::zsh_fork::build_unified_exec_zsh_fork_test;
-use core_test_support::zsh_fork::restrictive_workspace_write_profile;
-use core_test_support::zsh_fork::zsh_fork_runtime;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::Value;
@@ -538,10 +538,8 @@ async fn unified_exec_zsh_fork_guardian_reviews_persistent_terminal_in_current_t
     )
     .await?;
     approve_expected_exec(&test, open_command).await?;
-    let first_completion = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    let first_completion =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let EventMsg::TurnComplete(first_completion) = first_completion else {
         unreachable!("completion wait only returns turn-complete events");
     };
@@ -896,8 +894,5 @@ async fn wait_for_completion_without_approval(test: &TestCodex) {
 }
 
 async fn wait_for_completion(test: &TestCodex) {
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 }

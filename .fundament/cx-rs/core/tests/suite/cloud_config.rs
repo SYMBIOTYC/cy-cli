@@ -1,10 +1,10 @@
 use anyhow::Result;
+use core_test_support::responses::start_mock_server;
+use core_test_support::test_codex::test_codex;
 use cx_config::CloudConfigBundleLoader;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_features::Feature;
 use cx_protocol::protocol::AskForApproval;
-use core_test_support::responses::start_mock_server;
-use core_test_support::test_codex::test_codex;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -35,12 +35,7 @@ async fn refreshed_cloud_bundle_updates_later_sessions() -> Result<()> {
         AskForApproval::Never
     );
     assert_eq!(
-        initial
-            .cx
-            .config()
-            .await
-            .developer_instructions
-            .as_deref(),
+        initial.cx.config().await.developer_instructions.as_deref(),
         Some("initial managed instructions")
     );
 

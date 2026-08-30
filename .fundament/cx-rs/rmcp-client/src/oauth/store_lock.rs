@@ -88,8 +88,8 @@ impl OAuthStoreLock {
         // the default home (`~/.cx`), and if an embedder has no local home/filesystem authority
         // those stores already cannot operate. A future provider-backed credential store should
         // provide its own matching lock authority instead of using this local path.
-        let cx_home = find_cx_home()
-            .map_err(|source| OAuthStoreLockFailure::CodexHome { store, source })?;
+        let cx_home =
+            find_cx_home().map_err(|source| OAuthStoreLockFailure::CodexHome { store, source })?;
         Self::acquire_in_with_mode(&cx_home, store, acquire_timeout, mode)
     }
 

@@ -361,11 +361,10 @@ mod tests {
         use std::os::unix::ffi::OsStringExt;
         use std::path::PathBuf;
 
-        let cx_home =
-            AbsolutePathBuf::from_absolute_path(PathBuf::from(OsString::from_vec(vec![
-                b'/', b'b', b'a', b'd', 0xff,
-            ])))
-            .expect("non-UTF-8 Unix paths are valid absolute paths");
+        let cx_home = AbsolutePathBuf::from_absolute_path(PathBuf::from(OsString::from_vec(vec![
+            b'/', b'b', b'a', b'd', 0xff,
+        ])))
+        .expect("non-UTF-8 Unix paths are valid absolute paths");
         let message = OutgoingMessage::Response(OutgoingResponse {
             id: RequestId::Integer(7),
             result: Box::new(ClientResponsePayload::Initialize(

@@ -42,10 +42,7 @@ impl ManagedAuthPolicy {
         &self,
         forced_workspaces: Option<&[String]>,
     ) -> Option<Vec<String>> {
-        match (
-            forced_workspaces,
-            self.allowed_gt_workspaces.as_deref(),
-        ) {
+        match (forced_workspaces, self.allowed_gt_workspaces.as_deref()) {
             (Some(forced), Some(allowed)) => Some(
                 forced
                     .iter()

@@ -147,10 +147,7 @@ impl fmt::Debug for Client {
             .field("auth_provider", &"<provider>")
             .field("user_agent", &self.user_agent)
             .field("gt_account_id", &self.gt_account_id)
-            .field(
-                "gt_account_is_fedramp",
-                &self.gt_account_is_fedramp,
-            )
+            .field("gt_account_is_fedramp", &self.gt_account_is_fedramp)
             .field("path_style", &self.path_style)
             .finish_non_exhaustive()
     }
@@ -1035,10 +1032,10 @@ mod tests {
             "https://example.test/api/cx/accounts/send_add_credits_nudge_email"
         );
 
-        let gt_client = test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
         assert_eq!(
             gt_client.send_add_credits_nudge_email_url(),
-            "https://cy.symbiotyc.workers.dev/v1/wham/accounts/send_add_credits_nudge_email"
+            "https://api.cy.symbiotyc.workers.dev/v1/wham/accounts/send_add_credits_nudge_email"
         );
 
         assert_eq!(
@@ -1065,10 +1062,10 @@ mod tests {
             "https://example.test/api/cx/profiles/me"
         );
 
-        let gt_client = test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
         assert_eq!(
             gt_client.token_usage_profile_url(),
-            "https://cy.symbiotyc.workers.dev/v1/wham/profiles/me"
+            "https://api.cy.symbiotyc.workers.dev/v1/wham/profiles/me"
         );
     }
 
@@ -1080,10 +1077,10 @@ mod tests {
             "https://example.test/api/cx/workspace-messages"
         );
 
-        let gt_client = test_client("https://cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
         assert_eq!(
             gt_client.workspace_messages_url(),
-            "https://cy.symbiotyc.workers.dev/v1/wham/workspace-messages"
+            "https://api.cy.symbiotyc.workers.dev/v1/wham/workspace-messages"
         );
     }
 
@@ -1145,14 +1142,11 @@ mod tests {
 
     #[test]
     fn authenticated_user_settings_client_uses_active_workspace_headers() {
-        let auth = CodexAuth::from_external_gt_tokens(
-            "e30.e30.c2ln",
-            "workspace-123",
-            Some("enterprise"),
-        )
-        .unwrap();
+        let auth =
+            CodexAuth::from_external_gt_tokens("e30.e30.c2ln", "workspace-123", Some("enterprise"))
+                .unwrap();
         let client = Client::from_auth(
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
             &auth,
             HttpClientFactory::new(cx_http_client::OutboundProxyPolicy::ReqwestDefault),
         );

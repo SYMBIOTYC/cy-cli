@@ -108,9 +108,7 @@ async fn load_rejects_missing_request_identity_before_reading_cache_file() {
     let cache = create_test_cache(cx_home.path());
 
     assert_eq!(
-        cache
-            .load(/*gt_user_id*/ None, Some("account-12345"))
-            .await,
+        cache.load(/*gt_user_id*/ None, Some("account-12345")).await,
         Err(CacheLoadStatus::AuthIdentityIncomplete)
     );
     assert_eq!(

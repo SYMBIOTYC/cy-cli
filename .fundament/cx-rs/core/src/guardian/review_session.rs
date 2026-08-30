@@ -44,7 +44,6 @@ use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 use tracing::warn;
 
-use crate::cx_delegate::run_cx_thread_interactive;
 use crate::config::Config;
 use crate::config::Constrained;
 use crate::config::ManagedFeatures;
@@ -53,6 +52,7 @@ use crate::config::Permissions;
 use crate::context::ContextualUserFragment;
 use crate::context::GuardianFollowupReviewReminder;
 use crate::context::GuardianNodeReplPolicy;
+use crate::cx_delegate::run_cx_thread_interactive;
 use crate::environment_selection::TurnEnvironmentSnapshot;
 use crate::image_preparation::ImagePreparationMode;
 use crate::image_preparation::ImageResizeNoticeMode;

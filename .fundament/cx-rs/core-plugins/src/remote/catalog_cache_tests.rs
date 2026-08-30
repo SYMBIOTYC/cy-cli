@@ -21,7 +21,7 @@ fn catalog_cache_freshness_honors_ttl() {
 fn catalog_cache_paths_are_isolated_by_scope() {
     let cx_home = Path::new("/tmp/cx-home");
     let cache_key_for_scope = |scope| RemotePluginCatalogCacheKey {
-        gt_base_url: "https://cy.symbiotyc.workers.dev/v1".to_string(),
+        gt_base_url: "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
         account_id: Some("account-id".to_string()),
         gt_user_id: Some("user-id".to_string()),
         is_workspace_account: true,
@@ -44,7 +44,7 @@ fn catalog_cache_paths_are_isolated_by_scope() {
 fn global_catalog_cache_reuses_legacy_cache_file() {
     let cx_home = tempfile::tempdir().expect("create cx home");
     let config = RemotePluginServiceConfig::new(
-        "https://cy.symbiotyc.workers.dev/v1".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
         crate::test_support::test_http_client_factory(),
     );
     let auth = CodexAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));
@@ -83,7 +83,7 @@ fn global_catalog_cache_reuses_legacy_cache_file() {
 fn header_auth_does_not_cache_private_catalogs_without_a_stable_identity() {
     let cx_home = tempfile::tempdir().expect("create cx home");
     let config = RemotePluginServiceConfig::new(
-        "https://cy.symbiotyc.workers.dev/v1".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
         crate::test_support::test_http_client_factory(),
     );
     let auth = CodexAuth::Headers(AuthHeaders::new(http::HeaderMap::new()));

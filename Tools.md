@@ -1,6 +1,6 @@
 # Tool.MD — CY-CLI Developer Commands Reference
 
-> CY-CLI — SYMBIOTYC Cybernetic Intelligence CLI | Default provider: CY cyborg i1a via `https://cy.symbiotyc.workers.dev/v1`
+> CY-CLI — SYMBIOTYC Cybernetic Intelligence CLI | Default provider: CY cyborg i1a via `https://api.cy.symbiotyc.workers.dev/v1`
 
 ---
 
@@ -97,7 +97,7 @@ model_provider = "simbiotyc"
 
 [model_providers.cy]
 name = "CY"
-base_url = "https://cy.symbiotyc.workers.dev/v1"
+base_url = "https://api.cy.symbiotyc.workers.dev/v1"
 experimental_bearer_token = "cfat_KbYOsjGncELIzKQn3WxUIz9jL97n9nJK2I1EG4hg35627bee"
 wire_api = "responses"
 ```
@@ -138,7 +138,7 @@ The catalog contains the available models. Currently only **cy** (CY cyborg i1a)
 
 | Service | URL |
 |---------|-----|
-| CY API (main) | `https://cy.symbiotyc.workers.dev/v1` |
+| CY API (main) | `https://api.cy.symbiotyc.workers.dev/v1` |
 | CY Auth | `https://auth.cy.symbiotyc.workers.dev` |
 | CY Developer Docs | `https://developers.cy.symbiotyc.workers.dev` |
 | CY API Gateway | `https://api.cy.symbiotyc.workers.dev` |

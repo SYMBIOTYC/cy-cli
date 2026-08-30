@@ -1,3 +1,12 @@
+use core_test_support::PathBufExt;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::CodexThread;
 use cx_core::REVIEW_PROMPT;
 use cx_core::TurnInputRequest;
@@ -34,15 +43,6 @@ use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::protocol::TurnEnvironmentSelections;
 use cx_protocol::review_format::render_review_output_text;
 use cx_protocol::user_input::UserInput;
-use core_test_support::PathBufExt;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -88,17 +88,16 @@ async fn review_op_emits_lifecycle_and_review_output() {
     let cx = new_conversation_for_server(&server, cx_home.clone(), |_| {}).await;
 
     // Submit review request.
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "Please review my changes".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "Please review my changes".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     // Item lifecycle events are emitted first, then the legacy review event is fanned out
     // with the same stable IDs for compatibility consumers.
@@ -315,17 +314,16 @@ async fn cancelled_review_does_not_forward_delegate_mcp_startup() {
     })
     .await;
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "Cancel this review".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "Cancel this review".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     tokio::time::timeout(Duration::from_secs(5), async {
         loop {
@@ -399,17 +397,16 @@ async fn review_op_with_plain_text_emits_review_fallback() {
     let cx_home = Arc::new(TempDir::new().unwrap());
     let cx = new_conversation_for_server(&server, cx_home.clone(), |_| {}).await;
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "Plain text review".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "Plain text review".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
     let closed = wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExitedReviewMode(_))).await;
@@ -455,17 +452,16 @@ async fn review_filters_agent_message_related_events() {
     let cx_home = Arc::new(TempDir::new().unwrap());
     let cx = new_conversation_for_server(&server, cx_home.clone(), |_| {}).await;
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "Filter streaming events".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "Filter streaming events".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     let mut saw_entered = false;
     let mut saw_exited = false;
@@ -529,17 +525,16 @@ async fn review_does_not_emit_agent_message_on_structured_output() {
     let cx_home = Arc::new(TempDir::new().unwrap());
     let cx = new_conversation_for_server(&server, cx_home.clone(), |_| {}).await;
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "check structured".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "check structured".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     // Drain events until TurnComplete; ensure we only see a final
     // AgentMessage (no streaming assistant messages).
@@ -678,17 +673,16 @@ async fn review_uses_updated_turn_permissions_and_approval_policy() {
     .await
     .expect("updated thread permissions should be accepted");
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "review current permissions".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "review current permissions".to_string(),
             },
-        })
-        .await
-        .expect("review should start");
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .expect("review should start");
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = request_log.single_request();
@@ -791,8 +785,8 @@ async fn review_uses_custom_review_model_from_config() {
     let cx = Arc::clone(&test.cx);
     std::fs::remove_file(cx_home.path().join("models_cache.json"))
         .expect("initial empty model catalog should be cached");
-    let mut models = cx_models_manager::bundled_models_response()
-        .expect("bundled model catalog should parse");
+    let mut models =
+        cx_models_manager::bundled_models_response().expect("bundled model catalog should parse");
     let model = models
         .models
         .iter_mut()
@@ -803,17 +797,16 @@ async fn review_uses_custom_review_model_from_config() {
     model.node_repl_disabled = true;
     let models_mock = responses::mount_models_once(&server, models).await;
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "use custom model".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "use custom model".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     // Wait for completion
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
@@ -870,17 +863,16 @@ async fn review_uses_session_model_when_review_model_unset() {
         .expect("same-model review conversation should be created");
     let cx = Arc::clone(&test.cx);
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "use session model".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "use session model".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
     let _closed = wait_for_event(&cx, |ev| {
@@ -982,23 +974,21 @@ async fn review_input_isolated_from_parent_history() {
             .await
             .unwrap();
     }
-    let cx =
-        resume_conversation_for_server(&server, cx_home.clone(), session_file.clone(), |_| {})
-            .await;
+    let cx = resume_conversation_for_server(&server, cx_home.clone(), session_file.clone(), |_| {})
+        .await;
 
     // Submit review request; it must start fresh (no parent history in `input`).
     let review_prompt = "Please review only this".to_string();
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: review_prompt.clone(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: review_prompt.clone(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
     let _closed = wait_for_event(&cx, |ev| {
@@ -1102,17 +1092,16 @@ async fn review_history_surfaces_in_parent_session() {
     let cx = new_conversation_for_server(&server, cx_home.clone(), |_| {}).await;
 
     // 1) Run a review turn that produces an assistant message (isolated in child).
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::Custom {
-                    instructions: "Start a review".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::Custom {
+                instructions: "Start a review".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
     let _closed = wait_for_event(&cx, |ev| {
         matches!(
@@ -1128,13 +1117,12 @@ async fn review_history_surfaces_in_parent_session() {
 
     // 2) Continue in the parent session; request input must not include any review items.
     let followup = "back to parent".to_string();
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: followup.clone(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: followup.clone(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     let _complete = wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     // Inspect the second request (parent turn) input contents.
@@ -1246,17 +1234,16 @@ async fn review_uses_overridden_cwd_for_base_branch_merge_base() {
     .await
     .unwrap();
 
-    cx
-        .submit(Op::Review {
-            review_request: ReviewRequest {
-                target: ReviewTarget::BaseBranch {
-                    branch: "main".to_string(),
-                },
-                user_facing_hint: None,
+    cx.submit(Op::Review {
+        review_request: ReviewRequest {
+            target: ReviewTarget::BaseBranch {
+                branch: "main".to_string(),
             },
-        })
-        .await
-        .unwrap();
+            user_facing_hint: None,
+        },
+    })
+    .await
+    .unwrap();
 
     let _entered = wait_for_event(&cx, |ev| matches!(ev, EventMsg::EnteredReviewMode(_))).await;
     let _complete = wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
@@ -1315,17 +1302,11 @@ where
     F: FnOnce(&mut Config) + Send + 'static,
 {
     let base_url = format!("{}/v1", server.uri());
-    let mut builder = test_codex()
-        .with_home(cx_home)
-        .with_config(move |config| {
-            config.model_provider.base_url = Some(base_url.clone());
-            mutator(config);
-        });
-    builder
-        .build(server)
-        .await
-        .expect("create conversation")
-        .cx
+    let mut builder = test_codex().with_home(cx_home).with_config(move |config| {
+        config.model_provider.base_url = Some(base_url.clone());
+        mutator(config);
+    });
+    builder.build(server).await.expect("create conversation").cx
 }
 
 /// Create a conversation resuming from a rollout file, configured to talk to the provided mock server.

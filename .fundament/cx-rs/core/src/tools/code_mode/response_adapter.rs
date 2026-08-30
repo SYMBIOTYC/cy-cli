@@ -25,9 +25,7 @@ impl IntoProtocol<ImageDetail> for CodeModeImageDetail {
     }
 }
 
-impl IntoProtocol<FunctionCallOutputContentItem>
-    for cx_code_mode::FunctionCallOutputContentItem
-{
+impl IntoProtocol<FunctionCallOutputContentItem> for cx_code_mode::FunctionCallOutputContentItem {
     fn into_protocol(self) -> FunctionCallOutputContentItem {
         let value = self;
         match value {

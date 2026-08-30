@@ -6,8 +6,8 @@ pub mod model_info;
 pub mod model_presets;
 pub mod test_support;
 
-pub use cx_protocol::auth::AuthMode;
 pub use config::ModelsManagerConfig;
+pub use cx_protocol::auth::AuthMode;
 
 /// Load the bundled model catalog shipped with `cx-models-manager`.
 pub fn bundled_models_response()

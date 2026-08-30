@@ -2,12 +2,12 @@
 
 mod common;
 
+use common::exec_server::exec_server;
 use cx_exec_server::InitializeParams;
 use cx_exec_server::InitializeResponse;
 use cx_exec_server_protocol::JSONRPCError;
 use cx_exec_server_protocol::JSONRPCMessage;
 use cx_exec_server_protocol::JSONRPCResponse;
-use common::exec_server::exec_server;
 use pretty_assertions::assert_eq;
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Error as WebSocketError;

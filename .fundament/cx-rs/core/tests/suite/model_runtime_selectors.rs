@@ -1,4 +1,16 @@
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::TurnInputRequest;
 use cx_core::config::Config;
 use cx_features::Feature;
@@ -16,18 +28,6 @@ use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::MultiAgentVersion;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use tokio::time::Duration;
@@ -441,10 +441,7 @@ async fn remote_multi_agent_selector_uses_model_selected_before_first_turn() -> 
         });
     let test = builder.build(&server).await?;
     assert_eq!(
-        (
-            models_mock.requests().len(),
-            test.cx.multi_agent_version(),
-        ),
+        (models_mock.requests().len(), test.cx.multi_agent_version(),),
         (1, None)
     );
 
@@ -464,10 +461,7 @@ async fn remote_multi_agent_selector_uses_model_selected_before_first_turn() -> 
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(
         (

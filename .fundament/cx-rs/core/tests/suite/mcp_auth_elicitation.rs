@@ -1,15 +1,6 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_core::config::Constrained;
-use cx_mcp::CX_APPS_MCP_SERVER_NAME;
-use cx_protocol::approvals::ElicitationRequest;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::ElicitationAction;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::user_input::UserInput;
 use core_test_support::PathExt;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
@@ -24,6 +15,15 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::wait_for_event;
+use cx_core::TurnInputRequest;
+use cx_core::config::Constrained;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
+use cx_protocol::approvals::ElicitationRequest;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::ElicitationAction;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -117,22 +117,21 @@ async fn cx_apps_auth_failure_requests_elicitation_by_default() -> Result<()> {
     )
     .await;
 
-    let mut builder =
-        search_capable_apps_builder(apps_server.gt_base_url).with_config(|config| {
-            config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
-            let user_config_path = config.cx_home.join("config.toml").abs();
-            let user_config = toml::from_str(
-                r#"
+    let mut builder = search_capable_apps_builder(apps_server.gt_base_url).with_config(|config| {
+        config.permissions.approval_policy = Constrained::allow_any(AskForApproval::OnRequest);
+        let user_config_path = config.cx_home.join("config.toml").abs();
+        let user_config = toml::from_str(
+            r#"
 [apps.calendar]
 default_tools_approval_mode = "auto"
 "#,
-            )
-            .expect("apps config should parse");
-            config.config_layer_stack = config
-                .config_layer_stack
-                .with_user_config(&user_config_path, user_config)
-                .expect("apps user config should be valid");
-        });
+        )
+        .expect("apps config should parse");
+        config.config_layer_stack = config
+            .config_layer_stack
+            .with_user_config(&user_config_path, user_config)
+            .expect("apps user config should be valid");
+    });
     let test = builder.build(&server).await?;
 
     test.cx
@@ -176,8 +175,7 @@ default_tools_approval_mode = "auto"
                     },
                 },
             })),
-            message: "Reconnect Calendar on gt to restore access for this request."
-                .to_string(),
+            message: "Reconnect Calendar on gt to restore access for this request.".to_string(),
             url: "https://chatgpt.com/apps/calendar/calendar".to_string(),
             elicitation_id: format!("cx_apps_auth_{call_id}"),
         }
@@ -192,10 +190,7 @@ default_tools_approval_mode = "auto"
             meta: None,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2);

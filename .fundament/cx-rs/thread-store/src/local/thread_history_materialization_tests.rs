@@ -1760,9 +1760,9 @@ async fn catch_up_rejects_invalid_complete_suffixes_without_advancing_state() {
             .await
             .expect("persist session metadata");
 
-        let pool = cx_state::open_thread_history_db(
-            &cx_state::SqliteConfig::new_for_testing(home.path().abs()),
-        )
+        let pool = cx_state::open_thread_history_db(&cx_state::SqliteConfig::new_for_testing(
+            home.path().abs(),
+        ))
         .await
         .expect("open thread history db");
         let before = projection_state(&pool, thread_id).await;
@@ -1977,9 +1977,9 @@ async fn unprojectable_rollout_lines_wait_for_later_ordinals() {
             .await
             .expect("persist session metadata");
 
-        let pool = cx_state::open_thread_history_db(
-            &cx_state::SqliteConfig::new_for_testing(home.path().abs()),
-        )
+        let pool = cx_state::open_thread_history_db(&cx_state::SqliteConfig::new_for_testing(
+            home.path().abs(),
+        ))
         .await
         .expect("open thread history db");
         let before = projection_state(&pool, thread_id).await;

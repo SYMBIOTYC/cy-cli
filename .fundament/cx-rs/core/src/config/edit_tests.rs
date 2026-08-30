@@ -736,11 +736,7 @@ existing = "value"
     )
     .expect("seed");
 
-    apply_blocking(
-        cx_home,
-        &[ConfigEdit::SetNoticeHideFullAccessWarning(true)],
-    )
-    .expect("persist");
+    apply_blocking(cx_home, &[ConfigEdit::SetNoticeHideFullAccessWarning(true)]).expect("persist");
 
     let contents = std::fs::read_to_string(cx_home.join(CONFIG_TOML_FILE)).expect("read config");
     let expected = r#"# Global comment
@@ -1063,11 +1059,7 @@ fn blocking_replace_mcp_servers_round_trips() {
         },
     );
 
-    apply_blocking(
-        cx_home,
-        &[ConfigEdit::ReplaceMcpServers(servers.clone())],
-    )
-    .expect("persist");
+    apply_blocking(cx_home, &[ConfigEdit::ReplaceMcpServers(servers.clone())]).expect("persist");
 
     let raw = std::fs::read_to_string(cx_home.join(CONFIG_TOML_FILE)).expect("read config");
     let expected = "\
@@ -1569,11 +1561,7 @@ fn replace_mcp_servers_blocking_clears_table_when_empty() {
     )
     .expect("seed");
 
-    apply_blocking(
-        cx_home,
-        &[ConfigEdit::ReplaceMcpServers(BTreeMap::new())],
-    )
-    .expect("persist");
+    apply_blocking(cx_home, &[ConfigEdit::ReplaceMcpServers(BTreeMap::new())]).expect("persist");
 
     let contents = std::fs::read_to_string(cx_home.join(CONFIG_TOML_FILE)).expect("read config");
     assert!(!contents.contains("mcp_servers"));

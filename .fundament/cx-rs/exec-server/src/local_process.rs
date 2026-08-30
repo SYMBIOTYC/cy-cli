@@ -1247,11 +1247,7 @@ mod tests {
         backend.shutdown().await;
     }
 
-    fn telemetry_backend() -> (
-        LocalProcess,
-        cx_otel::MetricsClient,
-        InMemoryMetricExporter,
-    ) {
+    fn telemetry_backend() -> (LocalProcess, cx_otel::MetricsClient, InMemoryMetricExporter) {
         let exporter = InMemoryMetricExporter::default();
         let metrics = cx_otel::MetricsClient::new(MetricsConfig::in_memory(
             "test",

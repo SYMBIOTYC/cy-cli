@@ -778,9 +778,7 @@ fn redact_sensitive_url_parts(url: &mut url::Url) {
 }
 
 /// Redacts any URL attached to an HTTP transport error before it is logged or returned.
-fn redact_sensitive_error_url(
-    mut err: cx_http_client::HttpError,
-) -> cx_http_client::HttpError {
+fn redact_sensitive_error_url(mut err: cx_http_client::HttpError) -> cx_http_client::HttpError {
     if let Some(url) = err.url_mut() {
         redact_sensitive_url_parts(url);
     }

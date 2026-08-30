@@ -246,9 +246,7 @@ pub(crate) fn hook_source_label(source: cx_protocol::protocol::HookSource) -> &'
         cx_protocol::protocol::HookSource::Plugin => "plugin",
         cx_protocol::protocol::HookSource::CloudRequirements => "cloud_requirements",
         cx_protocol::protocol::HookSource::CloudManagedConfig => "cloud_managed_config",
-        cx_protocol::protocol::HookSource::LegacyManagedConfigFile => {
-            "legacy_managed_config_file"
-        }
+        cx_protocol::protocol::HookSource::LegacyManagedConfigFile => "legacy_managed_config_file",
         cx_protocol::protocol::HookSource::LegacyManagedConfigMdm => "legacy_managed_config_mdm",
         cx_protocol::protocol::HookSource::Unknown => "unknown",
     }

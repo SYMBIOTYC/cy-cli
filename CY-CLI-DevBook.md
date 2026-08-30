@@ -1,5 +1,13 @@
 # CY-CLI-DevBook
 
+## MIGRATION NOTE (2026-08-30)
+- **OLD config:** `~/.codex/config.toml` / `~/.codex/auth.json`
+- **NEW config:** `~/.cy/config.toml` / `~/.cy/auth.json`
+- **OLD binary path:** `.fundament/codex-rs/target/release/cy`
+- **NEW binary path:** `.fundament/cx-rs/target/release/cy`
+- **OLD API base URL:** `https://cy.symbiotyc.workers.dev/v1`
+- **NEW API base URL:** `https://api.cy.symbiotyc.workers.dev/v1`
+
 ## Статус (текущее)
 - 2026-08-20: создан приватный репозиторий `cy-cli`, 
 - Фундамент живёт в `.fundament/` (без вложенного `.git`, часть нашего дерева).
@@ -19,15 +27,15 @@
 - Rust 1.97.1, cargo 1.97.1 (Homebrew). Гигантский workspace (~150 крейтов).
 - `just` НЕ установлен (brew install just — медленный, время ожидания вышло); для форка не критично.
 
-- Первая сборка `cargo build --bin cx` запущена в фоне (PID 80222, лог /tmp/cycli-build.log) —
+- Первая сборка `cargo build --bin cy` запущена в фоне (PID 80222, лог /tmp/cycli-build.log) —
   проверять `tail /tmp/cycli-build.log` и `ps aux | grep -c "[c]argo build"`. ✅ Собралось за ~8 мин.
   
 - **CY-CLI собрался успешно** (`cargo build --bin cy` ~3 мин после базового билда):
-  - Бинарь: `.fundament/codex-rs/target/debug/cy` (100MB);
+  - Бинарь: `.fundament/cx-rs/target/debug/cy` (100MB);
   - Новые подкоманды: `cy q`, `cy m`, `cy ls`, `cy hist`, `cy b`, `cy tui` / `cy nc`;
   - **Тесты пройдены:**
     - `cy m` → показывает текущую модель (`nvidia/nemotron-3-super-120b-a12b:free`);
-    - `cy m openrouter/auto` → устанавливает модель (пишет в `~/.cx/config.toml`);
+    - `cy m openrouter/auto` → устанавливает модель (пишет в `~/.cy/config.toml`);
     - `cy ls` → выводит 7 openrouter моделей из каталога;
     - `cy q --skip-git-repo-check "What is 2+2?"` → стриминг ответа "The sum of 2 + 2 is 4.";
     - `cy q --skip-git-repo-check --model openrouter/auto "What is the capital of France?"` → переопределяет модель на лету;
@@ -83,7 +91,7 @@
 - Это НЕ требует патчить extension.js — настройка уже есть в расширении.
 
 ## Где живёт CLI/TUI в фундаменте 
-- **Крейт TUI:** `codex-rs/tui/` — на **ratatui 0.30.2 + crossterm 0.29.0** (Rust-стек
+- **Крейт TUI:** `cx-rs/tui/` — на **ratatui 0.30.2 + crossterm 0.29.0** (Rust-стек
   терминал UI). Модули: `app/` (views: agents_overview, agent_status_feed, agent_picker...),
   `chatwidget/` (composer, hooks, exec_state...), `bottom_pane/` (approval_overlay,
   apply_patch_header...), `app.rs`, `cli.rs`, `color.rs`, `tui.rs`.

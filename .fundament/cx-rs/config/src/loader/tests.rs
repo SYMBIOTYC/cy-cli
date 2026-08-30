@@ -633,14 +633,10 @@ async fn local_layers_keep_raw_paths_order_and_legacy_requirements() {
     overrides.system_config_path = Some(system_file.clone());
     overrides.system_requirements_path = Some(requirements_file.clone());
     let cwd = AbsolutePathBuf::from_absolute_path(&project).expect("absolute cwd");
-    let layers = local::load_local_config_layers_with_overrides(
-        &TestFileSystem,
-        &cx_home,
-        &cwd,
-        &overrides,
-    )
-    .await
-    .expect("load local layers");
+    let layers =
+        local::load_local_config_layers_with_overrides(&TestFileSystem, &cx_home, &cwd, &overrides)
+            .await
+            .expect("load local layers");
 
     assert_eq!(
         layers
@@ -684,14 +680,10 @@ async fn local_layers_keep_raw_paths_order_and_legacy_requirements() {
     );
 
     std::fs::write(&user_file, user_config("untrusted")).expect("write user config");
-    let layers = local::load_local_config_layers_with_overrides(
-        &TestFileSystem,
-        &cx_home,
-        &cwd,
-        &overrides,
-    )
-    .await
-    .expect("load local layers");
+    let layers =
+        local::load_local_config_layers_with_overrides(&TestFileSystem, &cx_home, &cwd, &overrides)
+            .await
+            .expect("load local layers");
     assert_eq!(
         layers
             .config

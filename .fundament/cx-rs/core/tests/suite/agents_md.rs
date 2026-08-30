@@ -1,5 +1,24 @@
 use anyhow::Result;
 use anyhow::anyhow;
+use core_test_support::PathBufExt;
+use core_test_support::create_directory_symlink;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_target_windows;
+use core_test_support::test_codex::RecordingUserInstructionsProvider;
+use core_test_support::test_codex::TestCodexBuilder;
+use core_test_support::test_codex::executor_path_uri;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_core::ForkSnapshot;
 use cx_core::StartThreadOptions;
 use cx_core::TurnInputRequest;
@@ -23,25 +42,6 @@ use cx_protocol::protocol::TurnEnvironmentSelection;
 use cx_protocol::user_input::UserInput;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::create_directory_symlink;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_target_windows;
-use core_test_support::test_codex::RecordingUserInstructionsProvider;
-use core_test_support::test_codex::TestCodexBuilder;
-use core_test_support::test_codex::executor_path_uri;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::path::Path;
@@ -496,10 +496,7 @@ async fn restricted_project_without_instructions_starts_successfully() -> Result
     });
     let test = builder.build_with_auto_env(&server).await?;
 
-    assert_eq!(
-        test.cx.instruction_sources().await,
-        Vec::<PathUri>::new()
-    );
+    assert_eq!(test.cx.instruction_sources().await, Vec::<PathUri>::new());
     test.submit_text_turn("continue without project instructions")
         .await?;
     response_mock.single_request();
@@ -630,10 +627,7 @@ async fn tightening_environment_read_permissions_invalidates_cached_project_inst
         error.message
     );
 
-    assert_eq!(
-        test.cx.instruction_sources().await,
-        Vec::<PathUri>::new()
-    );
+    assert_eq!(test.cx.instruction_sources().await, Vec::<PathUri>::new());
     assert!(
         response_mock.requests().is_empty(),
         "the denied turn must fail before sending a model request"

@@ -299,8 +299,7 @@ fn registry_preserves_external_winners_and_trusted_synthetic_order() {
 fn reserved_shell_command_rejects_external_runtimes_without_a_builtin() {
     let handler = |tool_name| Arc::new(TestHandler { tool_name }) as Arc<dyn CoreToolRuntime>;
     let shell_command_name = cx_tools::ToolName::plain("shell_command");
-    let namespaced_shell_command_name =
-        cx_tools::ToolName::namespaced("client", "shell_command");
+    let namespaced_shell_command_name = cx_tools::ToolName::namespaced("client", "shell_command");
     let mut registry = ToolRegistry::default();
 
     assert!(!registry.register_external(handler(shell_command_name.clone())));
@@ -345,14 +344,11 @@ fn registry_records_reserved_shell_command_when_a_matching_tool_exists() {
 #[test]
 fn registry_allows_identical_names_in_different_namespaces() {
     let handler = |tool_name| Arc::new(TestHandler { tool_name }) as Arc<dyn CoreToolRuntime>;
-    let mut registry = ToolRegistry::from_tools([handler(cx_tools::ToolName::namespaced(
-        "first", "lookup",
-    ))]);
+    let mut registry =
+        ToolRegistry::from_tools([handler(cx_tools::ToolName::namespaced("first", "lookup"))]);
 
     assert!(
-        registry.register_external(handler(cx_tools::ToolName::namespaced(
-            "second", "lookup",
-        )))
+        registry.register_external(handler(cx_tools::ToolName::namespaced("second", "lookup",)))
     );
     assert_eq!(registry.first_collision(), None);
 }

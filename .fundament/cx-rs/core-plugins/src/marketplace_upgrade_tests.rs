@@ -67,11 +67,8 @@ source = {good_url:?}
     std::fs::write(cx_home.path().join(CONFIG_TOML_FILE), &config).expect("write config");
     let stack = config_layer_stack(cx_home.path(), &config);
 
-    let outcome = upgrade_configured_git_marketplaces(
-        cx_home.path(),
-        &stack,
-        /*marketplace_name*/ None,
-    );
+    let outcome =
+        upgrade_configured_git_marketplaces(cx_home.path(), &stack, /*marketplace_name*/ None);
 
     assert_eq!(
         outcome.selected_marketplaces,
@@ -115,10 +112,8 @@ fn automatic_marketplace_git_ignores_inherited_repository_configuration() {
             ConfiguredMarketplaceUpgradeOutcome {
                 selected_marketplaces: vec!["trusted".to_string()],
                 upgraded_roots: vec![
-                    AbsolutePathBuf::try_from(
-                        marketplace_install_root(&cx_home).join("trusted")
-                    )
-                    .expect("installed marketplace root"),
+                    AbsolutePathBuf::try_from(marketplace_install_root(&cx_home).join("trusted"))
+                        .expect("installed marketplace root"),
                 ],
                 errors: Vec::new(),
             }

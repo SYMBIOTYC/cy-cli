@@ -403,10 +403,7 @@ enum RestorationStatus {
     Unknown(anyhow::Error),
 }
 
-fn restore_uninstalled_state(
-    client: &mut CxClient,
-    remote_plugin_id: &str,
-) -> RestorationStatus {
+fn restore_uninstalled_state(client: &mut CxClient, remote_plugin_id: &str) -> RestorationStatus {
     let current = match read_remote_plugin(client, remote_plugin_id) {
         Ok(current) => current,
         Err(err) => return RestorationStatus::Unknown(err),

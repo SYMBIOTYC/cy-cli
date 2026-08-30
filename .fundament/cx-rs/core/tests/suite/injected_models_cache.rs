@@ -6,6 +6,15 @@ use std::sync::atomic::Ordering;
 
 use anyhow::Result;
 use chrono::Utc;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_http_client::HttpClientFactory;
 use cx_login::AuthManager;
 use cx_login::CodexAuth;
@@ -25,15 +34,6 @@ use cx_protocol::openai_models::ModelVisibility;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 
 #[derive(Debug)]

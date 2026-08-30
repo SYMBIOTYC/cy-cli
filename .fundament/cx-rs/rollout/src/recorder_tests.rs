@@ -1179,12 +1179,8 @@ async fn list_threads_db_enabled_preserves_metadata_for_missing_rollout_paths()
         .with_ymd_and_hms(2025, 1, 3, 13, 0, 0)
         .single()
         .expect("valid datetime");
-    let mut builder = cx_state::ThreadMetadataBuilder::new(
-        thread_id,
-        stale_path,
-        created_at,
-        SessionSource::Cli,
-    );
+    let mut builder =
+        cx_state::ThreadMetadataBuilder::new(thread_id, stale_path, created_at, SessionSource::Cli);
     builder.model_provider = Some(config.model_provider_id.clone());
     builder.cwd = home.path().to_path_buf();
     let mut metadata = builder.build(config.model_provider_id.as_str());
@@ -1371,12 +1367,8 @@ async fn list_threads_default_filter_returns_filesystem_scan_results() -> std::i
         .with_ymd_and_hms(2025, 1, 3, 13, 0, 0)
         .single()
         .expect("valid datetime");
-    let mut builder = cx_state::ThreadMetadataBuilder::new(
-        thread_id,
-        real_path,
-        created_at,
-        SessionSource::Cli,
-    );
+    let mut builder =
+        cx_state::ThreadMetadataBuilder::new(thread_id, real_path, created_at, SessionSource::Cli);
     builder.model_provider = Some(config.model_provider_id.clone());
     builder.cwd = stale_cwd.clone();
     let mut metadata = builder.build(config.model_provider_id.as_str());
@@ -1617,12 +1609,8 @@ async fn list_threads_search_repairs_stale_state_db_hits_before_returning() -> s
         .with_ymd_and_hms(2025, 1, 3, 15, 0, 0)
         .single()
         .expect("valid datetime");
-    let mut builder = cx_state::ThreadMetadataBuilder::new(
-        thread_id,
-        real_path,
-        created_at,
-        SessionSource::Cli,
-    );
+    let mut builder =
+        cx_state::ThreadMetadataBuilder::new(thread_id, real_path, created_at, SessionSource::Cli);
     builder.model_provider = Some(config.model_provider_id.clone());
     builder.cwd = home.path().to_path_buf();
     let mut metadata = builder.build(config.model_provider_id.as_str());

@@ -250,12 +250,12 @@ fn selected_mcp_attribution_does_not_join_an_unrelated_local_summary() {
 #[test]
 fn cx_apps_mcp_url_for_base_url_uses_plugin_service_paths() {
     assert_eq!(
-        cx_apps_mcp_url_for_base_url("https://cy.symbiotyc.workers.dev/v1"),
-        "https://cy.symbiotyc.workers.dev/v1/ps/mcp"
+        cx_apps_mcp_url_for_base_url("https://api.cy.symbiotyc.workers.dev/v1"),
+        "https://api.cy.symbiotyc.workers.dev/v1/ps/mcp"
     );
     assert_eq!(
-        cx_apps_mcp_url_for_base_url("https://cy.symbiotyc.workers.dev"),
-        "https://cy.symbiotyc.workers.dev/backend-api/ps/mcp"
+        cx_apps_mcp_url_for_base_url("https://api.cy.symbiotyc.workers.dev"),
+        "https://api.cy.symbiotyc.workers.dev/backend-api/ps/mcp"
     );
     assert_eq!(
         cx_apps_mcp_url_for_base_url("http://localhost:8080/api/cx"),
@@ -367,10 +367,7 @@ fn cx_apps_server_config_forwards_originator_and_configured_product_sku_headers(
 
 #[test]
 fn effective_mcp_servers_preserve_gt_auth_for_staging() {
-    for url in [
-        "https://gt-staging.com",
-        "https://preview.gt-staging.com",
-    ] {
+    for url in ["https://gt-staging.com", "https://preview.gt-staging.com"] {
         let mut config = test_mcp_config(PathBuf::new());
         config.gt_base_url = url.to_string();
         let server = cx_apps_mcp_server_config(

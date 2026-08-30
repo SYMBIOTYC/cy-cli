@@ -2,6 +2,7 @@ use super::*;
 use crate::config::PermissionProfileSnapshot;
 use crate::environment_selection::EnvironmentConfigOrigin;
 use crate::tools::sandboxing::SandboxAttempt;
+use core_test_support::PathBufExt;
 use cx_protocol::config_types::WindowsSandboxLevel;
 use cx_protocol::models::AdditionalPermissionProfile;
 use cx_protocol::models::FileSystemPermissions;
@@ -16,7 +17,6 @@ use cx_sandboxing::SandboxType;
 use cx_sandboxing::policy_transforms::effective_file_system_sandbox_policy;
 use cx_sandboxing::policy_transforms::effective_network_sandbox_policy;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 fn test_turn_environment(environment_id: &str) -> crate::session::turn_context::TurnEnvironment {

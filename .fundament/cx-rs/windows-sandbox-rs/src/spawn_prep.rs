@@ -591,12 +591,8 @@ mod tests {
             )
             .expect("managed permission profile");
 
-        let roots = legacy_session_capability_roots(
-            &permissions,
-            &command_cwd,
-            &HashMap::new(),
-            &cx_home,
-        );
+        let roots =
+            legacy_session_capability_roots(&permissions, &command_cwd, &HashMap::new(), &cx_home);
 
         assert_eq!(
             roots,
@@ -616,23 +612,20 @@ mod tests {
         std::fs::create_dir_all(&active_root).expect("create active root");
         std::fs::create_dir_all(&stale_root).expect("create stale root");
 
-        let stale_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root)
-            .expect("stale sid");
+        let stale_sid =
+            workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root).expect("stale sid");
         let active_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &active_root)
             .expect("active sid");
         let workspace_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &workspace)
             .expect("workspace sid");
         let caps = load_or_create_cap_sids(&cx_home).expect("load caps");
 
-        let sid_strs = root_capability_sids(
-            &cx_home,
-            &workspace,
-            vec![workspace.clone(), active_root],
-        )
-        .expect("root capabilities")
-        .into_iter()
-        .map(|root_sid| root_sid.sid_str)
-        .collect::<Vec<_>>();
+        let sid_strs =
+            root_capability_sids(&cx_home, &workspace, vec![workspace.clone(), active_root])
+                .expect("root capabilities")
+                .into_iter()
+                .map(|root_sid| root_sid.sid_str)
+                .collect::<Vec<_>>();
 
         assert_eq!(sid_strs.len(), 2);
         assert!(sid_strs.contains(&workspace_sid));
@@ -658,9 +651,8 @@ mod tests {
             .expect("workspace sid");
         let nested_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &nested_root)
             .expect("nested sid");
-        let unrelated_sid =
-            workspace_write_cap_sid_for_root(&cx_home, &workspace, &unrelated_root)
-                .expect("unrelated sid");
+        let unrelated_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &unrelated_root)
+            .expect("unrelated sid");
         let root_sids = root_capability_sids(
             &cx_home,
             &workspace,

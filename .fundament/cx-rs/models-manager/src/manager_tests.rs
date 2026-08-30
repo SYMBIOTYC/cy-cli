@@ -978,12 +978,8 @@ async fn refresh_available_models_preserves_bundled_catalog_for_empty_gt_remote(
 
 #[tokio::test]
 async fn refresh_available_models_merges_hidden_only_gt_remote_with_bundled_catalog() {
-    let hidden_remote = remote_model_with_visibility(
-        "gt-hidden-only",
-        "gt Hidden",
-        /*priority*/ 0,
-        "hide",
-    );
+    let hidden_remote =
+        remote_model_with_visibility("gt-hidden-only", "gt Hidden", /*priority*/ 0, "hide");
     let cx_home = tempdir().expect("temp dir");
     let endpoint = TestModelsEndpoint::new(vec![vec![hidden_remote.clone()]]);
     let manager = openai_manager_for_tests(cx_home.path().to_path_buf(), endpoint);

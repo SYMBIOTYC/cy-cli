@@ -1076,9 +1076,9 @@ pub(crate) async fn begin_network_approval(
     let execution_proxy = network
         .for_execution(&environment_id, &registration_id, attribution_token)
         .map_err(|err| {
-            ToolError::CX(cx_protocol::error::CxErr::Io(io::Error::other(
-                format!("failed to create execution-scoped network proxy: {err}"),
-            )))
+            ToolError::CX(cx_protocol::error::CxErr::Io(io::Error::other(format!(
+                "failed to create execution-scoped network proxy: {err}"
+            ))))
         })?;
     let cancellation_token = CancellationToken::new();
     session

@@ -331,9 +331,7 @@ fn synthetic_mount_registry_root_is_unique_to_effective_user() {
         std::env::temp_dir()
             .canonicalize()
             .expect("resolve temp directory")
-            .join(format!(
-                "cx-bwrap-synthetic-mount-targets-{effective_uid}"
-            ))
+            .join(format!("cx-bwrap-synthetic-mount-targets-{effective_uid}"))
     );
 }
 

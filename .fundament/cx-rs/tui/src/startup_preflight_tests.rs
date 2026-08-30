@@ -31,10 +31,7 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         || Ok(false),
         |_| None,
     ));
-    let helper_directory = cx_home
-        .join("tmp")
-        .join("arg0")
-        .join("cx-arg0-session");
+    let helper_directory = cx_home.join("tmp").join("arg0").join("cx-arg0-session");
     std::fs::create_dir(&helper_directory)?;
     std::fs::write(helper_directory.join("apply_patch"), "")?;
     assert!(should_delay_startup_composer_for_first_login(

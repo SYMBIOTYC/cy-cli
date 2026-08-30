@@ -14,6 +14,7 @@
 //! └─────────────────────────────────────────────────────────────┘
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use ratatui::prelude::Stylize;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -21,9 +22,8 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Widget},
 };
-use ratatui::prelude::Stylize;
-use std::io::{self, Write};
 use std::io::IsTerminal;
+use std::io::{self, Write};
 use uuid::Uuid;
 
 /// 4-panel layout manager for CY-CLI TUI
@@ -46,10 +46,21 @@ pub struct NcView {
 
 #[derive(Debug, Clone)]
 enum PanelContent {
-    FileTree { cwd: String, entries: Vec<String>, selected: usize },
-    AgentOutput { lines: Vec<String> },
-    ModelConfig { models: Vec<String>, current: String },
-    Logs { lines: Vec<String> },
+    FileTree {
+        cwd: String,
+        entries: Vec<String>,
+        selected: usize,
+    },
+    AgentOutput {
+        lines: Vec<String>,
+    },
+    ModelConfig {
+        models: Vec<String>,
+        current: String,
+    },
+    Logs {
+        lines: Vec<String>,
+    },
 }
 
 impl PanelContent {
@@ -58,7 +69,11 @@ impl PanelContent {
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_default();
         let entries = Self::read_dir(&cwd);
-        Self::FileTree { cwd, entries, selected: 0 }
+        Self::FileTree {
+            cwd,
+            entries,
+            selected: 0,
+        }
     }
 
     fn read_dir(path: &str) -> Vec<String> {
@@ -85,7 +100,10 @@ impl Default for NcView {
             panels: [
                 PanelContent::new_file_tree(),
                 PanelContent::AgentOutput {
-                    lines: vec!["Welcome to CY-CLI".to_string(), "Press F1 for help".to_string()],
+                    lines: vec![
+                        "Welcome to CY-CLI".to_string(),
+                        "Press F1 for help".to_string(),
+                    ],
                 },
                 PanelContent::ModelConfig {
                     models: vec!["openrouter/free".to_string(), "openrouter/auto".to_string()],
@@ -109,7 +127,11 @@ impl NcView {
         std::env::var("CY_CHAT_ID")
             .ok()
             .filter(|s| !s.trim().is_empty())
-            .or_else(|| std::env::var("THREAD_ID").ok().filter(|s| !s.trim().is_empty()))
+            .or_else(|| {
+                std::env::var("THREAD_ID")
+                    .ok()
+                    .filter(|s| !s.trim().is_empty())
+            })
             .or_else(|| {
                 std::env::var("CX_THREAD_ID")
                     .ok()
@@ -199,7 +221,9 @@ impl NcView {
     }
 
     fn current_chat_id(&self) -> Option<&str> {
-        if self.chat_id.is_empty() { return None; }
+        if self.chat_id.is_empty() {
+            return None;
+        }
         Some(self.chat_id.as_str())
     }
 
@@ -232,9 +256,12 @@ impl NcView {
 
     fn navigate_panel(&mut self, delta: i32) {
         match &mut self.panels[self.focused_panel] {
-            PanelContent::FileTree { selected, entries, .. } => {
+            PanelContent::FileTree {
+                selected, entries, ..
+            } => {
                 if !entries.is_empty() {
-                    let new = (*selected as i32 + delta).clamp(0, entries.len() as i32 - 1) as usize;
+                    let new =
+                        (*selected as i32 + delta).clamp(0, entries.len() as i32 - 1) as usize;
                     *selected = new;
                 }
             }
@@ -356,7 +383,12 @@ impl NcView {
     }
 
     fn enter_selected(&mut self) {
-        if let PanelContent::FileTree { cwd, entries, selected } = &mut self.panels[0] {
+        if let PanelContent::FileTree {
+            cwd,
+            entries,
+            selected,
+        } = &mut self.panels[0]
+        {
             if *selected < entries.len() {
                 let entry = &entries[*selected];
                 let path = std::path::Path::new(cwd).join(entry.trim_end_matches('/'));
@@ -374,7 +406,12 @@ impl NcView {
     }
 
     fn go_up(&mut self) {
-        if let PanelContent::FileTree { cwd, entries, selected } = &mut self.panels[0] {
+        if let PanelContent::FileTree {
+            cwd,
+            entries,
+            selected,
+        } = &mut self.panels[0]
+        {
             if let Some(parent) = std::path::Path::new(cwd).parent() {
                 *cwd = parent.to_string_lossy().to_string();
                 *entries = PanelContent::read_dir(cwd);
@@ -418,7 +455,12 @@ impl NcView {
         ];
 
         let help_widget = Paragraph::new(help_text)
-            .block(Block::default().borders(Borders::ALL).title(" Help (F1) ").border_style(Style::default().fg(Color::Cyan)))
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .title(" Help (F1) ")
+                    .border_style(Style::default().fg(Color::Cyan)),
+            )
             .style(Style::default().bg(Color::Black));
 
         // Center the help
@@ -434,7 +476,11 @@ impl NcView {
 
 fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, focused: bool) {
     let (title, body) = match content {
-        PanelContent::FileTree { cwd, entries, selected } => {
+        PanelContent::FileTree {
+            cwd,
+            entries,
+            selected,
+        } => {
             let title = format!(" Files: {} ", cwd);
             let body: Vec<Line> = entries
                 .iter()
@@ -480,7 +526,12 @@ fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, foc
     };
 
     Paragraph::new(body)
-        .block(Block::default().borders(Borders::ALL).title(title).border_style(border_style))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(title)
+                .border_style(border_style),
+        )
         .render(area, buf);
 }
 
@@ -502,24 +553,30 @@ impl Widget for &NcView {
         .split(area);
 
         // Top row: 2 panels
-        let top_chunks = Layout::horizontal([
-            Constraint::Percentage(50),
-            Constraint::Percentage(50),
-        ])
-        .split(chunks[0]);
+        let top_chunks =
+            Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .split(chunks[0]);
 
         // Bottom row: 2 panels
-        let bottom_chunks = Layout::horizontal([
-            Constraint::Percentage(50),
-            Constraint::Percentage(50),
-        ])
-        .split(chunks[1]);
+        let bottom_chunks =
+            Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+                .split(chunks[1]);
 
         // Render 4 panels
         render_panel_static(&self.panels[0], top_chunks[0], buf, self.focused_panel == 0);
         render_panel_static(&self.panels[1], top_chunks[1], buf, self.focused_panel == 1);
-        render_panel_static(&self.panels[2], bottom_chunks[0], buf, self.focused_panel == 2);
-        render_panel_static(&self.panels[3], bottom_chunks[1], buf, self.focused_panel == 3);
+        render_panel_static(
+            &self.panels[2],
+            bottom_chunks[0],
+            buf,
+            self.focused_panel == 2,
+        );
+        render_panel_static(
+            &self.panels[3],
+            bottom_chunks[1],
+            buf,
+            self.focused_panel == 3,
+        );
 
         // Command line
         let cmd_area = chunks[2];
@@ -564,7 +621,7 @@ pub async fn run_ncview() -> anyhow::Result<()> {
     use crossterm::{
         event::{self, DisableMouseCapture, EnableMouseCapture, Event},
         execute,
-        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
     };
     use ratatui::Terminal;
 

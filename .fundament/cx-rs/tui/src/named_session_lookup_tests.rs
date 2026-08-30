@@ -193,8 +193,7 @@ async fn uses_sqlite_title_without_scanning_rollouts() -> color_eyre::Result<()>
         SessionSource::Cli,
         ThreadHistoryMode::Legacy,
     )?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), duplicate_id, "saved-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), duplicate_id, "saved-session").await?;
 
     let target = lookup_name(&config, "saved-session").await?;
 
@@ -310,10 +309,7 @@ async fn recovers_legacy_index_name_without_requiring_sidecar_rewrite() -> color
         thread_metadata(
             &config,
             stale_id,
-            config
-                .cx_home
-                .join("missing-rollout.jsonl")
-                .to_path_buf(),
+            config.cx_home.join("missing-rollout.jsonl").to_path_buf(),
             "saved-session",
         ),
     )
@@ -328,8 +324,7 @@ async fn recovers_legacy_index_name_without_requiring_sidecar_rewrite() -> color
         SessionSource::Cli,
         ThreadHistoryMode::Legacy,
     )?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "saved-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "saved-session").await?;
     // The direct index lookup should not scan and repair other matching rollouts.
     let scan_sentinel_id = add_scan_sentinel(&config, "saved-session").await?;
 
@@ -383,8 +378,7 @@ async fn skips_stale_legacy_index_candidate() -> color_eyre::Result<()> {
         thread_metadata(&config, stale_id, stale_path.clone(), "current-session"),
     )
     .await?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), stale_id, "saved-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), stale_id, "saved-session").await?;
 
     let fallback_id = ThreadId::new();
     let fallback_path = write_rollout(
@@ -395,8 +389,7 @@ async fn skips_stale_legacy_index_candidate() -> color_eyre::Result<()> {
         SessionSource::Cli,
         ThreadHistoryMode::Legacy,
     )?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), fallback_id, "saved-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), fallback_id, "saved-session").await?;
     for (path, timestamp) in [
         (&stale_path, "2025-02-04T10:00:00Z"),
         (&fallback_path, "2025-02-03T10:00:00Z"),
@@ -448,8 +441,7 @@ async fn keeps_newer_paginated_sqlite_name_when_index_is_stale() -> color_eyre::
         .update_thread_name(thread_id, Some("current-session"))
         .await
         .map_err(std::io::Error::other)?;
-    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "old-session")
-        .await?;
+    cx_rollout::append_thread_name(config.cx_home.as_path(), thread_id, "old-session").await?;
 
     let target = lookup_name(&config, "old-session").await?;
 

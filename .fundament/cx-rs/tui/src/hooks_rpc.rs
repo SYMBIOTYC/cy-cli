@@ -1,3 +1,5 @@
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use cx_app_server_client::AppServerRequestHandle;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::ConfigBatchWriteParams;
@@ -9,8 +11,6 @@ use cx_app_server_protocol::HooksListParams;
 use cx_app_server_protocol::HooksListResponse;
 use cx_app_server_protocol::MergeStrategy;
 use cx_app_server_protocol::RequestId;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 use std::path::Path;
 use std::path::PathBuf;
 use uuid::Uuid;

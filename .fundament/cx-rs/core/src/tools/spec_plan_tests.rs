@@ -1011,9 +1011,7 @@ async fn environment_tools_follow_the_step_context() {
     let environments = turn.environments.clone();
     turn.environments.environments.clear();
     let turn = Arc::new(turn);
-    let mcp = Arc::new(cx_mcp::McpBinding::empty(mcp_config_for_test(
-        &turn.config,
-    )));
+    let mcp = Arc::new(cx_mcp::McpBinding::empty(mcp_config_for_test(&turn.config)));
 
     let plan = ToolPlanProbe::from_router(ToolRouter::from_registry(
         turn.as_ref(),
@@ -2079,10 +2077,7 @@ async fn code_mode_only_exposes_code_executor_and_hides_nested_tools() {
         plain.namespace_function_names("cx_app"),
         &["lookup".to_string()]
     );
-    plain.assert_visible_lacks(&[
-        cx_code_mode::PUBLIC_TOOL_NAME,
-        cx_code_mode::WAIT_TOOL_NAME,
-    ]);
+    plain.assert_visible_lacks(&[cx_code_mode::PUBLIC_TOOL_NAME, cx_code_mode::WAIT_TOOL_NAME]);
 
     let code_mode_only = probe_with(
         |turn| {
@@ -2098,10 +2093,8 @@ async fn code_mode_only_exposes_code_executor_and_hides_nested_tools() {
         },
     )
     .await;
-    code_mode_only.assert_visible_contains(&[
-        cx_code_mode::PUBLIC_TOOL_NAME,
-        cx_code_mode::WAIT_TOOL_NAME,
-    ]);
+    code_mode_only
+        .assert_visible_contains(&[cx_code_mode::PUBLIC_TOOL_NAME, cx_code_mode::WAIT_TOOL_NAME]);
     assert_eq!(
         code_mode_only.namespace_function_names("cx_app"),
         Vec::<String>::new().as_slice()
@@ -2459,10 +2452,7 @@ async fn tool_mode_selector_overrides_feature_flags() {
         Arc::make_mut(&mut turn.model_info).tool_mode = Some(ToolMode::Direct);
     })
     .await;
-    direct.assert_visible_lacks(&[
-        cx_code_mode::PUBLIC_TOOL_NAME,
-        cx_code_mode::WAIT_TOOL_NAME,
-    ]);
+    direct.assert_visible_lacks(&[cx_code_mode::PUBLIC_TOOL_NAME, cx_code_mode::WAIT_TOOL_NAME]);
 }
 
 #[tokio::test]

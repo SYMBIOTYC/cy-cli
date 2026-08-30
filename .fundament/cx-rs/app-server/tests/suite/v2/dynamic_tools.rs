@@ -6,6 +6,8 @@ use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::to_response;
 use app_test_support::write_models_cache_with_models;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses;
 use cx_app_server_protocol::DynamicToolCallOutputContentItem;
 use cx_app_server_protocol::DynamicToolCallParams;
 use cx_app_server_protocol::DynamicToolCallResponse;
@@ -31,8 +33,6 @@ use cx_protocol::models::FunctionCallOutputBody;
 use cx_protocol::models::FunctionCallOutputContentItem;
 use cx_protocol::models::FunctionCallOutputPayload;
 use cx_protocol::openai_models::InputModality;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -598,8 +598,7 @@ async fn start_function_dynamic_tool_call(call_id: &str) -> Result<PendingDynami
     let cx_home = TempDir::new()?;
     MockResponsesConfig::new(&server.uri()).write(cx_home.path())?;
     let config = load_default_config_for_test(&cx_home).await;
-    let mut model_info =
-        cx_core::test_support::construct_model_info_offline("mock-model", &config);
+    let mut model_info = cx_core::test_support::construct_model_info_offline("mock-model", &config);
     model_info.input_modalities.push(InputModality::Audio);
     write_models_cache_with_models(cx_home.path(), vec![model_info])?;
 

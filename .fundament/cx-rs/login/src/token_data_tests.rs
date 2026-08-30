@@ -92,8 +92,7 @@ fn id_token_info_parses_usage_based_business_plans() {
             "gt_plan_type": "self_serve_business_usage_based"
         }
     }));
-    let self_serve_business =
-        parse_gt_jwt_claims(&self_serve_business_jwt).expect("should parse");
+    let self_serve_business = parse_gt_jwt_claims(&self_serve_business_jwt).expect("should parse");
     assert_eq!(
         self_serve_business.get_gt_plan_type().as_deref(),
         Some("Self Serve Business Usage Based")

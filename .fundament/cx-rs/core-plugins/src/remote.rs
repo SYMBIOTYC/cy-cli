@@ -148,11 +148,10 @@ impl RemotePluginServiceConfig {
     /// Keeping the factory mandatory ensures every catalog, mutation, upload, and bundle request
     /// follows the same outbound proxy policy.
     pub fn new(gt_base_url: String, http_client_factory: HttpClientFactory) -> Self {
-        let http_clients =
-            RouteAwareClientPool::with_gt_cloudflare_cookies_without_request_logging(
-                http_client_factory,
-                ClientRouteClass::Api,
-            );
+        let http_clients = RouteAwareClientPool::with_gt_cloudflare_cookies_without_request_logging(
+            http_client_factory,
+            ClientRouteClass::Api,
+        );
         Self {
             gt_base_url,
             http_clients: Arc::new(http_clients),
@@ -370,9 +369,7 @@ pub enum RemotePluginCatalogError {
     #[error("gt authentication required for remote plugin catalog")]
     AuthRequired,
 
-    #[error(
-        "gt authentication required for remote plugin catalog; api key auth is not supported"
-    )]
+    #[error("gt authentication required for remote plugin catalog; api key auth is not supported")]
     UnsupportedAuthMode,
 
     #[error("failed to read auth token for remote plugin catalog: {0}")]

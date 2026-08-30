@@ -87,12 +87,7 @@ impl InstallContext {
         method_override: Option<InstallMethod>,
     ) -> Self {
         let cx_home = cx_utils_home_dir::find_cx_home().ok();
-        Self::from_exe_with_cx_home(
-            is_macos,
-            current_exe,
-            method_override,
-            cx_home.as_deref(),
-        )
+        Self::from_exe_with_cx_home(is_macos, current_exe, method_override, cx_home.as_deref())
     }
 
     fn from_exe_with_cx_home(
@@ -276,8 +271,7 @@ fn install_method_from_exe(
     package_layout: Option<&CodexPackageLayout>,
     is_macos: bool,
 ) -> InstallMethod {
-    if let Some(standalone_method) = standalone_install_method(exe_path, cx_home, package_layout)
-    {
+    if let Some(standalone_method) = standalone_install_method(exe_path, cx_home, package_layout) {
         return standalone_method;
     }
 

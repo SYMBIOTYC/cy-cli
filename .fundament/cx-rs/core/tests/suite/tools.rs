@@ -7,25 +7,6 @@ use std::time::Instant;
 
 use anyhow::Context;
 use anyhow::Result;
-use cx_core::StartThreadOptions;
-use cx_core::TurnInputRequest;
-use cx_core::config::Constrained;
-use cx_core::sandboxing::SandboxPermissions;
-use cx_features::Feature;
-use cx_protocol::dynamic_tools::DynamicToolFunctionSpec;
-use cx_protocol::dynamic_tools::DynamicToolNamespaceSpec;
-use cx_protocol::dynamic_tools::DynamicToolNamespaceTool;
-use cx_protocol::dynamic_tools::DynamicToolSpec;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::permissions::FileSystemAccessMode;
-use cx_protocol::permissions::FileSystemPath;
-use cx_protocol::permissions::FileSystemSandboxEntry;
-use cx_protocol::permissions::FileSystemSandboxPolicy;
-use cx_protocol::permissions::NetworkSandboxPolicy;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::assert_regex_match;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -45,6 +26,25 @@ use core_test_support::submit_thread_settings;
 use core_test_support::test_codex::local;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_core::StartThreadOptions;
+use cx_core::TurnInputRequest;
+use cx_core::config::Constrained;
+use cx_core::sandboxing::SandboxPermissions;
+use cx_features::Feature;
+use cx_protocol::dynamic_tools::DynamicToolFunctionSpec;
+use cx_protocol::dynamic_tools::DynamicToolNamespaceSpec;
+use cx_protocol::dynamic_tools::DynamicToolNamespaceTool;
+use cx_protocol::dynamic_tools::DynamicToolSpec;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::permissions::FileSystemAccessMode;
+use cx_protocol::permissions::FileSystemPath;
+use cx_protocol::permissions::FileSystemSandboxEntry;
+use cx_protocol::permissions::FileSystemSandboxPolicy;
+use cx_protocol::permissions::NetworkSandboxPolicy;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use regex_lite::Regex;
 use serde_json::Value;
 use serde_json::json;
@@ -492,11 +492,7 @@ async fn namespaced_custom_tool_call_preserves_namespace_through_dispatch_and_re
         &server,
         sse(vec![
             ev_response_created("resp-5"),
-            ev_custom_tool_call(
-                direct_exec_call_id,
-                cx_code_mode::PUBLIC_TOOL_NAME,
-                input,
-            ),
+            ev_custom_tool_call(direct_exec_call_id, cx_code_mode::PUBLIC_TOOL_NAME, input),
             ev_completed("resp-5"),
         ]),
     )

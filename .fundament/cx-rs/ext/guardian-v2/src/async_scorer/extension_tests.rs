@@ -6,6 +6,12 @@ use std::time::Duration;
 use std::time::SystemTime;
 
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
 use cx_core::config::Config;
 use cx_extension_api::ConversationHistorySnapshot;
 use cx_extension_api::ExtensionData;
@@ -40,12 +46,6 @@ use cx_protocol::protocol::ReviewDecision;
 use cx_protocol::protocol::SessionSource;
 use cx_protocol::protocol::TruncationPolicy;
 use cx_protocol::security_risk::SecurityRiskScore;
-use core_test_support::responses;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -776,11 +776,7 @@ async fn contributor_fails_closed_when_model_configuration_is_invalid() -> Resul
         max_action_tokens: Some(1),
         ..Default::default()
     });
-    fixture
-        .test
-        .cx
-        .thread_extension_data()
-        .insert(parent_model);
+    fixture.test.cx.thread_extension_data().insert(parent_model);
 
     fixture.score_tool(ToolName::plain("read_file")).await;
     fixture.assert_fails_closed().await

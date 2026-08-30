@@ -289,8 +289,7 @@ fn windows_sandbox_env_preserves_denied_reads_or_rejects_unsupported_backend() {
     assert_eq!(overrides.additional_deny_read_paths, vec![denied_path]);
     assert_eq!(request.windows_sandbox_workspace_roots, vec![cwd]);
 
-    attempt.windows_sandbox_level =
-        cx_protocol::config_types::WindowsSandboxLevel::RestrictedToken;
+    attempt.windows_sandbox_level = cx_protocol::config_types::WindowsSandboxLevel::RestrictedToken;
     let error = attempt
         .env_for(
             command(),

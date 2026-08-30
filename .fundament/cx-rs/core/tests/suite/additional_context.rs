@@ -1,11 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_protocol::items::TurnItem;
-use cx_protocol::protocol::AdditionalContextEntry;
-use cx_protocol::protocol::AdditionalContextKind;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ItemCompletedEvent;
-use cx_protocol::user_input::UserInput;
 use core_test_support::context_snapshot;
 use core_test_support::context_snapshot::ContextSnapshotOptions;
 use core_test_support::context_snapshot::ContextSnapshotRenderMode;
@@ -17,6 +10,13 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event_match;
+use cx_core::TurnInputRequest;
+use cx_protocol::items::TurnItem;
+use cx_protocol::protocol::AdditionalContextEntry;
+use cx_protocol::protocol::AdditionalContextKind;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ItemCompletedEvent;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use std::collections::BTreeMap;
 

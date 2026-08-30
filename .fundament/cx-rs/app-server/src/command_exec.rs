@@ -202,9 +202,7 @@ impl CommandExecManager {
             let sessions = Arc::clone(&self.sessions);
             tokio::spawn(async move {
                 let _started_network_proxy = started_network_proxy;
-                match cx_core::sandboxing::execute_env(exec_request, /*stdout_stream*/ None)
-                    .await
-                {
+                match cx_core::sandboxing::execute_env(exec_request, /*stdout_stream*/ None).await {
                     Ok(output) => {
                         outgoing
                             .send_response(
@@ -279,8 +277,7 @@ impl CommandExecManager {
             )
             .await
         } else if stream_stdin {
-            cx_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0, &[])
-                .await
+            cx_utils_pty::spawn_pipe_process(program, args, cwd.as_path(), &env, &arg0, &[]).await
         } else {
             cx_utils_pty::spawn_pipe_process_no_stdin(
                 program,

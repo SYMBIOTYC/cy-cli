@@ -4,6 +4,14 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Result;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodexHarness;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_features::Feature;
 use cx_history::RolloutItem;
 use cx_history::RolloutLine;
@@ -15,14 +23,6 @@ use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodexHarness;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -522,10 +522,9 @@ async fn build_harness_inner(
         builder = builder.with_pre_build_hook(write_manual_compact_hooks);
     }
     TestCodexHarness::with_builder(builder.with_config(move |config| {
-        config.cwd = cx_utils_absolute_path::AbsolutePathBuf::from_absolute_path(PathBuf::from(
-            FIXED_CWD,
-        ))
-        .expect("fixed cwd should be absolute");
+        config.cwd =
+            cx_utils_absolute_path::AbsolutePathBuf::from_absolute_path(PathBuf::from(FIXED_CWD))
+                .expect("fixed cwd should be absolute");
         config.developer_instructions = Some("PARITY_DEVELOPER_INSTRUCTIONS".to_string());
         if settings.service_tier_fast {
             config.service_tier = Some(ServiceTier::Fast.request_value().to_string());
@@ -608,15 +607,14 @@ async fn capture_from_requests(
 }
 
 async fn submit_user_input(cx: &cx_core::CodexThread, items: Vec<UserInput>) -> Result<()> {
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(items).with_thread_settings(
-            ThreadSettingsOverrides {
-                approval_policy: Some(AskForApproval::Never),
-                permission_profile: Some(PermissionProfile::Disabled),
-                ..Default::default()
-            },
-        ))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(items).with_thread_settings(
+        ThreadSettingsOverrides {
+            approval_policy: Some(AskForApproval::Never),
+            permission_profile: Some(PermissionProfile::Disabled),
+            ..Default::default()
+        },
+    ))
+    .await?;
     wait_for_turn_complete(cx).await;
     Ok(())
 }

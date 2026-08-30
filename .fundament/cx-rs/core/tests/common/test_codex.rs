@@ -174,8 +174,7 @@ impl TestEnv {
             },
             None => local(cwd.clone()),
         };
-        let environment =
-            cx_exec_server::Environment::create_for_tests(exec_server_url.clone())?;
+        let environment = cx_exec_server::Environment::create_for_tests(exec_server_url.clone())?;
         Ok(Self {
             environment,
             exec_server_url,

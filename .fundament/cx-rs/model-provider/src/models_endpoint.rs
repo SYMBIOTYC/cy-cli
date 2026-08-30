@@ -78,8 +78,7 @@ impl OpenAiModelsEndpoint {
         client_version: &str,
         http_client_factory: HttpClientFactory,
     ) -> CoreResult<(Vec<ModelInfo>, Option<String>)> {
-        let _timer =
-            cx_otel::start_global_timer("cx.remote_models.fetch_update.duration_ms", &[]);
+        let _timer = cx_otel::start_global_timer("cx.remote_models.fetch_update.duration_ms", &[]);
         let auth = self.auth().await;
         let auth_mode = auth.as_ref().map(CodexAuth::auth_mode);
         let mut api_provider = self.provider_info.to_api_provider(auth_mode)?;

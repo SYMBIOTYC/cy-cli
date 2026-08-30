@@ -15,7 +15,7 @@
 //
 // Config via env:
 //   CY_BRIDGE_PORT     listen port                (default 8790)
-//   CY_API_BASE_URL    SYMBIOTYC gateway base URL (default https://cy.symbiotyc.workers.dev/v1)
+//   CY_API_BASE_URL    SYMBIOTYC gateway base URL (default https://api.cy.symbiotyc.workers.dev/v1)
 //   CY_API_KEY         SYMBIOTYC api token
 //   CY_MODEL           model id                   (default cy/i1a)
 // ---------------------------------------------------------------------------
@@ -26,7 +26,7 @@ import fs from "node:fs";
 const RESP_FILE = `${process.env.CY_HOME || process.env.HOME + "/.cy"}/last-response.txt`;
 
 const PORT = Number(process.env.CY_BRIDGE_PORT || process.env.CY_ADAPTER_PORT || 8790);
-const CY_BASE = (process.env.CY_API_BASE_URL || "https://cy.symbiotyc.workers.dev/v1").replace(/\/+$/, "");
+const CY_BASE = (process.env.CY_API_BASE_URL || "https://api.cy.symbiotyc.workers.dev/v1").replace(/\/+$/, "");
 const CY_KEY = process.env.CY_API_KEY || "";
 const CY_MODEL = process.env.CY_MODEL || "cy/i1a";
 

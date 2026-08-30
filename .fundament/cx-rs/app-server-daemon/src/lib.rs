@@ -654,8 +654,7 @@ impl Daemon {
         settings: &DaemonSettings,
         managed_cx_bin: &Path,
     ) -> Result<Option<u32>> {
-        let backend =
-            backend::pid_backend(self.backend_paths_with_bin(settings, managed_cx_bin));
+        let backend = backend::pid_backend(self.backend_paths_with_bin(settings, managed_cx_bin));
         backend.start().await
     }
 

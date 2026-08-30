@@ -197,6 +197,8 @@ async fn to_extension_call(invocation: &ToolInvocation) -> ExtensionToolCall {
 mod tests {
     use std::sync::Arc;
 
+    use core_test_support::responses::strip_response_item_id;
+    use core_test_support::responses::strip_response_item_ids;
     use cx_extension_items::ExtensionItem;
     use cx_extension_items::image_generation::ImageGenerationItem;
     use cx_extension_items::web_search::WebSearchItem;
@@ -209,8 +211,6 @@ mod tests {
     use cx_tools::ExtensionTurnItem;
     use cx_utils_absolute_path::test_support::PathExt;
     use cx_utils_absolute_path::test_support::test_path_buf;
-    use core_test_support::responses::strip_response_item_id;
-    use core_test_support::responses::strip_response_item_ids;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use tokio::sync::Mutex;

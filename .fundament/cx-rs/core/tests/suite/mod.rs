@@ -1,4 +1,5 @@
 // Aggregates all former standalone integration tests as modules.
+use ctor::ctor;
 use cx_apply_patch::CODEX_CORE_APPLY_PATCH_ARG1;
 #[cfg(unix)]
 use cx_exec_server::CODEX_ARG0_EXEC_HELPER_ARG1;
@@ -7,7 +8,6 @@ use cx_sandboxing::landlock::CODEX_LINUX_SANDBOX_ARG0;
 use cx_test_binary_support::TestBinaryDispatchGuard;
 use cx_test_binary_support::TestBinaryDispatchMode;
 use cx_test_binary_support::configure_test_binary_dispatch;
-use ctor::ctor;
 
 // This code runs before any other tests are run.
 // It allows the test binary to behave like cx and dispatch to apply_patch and cx-linux-sandbox
@@ -51,13 +51,13 @@ mod client_websockets;
 mod cloud_config;
 mod code_mode;
 mod code_mode_elicitation;
-mod cx_delegate;
 mod collaboration_instructions;
 mod compact;
 mod compact_remote;
 mod compact_remote_parity;
 mod compact_resume_fork;
 mod current_time_reminder;
+mod cx_delegate;
 mod cyber_exec_policy;
 mod deprecation_notice;
 mod exec;

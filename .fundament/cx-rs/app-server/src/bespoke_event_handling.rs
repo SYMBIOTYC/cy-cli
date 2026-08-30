@@ -2129,6 +2129,7 @@ mod tests {
     use anyhow::anyhow;
     use anyhow::bail;
     use chrono::Utc;
+    use core_test_support::load_default_config_for_test;
     use cx_app_server_protocol::AutoReviewDecisionSource;
     use cx_app_server_protocol::GuardianApprovalReviewStatus;
     use cx_app_server_protocol::JSONRPCErrorError;
@@ -2171,7 +2172,6 @@ mod tests {
     use cx_utils_absolute_path::AbsolutePathBuf;
     use cx_utils_absolute_path::test_support::PathBufExt;
     use cx_utils_absolute_path::test_support::test_path_buf;
-    use core_test_support::load_default_config_for_test;
     use pretty_assertions::assert_eq;
     use serde_json::json;
     use tempfile::TempDir;

@@ -40,6 +40,24 @@ use cx_mcp::SandboxState;
 use cx_models_manager::manager::RefreshStrategy;
 use cx_utils_path_uri::LegacyAppPathString;
 
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::assert_regex_match;
+use core_test_support::is_remote_test_environment;
+use core_test_support::responses;
+use core_test_support::responses::mount_models_once;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::test_docker_container_name;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use cx_history::RolloutItem;
 use cx_protocol::config_types::CollaborationMode;
 use cx_protocol::config_types::ModeKind;
@@ -73,24 +91,6 @@ use cx_protocol::protocol::TurnEnvironmentSelections;
 use cx_protocol::user_input::UserInput;
 use cx_utils_cargo_bin::cargo_bin;
 use cx_utils_path_uri::PathUri;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::assert_regex_match;
-use core_test_support::is_remote_test_environment;
-use core_test_support::responses;
-use core_test_support::responses::mount_models_once;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::test_docker_container_name;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use http::StatusCode;
 use image::DynamicImage;
 use image::GenericImageView;
@@ -239,13 +239,7 @@ fn copy_binary_to_remote_env(
 ) -> anyhow::Result<String> {
     let remote_path = unique_remote_path(binary_name)?;
     let mkdir_output = StdCommand::new("docker")
-        .args([
-            "exec",
-            container_name,
-            "mkdir",
-            "-p",
-            "/tmp/cx-remote-env",
-        ])
+        .args(["exec", container_name, "mkdir", "-p", "/tmp/cx-remote-env"])
         .output()
         .context("create remote MCP test binary directory")?;
     ensure!(
@@ -408,10 +402,8 @@ async fn call_structured_tool(
         matches!(ev, EventMsg::McpToolCallBegin(_))
     })
     .await;
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -605,8 +597,7 @@ async fn environment_mcp_policy_filters_runtime_config_and_model_tools(
     let allowed_command = command.clone();
     let cx_home = Arc::new(tempdir()?);
     if from_plugin {
-        let plugin_root =
-            super::plugins::write_sample_plugin_manifest_and_config(cx_home.as_ref());
+        let plugin_root = super::plugins::write_sample_plugin_manifest_and_config(cx_home.as_ref());
         let plugin_server = json!({
             "command": command,
             "environment_id": remote_aware_environment_id(),
@@ -847,10 +838,8 @@ async fn stdio_server_round_trip() -> anyhow::Result<()> {
     assert_eq!(begin.invocation.server, server_name);
     assert_eq!(begin.invocation.tool, "echo");
 
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -1355,10 +1344,7 @@ async fn interrupt_during_mcp_startup_preserves_user_input_in_history(
     })
     .await;
 
-    let history = fixture
-        .cx
-        .load_history(/*include_archived*/ false)
-        .await?;
+    let history = fixture.cx.load_history(/*include_archived*/ false).await?;
     let user_prompt_index = history
         .items
         .iter()
@@ -2172,10 +2158,8 @@ async fn stdio_image_responses_round_trip() -> anyhow::Result<()> {
         },
     );
 
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("end");
     };
@@ -2558,10 +2542,7 @@ async fn stdio_image_responses_are_sanitized_for_text_only_model() -> anyhow::Re
         matches!(ev, EventMsg::McpToolCallBegin(_))
     })
     .await;
-    wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let output_item = final_mock.single_request().function_call_output(call_id);
@@ -2662,10 +2643,8 @@ async fn stdio_server_propagates_whitelisted_env_vars() -> anyhow::Result<()> {
     assert_eq!(begin.invocation.server, server_name);
     assert_eq!(begin.invocation.tool, "echo");
 
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -2780,10 +2759,8 @@ async fn stdio_server_propagates_explicit_local_env_var_source() -> anyhow::Resu
         matches!(ev, EventMsg::McpToolCallBegin(_))
     })
     .await;
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -2876,10 +2853,8 @@ async fn remote_stdio_env_var_source_does_not_copy_local_env() -> anyhow::Result
         matches!(ev, EventMsg::McpToolCallBegin(_))
     })
     .await;
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -3091,10 +3066,8 @@ async fn streamable_http_tool_call_round_trip(with_headers_helper: bool) -> anyh
 
     // Phase 6: assert the tool result proves the server handled the request and
     // propagated the expected environment value.
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };
@@ -3680,10 +3653,8 @@ async fn streamable_http_with_oauth_round_trip_impl() -> anyhow::Result<()> {
 
     // Phase 8: assert the tool result proves the authenticated request reached
     // the server and preserved the expected environment value.
-    let end_event = wait_for_event(&fixture.cx, |ev| {
-        matches!(ev, EventMsg::McpToolCallEnd(_))
-    })
-    .await;
+    let end_event =
+        wait_for_event(&fixture.cx, |ev| matches!(ev, EventMsg::McpToolCallEnd(_))).await;
     let EventMsg::McpToolCallEnd(end) = end_event else {
         unreachable!("event guard guarantees McpToolCallEnd");
     };

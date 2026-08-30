@@ -323,7 +323,6 @@ use cx_backend_client::RateLimitResetCreditDetails as BackendRateLimitResetCredi
 use cx_backend_client::RateLimitResetCreditsDetails as BackendRateLimitResetCreditsDetails;
 use cx_backend_client::RequestError as BackendRequestError;
 use cx_backend_client::TokenUsageProfile;
-use cx_gt::connectors;
 use cx_config::CloudConfigBundleLoadError;
 use cx_config::CloudConfigBundleLoadErrorCode;
 use cx_config::ConfigLayerStack;
@@ -401,6 +400,7 @@ use cx_feedback::FeedbackAttachmentPath;
 use cx_feedback::FeedbackUploadOptions;
 use cx_git_utils::git_diff_to_remote;
 use cx_git_utils::resolve_root_git_project_for_trust;
+use cx_gt::connectors;
 use cx_login::AuthManager;
 use cx_login::CX_OPEN_APP_URL;
 use cx_login::CodexAuth;

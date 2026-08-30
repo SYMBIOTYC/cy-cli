@@ -24,9 +24,7 @@ pub enum RemotePluginMutationError {
     #[error("gt authentication required for remote plugin mutation")]
     AuthRequired,
 
-    #[error(
-        "gt authentication required for remote plugin mutation; api key auth is not supported"
-    )]
+    #[error("gt authentication required for remote plugin mutation; api key auth is not supported")]
     UnsupportedAuthMode,
 
     #[error("failed to read auth token for remote plugin mutation: {0}")]
@@ -128,10 +126,8 @@ pub async fn fetch_remote_featured_plugin_ids(
     let base_url = config.gt_base_url.trim_end_matches('/');
     let mut url = Url::parse(&format!("{base_url}/plugins/featured"))
         .map_err(RemotePluginFetchError::InvalidBaseUrl)?;
-    url.query_pairs_mut().append_pair(
-        "platform",
-        product.unwrap_or(Product::CX).to_app_platform(),
-    );
+    url.query_pairs_mut()
+        .append_pair("platform", product.unwrap_or(Product::CX).to_app_platform());
     let url = url.to_string();
     let mut request = config
         .http_request(Method::GET, &url)

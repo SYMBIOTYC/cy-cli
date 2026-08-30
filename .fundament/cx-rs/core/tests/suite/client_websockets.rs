@@ -1,4 +1,18 @@
 #![allow(clippy::unwrap_used)]
+use core_test_support::TestCodexResponsesRequestKind;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses::WebSocketConnectionConfig;
+use core_test_support::responses::WebSocketTestServer;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::responses::start_websocket_server_with_headers;
+use core_test_support::responses_metadata as test_responses_metadata;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::tracing::install_test_tracing;
+use core_test_support::wait_for_event;
 use cx_api::WS_REQUEST_HEADER_TRACEPARENT_CLIENT_METADATA_KEY;
 use cx_api::WS_REQUEST_HEADER_TRACESTATE_CLIENT_METADATA_KEY;
 use cx_core::CodexResponsesMetadata;
@@ -42,20 +56,6 @@ use cx_rollout_trace::InferenceTraceContext;
 use cx_rollout_trace::RawTraceEventPayload;
 use cx_rollout_trace::TraceWriter;
 use cx_rollout_trace::replay_bundle;
-use core_test_support::TestCodexResponsesRequestKind;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses::WebSocketConnectionConfig;
-use core_test_support::responses::WebSocketTestServer;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::responses::start_websocket_server_with_headers;
-use core_test_support::responses_metadata as test_responses_metadata;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::tracing::install_test_tracing;
-use core_test_support::wait_for_event;
 use futures::StreamExt;
 use opentelemetry_sdk::metrics::InMemoryMetricExporter;
 use pretty_assertions::assert_eq;
@@ -1086,10 +1086,7 @@ async fn responses_websocket_preconnect_runs_when_only_v2_feature_enabled() {
 
     assert_eq!(server.handshakes().len(), 1);
     assert_eq!(server.single_connection().len(), 0);
-    assert_eq!(
-        server.single_handshake().header("x-cx-turn-metadata"),
-        None
-    );
+    assert_eq!(server.single_handshake().header("x-cx-turn-metadata"), None);
     assert_eq!(
         server
             .single_handshake()
@@ -1618,8 +1615,7 @@ async fn responses_websocket_usage_limit_error_emits_rate_limit_event() {
         .await
         .expect("submission should succeed while emitting usage limit error events");
 
-    let token_event =
-        wait_for_event(&test.cx, |msg| matches!(msg, EventMsg::TokenCount(_))).await;
+    let token_event = wait_for_event(&test.cx, |msg| matches!(msg, EventMsg::TokenCount(_))).await;
     let EventMsg::TokenCount(event) = token_event else {
         unreachable!();
     };

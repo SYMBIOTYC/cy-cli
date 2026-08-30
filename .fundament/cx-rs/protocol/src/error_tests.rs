@@ -167,10 +167,7 @@ fn usage_limit_reached_error_formats_rate_limit_reached_types() {
 #[test]
 fn server_overloaded_maps_to_protocol() {
     let err = CxErr::ServerOverloaded;
-    assert_eq!(
-        err.to_cx_protocol_error(),
-        CodexErrorInfo::ServerOverloaded
-    );
+    assert_eq!(err.to_cx_protocol_error(), CodexErrorInfo::ServerOverloaded);
 }
 
 #[test]
@@ -461,8 +458,7 @@ fn usage_limit_reached_error_hides_upsell_for_non_cx_limit_name() {
                 ..rate_limit_snapshot()
             })),
             promo_message: Some(
-                "Visit https://chatgpt.com/cx/settings/usage to purchase more credits"
-                    .to_string(),
+                "Visit https://chatgpt.com/cx/settings/usage to purchase more credits".to_string(),
             ),
             rate_limit_reached_type: None,
         };

@@ -3020,15 +3020,11 @@ async fn linked_worktree_project_layers_keep_worktree_config_but_use_root_repo_h
     assert_eq!(project_layers.len(), 2);
     assert_eq!(
         project_layers[0].hooks_config_folder(),
-        Some(AbsolutePathBuf::from_absolute_path(
-            repo_child.join(".cx")
-        )?)
+        Some(AbsolutePathBuf::from_absolute_path(repo_child.join(".cx"))?)
     );
     assert_eq!(
         project_layers[1].hooks_config_folder(),
-        Some(AbsolutePathBuf::from_absolute_path(
-            repo_root.join(".cx")
-        )?)
+        Some(AbsolutePathBuf::from_absolute_path(repo_root.join(".cx"))?)
     );
     assert_eq!(
         project_layers[0]
@@ -3199,9 +3195,7 @@ async fn linked_worktree_project_layers_use_root_repo_hooks_without_worktree_con
     assert_eq!(project_layers.len(), 1);
     assert_eq!(
         project_layers[0].hooks_config_folder(),
-        Some(AbsolutePathBuf::from_absolute_path(
-            repo_root.join(".cx")
-        )?)
+        Some(AbsolutePathBuf::from_absolute_path(repo_root.join(".cx"))?)
     );
     assert_eq!(
         project_hook_command(project_layers[0]),
@@ -3233,12 +3227,7 @@ async fn nested_project_root_markers_do_not_redirect_regular_repo_hooks() -> std
         "echo project root hook",
     )
     .await?;
-    write_project_hook_config(
-        &nested.join(".cx"),
-        /*foo*/ None,
-        "echo nested hook",
-    )
-    .await?;
+    write_project_hook_config(&nested.join(".cx"), /*foo*/ None, "echo nested hook").await?;
 
     let cx_home = tmp.path().join("home");
     tokio::fs::create_dir_all(&cx_home).await?;
@@ -3303,8 +3292,7 @@ fn project_hook_command(layer: &ConfigLayerEntry) -> Option<&str> {
 }
 
 #[tokio::test]
-async fn project_paths_resolve_relative_to_dot_cx_and_override_in_order() -> std::io::Result<()>
-{
+async fn project_paths_resolve_relative_to_dot_cx_and_override_in_order() -> std::io::Result<()> {
     let tmp = tempdir()?;
     let project_root = tmp.path().join("project");
     let nested = project_root.join("child");
@@ -3325,11 +3313,7 @@ model_instructions_file = "child.txt"
         "root instructions",
     )
     .await?;
-    tokio::fs::write(
-        nested.join(".cx").join("child.txt"),
-        "child instructions",
-    )
-    .await?;
+    tokio::fs::write(nested.join(".cx").join("child.txt"), "child instructions").await?;
 
     let cx_home = tmp.path().join("home");
     tokio::fs::create_dir_all(&cx_home).await?;
@@ -4237,8 +4221,8 @@ mod requirements_exec_policy_tests {
         dot_cx_folder: &Path,
         requirements: ConfigRequirements,
     ) -> ConfigLayerStack {
-        let dot_cx_folder = AbsolutePathBuf::from_absolute_path(dot_cx_folder)
-            .expect("absolute dot_cx_folder");
+        let dot_cx_folder =
+            AbsolutePathBuf::from_absolute_path(dot_cx_folder).expect("absolute dot_cx_folder");
         let layer = ConfigLayerEntry::new(
             ConfigLayerSource::Project { dot_cx_folder },
             TomlValue::Table(Default::default()),

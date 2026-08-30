@@ -1510,11 +1510,7 @@ impl ConfigRequirementsToml {
                 &["cli_auth_credentials_store"],
                 "cli_auth_credentials_store",
             ),
-            (
-                self.gt_base_url.is_some(),
-                &["gt_base_url"],
-                "gt_base_url",
-            ),
+            (self.gt_base_url.is_some(), &["gt_base_url"], "gt_base_url"),
         ];
 
         managed_fields
@@ -2130,8 +2126,7 @@ mod tests {
                 .map(|value| Sourced::new(value, RequirementSource::Unknown)),
             cli_auth_credentials_store: cli_auth_credentials_store
                 .map(|value| Sourced::new(value, RequirementSource::Unknown)),
-            gt_base_url: gt_base_url
-                .map(|value| Sourced::new(value, RequirementSource::Unknown)),
+            gt_base_url: gt_base_url.map(|value| Sourced::new(value, RequirementSource::Unknown)),
             sqlite_home: sqlite_home.map(|value| Sourced::new(value, RequirementSource::Unknown)),
             log_dir: log_dir.map(|value| Sourced::new(value, RequirementSource::Unknown)),
             model_catalog_json: model_catalog_json

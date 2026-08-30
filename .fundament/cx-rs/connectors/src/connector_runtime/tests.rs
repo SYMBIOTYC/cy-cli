@@ -109,10 +109,8 @@ fn cx_apps_tools_cache_is_scoped_per_user() {
     let tools_user_1 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "one")];
     let tools_user_2 = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "two")];
 
-    write_cached_cx_apps_tools(&cache_context_user_1, &tools_user_1)
-        .expect("write user one cache");
-    write_cached_cx_apps_tools(&cache_context_user_2, &tools_user_2)
-        .expect("write user two cache");
+    write_cached_cx_apps_tools(&cache_context_user_1, &tools_user_1).expect("write user one cache");
+    write_cached_cx_apps_tools(&cache_context_user_2, &tools_user_2).expect("write user two cache");
 
     let read_user_1 =
         read_cached_cx_apps_tools(&cache_context_user_1).expect("cache entry for user one");
@@ -216,10 +214,7 @@ fn startup_cached_cx_apps_tools_loads_from_disk_cache() {
         Some("account-one"),
         Some("user-one"),
     );
-    let cached_tools = vec![create_test_tool(
-        CX_APPS_MCP_SERVER_NAME,
-        "calendar_search",
-    )];
+    let cached_tools = vec![create_test_tool(CX_APPS_MCP_SERVER_NAME, "calendar_search")];
     let server_info = create_test_server_info("CX Apps");
     write_cached_cx_apps_tools_for_test(&writer_cache_context, &server_info, &cached_tools);
     let cache_context = create_cx_apps_tools_cache_context(
@@ -285,10 +280,7 @@ fn cx_apps_server_info_cache_survives_legacy_tools_cache_write() {
     write_cached_cx_apps_tools_for_test(
         &cache_context,
         &server_info,
-        &[create_test_tool(
-            CX_APPS_MCP_SERVER_NAME,
-            "calendar_search",
-        )],
+        &[create_test_tool(CX_APPS_MCP_SERVER_NAME, "calendar_search")],
     );
 
     let cache_path = cache_context.tools_cache_path();
@@ -383,8 +375,7 @@ fn cx_apps_tools_cache_publishes_newest_shared_snapshot() {
         "newer"
     );
     assert_eq!(
-        read_cached_cx_apps_tools(&cache_context_1).expect("persisted snapshot")[0]
-            .callable_name,
+        read_cached_cx_apps_tools(&cache_context_1).expect("persisted snapshot")[0].callable_name,
         "newer"
     );
 }
@@ -464,9 +455,7 @@ fn connector_runtime_without_cache_publishes_without_writing() {
 #[cfg(unix)]
 #[test]
 fn cx_apps_tools_cache_scopes_non_utf8_home_disk_paths() {
-    let cx_home = PathBuf::from(std::ffi::OsString::from_vec(
-        b"/tmp/cx-home-\xff".to_vec(),
-    ));
+    let cx_home = PathBuf::from(std::ffi::OsString::from_vec(b"/tmp/cx-home-\xff".to_vec()));
     let cache = ConnectorRuntimeManager::<TestTool>::default();
     let user_one_context = cache.context(
         cx_home.clone(),

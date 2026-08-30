@@ -7,6 +7,30 @@ use super::*;
 
 const ULTRA_REASONING_CONCURRENCY_WARNING_THRESHOLD: usize = 8;
 
+fn model_item_name(preset: &ModelPreset) -> String {
+    let slug = preset.model.as_str();
+    let display = preset.display_name.trim();
+    let short_desc = preset
+        .description
+        .split(" via https://")
+        .next()
+        .unwrap_or(&preset.description)
+        .trim();
+
+    if let Some((_, model_id)) = slug.rsplit_once('/') {
+        let provider_display = if display.is_empty() {
+            slug.split('/').next().unwrap_or(slug).to_uppercase()
+        } else {
+            display.to_string()
+        };
+        format!("{provider_display}  |  {model_id}  {short_desc}")
+    } else if display.is_empty() {
+        format!("{slug}  {short_desc}")
+    } else {
+        format!("{display}  {short_desc}")
+    }
+}
+
 impl ChatWidget {
     /// Open a popup to choose a quick auto model. Selecting "All models"
     /// opens the full picker with every available preset.
@@ -97,8 +121,6 @@ impl ChatWidget {
         let mut items: Vec<SelectionItem> = auto_presets
             .into_iter()
             .map(|preset| {
-                let description =
-                    (!preset.description.is_empty()).then_some(preset.description.clone());
                 let model = preset.model.clone();
                 let requires_advanced_selection =
                     Self::is_advanced_reasoning_effort(&preset.default_reasoning_effort)
@@ -126,8 +148,8 @@ impl ChatWidget {
                     )
                 };
                 SelectionItem {
-                    name: model.clone(),
-                    description,
+                    name: model_item_name(&preset),
+                    search_value: Some(model.clone()),
                     is_current: model.as_str() == current_model,
                     is_default: preset.is_default,
                     actions,
@@ -197,9 +219,7 @@ impl ChatWidget {
 
         let mut items: Vec<SelectionItem> = Vec::new();
         for preset in presets.into_iter() {
-            let description =
-                (!preset.description.is_empty()).then_some(preset.description.to_string());
-            let is_current = preset.model.as_str() == self.current_model();
+            let model = preset.model.clone();
             let single_supported_effort = preset.supported_reasoning_efforts.len() == 1;
             let preset_for_action = preset.clone();
             let actions: Vec<SelectionAction> = vec![Box::new(move |tx| {
@@ -209,21 +229,20 @@ impl ChatWidget {
                 });
             })];
             items.push(SelectionItem {
-                name: preset.model.clone(),
-                description,
-                is_current,
+                name: model_item_name(&preset),
+                search_value: Some(model.clone()),
+                description: None,
+                is_current: false,
                 is_default: preset.is_default,
                 actions,
                 dismiss_on_select: single_supported_effort,
                 dismiss_parent_on_child_accept: !single_supported_effort,
+                hide_current_marker: true,
                 ..Default::default()
             });
         }
 
-        let header = self.model_menu_header(
-            "Select Model and Effort",
-            "Access legacy models by running cx -m <model_name> or in your config.toml",
-        );
+        let header = self.model_menu_header("Select Model", "");
         self.bottom_pane.show_selection_view(SelectionViewParams {
             footer_hint: Some(self.bottom_pane.standard_popup_hint_line()),
             items,

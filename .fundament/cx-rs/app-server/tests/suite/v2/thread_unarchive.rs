@@ -144,13 +144,10 @@ async fn thread_unarchive_moves_rollout_back_into_sessions_directory() -> Result
     let _: ThreadArchiveResponse =
         timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(archive_id)).await??;
 
-    let archived_path = find_archived_thread_path_by_id_str(
-        cx_home.path(),
-        &thread.id,
-        /*state_db_ctx*/ None,
-    )
-    .await?
-    .expect("expected archived rollout path for thread id to exist");
+    let archived_path =
+        find_archived_thread_path_by_id_str(cx_home.path(), &thread.id, /*state_db_ctx*/ None)
+            .await?
+            .expect("expected archived rollout path for thread id to exist");
     let archived_path_display = archived_path.display();
     assert!(
         archived_path.exists(),

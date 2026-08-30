@@ -188,9 +188,8 @@ impl Session {
             self.services.turn_environments.environment_manager(),
             desired.local_process_cwd.clone(),
         );
-        let cx_apps_auth_manager =
-            cx_mcp::host_owned_cx_apps_enabled(&mcp_config, auth.as_ref())
-                .then(|| Arc::clone(&self.services.auth_manager));
+        let cx_apps_auth_manager = cx_mcp::host_owned_cx_apps_enabled(&mcp_config, auth.as_ref())
+            .then(|| Arc::clone(&self.services.auth_manager));
 
         McpRuntimeInput {
             startup_policy: if matches!(desired.session_source, SessionSource::SubAgent(_)) {

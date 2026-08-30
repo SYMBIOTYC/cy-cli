@@ -230,10 +230,7 @@ async fn run_command_under_sandbox(
                     .context("sandbox state cwd is not native to this host")?
                     .to_path_buf(),
             );
-            state
-                .cx_linux_sandbox_exe
-                .clone()
-                .or(cx_linux_sandbox_exe)
+            state.cx_linux_sandbox_exe.clone().or(cx_linux_sandbox_exe)
         }
         None => cx_linux_sandbox_exe,
     };
@@ -657,9 +654,7 @@ async fn build_debug_sandbox_config_with_loader_overrides(
     }
     builder = builder.loader_overrides(loader_overrides);
     if let Some(cx_home) = cx_home {
-        builder = builder
-            .cx_home(cx_home.clone())
-            .fallback_cwd(Some(cx_home));
+        builder = builder.cx_home(cx_home.clone()).fallback_cwd(Some(cx_home));
     }
     builder.build().await
 }
@@ -725,11 +720,7 @@ enabled = true
         docs: &std::path::Path,
         private: &std::path::Path,
     ) -> std::io::Result<()> {
-        write_permissions_profile_config_to_path(
-            &cx_home.path().join("config.toml"),
-            docs,
-            private,
-        )
+        write_permissions_profile_config_to_path(&cx_home.path().join("config.toml"), docs, private)
     }
 
     fn write_permissions_profile_config_to_path(
@@ -1022,8 +1013,8 @@ enabled = true
             .permissions
             .permission_profile()
             .file_system_sandbox_policy();
-        let expected = cx_protocol::models::PermissionProfile::workspace_write()
-            .file_system_sandbox_policy();
+        let expected =
+            cx_protocol::models::PermissionProfile::workspace_write().file_system_sandbox_policy();
         assert!(
             expected
                 .entries

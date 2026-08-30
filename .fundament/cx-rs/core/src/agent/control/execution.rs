@@ -1,7 +1,7 @@
 use super::AgentControl;
 use crate::cx_thread::CodexThread;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::MultiAgentVersion;
 use cx_protocol::protocol::SessionSource;

@@ -8,6 +8,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use base64::Engine;
+use core_test_support::skip_if_no_network;
 use cx_config::types::AuthCredentialsStoreMode;
 use cx_http_client::HttpClientBuilder;
 use cx_login::AuthKeyringBackendKind;
@@ -17,7 +18,6 @@ use cx_login::LoginSuccessPage;
 use cx_login::LoginSuccessPageBrand;
 use cx_login::ServerOptions;
 use cx_login::run_login_server;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 use url::Url;

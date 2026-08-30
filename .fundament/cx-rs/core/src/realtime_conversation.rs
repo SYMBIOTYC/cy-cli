@@ -771,10 +771,7 @@ impl RealtimeConversationManager {
             return Ok(());
         }
         let phase = if handoff.routes_handoff_by_bem() {
-            match bem_message_phase(
-                &output_text,
-                &handoff.cx_response_handoff_channel_prefixes,
-            ) {
+            match bem_message_phase(&output_text, &handoff.cx_response_handoff_channel_prefixes) {
                 Some(phase) => Some(phase),
                 None => {
                     warn!("BEM output did not contain a recognized channel header");
@@ -875,9 +872,7 @@ impl RealtimeConversationManager {
                     phase
                 },
                 bem_channel_parser: handoff.routes_handoff_by_bem().then(|| {
-                    BemChannelParser::new(Arc::clone(
-                        &handoff.cx_response_handoff_channel_prefixes,
-                    ))
+                    BemChannelParser::new(Arc::clone(&handoff.cx_response_handoff_channel_prefixes))
                 }),
                 prefix_final_message: handoff.event_parser == RealtimeEventParser::V1,
                 sent_bytes: 0,

@@ -78,20 +78,14 @@ fn load_users(cx_home: &Path) -> Result<Option<SandboxUsersFile>> {
         Ok(contents) => contents,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(None),
         Err(err) => {
-            debug_log(
-                &format!("sandbox users read failed: {err}"),
-                Some(cx_home),
-            );
+            debug_log(&format!("sandbox users read failed: {err}"), Some(cx_home));
             return Ok(None);
         }
     };
     match serde_json::from_str::<SandboxUsersFile>(&file) {
         Ok(users) => Ok(Some(users)),
         Err(err) => {
-            debug_log(
-                &format!("sandbox users parse failed: {err}"),
-                Some(cx_home),
-            );
+            debug_log(&format!("sandbox users parse failed: {err}"), Some(cx_home));
             Ok(None)
         }
     }

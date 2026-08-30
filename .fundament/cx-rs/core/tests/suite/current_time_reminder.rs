@@ -9,6 +9,20 @@ use anyhow::anyhow;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::Utc;
+use core_test_support::assert_regex_match;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::SleepFuture;
 use cx_core::TimeFuture;
 use cx_core::TimeProvider;
@@ -24,20 +38,6 @@ use cx_protocol::protocol::CodexErrorInfo;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::Op;
 use cx_protocol::user_input::UserInput;
-use core_test_support::assert_regex_match;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -393,10 +393,7 @@ async fn current_time_reminder_is_refreshed_after_compaction() -> Result<()> {
 
     test.submit_turn("before compact").await?;
     test.cx.submit(Op::Compact).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_turn("after compact").await?;
 
     let requests = responses.requests();
@@ -450,10 +447,7 @@ async fn time_provider_failure_stops_before_inference() -> Result<()> {
     );
     assert_eq!(error.cx_error_info, Some(CodexErrorInfo::Other));
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert!(responses.requests().is_empty());
 
     Ok(())

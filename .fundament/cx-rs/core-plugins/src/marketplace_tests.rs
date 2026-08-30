@@ -78,8 +78,7 @@ fn find_marketplace_plugin_finds_repo_marketplace_plugin() {
     assert_eq!(
         resolved,
         ResolvedMarketplacePlugin {
-            plugin_id: PluginId::new("local-plugin".to_string(), "cx-curated".to_string())
-                .unwrap(),
+            plugin_id: PluginId::new("local-plugin".to_string(), "cx-curated".to_string()).unwrap(),
             source: MarketplacePluginSource::Local {
                 path: AbsolutePathBuf::try_from(repo_root.join("plugin-1")).unwrap(),
             },
@@ -304,8 +303,7 @@ fn find_marketplace_plugin_supports_npm_sources() {
     assert_eq!(
         resolved,
         ResolvedMarketplacePlugin {
-            plugin_id: PluginId::new("npm-plugin".to_string(), "cx-curated".to_string())
-                .unwrap(),
+            plugin_id: PluginId::new("npm-plugin".to_string(), "cx-curated".to_string()).unwrap(),
             source: MarketplacePluginSource::Npm {
                 package: "@acme/cx-plugin".to_string(),
                 version: Some("^1.2.0".to_string()),

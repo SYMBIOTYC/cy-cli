@@ -50,7 +50,10 @@ pub struct Args {
     pub http_shutdown: bool,
 
     /// Absolute URL the proxy should forward requests to (defaults to oi).
-    #[arg(long, default_value = "https://api.cy.symbiotyc.workers.dev/v1/responses")]
+    #[arg(
+        long,
+        default_value = "https://api.cy.symbiotyc.workers.dev/v1/responses"
+    )]
     pub upstream_url: String,
 
     /// Directory where request/response dumps should be written as JSON.

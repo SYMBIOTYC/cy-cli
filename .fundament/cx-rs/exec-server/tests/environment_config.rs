@@ -1,5 +1,6 @@
 mod common;
 
+use common::exec_server::exec_server;
 use cx_config::CONFIG_TOML_FILE;
 use cx_config::ConfigLayerSource;
 use cx_config::format_config_layer_source;
@@ -12,14 +13,12 @@ use cx_exec_server::EnvironmentConfigReadResponse;
 use cx_exec_server::ExecServerError;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn remote_environment_reads_projected_executor_config() -> anyhow::Result<()> {
     let mut server = exec_server().await?;
-    let cx_home =
-        AbsolutePathBuf::from_absolute_path(std::fs::canonicalize(server.cx_home())?)?;
+    let cx_home = AbsolutePathBuf::from_absolute_path(std::fs::canonicalize(server.cx_home())?)?;
     let config_file = cx_home.join(CONFIG_TOML_FILE);
     let project = cx_home.join("project");
     let dot_codex = project.join(".cx");
@@ -96,8 +95,7 @@ unselected = "do not return"
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn environment_config_read_rejects_empty_selectors() -> anyhow::Result<()> {
     let mut server = exec_server().await?;
-    let cx_home =
-        AbsolutePathBuf::from_absolute_path(std::fs::canonicalize(server.cx_home())?)?;
+    let cx_home = AbsolutePathBuf::from_absolute_path(std::fs::canonicalize(server.cx_home())?)?;
     let environment = Environment::create_for_tests(Some(server.websocket_url().to_string()))?;
 
     for (config_paths, expected_message) in [

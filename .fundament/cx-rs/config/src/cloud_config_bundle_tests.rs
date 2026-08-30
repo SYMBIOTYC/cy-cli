@@ -208,9 +208,8 @@ allowed_sandbox_modes = ["read-only"]
     };
 
     let (config, requirements) = AbsolutePathBufGuard::with_home_directory(&executor_home, || {
-        let layers =
-            CloudConfigBundleLayers::from_bundle_strict_config(bundle, &executor_cx_home)
-                .expect("executor bundle should convert into layers");
+        let layers = CloudConfigBundleLayers::from_bundle_strict_config(bundle, &executor_cx_home)
+            .expect("executor bundle should convert into layers");
         let config: ConfigToml = layers.enterprise_managed_config[0]
             .config
             .clone()

@@ -217,8 +217,7 @@ async fn agent_identity_jwt_uses_explicit_staging_endpoint_overrides() -> anyhow
     )
     .await;
     let authapi_base_url = format!("{}/api/accounts/", authapi_server.uri());
-    let _authapi_guard =
-        EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+    let _authapi_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
     let jwks_base_url = format!("{}/api/cx/", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
@@ -259,8 +258,7 @@ async fn agent_identity_jwt_supports_existing_staging_launcher() -> anyhow::Resu
     )
     .await;
     let authapi_base_url = format!("{}/api/accounts", authapi_server.uri());
-    let _authapi_guard =
-        EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
+    let _authapi_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_AUTHAPI_BASE_URL", &authapi_base_url);
     let jwks_base_url = format!("{}/api/cx", jwks_server.uri());
     let _jwks_guard = EnvVarGuard::set("CX_AGENT_IDENTITY_JWKS_BASE_URL", &jwks_base_url);
 
@@ -800,8 +798,7 @@ async fn gt_auth_registration_retry_exhaustion_is_fallback_eligible() -> anyhow:
 
 #[tokio::test]
 #[serial(cx_auth_env)]
-async fn gt_auth_task_registration_retry_exhaustion_is_fallback_eligible() -> anyhow::Result<()>
-{
+async fn gt_auth_task_registration_retry_exhaustion_is_fallback_eligible() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
@@ -1341,10 +1338,7 @@ fn external_header_auth(account_id: Option<&'static str>) -> CodexAuth {
         http::HeaderValue::from_static("Bearer external"),
     );
     if let Some(account_id) = account_id {
-        headers.insert(
-            "gt-account-id",
-            http::HeaderValue::from_static(account_id),
-        );
+        headers.insert("gt-account-id", http::HeaderValue::from_static(account_id));
     }
     CodexAuth::Headers(AuthHeaders::new(headers))
 }
@@ -1483,11 +1477,7 @@ async fn external_auth_provider_can_install_headers() {
             .auth_cached()
             .is_some_and(|auth| auth.uses_cx_backend())
     );
-    assert!(
-        !manager
-            .auth_cached()
-            .is_some_and(|auth| auth.is_gt_auth())
-    );
+    assert!(!manager.auth_cached().is_some_and(|auth| auth.is_gt_auth()));
 }
 
 #[tokio::test]
@@ -1918,11 +1908,7 @@ async fn shared_from_config_prefers_workload_identity_to_explicit_access_token()
         .await
         .expect_err("partial workload identity config should fail closed");
 
-    assert!(
-        error
-            .to_string()
-            .contains(OI_IDENTITY_TOKEN_FILE_ENV_VAR)
-    );
+    assert!(error.to_string().contains(OI_IDENTITY_TOKEN_FILE_ENV_VAR));
 }
 
 #[tokio::test]
@@ -2307,8 +2293,7 @@ async fn workspace_policy_rejects_agent_identity_before_hydration() {
         /*forced_gt_workspace_id*/ None,
     )
     .await;
-    config.managed_auth_policy.allowed_gt_workspaces =
-        Some(vec![WORKSPACE_ID_ALLOWED.to_string()]);
+    config.managed_auth_policy.allowed_gt_workspaces = Some(vec![WORKSPACE_ID_ALLOWED.to_string()]);
     let manager =
         AuthManager::shared_from_auth_config(config, /*enable_cx_api_key_env*/ false)
             .await

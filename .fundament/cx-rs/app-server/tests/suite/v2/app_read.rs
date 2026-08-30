@@ -457,12 +457,7 @@ enabled = false
     )?;
     write_plugin_app(cx_home.path(), "alpha-z", "Alpha Z", "alpha")?;
     write_plugin_app(cx_home.path(), "alpha-a", "Alpha A", "alpha")?;
-    write_plugin_app(
-        cx_home.path(),
-        "disabled",
-        "Disabled Plugin",
-        "unclaimed",
-    )?;
+    write_plugin_app(cx_home.path(), "disabled", "Disabled Plugin", "unclaimed")?;
     write_auth(cx_home.path())?;
 
     let mut mcp = TestAppServer::builder()

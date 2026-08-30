@@ -192,10 +192,7 @@ stream_max_retries = 0
             cx_home.path().join("managed_config.toml"),
         )
         .env(CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR, &registry_url)
-        .env(
-            CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR,
-            ENVIRONMENT_ID,
-        )
+        .env(CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR, ENVIRONMENT_ID)
         .env(CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR, REGISTRY_TOKEN)
         .env_remove(CX_EXEC_SERVER_URL_ENV_VAR)
         .env_remove(EXECUTOR_MARKER_ENV_VAR)

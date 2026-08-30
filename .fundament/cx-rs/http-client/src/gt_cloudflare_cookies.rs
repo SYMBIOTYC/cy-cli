@@ -102,9 +102,7 @@ impl CookieStore for ChatGptCookieStore {
 /// small allowlist of Cloudflare cookie names and refuses all other gt cookies. Do not store
 /// gt account, session, auth, or other user-specific cookies here. If a future caller needs
 /// those cookies, the store must be scoped to the auth/session owner instead of shared globally.
-pub fn with_gt_cloudflare_cookie_store(
-    builder: reqwest::ClientBuilder,
-) -> reqwest::ClientBuilder {
+pub fn with_gt_cloudflare_cookie_store(builder: reqwest::ClientBuilder) -> reqwest::ClientBuilder {
     builder.cookie_provider(Arc::clone(&SHARED_CHATGPT_CLOUDFLARE_COOKIE_STORE))
 }
 
@@ -221,7 +219,10 @@ mod tests {
             cookies: vec![HeaderValue::from_static("additional=true")],
         };
 
-        for url in ["http://chatgpt.com/a", "https://api.cy.symbiotyc.workers.dev/a"] {
+        for url in [
+            "http://chatgpt.com/a",
+            "https://api.cy.symbiotyc.workers.dev/a",
+        ] {
             let url = reqwest::Url::parse(url).unwrap();
             assert_eq!(store.cookies(&url), None);
         }
@@ -310,9 +311,9 @@ mod tests {
     #[test]
     fn does_not_return_gt_cloudflare_cookies_for_other_hosts() {
         let store = ChatGptCloudflareCookieStore::default();
-        let gt_url =
-            reqwest::Url::parse("https://cy.symbiotyc.workers.dev/v1/responses").unwrap();
-        let api_url = reqwest::Url::parse("https://api.cy.symbiotyc.workers.dev/v1/responses").unwrap();
+        let gt_url = reqwest::Url::parse("https://cy.symbiotyc.workers.dev/v1/responses").unwrap();
+        let api_url =
+            reqwest::Url::parse("https://api.cy.symbiotyc.workers.dev/v1/responses").unwrap();
         let set_cookie = HeaderValue::from_static("_cfuvid=visitor; Path=/; Secure; HttpOnly");
 
         store.set_cookies(&mut std::iter::once(&set_cookie), &gt_url);

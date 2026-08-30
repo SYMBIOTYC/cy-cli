@@ -81,12 +81,7 @@ pub(crate) async fn load_pet_with_assets(
 ) -> Result<AmbientPet> {
     ensure_builtin_pack_for_pet(&pet_id, &cx_home, http_client).await?;
     tokio::task::spawn_blocking(move || {
-        AmbientPet::load(
-            Some(&pet_id),
-            &cx_home,
-            frame_requester,
-            animations_enabled,
-        )
+        AmbientPet::load(Some(&pet_id), &cx_home, frame_requester, animations_enabled)
     })
     .await
     .context("join pet load task")?

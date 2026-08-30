@@ -353,10 +353,7 @@ mod tests {
                         "dev".to_string(),
                         "cx exec-server --listen stdio".to_string(),
                     ]),
-                    env: Some(HashMap::from([(
-                        "CX_LOG".to_string(),
-                        "debug".to_string(),
-                    )])),
+                    env: Some(HashMap::from([("CX_LOG".to_string(), "debug".to_string())])),
                     ..Default::default()
                 },
             ],
@@ -783,10 +780,9 @@ CX_LOG = "debug"
                     "dev".to_string(),
                     "cx exec-server --listen stdio".to_string(),
                 ]),
-                env: Some(HashMap::from([(
-                    "CX_LOG".to_string(),
-                    "debug".to_string(),
-                )])),
+                env: Some(HashMap::from([
+                    ("CX_LOG".to_string(), "debug".to_string(),)
+                ])),
                 cwd: Some(PathBuf::from("/tmp")),
                 ..Default::default()
             }

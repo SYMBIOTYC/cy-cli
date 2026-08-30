@@ -626,8 +626,7 @@ pub fn is_managed_proxy_env_var(key: &str, value: &str) -> bool {
     }
     #[cfg(target_os = "macos")]
     {
-        key == PROXY_GIT_SSH_COMMAND_ENV_KEY
-            && value.starts_with(CX_PROXY_GIT_SSH_COMMAND_MARKER)
+        key == PROXY_GIT_SSH_COMMAND_ENV_KEY && value.starts_with(CX_PROXY_GIT_SSH_COMMAND_MARKER)
     }
     #[cfg(not(target_os = "macos"))]
     {

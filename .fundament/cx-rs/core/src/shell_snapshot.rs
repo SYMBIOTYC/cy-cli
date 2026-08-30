@@ -145,8 +145,7 @@ impl ShellSnapshot {
         let cx_home = cx_home.clone();
         let cleanup_session_id = session_id;
         tokio::spawn(async move {
-            if let Err(err) =
-                cleanup_stale_snapshots(&cx_home, cleanup_session_id, state_db).await
+            if let Err(err) = cleanup_stale_snapshots(&cx_home, cleanup_session_id, state_db).await
             {
                 tracing::warn!("Failed to clean up shell snapshots: {err:?}");
             }

@@ -970,10 +970,9 @@ mod tests {
 
     #[test]
     fn forced_gt_workspace_id_accepts_single_string() {
-        let config: ConfigToml = toml::from_str(&format!(
-            r#"forced_gt_workspace_id = "{WORKSPACE_ID_A}""#
-        ))
-        .expect("single workspace id should deserialize");
+        let config: ConfigToml =
+            toml::from_str(&format!(r#"forced_gt_workspace_id = "{WORKSPACE_ID_A}""#))
+                .expect("single workspace id should deserialize");
 
         assert_eq!(
             config

@@ -620,13 +620,9 @@ async fn thread_archive_succeeds_when_spawned_descendant_is_missing() -> Result<
         "parent should be archived even when a descendant is missing"
     );
     assert!(
-        find_archived_thread_path_by_id_str(
-            cx_home.path(),
-            &parent_id,
-            /*state_db_ctx*/ None,
-        )
-        .await?
-        .is_some(),
+        find_archived_thread_path_by_id_str(cx_home.path(), &parent_id, /*state_db_ctx*/ None,)
+            .await?
+            .is_some(),
         "parent should be moved into archived sessions"
     );
 

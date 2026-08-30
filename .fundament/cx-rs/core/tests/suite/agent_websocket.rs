@@ -1,11 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_features::Feature;
-use cx_protocol::config_types::ServiceTier;
-use cx_protocol::openai_models::ToolMode;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::WebSocketConnectionConfig;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -16,6 +9,13 @@ use core_test_support::responses::start_websocket_server_with_headers;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_core::TurnInputRequest;
+use cx_features::Feature;
+use cx_protocol::config_types::ServiceTier;
+use cx_protocol::openai_models::ToolMode;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::time::Duration;
@@ -59,10 +59,7 @@ async fn websocket_model_switch_to_responses_lite_omits_top_level_tools() -> Res
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(server.handshakes().len(), 1);
     let connection = server.single_connection();

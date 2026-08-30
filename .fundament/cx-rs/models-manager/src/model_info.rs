@@ -75,10 +75,7 @@ pub fn with_config_overrides(mut model: ModelInfo, config: &ModelsManagerConfig)
                 strip_personality_section(std::mem::take(instructions_template));
         }
         let uses_local_personality_template = model.used_fallback_model_metadata
-            && matches!(
-                model.slug.as_str(),
-                "gpt-5.2-cx" | "exp-cx-personality"
-            );
+            && matches!(model.slug.as_str(), "gpt-5.2-cx" | "exp-cx-personality");
         if !config.personality_enabled
             && let Some(model_messages) = model.model_messages.as_mut()
         {

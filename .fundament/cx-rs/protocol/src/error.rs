@@ -140,9 +140,7 @@ pub enum CodexErrorDetails {
     ConnectionFailed(ConnectionFailedError),
     #[error("Quota exceeded. Check your plan and billing details.")]
     QuotaExceeded,
-    #[error(
-        "To use CX with your gt plan, upgrade to Plus: https://chatgpt.com/explore/plus."
-    )]
+    #[error("To use CX with your gt plan, upgrade to Plus: https://chatgpt.com/explore/plus.")]
     UsageNotIncluded,
     #[error("We're currently experiencing high demand, which may cause temporary errors.")]
     InternalServerError,

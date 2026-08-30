@@ -171,7 +171,9 @@ impl EventProcessorWithJsonOutput {
                     aggregated_output: aggregated_output.unwrap_or_default(),
                     exit_code,
                     status: match status {
-                        CommandExecutionStatus::InProgress => ExecCommandExecutionStatus::InProgress,
+                        CommandExecutionStatus::InProgress => {
+                            ExecCommandExecutionStatus::InProgress
+                        }
                         CommandExecutionStatus::Completed => ExecCommandExecutionStatus::Completed,
                         CommandExecutionStatus::Failed => ExecCommandExecutionStatus::Failed,
                         CommandExecutionStatus::Declined => ExecCommandExecutionStatus::Declined,

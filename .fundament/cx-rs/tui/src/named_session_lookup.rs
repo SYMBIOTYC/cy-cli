@@ -245,8 +245,7 @@ impl<'a> NamedSessionCandidates<'a> {
                     if !path.starts_with(expected_root) {
                         continue;
                     }
-                    let Ok(session_meta) =
-                        cx_rollout::read_session_meta_line(path.as_path()).await
+                    let Ok(session_meta) = cx_rollout::read_session_meta_line(path.as_path()).await
                     else {
                         continue;
                     };

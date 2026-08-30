@@ -705,9 +705,9 @@ SELECT
             ThreadHistoryMode::Paginated,
         )
         .expect("session file");
-        let pool = cx_state::open_thread_history_db(
-            &cx_state::SqliteConfig::new_for_testing(home.path().abs()),
-        )
+        let pool = cx_state::open_thread_history_db(&cx_state::SqliteConfig::new_for_testing(
+            home.path().abs(),
+        ))
         .await
         .expect("open thread history db");
         let thread_id_string = thread_id.to_string();

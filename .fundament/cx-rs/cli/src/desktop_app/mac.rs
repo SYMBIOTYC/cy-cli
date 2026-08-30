@@ -7,8 +7,7 @@ use tokio::process::Command;
 
 const CX_BUNDLE_IDENTIFIER: &str = "com.openai.cx";
 const CODEX_DMG_URL_ARM64: &str = "https://persistent.oaistatic.com/cx-app-prod/CX.dmg";
-const CODEX_DMG_URL_X64: &str =
-    "https://persistent.oaistatic.com/cx-app-prod/CX-latest-x64.dmg";
+const CODEX_DMG_URL_X64: &str = "https://persistent.oaistatic.com/cx-app-prod/CX-latest-x64.dmg";
 
 pub async fn run_mac_app_open_or_install(
     workspace: PathBuf,
@@ -149,8 +148,8 @@ async fn download_and_install_cx_to_user_applications(dmg_url: &str) -> anyhow::
         mount_point = mount_point.display()
     );
     let result = async {
-        let app_in_volume = find_cx_app_in_mount(&mount_point)
-            .context("failed to locate CX.app in mounted dmg")?;
+        let app_in_volume =
+            find_cx_app_in_mount(&mount_point).context("failed to locate CX.app in mounted dmg")?;
         install_cx_app_bundle(&app_in_volume).await
     }
     .await;

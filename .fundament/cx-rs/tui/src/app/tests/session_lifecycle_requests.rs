@@ -1682,8 +1682,7 @@ fn session_lifecycle_avoids_redundant_subagent_metadata_reads() -> Result<()> {
                 let (mut app, mut app_event_rx, _op_rx) = make_test_app_with_channels().await;
                 let cx_home = tempdir()?;
                 app.config.cx_home = cx_home.path().to_path_buf().abs();
-                app.config.sqlite =
-                    cx_state::SqliteConfig::new_for_testing(cx_home.path().abs());
+                app.config.sqlite = cx_state::SqliteConfig::new_for_testing(cx_home.path().abs());
                 let root_timestamp = "2026-01-01T00-00-00";
                 let root_thread_id = ThreadId::from_string(
                     &create_fake_rollout(
@@ -1718,11 +1717,8 @@ fn session_lifecycle_avoids_redundant_subagent_metadata_reads() -> Result<()> {
                     )
                     .expect("create child rollout"),
                 )?;
-                let root_rollout_path = rollout_path(
-                    cx_home.path(),
-                    root_timestamp,
-                    &root_thread_id.to_string(),
-                );
+                let root_rollout_path =
+                    rollout_path(cx_home.path(), root_timestamp, &root_thread_id.to_string());
                 let (started_tx, started_rx) = oneshot::channel();
                 let (release_tx, release_rx) = oneshot::channel();
                 let (mut app_server, requests, proxy) = start_recording_app_server(

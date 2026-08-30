@@ -1,4 +1,25 @@
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::ContextSnapshotRenderMode;
+use core_test_support::responses;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use cx_config::Constrained;
 use cx_core::EnvironmentConfig;
 use cx_core::TurnInputRequest;
@@ -27,27 +48,6 @@ use cx_protocol::protocol::SubAgentSource;
 use cx_protocol::request_user_input::RequestUserInputAnswer;
 use cx_protocol::request_user_input::RequestUserInputResponse;
 use cx_protocol::user_input::UserInput;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::ContextSnapshotRenderMode;
-use core_test_support::responses;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use rmcp::model::ReadResourceRequestParams;
 use serde::Deserialize;
@@ -520,10 +520,7 @@ async fn root_reconciliation_reuses_pending_apps_startup() -> Result<()> {
     release_startup
         .send(())
         .expect("initial Apps startup should remain in flight");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(startup_control.initialize_attempts(), 1);
     let list_requests = gated_apps_mock
@@ -733,8 +730,8 @@ async fn code_mode_only_exposes_direct_model_only_mcp_namespaces() -> Result<()>
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(move |config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(move |config| {
             config
                 .features
                 .enable(Feature::CodeModeOnly)
@@ -1119,10 +1116,7 @@ async fn apps_guidance_and_deferred_namespace_appear_after_recovery_within_a_tur
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = response.requests();
     assert_eq!(requests.len(), 2);
@@ -1208,8 +1202,8 @@ async fn later_follow_up_uses_background_recovered_apps_after_mid_thread_startup
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(move |config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(move |config| {
             config.permissions.approval_policy = Constrained::allow_any(AskForApproval::Never);
             config
                 .permissions

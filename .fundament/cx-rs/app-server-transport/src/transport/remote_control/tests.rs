@@ -1558,18 +1558,17 @@ async fn remote_control_http_mode_enrolls_before_connecting() {
 
     let backend_client_id = ClientId("backend-test-client".to_string());
     let writer = {
-        let initialize_message =
-            JSONRPCMessage::Request(cx_app_server_protocol::JSONRPCRequest {
-                id: cx_app_server_protocol::RequestId::Integer(11),
-                method: "initialize".to_string(),
-                params: Some(json!({
-                    "clientInfo": {
-                        "name": "remote-backend-client",
-                        "version": "0.1.0"
-                    }
-                })),
-                trace: None,
-            });
+        let initialize_message = JSONRPCMessage::Request(cx_app_server_protocol::JSONRPCRequest {
+            id: cx_app_server_protocol::RequestId::Integer(11),
+            method: "initialize".to_string(),
+            params: Some(json!({
+                "clientInfo": {
+                    "name": "remote-backend-client",
+                    "version": "0.1.0"
+                }
+            })),
+            trace: None,
+        });
         send_client_event(
             &mut websocket,
             ClientEnvelope {
@@ -1619,16 +1618,14 @@ async fn remote_control_http_mode_enrolls_before_connecting() {
         .send(QueuedOutgoingMessage::new(OutgoingMessage::Response(
             crate::outgoing_message::OutgoingResponse {
                 id: cx_app_server_protocol::RequestId::Integer(11),
-                result: Box::new(
-                    cx_app_server_protocol::ClientResponsePayload::Initialize(
-                        cx_app_server_protocol::InitializeResponse {
-                            user_agent: "cx-test-agent".to_string(),
-                            cx_home: cx_home.path().abs(),
-                            platform_family: "test-family".to_string(),
-                            platform_os: "test-os".to_string(),
-                        },
-                    ),
-                ),
+                result: Box::new(cx_app_server_protocol::ClientResponsePayload::Initialize(
+                    cx_app_server_protocol::InitializeResponse {
+                        user_agent: "cx-test-agent".to_string(),
+                        cx_home: cx_home.path().abs(),
+                        platform_family: "test-family".to_string(),
+                        platform_os: "test-os".to_string(),
+                    },
+                )),
             },
         )))
         .await

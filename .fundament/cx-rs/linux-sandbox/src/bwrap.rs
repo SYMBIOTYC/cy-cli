@@ -1579,8 +1579,7 @@ mod tests {
         let logical_memories = logical_codex.join("memories");
         std::fs::create_dir_all(&logical_home).expect("create logical home");
         std::fs::create_dir_all(&real_memories).expect("create memories dir");
-        std::os::unix::fs::symlink(&real_codex, &logical_codex)
-            .expect("create symlinked cx home");
+        std::os::unix::fs::symlink(&real_codex, &logical_codex).expect("create symlinked cx home");
 
         let logical_memories_root =
             AbsolutePathBuf::from_absolute_path(&logical_memories).expect("absolute memories");

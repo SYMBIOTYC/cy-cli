@@ -271,10 +271,10 @@ mod tests {
     use crate::tools::context::ToolCallSource;
     use crate::tools::context::ToolInvocation;
     use crate::turn_diff_tracker::TurnDiffTracker;
+    use core_test_support::TempDirExt;
     use cx_protocol::models::PermissionProfile;
     use cx_utils_absolute_path::AbsolutePathBuf;
     use cx_utils_path_uri::PathUri;
-    use core_test_support::TempDirExt;
     use image::ImageBuffer;
     use image::ImageFormat;
     use image::Rgba;

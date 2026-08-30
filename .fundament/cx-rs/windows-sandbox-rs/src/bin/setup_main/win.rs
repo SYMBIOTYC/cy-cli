@@ -1236,8 +1236,8 @@ mod tests {
         fs::create_dir_all(&stale_root).expect("create stale root");
         fs::create_dir_all(&deny_path).expect("create deny path");
 
-        let stale_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root)
-            .expect("stale sid");
+        let stale_sid =
+            workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root).expect("stale sid");
         let active_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &active_root)
             .expect("active sid");
         let workspace_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &workspace)
@@ -1272,8 +1272,8 @@ mod tests {
         fs::create_dir_all(&stale_root).expect("create stale root");
         fs::create_dir_all(&deny_path).expect("create deny path");
 
-        let stale_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root)
-            .expect("stale sid");
+        let stale_sid =
+            workspace_write_cap_sid_for_root(&cx_home, &workspace, &stale_root).expect("stale sid");
         let active_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &active_root)
             .expect("active sid");
         let workspace_sid = workspace_write_cap_sid_for_root(&cx_home, &workspace, &workspace)

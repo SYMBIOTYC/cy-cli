@@ -3,6 +3,7 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence;
+use core_test_support::responses;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::JSONRPCMessage;
 use cx_app_server_protocol::ServerRequest;
@@ -16,7 +17,6 @@ use cx_protocol::config_types::CollaborationMode;
 use cx_protocol::config_types::ModeKind;
 use cx_protocol::config_types::Settings;
 use cx_protocol::openai_models::ReasoningEffort;
-use core_test_support::responses;
 use serde_json::json;
 use tokio::time::timeout;
 

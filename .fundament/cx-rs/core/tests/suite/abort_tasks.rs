@@ -3,9 +3,6 @@ use cx_core::TurnInputRequest;
 use std::sync::Arc;
 use std::time::Duration;
 
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_response_created;
@@ -15,6 +12,9 @@ use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::user_input::UserInput;
 use regex_lite::Regex;
 use serde_json::json;
 
@@ -45,13 +45,12 @@ async fn interrupt_long_running_tool_emits_turn_aborted() {
         .cx;
 
     // Kick off a turn that triggers the function call.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "start sleep".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "start sleep".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     // Wait until the exec begins to avoid a race, then interrupt.
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExecCommandBegin(_))).await;
@@ -96,13 +95,12 @@ async fn interrupt_tool_records_history_entries() {
         .unwrap();
     let cx = Arc::clone(&fixture.cx);
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "start history recording".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "start history recording".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExecCommandBegin(_))).await;
 
@@ -111,13 +109,12 @@ async fn interrupt_tool_records_history_entries() {
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnAborted(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "follow up".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "follow up".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -188,13 +185,12 @@ async fn interrupt_persists_turn_aborted_marker_in_next_request() {
         .unwrap();
     let cx = Arc::clone(&fixture.cx);
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "start interrupt marker".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "start interrupt marker".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExecCommandBegin(_))).await;
 
@@ -203,13 +199,12 @@ async fn interrupt_persists_turn_aborted_marker_in_next_request() {
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnAborted(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "follow up".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "follow up".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 

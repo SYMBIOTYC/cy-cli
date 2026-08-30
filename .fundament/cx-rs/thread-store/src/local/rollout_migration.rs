@@ -281,8 +281,7 @@ impl LocalThreadStore {
             ),
         };
         let mut paths =
-            find_rollout_paths(&self.config.cx_home.join(cx_rollout::SESSIONS_SUBDIR))
-                .await?;
+            find_rollout_paths(&self.config.cx_home.join(cx_rollout::SESSIONS_SUBDIR)).await?;
         paths.extend(
             find_rollout_paths(
                 &self

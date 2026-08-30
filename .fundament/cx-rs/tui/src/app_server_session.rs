@@ -20,6 +20,9 @@ use crate::session_state::ThreadSessionState;
 use crate::status::StatusAccountDisplay;
 use crate::status::plan_type_display_name;
 use crate::terminal_visualization_instructions::with_terminal_visualization_instructions;
+use color_eyre::eyre::ContextCompat;
+use color_eyre::eyre::Result;
+use color_eyre::eyre::WrapErr;
 use cx_app_server_client::AppServerClient;
 use cx_app_server_client::AppServerEvent;
 use cx_app_server_client::AppServerPath;
@@ -131,9 +134,6 @@ use cx_protocol::openai_models::ReasoningEffortPreset;
 use cx_protocol::protocol::SubAgentSource;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use color_eyre::eyre::ContextCompat;
-use color_eyre::eyre::Result;
-use color_eyre::eyre::WrapErr;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
@@ -375,10 +375,7 @@ impl AppServerSession {
         matches!(&self.client, AppServerClient::InProcess(_))
     }
 
-    pub(crate) fn cx_home_path(
-        &self,
-        local_cx_home: &AbsolutePathBuf,
-    ) -> Option<AppServerPath> {
+    pub(crate) fn cx_home_path(&self, local_cx_home: &AbsolutePathBuf) -> Option<AppServerPath> {
         self.client.cx_home(local_cx_home)
     }
 
@@ -1588,9 +1585,7 @@ fn sandbox_mode_from_permission_profile(
     cwd: &std::path::Path,
 ) -> Option<cx_app_server_protocol::SandboxMode> {
     match permission_profile {
-        PermissionProfile::Disabled => {
-            Some(cx_app_server_protocol::SandboxMode::DangerFullAccess)
-        }
+        PermissionProfile::Disabled => Some(cx_app_server_protocol::SandboxMode::DangerFullAccess),
         PermissionProfile::External { .. } => None,
         PermissionProfile::Managed { .. } => {
             let file_system_policy = permission_profile.file_system_sandbox_policy();

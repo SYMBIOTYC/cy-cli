@@ -1,5 +1,11 @@
 use std::sync::Arc;
 
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::ForkSnapshot;
 use cx_core::NewThread;
 use cx_core::TurnInputRequest;
@@ -15,12 +21,6 @@ use cx_protocol::protocol::ThreadHistoryMode;
 use cx_protocol::protocol::ThreadSettingsAppliedEvent;
 use cx_protocol::protocol::ThreadSettingsSnapshot;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use wiremock::Mock;
 use wiremock::MockServer;
 use wiremock::ResponseTemplate;
@@ -54,13 +54,12 @@ async fn fork_thread_twice_drops_to_first_message() {
 
     // Send three user messages; wait for three completed turns.
     for text in ["first", "second", "third"] {
-        cx
-            .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-                text: text.to_string(),
-                text_elements: Vec::new(),
-            }]))
-            .await
-            .unwrap();
+        cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+            text: text.to_string(),
+            text_elements: Vec::new(),
+        }]))
+        .await
+        .unwrap();
         let _ = wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
     }
 
@@ -95,8 +94,7 @@ async fn fork_thread_twice_drops_to_first_message() {
 
     // Fork once with n=1 → drops the last user input and everything after.
     let NewThread {
-        thread: cx_fork1,
-        ..
+        thread: cx_fork1, ..
     } = thread_manager
         .fork_thread(
             ForkSnapshot::TruncateBeforeNthUserMessage(1),
@@ -122,8 +120,7 @@ async fn fork_thread_twice_drops_to_first_message() {
 
     // Fork again with n=0 → drops the (new) last user message, leaving only the first.
     let NewThread {
-        thread: cx_fork2,
-        ..
+        thread: cx_fork2, ..
     } = thread_manager
         .fork_thread(
             ForkSnapshot::TruncateBeforeNthUserMessage(0),
@@ -197,13 +194,12 @@ async fn assert_copied_fork_persists_inherited_history(history_mode: ThreadHisto
     let cx = test.cx.clone();
     let thread_manager = test.thread_manager.clone();
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "fork me from stored history".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .expect("submit initial user turn");
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "fork me from stored history".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .expect("submit initial user turn");
     let _ = wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let source_path = cx.rollout_path().expect("source rollout path");
@@ -260,9 +256,9 @@ async fn assert_copied_fork_persists_inherited_history(history_mode: ThreadHisto
             .resume_thread_with_history(
                 test.config.clone(),
                 resumed_history,
-                cx_core::test_support::auth_manager_from_auth(
-                    cx_login::CodexAuth::from_api_key("dummy"),
-                ),
+                cx_core::test_support::auth_manager_from_auth(cx_login::CodexAuth::from_api_key(
+                    "dummy",
+                )),
                 /*parent_trace*/ None,
                 ClientMcpExtensions::default(),
             )

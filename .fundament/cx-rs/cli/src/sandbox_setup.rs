@@ -142,10 +142,7 @@ fn resolve_sandbox_setup_identity(
             Some(cx_home) => cx_home,
             None => find_cx_home()?.to_path_buf(),
         };
-        return Ok(SandboxSetupIdentity {
-            real_user,
-            cx_home,
-        });
+        return Ok(SandboxSetupIdentity { real_user, cx_home });
     }
 
     let real_user = cmd
@@ -156,10 +153,7 @@ fn resolve_sandbox_setup_identity(
         .cx_home
         .clone()
         .ok_or_else(|| anyhow::anyhow!("--cx-home is required with --user"))?;
-    Ok(SandboxSetupIdentity {
-        real_user,
-        cx_home,
-    })
+    Ok(SandboxSetupIdentity { real_user, cx_home })
 }
 
 #[cfg(test)]

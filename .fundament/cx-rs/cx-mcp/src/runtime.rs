@@ -440,9 +440,7 @@ impl McpRuntime {
             .await
     }
 
-    pub async fn latest_hard_refresh_cx_apps_tools_cache(
-        &self,
-    ) -> anyhow::Result<Vec<ToolInfo>> {
+    pub async fn latest_hard_refresh_cx_apps_tools_cache(&self) -> anyhow::Result<Vec<ToolInfo>> {
         self.latest_connections()
             .hard_refresh_cx_apps_tools_cache()
             .await

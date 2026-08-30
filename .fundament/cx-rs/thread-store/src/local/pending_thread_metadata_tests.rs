@@ -224,11 +224,7 @@ async fn pending_thread_metadata_rejects_rollout_path() {
     ));
 }
 
-async fn store_with_runtime() -> (
-    TempDir,
-    Arc<LocalThreadStore>,
-    Arc<cx_state::StateRuntime>,
-) {
+async fn store_with_runtime() -> (TempDir, Arc<LocalThreadStore>, Arc<cx_state::StateRuntime>) {
     let home = TempDir::new().expect("temp dir");
     let config = test_config(home.path());
     let runtime = cx_state::StateRuntime::init(

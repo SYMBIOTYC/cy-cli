@@ -5,6 +5,28 @@ use anyhow::Result;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::Utc;
+use core_test_support::fs_wait;
+use core_test_support::responses::assert_parent_turn;
+use core_test_support::responses::assert_root_turn;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_response_once_match;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_response;
+use core_test_support::responses::start_mock_server;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use cx_config::types::McpServerConfig;
 use cx_core::SleepFuture;
 use cx_core::TimeFuture;
@@ -42,28 +64,6 @@ use cx_protocol::protocol::SandboxPolicy;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::protocol::TurnAbortReason;
 use cx_protocol::user_input::UserInput;
-use core_test_support::fs_wait;
-use core_test_support::responses::assert_parent_turn;
-use core_test_support::responses::assert_root_turn;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_response_once_match;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_response;
-use core_test_support::responses::start_mock_server;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -176,10 +176,7 @@ async fn guardian_session_inherits_parent_http_fallback() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = server.received_requests().await.unwrap_or_default();
     let websocket_attempts = requests
@@ -772,10 +769,7 @@ async fn guardian_session_is_reused_for_consecutive_tool_reviews_without_prewarm
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let requests = responses.requests();
     assert!(
         requests
@@ -924,10 +918,7 @@ async fn interrupted_guardian_tool_review_aborts_without_executing_the_command()
     .context("timed out waiting for Guardian review request")?;
 
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     tokio::time::sleep(Duration::from_millis(350)).await;
     assert!(
         !output_file.exists(),
@@ -949,10 +940,7 @@ async fn interrupted_guardian_tool_review_aborts_without_executing_the_command()
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let follow_up_request = follow_up.single_request();
     assert!(
         follow_up_request
@@ -1054,10 +1042,7 @@ async fn guardian_denial_rejects_tool_call_with_rationale() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     let guardian_request = requests
@@ -1183,10 +1168,7 @@ async fn cyber_model_guardian_denial_interrupts_turn_immediately() -> Result<()>
             .contains("1 consecutive, 1 in the last 50 reviews")
     );
 
-    let aborted = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    let aborted = wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     let EventMsg::TurnAborted(aborted) = aborted else {
         unreachable!("wait_for_event returned a non-abort event")
     };
@@ -1295,10 +1277,7 @@ printf '%s\n' "${@: -1}" >> "${payload_path}""#,
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let guardian_request = responses
         .requests()

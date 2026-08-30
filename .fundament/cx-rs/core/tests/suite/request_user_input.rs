@@ -1,21 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
-use cx_core::TurnInputRequest;
 use core_test_support::test_codex::local_selections;
+use cx_core::TurnInputRequest;
 use std::collections::HashMap;
 
-use cx_features::Feature;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::request_user_input::RequestUserInputAnswer;
-use cx_protocol::request_user_input::RequestUserInputResponse;
-use cx_protocol::user_input::UserInput;
 use core_test_support::TempDirExt;
 use core_test_support::responses;
 use core_test_support::responses::ResponsesRequest;
@@ -32,6 +20,18 @@ use core_test_support::test_codex::test_codex;
 use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use cx_features::Feature;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::request_user_input::RequestUserInputAnswer;
+use cx_protocol::request_user_input::RequestUserInputResponse;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -131,29 +131,28 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.path());
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "please confirm".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd.abs())),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode,
-                    settings: Settings {
-                        model: session_configured.model.clone(),
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "please confirm".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd.abs())),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode,
+                settings: Settings {
+                    model: session_configured.model.clone(),
+                    reasoning_effort: None,
+                    developer_instructions: None,
+                },
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let request = wait_for_event_match(&cx, |event| match event {
         EventMsg::RequestUserInput(request) => Some(request.clone()),
@@ -190,12 +189,11 @@ async fn request_user_input_round_trip_for_mode(mode: ModeKind) -> anyhow::Resul
         },
     );
     let response = RequestUserInputResponse { answers };
-    cx
-        .submit(Op::UserInputAnswer {
-            id: request.turn_id.clone(),
-            response,
-        })
-        .await?;
+    cx.submit(Op::UserInputAnswer {
+        id: request.turn_id.clone(),
+        response,
+    })
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TokenCount(_))).await;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
@@ -273,29 +271,28 @@ async fn request_user_input_interrupt_emits_deferred_token_count() -> anyhow::Re
 
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.path());
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "please confirm".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd.abs())),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Plan,
-                    settings: Settings {
-                        model: session_configured.model,
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "please confirm".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd.abs())),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Plan,
+                settings: Settings {
+                    model: session_configured.model,
+                    reasoning_effort: None,
+                    developer_instructions: None,
+                },
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let request = wait_for_event_match(&cx, |event| match event {
         EventMsg::RequestUserInput(request) => Some(request.clone()),
@@ -374,22 +371,21 @@ where
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::Disabled, cwd.path());
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "please confirm".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd.abs())),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(collaboration_mode),
-                ..Default::default()
-            }),
-        )
-        .await?;
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "please confirm".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd.abs())),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(collaboration_mode),
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 

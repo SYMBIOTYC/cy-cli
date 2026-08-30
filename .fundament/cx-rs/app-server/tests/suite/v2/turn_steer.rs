@@ -7,6 +7,7 @@ use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::create_shell_command_sse_response;
 use app_test_support::write_mock_responses_config_toml_with_gt_base_url;
+use core_test_support::skip_if_remote;
 use cx_app_server::INPUT_TOO_LARGE_ERROR_CODE;
 use cx_app_server::INVALID_PARAMS_ERROR_CODE;
 use cx_app_server_protocol::AdditionalContextEntry;
@@ -25,7 +26,6 @@ use cx_app_server_protocol::TurnSteerParams;
 use cx_app_server_protocol::TurnSteerResponse;
 use cx_app_server_protocol::UserInput as V2UserInput;
 use cx_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS;
-use core_test_support::skip_if_remote;
 use serde_json::Value;
 use std::collections::HashMap;
 use tempfile::TempDir;
@@ -43,11 +43,7 @@ async fn turn_steer_requires_active_turn() -> Result<()> {
     std::fs::create_dir(&cx_home)?;
 
     let server = create_mock_responses_server_sequence(vec![]).await;
-    write_mock_responses_config_toml_with_gt_base_url(
-        &cx_home,
-        &server.uri(),
-        &server.uri(),
-    )?;
+    write_mock_responses_config_toml_with_gt_base_url(&cx_home, &server.uri(), &server.uri())?;
     mount_analytics_capture(&server, &cx_home).await?;
 
     let mut mcp = TestAppServer::builder()
@@ -132,11 +128,7 @@ async fn turn_steer_rejects_oversized_text_input() -> Result<()> {
             "call_sleep",
         )?])
         .await;
-    write_mock_responses_config_toml_with_gt_base_url(
-        &cx_home,
-        &server.uri(),
-        &server.uri(),
-    )?;
+    write_mock_responses_config_toml_with_gt_base_url(&cx_home, &server.uri(), &server.uri())?;
     mount_analytics_capture(&server, &cx_home).await?;
 
     let mut mcp = TestAppServer::builder()
@@ -246,11 +238,7 @@ async fn turn_steer_returns_active_turn_id() -> Result<()> {
         app_test_support::create_final_assistant_message_sse_response("Done")?,
     ])
     .await;
-    write_mock_responses_config_toml_with_gt_base_url(
-        &cx_home,
-        &server.uri(),
-        &server.uri(),
-    )?;
+    write_mock_responses_config_toml_with_gt_base_url(&cx_home, &server.uri(), &server.uri())?;
     mount_analytics_capture(&server, &cx_home).await?;
 
     let mut mcp = TestAppServer::builder()
@@ -380,11 +368,7 @@ async fn turn_steer_rejects_context_only_input_without_merging_context() -> Resu
         app_test_support::create_final_assistant_message_sse_response("Done")?,
     ])
     .await;
-    write_mock_responses_config_toml_with_gt_base_url(
-        &cx_home,
-        &server.uri(),
-        &server.uri(),
-    )?;
+    write_mock_responses_config_toml_with_gt_base_url(&cx_home, &server.uri(), &server.uri())?;
     mount_analytics_capture(&server, &cx_home).await?;
 
     let mut mcp = TestAppServer::builder()

@@ -6,6 +6,7 @@ use app_test_support::TestAppServer;
 use app_test_support::create_mock_responses_server_repeating_assistant;
 use app_test_support::to_response;
 use app_test_support::write_gt_auth;
+use core_test_support::stdio_server_bin;
 use cx_app_server_protocol::AskForApproval;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::ConfigWarningNotification;
@@ -45,7 +46,6 @@ use cx_protocol::config_types::SERVICE_TIER_DEFAULT_REQUEST_VALUE;
 use cx_protocol::config_types::TrustLevel;
 use cx_protocol::models::BUILT_IN_PERMISSION_PROFILE_WORKSPACE;
 use cx_protocol::openai_models::ReasoningEffort;
-use core_test_support::stdio_server_bin;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1427,11 +1427,7 @@ async fn thread_start_surfaces_cloud_config_bundle_load_errors() -> Result<()> {
     let cx_home = TempDir::new()?;
     let model_server = create_mock_responses_server_repeating_assistant("Done").await;
     let gt_base_url = format!("{}/backend-api", server.uri());
-    create_config_toml_with_gt_base_url(
-        cx_home.path(),
-        &model_server.uri(),
-        &gt_base_url,
-    )?;
+    create_config_toml_with_gt_base_url(cx_home.path(), &model_server.uri(), &gt_base_url)?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")

@@ -1,12 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_core::config::RolloutBudgetConfig;
-use cx_features::Feature;
-use cx_model_provider_info::built_in_model_providers;
-use cx_protocol::protocol::CodexErrorInfo;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -20,6 +12,14 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_core::TurnInputRequest;
+use cx_core::config::RolloutBudgetConfig;
+use cx_features::Feature;
+use cx_model_provider_info::built_in_model_providers;
+use cx_protocol::protocol::CodexErrorInfo;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::time::Duration;
@@ -158,10 +158,7 @@ async fn invalid_provider_rollout_budget_units_fail_without_retry() -> Result<()
         "Fatal error: response.completed usage.cx_rollout_budget_units must be finite and non-negative"
     );
     assert_eq!(error.cx_error_info, Some(CodexErrorInfo::Other));
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert_eq!(
         responses.requests().len(),
         1,
@@ -321,10 +318,7 @@ async fn exhausted_budget_fails_current_and_later_turns() -> Result<()> {
             )
         })
         .await;
-        wait_for_event(&test.cx, |event| {
-            matches!(event, EventMsg::TurnComplete(_))
-        })
-        .await;
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     }
 
     Ok(())
@@ -396,10 +390,7 @@ async fn compaction_budget_exhaustion_fails_without_retry(
         )
     })
     .await;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert_eq!(responses.requests().len(), 1, "compaction should not retry");
 
     Ok(())
@@ -443,10 +434,7 @@ async fn restates_the_current_remainder_after_compaction() -> Result<()> {
 
     test.submit_turn("first turn").await?;
     test.cx.submit(Op::Compact).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_turn("second turn").await?;
 
     let requests = responses.requests();
@@ -497,9 +485,7 @@ async fn restates_the_current_remainder_after_rollback() -> Result<()> {
         .await?;
 
     test.submit_turn("rolled-back turn").await?;
-    test.cx
-        .submit(Op::ThreadRollback { num_turns: 1 })
-        .await?;
+    test.cx.submit(Op::ThreadRollback { num_turns: 1 }).await?;
     wait_for_event(&test.cx, |event| {
         matches!(event, EventMsg::ThreadRolledBack(_))
     })

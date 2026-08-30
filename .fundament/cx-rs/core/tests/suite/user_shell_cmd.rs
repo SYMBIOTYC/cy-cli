@@ -1,20 +1,4 @@
 use anyhow::Context;
-use cx_core::TurnInputRequest;
-use cx_features::Feature;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::permissions::NetworkSandboxPolicy;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ExecCommandEndEvent;
-use cx_protocol::protocol::ExecCommandSource;
-use cx_protocol::protocol::ExecOutputStream;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::protocol::TurnAbortReason;
-use cx_protocol::user_input::UserInput;
 use core_test_support::PathBufExt;
 use core_test_support::assert_regex_match;
 use core_test_support::responses;
@@ -33,6 +17,22 @@ use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
+use cx_core::TurnInputRequest;
+use cx_features::Feature;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::permissions::NetworkSandboxPolicy;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ExecCommandEndEvent;
+use cx_protocol::protocol::ExecCommandSource;
+use cx_protocol::protocol::ExecOutputStream;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::protocol::TurnAbortReason;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use regex_lite::escape;
 use std::path::PathBuf;
@@ -65,8 +65,7 @@ async fn user_shell_cmd_ls_and_cat_in_temp_dir() {
 
     // 1) shell command should list the file
     let list_cmd = "ls".to_string();
-    cx
-        .submit(Op::RunUserShellCommand { command: list_cmd })
+    cx.submit(Op::RunUserShellCommand { command: list_cmd })
         .await
         .unwrap();
     let msg = wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExecCommandEnd(_))).await;
@@ -84,8 +83,7 @@ async fn user_shell_cmd_ls_and_cat_in_temp_dir() {
 
     // 2) shell command should print the file contents verbatim
     let cat_cmd = format!("cat {file_name}");
-    cx
-        .submit(Op::RunUserShellCommand { command: cat_cmd })
+    cx.submit(Op::RunUserShellCommand { command: cat_cmd })
         .await
         .unwrap();
     let msg = wait_for_event(&cx, |ev| matches!(ev, EventMsg::ExecCommandEnd(_))).await;
@@ -152,8 +150,7 @@ async fn user_shell_cmd_can_be_interrupted() {
 
     // Start a long-running command and then interrupt it.
     let sleep_cmd = "sleep 5".to_string();
-    cx
-        .submit(Op::RunUserShellCommand { command: sleep_cmd })
+    cx.submit(Op::RunUserShellCommand { command: sleep_cmd })
         .await
         .unwrap();
 
@@ -400,12 +397,9 @@ async fn user_shell_command_does_not_set_network_sandbox_env_var() -> anyhow::Re
     #[cfg(windows)]
     let command = r#"$val = $env:CX_SANDBOX_NETWORK_DISABLED; if ([string]::IsNullOrEmpty($val)) { $val = 'not-set' } ; [System.Console]::Write($val)"#.to_string();
     #[cfg(not(windows))]
-    let command =
-        r#"sh -c "printf '%s' \"${CX_SANDBOX_NETWORK_DISABLED:-not-set}\"""#.to_string();
+    let command = r#"sh -c "printf '%s' \"${CX_SANDBOX_NETWORK_DISABLED:-not-set}\"""#.to_string();
 
-    test.cx
-        .submit(Op::RunUserShellCommand { command })
-        .await?;
+    test.cx.submit(Op::RunUserShellCommand { command }).await?;
 
     let ExecCommandEndEvent {
         exit_code,

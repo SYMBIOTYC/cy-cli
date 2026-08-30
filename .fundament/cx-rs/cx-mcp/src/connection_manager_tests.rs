@@ -1677,9 +1677,8 @@ fn cx_apps_env_bearer_token_bypasses_shared_tools_cache() {
 #[tokio::test]
 async fn cx_apps_extension_does_not_share_host_owned_tools_cache() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
-    let cache_key = ConnectorRuntimeContextKey::personal(
-        /*account_id*/ None, /*gt_user_id*/ None,
-    );
+    let cache_key =
+        ConnectorRuntimeContextKey::personal(/*account_id*/ None, /*gt_user_id*/ None);
     let cx_apps_tools_cache = ConnectorRuntimeManager::<ToolInfo>::default();
     let cache_context =
         cx_apps_tools_cache.context(cx_home.path().to_path_buf(), cache_key.clone());
@@ -3401,9 +3400,8 @@ fn hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers() {
     local_config.auth = McpServerAuth::ChatGpt;
 
     let local_server = EffectiveMcpServer::configured(local_config.clone());
-    let local_provider =
-        gt_auth_provider_for_server(&local_server, Some(Arc::clone(&provider)))
-            .expect("host-owned CX Apps must retain hosted authentication");
+    let local_provider = gt_auth_provider_for_server(&local_server, Some(Arc::clone(&provider)))
+        .expect("host-owned CX Apps must retain hosted authentication");
     assert_eq!(
         local_provider
             .to_auth_headers()
@@ -3422,8 +3420,7 @@ fn hosted_actor_credentials_are_only_available_to_host_owned_mcp_servers() {
 }
 
 #[tokio::test]
-async fn executor_owned_gt_mcp_accepts_only_safe_explicit_authorization() -> anyhow::Result<()>
-{
+async fn executor_owned_gt_mcp_accepts_only_safe_explicit_authorization() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     let environment_manager = Arc::new(environment_manager_without_environments());
     environment_manager.upsert_environment(
@@ -3817,9 +3814,8 @@ fn mcp_init_error_display_prompts_for_github_pat() {
 #[test]
 fn mcp_init_error_display_prompts_for_login_when_auth_required() {
     let server_name = "example";
-    let expected = format!(
-        "The {server_name} MCP server is not logged in. Run `cx mcp login {server_name}`."
-    );
+    let expected =
+        format!("The {server_name} MCP server is not logged in. Run `cx mcp login {server_name}`.");
     let executor_config: McpServerConfig = serde_json::from_value(serde_json::json!({
         "url": "https://example.com/mcp",
         "environment_id": "executor-1",
@@ -4724,16 +4720,10 @@ async fn connection_identity_distinguishes_accounts_with_the_same_token() -> any
     let config = reusable_server_config("http://127.0.0.1:1");
     let server = EffectiveMcpServer::configured(config);
     let access_token = "header.e30.same";
-    let previous_auth = CodexAuth::from_external_gt_tokens(
-        access_token,
-        "account-a",
-        /*gt_plan_type*/ None,
-    )?;
-    let changed_auth = CodexAuth::from_external_gt_tokens(
-        access_token,
-        "account-b",
-        /*gt_plan_type*/ None,
-    )?;
+    let previous_auth =
+        CodexAuth::from_external_gt_tokens(access_token, "account-a", /*gt_plan_type*/ None)?;
+    let changed_auth =
+        CodexAuth::from_external_gt_tokens(access_token, "account-b", /*gt_plan_type*/ None)?;
     let connection_identity = |auth: &CodexAuth| {
         let provider = cx_model_provider::auth_provider_from_auth(auth);
         McpServerConnectionIdentity::new(

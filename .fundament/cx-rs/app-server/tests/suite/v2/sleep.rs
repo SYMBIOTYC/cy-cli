@@ -1,6 +1,7 @@
 use anyhow::Result;
 use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
+use core_test_support::responses;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::CurrentTimeReadResponse;
 use cx_app_server_protocol::ItemCompletedNotification;
@@ -13,7 +14,6 @@ use cx_app_server_protocol::ThreadStartResponse;
 use cx_app_server_protocol::TurnStartParams;
 use cx_app_server_protocol::TurnStartResponse;
 use cx_app_server_protocol::UserInput as V2UserInput;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use std::time::Duration;
 use tempfile::TempDir;

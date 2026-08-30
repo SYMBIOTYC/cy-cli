@@ -224,9 +224,8 @@ impl McpResourceClient {
     pub async fn list_events(&self) -> Result<McpEventCatalogSnapshot> {
         let connections = self.runtime.latest_connections();
         let cache_key = McpResourceClientCacheKey(Arc::downgrade(&connections));
-        let (managed, request_timeout) = connections
-            .client_by_name(CX_APPS_MCP_SERVER_NAME)
-            .await?;
+        let (managed, request_timeout) =
+            connections.client_by_name(CX_APPS_MCP_SERVER_NAME).await?;
         let result = managed
             .client
             .send_custom_request_with_timeout("events/list", /*params*/ None, request_timeout)
@@ -261,9 +260,7 @@ impl McpResourceClient {
         }
 
         let connections = self.runtime.latest_connections();
-        let (managed, _) = connections
-            .client_by_name(CX_APPS_MCP_SERVER_NAME)
-            .await?;
+        let (managed, _) = connections.client_by_name(CX_APPS_MCP_SERVER_NAME).await?;
         let request = managed
             .client
             .send_event_stream_request(Some(params))

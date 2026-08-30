@@ -265,15 +265,13 @@ pub async fn download_and_install_remote_plugin_bundle(
         /*max_bytes*/ REMOTE_PLUGIN_BUNDLE_MAX_DOWNLOAD_BYTES,
     )
     .await?;
-    tokio::task::spawn_blocking(move || {
-        install_remote_plugin_bundle(cx_home, bundle, bundle_bytes)
-    })
-    .await
-    .map_err(|err| {
-        RemotePluginBundleInstallError::InvalidBundle(format!(
-            "failed to join remote plugin bundle install task: {err}"
-        ))
-    })?
+    tokio::task::spawn_blocking(move || install_remote_plugin_bundle(cx_home, bundle, bundle_bytes))
+        .await
+        .map_err(|err| {
+            RemotePluginBundleInstallError::InvalidBundle(format!(
+                "failed to join remote plugin bundle install task: {err}"
+            ))
+        })?
 }
 
 pub(crate) async fn download_and_extract_remote_plugin_bundle_to_path(

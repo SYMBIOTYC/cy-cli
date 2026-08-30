@@ -1172,12 +1172,12 @@ mod tests {
     use crate::app::test_support::make_test_app;
     use crate::legacy_core::config::edit::ConfigEdit;
     use crate::test_support::PathBufExt;
+    use crossterm::event::KeyCode;
+    use crossterm::event::KeyEvent;
     use cx_config::ConfigLayerEntry;
     use cx_config::ConfigLayerStack;
     use cx_protocol::models::PermissionProfile;
     use cx_protocol::openai_models::ReasoningEffortPreset;
-    use crossterm::event::KeyCode;
-    use crossterm::event::KeyEvent;
     use pretty_assertions::assert_eq;
     use tempfile::tempdir;
 

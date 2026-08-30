@@ -159,8 +159,7 @@ impl ExternalAgentConfigService {
                     ref_name: import_source.ref_name,
                     sparse_paths: Vec::new(),
                 };
-                match add_marketplace(self.cx_home.clone(), requirements.clone(), request).await
-                {
+                match add_marketplace(self.cx_home.clone(), requirements.clone(), request).await {
                     Ok(add_marketplace_outcome) => {
                         let Some(marketplace_path) = find_marketplace_manifest_path(
                             add_marketplace_outcome.installed_root.as_path(),

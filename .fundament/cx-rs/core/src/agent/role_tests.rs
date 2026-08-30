@@ -603,10 +603,7 @@ enabled = false
     let skills_input = skills_load_input_from_config(&config, effective_skill_roots)
         .with_plugin_skill_snapshots(plugin_skill_snapshots);
     let snapshot = skills_service
-        .snapshot_for_config(
-            &skills_input,
-            Some(Arc::clone(&cx_exec_server::LOCAL_FS)),
-        )
+        .snapshot_for_config(&skills_input, Some(Arc::clone(&cx_exec_server::LOCAL_FS)))
         .await;
     let outcome = snapshot.outcome();
     let skill = outcome

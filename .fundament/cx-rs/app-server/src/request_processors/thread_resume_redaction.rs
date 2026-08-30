@@ -7,8 +7,7 @@ use serde_json::Value as JsonValue;
 // image-generation payloads. Keep this response-only so persisted rollout
 // history, model resume history, and other APIs stay unchanged.
 const REDACTED_PAYLOAD: &str = "[redacted]";
-const CHATGPT_REMOTE_CLIENT_NAMES: &[&str] =
-    &["cx_gt_android_remote", "cx_gt_ios_remote"];
+const CHATGPT_REMOTE_CLIENT_NAMES: &[&str] = &["cx_gt_android_remote", "cx_gt_ios_remote"];
 
 pub(super) fn should_redact_thread_resume_payloads(client_name: Option<&str>) -> bool {
     client_name.is_some_and(|client_name| CHATGPT_REMOTE_CLIENT_NAMES.contains(&client_name))

@@ -434,8 +434,7 @@ async fn websocket_transport_rejects_unauthenticated_non_loopback_startup() -> R
     create_config_toml(cx_home.path(), &server.uri(), "never")?;
 
     let output =
-        run_websocket_server_to_completion_with_args(cx_home.path(), "ws://0.0.0.0:0", &[])
-            .await?;
+        run_websocket_server_to_completion_with_args(cx_home.path(), "ws://0.0.0.0:0", &[]).await?;
     assert!(
         !output.status.success(),
         "unauthenticated non-loopback listener should fail websocket server startup"
@@ -490,8 +489,8 @@ pub(super) async fn spawn_websocket_server_with_args(
     listen_url: &str,
     extra_args: &[String],
 ) -> Result<(Child, SocketAddr)> {
-    let program = cx_utils_cargo_bin::cargo_bin("cx-app-server")
-        .context("should find app-server binary")?;
+    let program =
+        cx_utils_cargo_bin::cargo_bin("cx-app-server").context("should find app-server binary")?;
     let mut cmd = Command::new(program);
     cmd.arg("--listen")
         .arg(listen_url)
@@ -626,8 +625,8 @@ async fn run_websocket_server_to_completion_with_args(
     listen_url: &str,
     extra_args: &[String],
 ) -> Result<std::process::Output> {
-    let program = cx_utils_cargo_bin::cargo_bin("cx-app-server")
-        .context("should find app-server binary")?;
+    let program =
+        cx_utils_cargo_bin::cargo_bin("cx-app-server").context("should find app-server binary")?;
     let mut cmd = Command::new(program);
     cmd.arg("--listen")
         .arg(listen_url)

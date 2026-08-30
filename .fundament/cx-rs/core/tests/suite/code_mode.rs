@@ -3,6 +3,32 @@
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::AppsTestToolLoading;
+use core_test_support::apps_test_server::DIRECT_CALENDAR_APP_ONLY_TOOL;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::apps_test_server::search_capable_apps_builder;
+use core_test_support::assert_regex_match;
+use core_test_support::responses;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::stdio_server_bin;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::TestCodexBuilder;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_mcp_server;
 use cx_config::types::McpServerConfig;
 use cx_config::types::McpServerTransportConfig;
 use cx_core::StartThreadOptions;
@@ -58,32 +84,6 @@ use cx_tools::ToolOutput;
 use cx_tools::ToolPayload;
 use cx_tools::ToolSpec;
 use cx_web_search_extension::install as install_web_search_extension;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::AppsTestToolLoading;
-use core_test_support::apps_test_server::DIRECT_CALENDAR_APP_ONLY_TOOL;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::apps_test_server::search_capable_apps_builder;
-use core_test_support::assert_regex_match;
-use core_test_support::responses;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::stdio_server_bin;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::TestCodexBuilder;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_mcp_server;
 use image::DynamicImage;
 use image::GenericImageView;
 use image::ImageBuffer;
@@ -558,10 +558,7 @@ text(result);
     let search_body = search_request
         .body_json::<Value>()
         .expect("search request body should be JSON");
-    assert_eq!(
-        search_body["model"],
-        serde_json::json!("test-gpt-5.1-cx")
-    );
+    assert_eq!(search_body["model"], serde_json::json!("test-gpt-5.1-cx"));
     assert_eq!(
         search_body["commands"],
         serde_json::json!({
@@ -773,14 +770,8 @@ async fn code_mode_exec_holds_captured_result_during_elicitation() -> Result<()>
     )
     .await;
 
-    assert_eq!(
-        test.cx.increment_out_of_band_elicitation_count().await?,
-        1
-    );
-    assert_eq!(
-        test.cx.increment_out_of_band_elicitation_count().await?,
-        2
-    );
+    assert_eq!(test.cx.increment_out_of_band_elicitation_count().await?, 1);
+    assert_eq!(test.cx.increment_out_of_band_elicitation_count().await?, 2);
     let release_elicitation = async {
         tokio::time::timeout(Duration::from_secs(5), async {
             while first_mock.requests().is_empty() {
@@ -794,19 +785,13 @@ async fn code_mode_exec_holds_captured_result_during_elicitation() -> Result<()>
             second_mock.requests().is_empty(),
             "captured exec result should not return during an elicitation"
         );
-        assert_eq!(
-            test.cx.decrement_out_of_band_elicitation_count().await?,
-            1
-        );
+        assert_eq!(test.cx.decrement_out_of_band_elicitation_count().await?, 1);
         tokio::time::sleep(Duration::from_millis(100)).await;
         assert!(
             second_mock.requests().is_empty(),
             "captured exec result should wait for every elicitation"
         );
-        assert_eq!(
-            test.cx.decrement_out_of_band_elicitation_count().await?,
-            0
-        );
+        assert_eq!(test.cx.decrement_out_of_band_elicitation_count().await?, 0);
         Ok::<(), anyhow::Error>(())
     };
 
@@ -1376,8 +1361,8 @@ text(JSON.stringify({{
     )
     .await;
 
-    let mut builder = search_capable_apps_builder(apps_server.gt_base_url.clone())
-        .with_config(|config| {
+    let mut builder =
+        search_capable_apps_builder(apps_server.gt_base_url.clone()).with_config(|config| {
             config
                 .features
                 .enable(Feature::CodeMode)
@@ -2171,10 +2156,7 @@ async fn code_mode_wait_timeout_reconnects_on_next_exec() -> Result<()> {
         }
     }
     tokio::time::resume();
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let timeout_output = timeout_completion
         .function_call_output_text("call-2")
@@ -3394,10 +3376,7 @@ async fn code_mode_interrupt_terminates_active_cells_and_nested_tools() -> Resul
     let active_cell_id = tokio::time::timeout(Duration::from_secs(10), started_rx).await??;
 
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     let nested_outcome = tokio::time::timeout(Duration::from_secs(10), finished_rx).await??;
     assert_eq!(nested_outcome, ToolCallOutcome::Aborted);
 

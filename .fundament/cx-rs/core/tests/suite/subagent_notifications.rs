@@ -1,29 +1,4 @@
 use anyhow::Result;
-use cx_core::StartThreadOptions;
-use cx_core::ThreadConfigSnapshot;
-use cx_core::TurnInputRequest;
-use cx_core::config::AgentRoleConfig;
-use cx_core::config::CurrentTimeReminderConfig;
-use cx_features::Feature;
-use cx_history::RolloutItem;
-use cx_models_manager::bundled_models_response;
-use cx_protocol::ThreadId;
-use cx_protocol::config_types::ReasoningSummary;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::openai_models::MultiAgentMessages;
-use cx_protocol::openai_models::MultiAgentRoleMessages;
-use cx_protocol::openai_models::ReasoningEffort;
-use cx_protocol::openai_models::ReasoningEffortPreset;
-use cx_protocol::protocol::AgentStatus;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::MULTI_AGENT_MODE_OPEN_TAG;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::SessionSource;
-use cx_protocol::protocol::SubAgentSource;
-use cx_protocol::protocol::ThreadHistoryMode;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::hooks::trust_discovered_hooks;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::assert_parent_turn;
@@ -49,6 +24,31 @@ use core_test_support::test_codex::test_codex;
 use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use cx_core::StartThreadOptions;
+use cx_core::ThreadConfigSnapshot;
+use cx_core::TurnInputRequest;
+use cx_core::config::AgentRoleConfig;
+use cx_core::config::CurrentTimeReminderConfig;
+use cx_features::Feature;
+use cx_history::RolloutItem;
+use cx_models_manager::bundled_models_response;
+use cx_protocol::ThreadId;
+use cx_protocol::config_types::ReasoningSummary;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::openai_models::MultiAgentMessages;
+use cx_protocol::openai_models::MultiAgentRoleMessages;
+use cx_protocol::openai_models::ReasoningEffort;
+use cx_protocol::openai_models::ReasoningEffortPreset;
+use cx_protocol::protocol::AgentStatus;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::MULTI_AGENT_MODE_OPEN_TAG;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::SessionSource;
+use cx_protocol::protocol::SubAgentSource;
+use cx_protocol::protocol::ThreadHistoryMode;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1262,10 +1262,7 @@ async fn spawned_full_history_v2_child_uses_model_precedence_without_dropping_co
     let test = builder.build(&server).await?;
     if matches!(selection, FullHistoryV2ModelSelection::WorldStateIdentity) {
         test.cx.submit(Op::Compact).await?;
-        wait_for_event(&test.cx, |event| {
-            matches!(event, EventMsg::TurnComplete(_))
-        })
-        .await;
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     }
 
     test.submit_turn(TURN_0_FORK_PROMPT).await?;
@@ -1292,10 +1289,7 @@ async fn spawned_full_history_v2_child_uses_model_precedence_without_dropping_co
                     }),
                 )
                 .await?;
-            wait_for_event(&test.cx, |event| {
-                matches!(event, EventMsg::TurnComplete(_))
-            })
-            .await;
+            wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
         }
         let proactive_request = proactive_turn.single_request();
         let proactive_developer_messages = proactive_request.message_input_text_groups("developer");

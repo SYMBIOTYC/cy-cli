@@ -285,10 +285,7 @@ fn parse_windows_sandbox_wrapper_args(args: Vec<String>) -> Result<WindowsSandbo
 
     let cx_home = cx_home.ok_or_else(|| anyhow!("missing required {CX_HOME_FLAG}"))?;
     if !cx_home.is_absolute() {
-        bail!(
-            "{CX_HOME_FLAG} must be absolute: {}",
-            cx_home.display()
-        );
+        bail!("{CX_HOME_FLAG} must be absolute: {}", cx_home.display());
     }
     let command_cwd = command_cwd.ok_or_else(|| anyhow!("missing required {COMMAND_CWD_FLAG}"))?;
     if workspace_roots.is_empty() {

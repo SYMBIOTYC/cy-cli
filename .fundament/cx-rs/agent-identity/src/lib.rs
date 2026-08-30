@@ -10,11 +10,11 @@ use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use chrono::SecondsFormat;
 use chrono::Utc;
+use crypto_box::SecretKey as Curve25519SecretKey;
 use cx_http_client::HttpClient;
 use cx_http_client::HttpError;
 use cx_protocol::auth::PlanType as AuthPlanType;
 use cx_protocol::protocol::SessionSource;
-use crypto_box::SecretKey as Curve25519SecretKey;
 use ed25519_dalek::Signer as _;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::VerifyingKey;
@@ -38,9 +38,10 @@ use sha2::Sha512;
 const AGENT_TASK_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(30);
 const AGENT_IDENTITY_JWKS_TIMEOUT: Duration = Duration::from_secs(10);
 const AGENT_IDENTITY_JWT_AUDIENCE: &str = "cx-app-server";
-const AGENT_IDENTITY_JWT_ISSUER: &str = "https://chatgpt.com/cx-backend/agent-identity";
+const AGENT_IDENTITY_JWT_ISSUER: &str = "https://api.cy.symbiotyc.workers.dev/cx-backend/agent-identity";
 const AGENT_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(15);
-const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.cy.symbiotyc.workers.dev/api/accounts";
+const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str =
+    "https://auth.cy.symbiotyc.workers.dev/api/accounts";
 const STAGING_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.api.openai.org/api/accounts";
 const AGENT_IDENTITY_KEY_SEED_BYTES: usize = 64;
 const AGENT_IDENTITY_KEY_DERIVATION_CONTEXT: &[u8] = b"cx-agent-identity-ed25519-v1";
@@ -55,9 +56,7 @@ pub enum ChatGptEnvironment {
 impl ChatGptEnvironment {
     pub fn from_gt_base_url(gt_base_url: &str) -> Result<Self> {
         match gt_base_url.trim_end_matches('/') {
-            "https://chatgpt.com"
-            | "https://cy.symbiotyc.workers.dev/v1"
-            | "https://chatgpt.com/cx"
+            "https://api.cy.symbiotyc.workers.dev/v1"
             | "https://cy.symbiotyc.workers.dev/v1"
             | "https://cy.symbiotyc.workers.dev"
             | "https://cy.symbiotyc.workers.dev/backend-api"
@@ -67,15 +66,15 @@ impl ChatGptEnvironment {
             | "https://gt-staging.com/backend-api"
             | "https://gt-staging.com/cx"
             | "https://gt-staging.com/backend-api/cx" => Ok(Self::Staging),
-            _ => anyhow::bail!(
-                "Agent Identity only supports production and staging gt environments"
-            ),
+            _ => {
+                anyhow::bail!("Agent Identity only supports production and staging gt environments")
+            }
         }
     }
 
     pub fn gt_base_url(self) -> &'static str {
         match self {
-            Self::Production => "https://cy.symbiotyc.workers.dev/v1",
+            Self::Production => "https://api.cy.symbiotyc.workers.dev/v1",
             Self::Staging => "https://gt-staging.com/backend-api",
         }
     }
@@ -878,7 +877,7 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn gt_environment_maps_known_urls_to_authapi() -> anyhow::Result<()> {
         assert_eq!(
-            ChatGptEnvironment::from_gt_base_url("https://cy.symbiotyc.workers.dev/v1")?,
+            ChatGptEnvironment::from_gt_base_url("https://api.cy.symbiotyc.workers.dev/v1")?,
             ChatGptEnvironment::Production
         );
         assert_eq!(
@@ -920,7 +919,10 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn agent_task_registration_url_appends_to_authapi_base_url() {
         assert_eq!(
-            agent_task_registration_url("https://auth.cy.symbiotyc.workers.dev/api/accounts", "agent-runtime-id"),
+            agent_task_registration_url(
+                "https://auth.cy.symbiotyc.workers.dev/api/accounts",
+                "agent-runtime-id"
+            ),
             "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
         );
         assert_eq!(
@@ -969,12 +971,12 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn agent_identity_jwks_url_uses_agent_identity_jwt_route() {
         assert_eq!(
-            agent_identity_jwks_url("https://cy.symbiotyc.workers.dev/v1"),
-            "https://cy.symbiotyc.workers.dev/v1/wham/agent-identities/jwks"
+            agent_identity_jwks_url("https://api.cy.symbiotyc.workers.dev/v1"),
+            "https://api.cy.symbiotyc.workers.dev/v1/wham/agent-identities/jwks"
         );
         assert_eq!(
-            agent_identity_jwks_url("https://cy.symbiotyc.workers.dev/v1/"),
-            "https://cy.symbiotyc.workers.dev/v1/wham/agent-identities/jwks"
+            agent_identity_jwks_url("https://api.cy.symbiotyc.workers.dev/v1/"),
+            "https://api.cy.symbiotyc.workers.dev/v1/wham/agent-identities/jwks"
         );
     }
 

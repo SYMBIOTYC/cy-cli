@@ -15,6 +15,9 @@ use tokio::process::ChildStdout;
 
 use anyhow::Context;
 use anyhow::ensure;
+use core_test_support::is_remote_test_environment;
+use core_test_support::test_codex::TestEnv;
+use core_test_support::test_codex::test_env;
 use cx_app_server_protocol::AppsInstalledParams;
 use cx_app_server_protocol::AppsListParams;
 use cx_app_server_protocol::AppsReadParams;
@@ -129,9 +132,6 @@ use cx_exec_server::CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR;
 use cx_exec_server::CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR;
 use cx_exec_server::CX_EXEC_SERVER_URL_ENV_VAR;
 use cx_login::default_client::CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
-use core_test_support::is_remote_test_environment;
-use core_test_support::test_codex::TestEnv;
-use core_test_support::test_codex::test_env;
 use serde::de::DeserializeOwned;
 use tempfile::TempDir;
 use tokio::process::Command;
@@ -1941,10 +1941,7 @@ impl TestAppServerBuilder {
             Some(cx_home) => (cx_home, None),
             None => {
                 let owned_cx_home = TempDir::new()?;
-                (
-                    owned_cx_home.path().to_path_buf(),
-                    Some(owned_cx_home),
-                )
+                (owned_cx_home.path().to_path_buf(), Some(owned_cx_home))
             }
         };
         let attribution_settings_server = if cx_home.join("auth.json").is_file() {
@@ -1993,15 +1990,13 @@ impl TestAppServerBuilder {
                             !is_remote_test_environment(),
                             "TestAppServer exec-server delay only supports the local test environment"
                         );
-                        let exec_server_program =
-                            cx_utils_cargo_bin::cargo_bin("exec-server")
-                                .context("should find binary for delayed exec-server fixture")?;
+                        let exec_server_program = cx_utils_cargo_bin::cargo_bin("exec-server")
+                            .context("should find binary for delayed exec-server fixture")?;
                         // Local auto environments normally use stdio. Start a
                         // host-local WebSocket fixture so the delay interposer has a
                         // socket stream to wrap.
                         let local_websocket_exec_server =
-                            LocalWebsocketExecServer::start(&cx_home, &exec_server_program)
-                                .await?;
+                            LocalWebsocketExecServer::start(&cx_home, &exec_server_program).await?;
                         let interposer = WebsocketDelayInterposer::start(
                             local_websocket_exec_server.websocket_url(),
                             added_delay,
@@ -2022,10 +2017,7 @@ impl TestAppServerBuilder {
                         CX_EXEC_SERVER_URL_ENV_VAR.to_string(),
                         auto_env.exec_server_url().map(str::to_string),
                     ),
-                    (
-                        CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR.to_string(),
-                        None,
-                    ),
+                    (CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR.to_string(), None),
                     (
                         CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR.to_string(),
                         None,
@@ -2057,8 +2049,7 @@ impl TestAppServerBuilder {
         let mut owned_install_dir = None;
         if !custom_program
             && cx_utils_cargo_bin::runfiles_available()
-            && let Ok(code_mode_host_program) =
-                cx_utils_cargo_bin::cargo_bin("cx-mode-host")
+            && let Ok(code_mode_host_program) = cx_utils_cargo_bin::cargo_bin("cx-mode-host")
         {
             // Bazel keeps binary targets in separate package directories.
             // Recreate the installed sibling layout without a path override.
@@ -2094,13 +2085,9 @@ impl TestAppServerBuilder {
             .map(|(key, value)| (key.as_str(), value.as_deref()))
             .collect::<Vec<_>>();
         let args = args.iter().map(String::as_str).collect::<Vec<_>>();
-        let mut app_server = TestAppServer::new_with_program_env_and_args(
-            &cx_home,
-            &program,
-            &env_overrides,
-            &args,
-        )
-        .await?;
+        let mut app_server =
+            TestAppServer::new_with_program_env_and_args(&cx_home, &program, &env_overrides, &args)
+                .await?;
         app_server.auto_env = auto_env;
         app_server._owned_install_dir = owned_install_dir;
         app_server._owned_cx_home = owned_cx_home;

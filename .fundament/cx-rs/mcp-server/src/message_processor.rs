@@ -56,12 +56,10 @@ impl MessageProcessor {
         installation_id: String,
     ) -> std::io::Result<Self> {
         let outgoing = Arc::new(outgoing);
-        let auth_manager = AuthManager::shared_from_config(
-            config.as_ref(),
-            /*enable_cx_api_key_env*/ false,
-        )
-        .await
-        .map_err(std::io::Error::other)?;
+        let auth_manager =
+            AuthManager::shared_from_config(config.as_ref(), /*enable_cx_api_key_env*/ false)
+                .await
+                .map_err(std::io::Error::other)?;
         let user_instructions_provider = Arc::new(CodexHomeUserInstructionsProvider::new(
             config.cx_home.clone(),
         ));
@@ -355,10 +353,7 @@ impl MessageProcessor {
 
         match name.as_ref() {
             "cx" => self.handle_tool_call_codex(id, arguments).await,
-            "cx-reply" => {
-                self.handle_tool_call_cx_session_reply(id, arguments)
-                    .await
-            }
+            "cx-reply" => self.handle_tool_call_cx_session_reply(id, arguments).await,
             _ => {
                 let result = CallToolResult::error(vec![rmcp::model::ContentBlock::text(format!(
                     "Unknown tool '{name}'"
@@ -559,10 +554,7 @@ impl MessageProcessor {
         };
 
         // Submit interrupt to CX.
-        if let Err(e) = cx_arc
-            .submit(cx_protocol::protocol::Op::Interrupt)
-            .await
-        {
+        if let Err(e) = cx_arc.submit(cx_protocol::protocol::Op::Interrupt).await {
             tracing::error!("Failed to submit interrupt to CX: {e}");
             return;
         }

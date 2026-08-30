@@ -1,3 +1,11 @@
+use core_test_support::responses;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_codex::local;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_core::NotSubmittedReason;
 use cx_core::RecoverTurnRequest;
 use cx_core::StartIfIdleSubmission;
@@ -15,14 +23,6 @@ use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::protocol::TurnEnvironmentSelections;
 use cx_protocol::user_input::UserInput;
-use core_test_support::responses;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_codex::local;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::sync::Arc;
@@ -127,18 +127,12 @@ async fn recover_turn_if_idle_preserves_id_and_resumes_plan_mode() {
         }
     );
 
-    let started = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnStarted(_))
-    })
-    .await;
+    let started = wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnStarted(_))).await;
     let EventMsg::TurnStarted(started) = started else {
         unreachable!("wait_for_event returned unexpected event");
     };
     assert_eq!(started.turn_id, turn_id);
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let user_input_groups = response_mock
         .single_request()

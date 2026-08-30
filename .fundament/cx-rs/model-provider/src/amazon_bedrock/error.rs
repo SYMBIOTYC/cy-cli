@@ -1,7 +1,7 @@
 use cx_api::ApiError;
 use cx_api::TransportError;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use http::StatusCode;
 
 pub(super) const BEDROCK_EXPIRED_SIGNATURE_MESSAGE: &str = concat!(

@@ -1,8 +1,6 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
 use core_test_support::TestTargetOs;
 use core_test_support::assert_regex_match;
 use core_test_support::responses::ev_assistant_message;
@@ -18,6 +16,8 @@ use core_test_support::test_codex::TestCodexBuilder;
 use core_test_support::test_codex::TestCodexHarness;
 use core_test_support::test_codex::test_codex;
 use core_test_support::test_target_os;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::shell_environment::CX_EXEC_SERVER_NOISE_AUTH_TOKEN_ENV_VAR;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;

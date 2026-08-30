@@ -116,9 +116,7 @@ impl SecretsManager {
         keyring_store: Arc<dyn KeyringStore>,
     ) -> Self {
         let backend: Arc<dyn SecretsBackend> = match backend_kind {
-            SecretsBackendKind::Local => {
-                Arc::new(LocalSecretsBackend::new(cx_home, keyring_store))
-            }
+            SecretsBackendKind::Local => Arc::new(LocalSecretsBackend::new(cx_home, keyring_store)),
         };
         Self { backend }
     }

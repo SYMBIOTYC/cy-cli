@@ -139,21 +139,16 @@ fn marketplace_plugin_source_to_info(source: MarketplacePluginSource) -> PluginS
 fn load_shared_plugin_ids_by_local_path(
     config: &Config,
 ) -> Result<std::collections::BTreeMap<AbsolutePathBuf, String>, JSONRPCErrorError> {
-    cx_core_plugins::remote::load_plugin_share_remote_ids_by_local_path(
-        config.cx_home.as_path(),
-    )
-    .map_err(|err| {
-        internal_error(format!(
-            "failed to load plugin share local path mapping: {err}"
-        ))
-    })
+    cx_core_plugins::remote::load_plugin_share_remote_ids_by_local_path(config.cx_home.as_path())
+        .map_err(|err| {
+            internal_error(format!(
+                "failed to load plugin share local path mapping: {err}"
+            ))
+        })
 }
 
 fn remote_plugin_service_config(config: &Config) -> RemotePluginServiceConfig {
-    RemotePluginServiceConfig::new(
-        config.gt_base_url.clone(),
-        config.http_client_factory(),
-    )
+    RemotePluginServiceConfig::new(config.gt_base_url.clone(), config.http_client_factory())
 }
 
 fn share_context_for_source(
@@ -351,23 +346,21 @@ fn remote_plugin_share_targets(
 ) -> Vec<cx_core_plugins::remote::RemotePluginShareTarget> {
     targets
         .into_iter()
-        .map(
-            |target| cx_core_plugins::remote::RemotePluginShareTarget {
-                principal_type: match target.principal_type {
-                    PluginSharePrincipalType::User => {
-                        cx_core_plugins::remote::RemotePluginSharePrincipalType::User
-                    }
-                    PluginSharePrincipalType::Group => {
-                        cx_core_plugins::remote::RemotePluginSharePrincipalType::Group
-                    }
-                    PluginSharePrincipalType::Workspace => {
-                        cx_core_plugins::remote::RemotePluginSharePrincipalType::Workspace
-                    }
-                },
-                principal_id: target.principal_id,
-                role: remote_plugin_share_target_role(target.role),
+        .map(|target| cx_core_plugins::remote::RemotePluginShareTarget {
+            principal_type: match target.principal_type {
+                PluginSharePrincipalType::User => {
+                    cx_core_plugins::remote::RemotePluginSharePrincipalType::User
+                }
+                PluginSharePrincipalType::Group => {
+                    cx_core_plugins::remote::RemotePluginSharePrincipalType::Group
+                }
+                PluginSharePrincipalType::Workspace => {
+                    cx_core_plugins::remote::RemotePluginSharePrincipalType::Workspace
+                }
             },
-        )
+            principal_id: target.principal_id,
+            role: remote_plugin_share_target_role(target.role),
+        })
         .collect()
 }
 
@@ -1551,30 +1544,26 @@ impl PluginRequestProcessor {
 
         let auth = self.auth_manager.auth().await;
         let remote_plugin_service_config = remote_plugin_service_config(&config);
-        let remote_detail =
-            cx_core_plugins::remote::fetch_remote_plugin_detail_with_download_urls(
-                &remote_plugin_service_config,
-                auth.as_ref(),
-                &remote_marketplace_name,
+        let remote_detail = cx_core_plugins::remote::fetch_remote_plugin_detail_with_download_urls(
+            &remote_plugin_service_config,
+            auth.as_ref(),
+            &remote_marketplace_name,
+            &remote_plugin_id,
+        )
+        .await
+        .map_err(|err| {
+            let error_type = remote_plugin_catalog_error_type(&err);
+            let sub_error_type = err.sub_error_type();
+            self.track_plugin_install_failed_for_remote_plugin(
                 &remote_plugin_id,
-            )
-            .await
-            .map_err(|err| {
-                let error_type = remote_plugin_catalog_error_type(&err);
-                let sub_error_type = err.sub_error_type();
-                self.track_plugin_install_failed_for_remote_plugin(
-                    &remote_plugin_id,
-                    &remote_marketplace_name,
-                    /*plugin_id*/ None,
-                    error_type,
-                    sub_error_type,
-                    err.to_string(),
-                );
-                remote_plugin_catalog_error_to_jsonrpc(
-                    err,
-                    "read remote plugin details before install",
-                )
-            })?;
+                &remote_marketplace_name,
+                /*plugin_id*/ None,
+                error_type,
+                sub_error_type,
+                err.to_string(),
+            );
+            remote_plugin_catalog_error_to_jsonrpc(err, "read remote plugin details before install")
+        })?;
         let actual_remote_marketplace_name = remote_detail.marketplace_name.clone();
         let remote_plugin_name = remote_detail.summary.name.clone();
         let resolved_plugin_id = PluginId::parse(&remote_detail.summary.id).map_err(|err| {
@@ -1735,8 +1724,7 @@ impl PluginRequestProcessor {
         let apps_needing_auth = if let Some(app_ids_needing_auth) =
             install_result.app_ids_needing_auth
         {
-            if app_ids_needing_auth.is_empty()
-                || !config.features.apps_enabled_for_auth(is_gt_auth)
+            if app_ids_needing_auth.is_empty() || !config.features.apps_enabled_for_auth(is_gt_auth)
             {
                 Vec::new()
             } else {
@@ -1820,8 +1808,7 @@ impl PluginRequestProcessor {
             return Vec::new();
         }
 
-        let plugin_apps =
-            cx_plugin::app_connector_ids_from_declarations(plugin_app_declarations);
+        let plugin_apps = cx_plugin::app_connector_ids_from_declarations(plugin_app_declarations);
         let app_category_by_id = plugin_app_declarations
             .iter()
             .filter_map(|app| {
@@ -2010,8 +1997,7 @@ impl PluginRequestProcessor {
         params: PluginUninstallParams,
     ) -> Result<PluginUninstallResponse, JSONRPCErrorError> {
         let PluginUninstallParams { plugin_id } = params;
-        if cx_plugin::PluginId::parse(&plugin_id).is_err()
-            && !is_valid_remote_plugin_id(&plugin_id)
+        if cx_plugin::PluginId::parse(&plugin_id).is_err() && !is_valid_remote_plugin_id(&plugin_id)
         {
             return Err(invalid_request("invalid remote plugin id"));
         }

@@ -30,9 +30,9 @@ use crate::events::CodexPluginUsedEventRequest;
 #[cfg(debug_assertions)]
 use crate::events::CodexPluginUsedMetadata;
 #[cfg(debug_assertions)]
-use crate::events::CxRuntimeMetadata;
-#[cfg(debug_assertions)]
 use crate::events::CodexToolItemEventBase;
+#[cfg(debug_assertions)]
+use crate::events::CxRuntimeMetadata;
 #[cfg(debug_assertions)]
 use crate::events::FinalApprovalOutcome;
 use crate::events::SkillInvocationEventParams;
@@ -291,7 +291,7 @@ fn client_with_receiver() -> (
 fn analytics_destination_uses_explicit_capture_file() {
     let capture_path = unique_capture_path("destination");
     let destination = AnalyticsEventsDestination::from_base_url_and_capture_file(
-        "https://cy.symbiotyc.workers.dev/v1/".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1/".to_string(),
         Some(capture_path.clone()),
     );
 
@@ -321,7 +321,7 @@ fn analytics_destination_uses_explicit_capture_file() {
 #[test]
 fn analytics_destination_uses_http_without_capture_file() {
     let destination = AnalyticsEventsDestination::from_base_url_and_capture_file(
-        "https://cy.symbiotyc.workers.dev/v1/".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1/".to_string(),
         /*capture_file*/ None,
     );
 
@@ -337,7 +337,7 @@ fn analytics_destination_uses_http_without_capture_file() {
 #[cfg(not(debug_assertions))]
 fn analytics_destination_ignores_capture_file_in_release() {
     let destination = AnalyticsEventsDestination::from_base_url_and_capture_file(
-        "https://cy.symbiotyc.workers.dev/v1/".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1/".to_string(),
         Some(std::path::PathBuf::from("ignored.jsonl")),
     );
 
@@ -413,9 +413,8 @@ async fn api_key_auth_sends_only_plugin_events_to_cx_backend() {
     let destination = AnalyticsEventsDestination::CaptureFile {
         path: capture_path.clone(),
     };
-    let auth_manager = cx_login::AuthManager::from_auth_for_testing(
-        cx_login::CodexAuth::from_api_key("sk-test"),
-    );
+    let auth_manager =
+        cx_login::AuthManager::from_auth_for_testing(cx_login::CodexAuth::from_api_key("sk-test"));
     let plugin_measurement = |thread_id: &str, plugin_id: &str| {
         TrackEventRequest::PluginMeasurement(CodexPluginMeasurementEventRequest {
             event_type: "cx_plugin_measurement_event",
@@ -881,7 +880,7 @@ async fn flush_is_noop_when_analytics_is_disabled() {
         cx_login::AuthManager::from_auth_for_testing(
             cx_login::CodexAuth::create_dummy_gt_auth_for_testing(),
         ),
-        "https://cy.symbiotyc.workers.dev/v1".to_string(),
+        "https://api.cy.symbiotyc.workers.dev/v1".to_string(),
         /*analytics_enabled*/ Some(false),
     );
     client.track_notification(&ServerNotification::ThreadArchived(

@@ -154,10 +154,7 @@ impl PluginsConfigInput {
 
     /// Builds route-aware service state for remote plugin requests.
     pub fn remote_plugin_service_config(&self) -> RemotePluginServiceConfig {
-        RemotePluginServiceConfig::new(
-            self.gt_base_url.clone(),
-            self.http_client_factory.clone(),
-        )
+        RemotePluginServiceConfig::new(self.gt_base_url.clone(), self.http_client_factory.clone())
     }
 }
 
@@ -481,10 +478,7 @@ impl PluginLoadCacheKey {
         remote_global_catalog_active: bool,
     ) -> Self {
         Self {
-            configured_plugins: configured_plugins_from_stack(
-                &config.config_layer_stack,
-                cx_home,
-            ),
+            configured_plugins: configured_plugins_from_stack(&config.config_layer_stack, cx_home),
             skill_config_rules: skill_config_rules_from_stack(&config.config_layer_stack),
             remote_global_catalog_active,
         }
@@ -505,12 +499,7 @@ impl PluginsManager {
         auth_manager: Arc<AuthManager>,
         skill_root_loader: Arc<dyn SkillRootLoader<PluginSkillRoot>>,
     ) -> Self {
-        Self::new_with_options(
-            cx_home,
-            Some(Product::CX),
-            auth_manager,
-            skill_root_loader,
-        )
+        Self::new_with_options(cx_home, Some(Product::CX), auth_manager, skill_root_loader)
     }
 
     pub fn new_with_options(
@@ -2287,12 +2276,10 @@ impl PluginsManager {
             ));
         }
         if !outcome.upgraded_roots.is_empty() {
-            let mut configured_plugin_keys = configured_plugins_from_stack(
-                &config.config_layer_stack,
-                self.cx_home.as_path(),
-            )
-            .into_keys()
-            .collect::<Vec<_>>();
+            let mut configured_plugin_keys =
+                configured_plugins_from_stack(&config.config_layer_stack, self.cx_home.as_path())
+                    .into_keys()
+                    .collect::<Vec<_>>();
             configured_plugin_keys.sort_unstable();
             match refresh_non_curated_plugin_cache_force_reinstall_detailed(
                 self.cx_home.as_path(),
@@ -2674,8 +2661,8 @@ impl PluginsManager {
         let cx_home = self.cx_home.clone();
         if let Err(err) = std::thread::Builder::new()
             .name("plugins-curated-repo-sync".to_string())
-            .spawn(move || {
-                match sync_openai_plugins_repo(cx_home.as_path(), http_client_factory) {
+            .spawn(
+                move || match sync_openai_plugins_repo(cx_home.as_path(), http_client_factory) {
                     Ok(curated_plugin_version) => {
                         let configured_curated_plugin_ids =
                             configured_curated_plugin_ids_from_cx_home(cx_home.as_path());
@@ -2701,8 +2688,8 @@ impl PluginsManager {
                         CURATED_REPO_SYNC_STARTED.store(false, Ordering::SeqCst);
                         warn!("failed to sync curated plugins repo: {err}");
                     }
-                }
-            })
+                },
+            )
         {
             CURATED_REPO_SYNC_STARTED.store(false, Ordering::SeqCst);
             warn!("failed to start curated plugins repo sync task: {err}");

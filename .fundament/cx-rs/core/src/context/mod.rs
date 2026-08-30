@@ -43,12 +43,12 @@ pub(crate) use approved_command_prefix_saved::APPROVED_COMMAND_PREFIX_SAVED_MESS
 pub(crate) use approved_command_prefix_saved::ApprovedCommandPrefixSaved;
 pub(crate) use apps_instructions::AppsInstructions;
 pub(crate) use available_plugins_instructions::AvailablePluginsInstructions;
-pub(crate) use cx_context_fragments::AdditionalContextDeveloperFragment;
-pub(crate) use cx_context_fragments::AdditionalContextUserFragment;
-pub use cx_context_fragments::ContextualUserFragment;
 pub(crate) use contextual_user_message::is_contextual_user_fragment;
 pub(crate) use contextual_user_message::parse_visible_hook_prompt_message;
 pub(crate) use current_time_reminder::CurrentTimeReminder;
+pub(crate) use cx_context_fragments::AdditionalContextDeveloperFragment;
+pub(crate) use cx_context_fragments::AdditionalContextUserFragment;
+pub use cx_context_fragments::ContextualUserFragment;
 pub(crate) use environments_instructions::EnvironmentsInstructions;
 pub(crate) use guardian_followup_review_reminder::GuardianFollowupReviewReminder;
 pub(crate) use guardian_node_repl_policy::GuardianNodeReplPolicy;

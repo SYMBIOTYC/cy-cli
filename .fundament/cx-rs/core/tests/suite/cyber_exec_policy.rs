@@ -1,18 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_core::config::Config;
-use cx_core::config::Constrained;
-use cx_core::sandboxing::SandboxPermissions;
-use cx_features::Feature;
-use cx_protocol::config_types::ApprovalsReviewer;
-use cx_protocol::openai_models::MODEL_SPECIALTY_CYBER;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::ReviewDecision;
-use cx_protocol::protocol::SandboxPolicy;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_function_call;
@@ -31,6 +17,20 @@ use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
 use core_test_support::zsh_fork::zsh_fork_runtime;
 use core_test_support::zsh_fork::zsh_fork_test_builder;
+use cx_core::TurnInputRequest;
+use cx_core::config::Config;
+use cx_core::config::Constrained;
+use cx_core::sandboxing::SandboxPermissions;
+use cx_features::Feature;
+use cx_protocol::config_types::ApprovalsReviewer;
+use cx_protocol::openai_models::MODEL_SPECIALTY_CYBER;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::ReviewDecision;
+use cx_protocol::protocol::SandboxPolicy;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::fs;
@@ -294,10 +294,7 @@ async fn cyber_model_user_approval_never_offers_a_reusable_prefix(
             decision: ReviewDecision::Approved,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     assert!(
         responses

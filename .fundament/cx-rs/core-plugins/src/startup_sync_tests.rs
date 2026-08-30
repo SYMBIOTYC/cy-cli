@@ -714,8 +714,7 @@ fn sync_openai_plugins_repo_via_git_succeeds_with_local_rewritten_remote() {
     let work_repo = repo_root.path().join("work/plugins");
     let remote_repo = repo_root.path().join("remotes/openai/plugins.git");
     std::fs::create_dir_all(work_repo.join(".agents/plugins")).expect("create marketplace dir");
-    std::fs::create_dir_all(work_repo.join("plugins/gmail/.cx-plugin"))
-        .expect("create plugin dir");
+    std::fs::create_dir_all(work_repo.join("plugins/gmail/.cx-plugin")).expect("create plugin dir");
     std::fs::write(
         work_repo.join(".agents/plugins/marketplace.json"),
         r#"{"name":"openai-curated","plugins":[{"name":"gmail","source":{"source":"local","path":"./plugins/gmail"}}]}"#,

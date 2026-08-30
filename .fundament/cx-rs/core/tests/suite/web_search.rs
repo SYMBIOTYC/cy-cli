@@ -1,5 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
+use core_test_support::responses;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_features::Feature;
 use cx_login::CodexAuth;
@@ -11,10 +15,6 @@ use cx_model_provider_info::ModelProviderInfo;
 use cx_protocol::config_types::WebSearchMode;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::openai_models::WebSearchToolType;
-use core_test_support::responses;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

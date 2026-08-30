@@ -11,15 +11,15 @@ use crate::chatwidget::tests::helpers::render_bottom_popup;
 use crate::keymap::KeymapContext;
 use crate::test_support::test_path_display;
 use crate::tui::Tui;
+use crossterm::event::KeyCode;
+use crossterm::event::KeyEvent;
+use crossterm::event::KeyModifiers;
 use cx_app_server_protocol::ToolRequestUserInputOption;
 use cx_app_server_protocol::ToolRequestUserInputParams;
 use cx_app_server_protocol::ToolRequestUserInputQuestion;
 use cx_config::types::KeybindingSpec;
 use cx_config::types::KeybindingsSpec;
 use cx_config::types::TuiKeymap;
-use crossterm::event::KeyCode;
-use crossterm::event::KeyEvent;
-use crossterm::event::KeyModifiers;
 use pretty_assertions::assert_eq;
 
 async fn chord_app() -> Result<(App, Tui, AppServerSession)> {

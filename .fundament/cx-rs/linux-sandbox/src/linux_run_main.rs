@@ -1360,9 +1360,7 @@ fn synthetic_mount_registry_root() -> PathBuf {
                     temp_dir.display()
                 )
             });
-            temp_dir.join(format!(
-                "cx-bwrap-synthetic-mount-targets-{effective_uid}"
-            ))
+            temp_dir.join(format!("cx-bwrap-synthetic-mount-targets-{effective_uid}"))
         })
         .clone()
 }

@@ -49,10 +49,8 @@ use tracing::Instrument;
 use tracing::instrument::WithSubscriber;
 
 pub const CX_EXEC_SERVER_URL_ENV_VAR: &str = "CX_EXEC_SERVER_URL";
-pub const CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR: &str =
-    "CX_EXEC_SERVER_NOISE_REGISTRY_URL";
-pub const CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR: &str =
-    "CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID";
+pub const CX_EXEC_SERVER_NOISE_REGISTRY_URL_ENV_VAR: &str = "CX_EXEC_SERVER_NOISE_REGISTRY_URL";
+pub const CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID_ENV_VAR: &str = "CX_EXEC_SERVER_NOISE_ENVIRONMENT_ID";
 pub const CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID_ENV_VAR: &str =
     "CX_EXEC_SERVER_NOISE_CHATGPT_ACCOUNT_ID";
 
@@ -633,13 +631,8 @@ fn noise_environment_config_from_values(
             }
         };
 
-    NoiseRendezvousEnvironmentConfig::new(
-        registry_url,
-        environment_id,
-        auth_token,
-        gt_account_id,
-    )
-    .map(Some)
+    NoiseRendezvousEnvironmentConfig::new(registry_url, environment_id, auth_token, gt_account_id)
+        .map(Some)
 }
 
 fn optional_environment_value(name: &str) -> Option<String> {

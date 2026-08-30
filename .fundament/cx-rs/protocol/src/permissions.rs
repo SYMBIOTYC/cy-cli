@@ -2439,11 +2439,7 @@ mod tests {
         assert_eq!(writable_roots.len(), 1);
         assert_eq!(
             writable_roots[0].protected_metadata_names,
-            vec![
-                ".git".to_string(),
-                ".agents".to_string(),
-                ".cx".to_string(),
-            ]
+            vec![".git".to_string(), ".agents".to_string(), ".cx".to_string(),]
         );
         assert!(!writable_roots[0].is_path_writable(&dot_git_config));
         assert!(!writable_roots[0].is_path_writable(&dot_agents_config));

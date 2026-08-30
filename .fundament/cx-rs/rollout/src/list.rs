@@ -1470,11 +1470,7 @@ async fn find_thread_path_by_id_str_in_subdir(
             "state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back"
         );
         if let Some(reason) = fallback_reason {
-            cx_state::record_fallback(
-                "find_thread_path",
-                reason,
-                /*telemetry_override*/ None,
-            );
+            cx_state::record_fallback("find_thread_path", reason, /*telemetry_override*/ None);
         }
         state_db::read_repair_rollout_path(
             state_db_ctx,

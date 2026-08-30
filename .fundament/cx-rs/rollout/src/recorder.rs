@@ -705,11 +705,7 @@ impl RolloutRecorder {
         }
         if listing_has_metadata_filters {
             let page = page_from_filesystem_scan(fs_page, sort_direction, page_size, sort_key);
-            cx_state::record_fallback(
-                "list_threads",
-                "db_error",
-                /*telemetry_override*/ None,
-            );
+            cx_state::record_fallback("list_threads", "db_error", /*telemetry_override*/ None);
             return Ok(fill_missing_thread_item_metadata_from_state_db(
                 state_db_ctx.as_deref(),
                 page,
@@ -1371,8 +1367,7 @@ async fn list_threads_from_files_desc(
             .await?;
             scanned_files = scanned_files.saturating_add(page.num_scanned_files);
             reached_scan_cap |= page.reached_scan_cap;
-            filter_thread_items_by_search_term(cx_home, &mut page.items, Some(search_term))
-                .await?;
+            filter_thread_items_by_search_term(cx_home, &mut page.items, Some(search_term)).await?;
             matching_items.extend(page.items);
             page_cursor = page.next_cursor;
             if matching_items.len() > page_size || page_cursor.is_none() {

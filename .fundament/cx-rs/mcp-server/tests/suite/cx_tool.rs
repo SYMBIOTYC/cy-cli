@@ -562,10 +562,7 @@ async fn cx_tool_forwards_skills_extension_warnings() -> anyhow::Result<()> {
         .notification
         .params
         .ok_or_else(|| anyhow::anyhow!("warning notification should include params"))?;
-    assert_eq!(
-        warning_json["params"]["_meta"]["requestId"],
-        cx_request_id
-    );
+    assert_eq!(warning_json["params"]["_meta"]["requestId"], cx_request_id);
     assert!(
         warning_json["params"]["id"]
             .as_str()

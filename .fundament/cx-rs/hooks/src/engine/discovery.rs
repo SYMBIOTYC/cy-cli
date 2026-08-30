@@ -525,8 +525,8 @@ fn append_matcher_groups(
                         source.path.as_path(),
                         warnings,
                     );
-                    let runs_async = r#async
-                        && event_name != cx_protocol::protocol::HookEventName::SessionEnd;
+                    let runs_async =
+                        r#async && event_name != cx_protocol::protocol::HookEventName::SessionEnd;
                     if r#async && !runs_async {
                         warnings.push(format!(
                             "running async SessionEnd hook synchronously in {}",

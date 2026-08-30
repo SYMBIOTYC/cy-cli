@@ -1,6 +1,39 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::apps_test_server::AppsTestToolLoading;
+use core_test_support::apps_test_server::CALENDAR_CREATE_EVENT_MCP_APP_RESOURCE_URI;
+use core_test_support::apps_test_server::CALENDAR_CREATE_EVENT_RESOURCE_URI;
+use core_test_support::apps_test_server::DIRECT_CALENDAR_CREATE_EVENT_TOOL as CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::DIRECT_CALENDAR_LIST_EVENTS_TOOL as CALENDAR_LIST_TOOL;
+use core_test_support::apps_test_server::LINK_ID;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_APP_ONLY_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
+use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
+use core_test_support::apps_test_server::configure_search_capable_apps;
+use core_test_support::apps_test_server::configure_search_capable_model;
+use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
+use core_test_support::apps_test_server::recorded_apps_tool_calls;
+use core_test_support::apps_test_server::search_capable_apps_builder as configured_builder;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_custom_tool_call_with_namespace;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::ev_tool_search_call;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::namespace_child_tool;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_mcp_server;
 use cx_config::types::McpServerConfig;
 use cx_config::types::McpServerTransportConfig;
 use cx_core::StartThreadOptions;
@@ -36,39 +69,6 @@ use cx_tools::ToolName;
 use cx_tools::ToolOutput;
 use cx_tools::ToolPayload;
 use cx_tools::ToolSpec;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::apps_test_server::AppsTestToolLoading;
-use core_test_support::apps_test_server::CALENDAR_CREATE_EVENT_MCP_APP_RESOURCE_URI;
-use core_test_support::apps_test_server::CALENDAR_CREATE_EVENT_RESOURCE_URI;
-use core_test_support::apps_test_server::DIRECT_CALENDAR_CREATE_EVENT_TOOL as CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::DIRECT_CALENDAR_LIST_EVENTS_TOOL as CALENDAR_LIST_TOOL;
-use core_test_support::apps_test_server::LINK_ID;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_APP_ONLY_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_LIST_TOOL;
-use core_test_support::apps_test_server::SEARCH_CALENDAR_NAMESPACE;
-use core_test_support::apps_test_server::configure_search_capable_apps;
-use core_test_support::apps_test_server::configure_search_capable_model;
-use core_test_support::apps_test_server::recorded_apps_tool_call_by_call_id;
-use core_test_support::apps_test_server::recorded_apps_tool_calls;
-use core_test_support::apps_test_server::search_capable_apps_builder as configured_builder;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_custom_tool_call_with_namespace;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::ev_tool_search_call;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::namespace_child_tool;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_mcp_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -429,13 +429,12 @@ async fn search_tool_omits_sources_when_deferred_tool_world_state_is_enabled() -
     )
     .await;
 
-    let mut builder =
-        configured_builder(apps_server.gt_base_url.clone()).with_config(|config| {
-            config
-                .features
-                .enable(Feature::DeferredToolWorldState)
-                .expect("test config should allow feature update");
-        });
+    let mut builder = configured_builder(apps_server.gt_base_url.clone()).with_config(|config| {
+        config
+            .features
+            .enable(Feature::DeferredToolWorldState)
+            .expect("test config should allow feature update");
+    });
     let test = builder.build_with_auto_env(&server).await?;
     test.submit_turn_with_approval_and_permission_profile(
         "list tools",
@@ -662,10 +661,7 @@ async fn tool_search_returns_deferred_tools_without_follow_up_tool_injection() -
         }))
     );
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
     assert_eq!(requests.len(), 3);
@@ -1182,10 +1178,7 @@ async fn tool_search_returns_deferred_dynamic_tool_and_routes_follow_up_call() -
         })
         .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
     assert_eq!(requests.len(), 3);
@@ -1504,10 +1497,7 @@ async fn tool_search_surfaced_mcp_tool_errors_are_returned_to_model() -> Result<
         "MCP invocation should report the execution failure: {tool_error}"
     );
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
     assert_eq!(requests.len(), 3);
@@ -1811,10 +1801,7 @@ async fn tool_search_matches_dynamic_tools_by_name_description_namespace_and_sch
         }]))
         .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
     assert_eq!(requests.len(), 2);

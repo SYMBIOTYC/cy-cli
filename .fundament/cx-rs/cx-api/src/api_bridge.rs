@@ -7,9 +7,9 @@ use base64::Engine;
 use chrono::DateTime;
 use chrono::Utc;
 use cx_protocol::auth::PlanType;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
 use cx_protocol::error::ConnectionFailedError;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::RetryLimitReachedError;
 use cx_protocol::error::UnexpectedResponseError;
 use cx_protocol::error::UsageLimitReachedError;
@@ -45,9 +45,7 @@ pub fn map_api_error(err: ApiError) -> CxErr {
             })
         }
         ApiError::InvalidRequest { message } => CxErr::InvalidRequest(message),
-        ApiError::CyberPolicy { message } => {
-            CxErr::new(CodexErrorDetails::CyberPolicy { message })
-        }
+        ApiError::CyberPolicy { message } => CxErr::new(CodexErrorDetails::CyberPolicy { message }),
         ApiError::MisalignmentPolicyViolation { message } => {
             CxErr::new(CodexErrorDetails::MisalignmentPolicyViolation { message })
         }
@@ -88,9 +86,7 @@ pub fn map_api_error(err: ApiError) -> CxErr {
                         .unwrap_or_else(|| {
                             MISALIGNMENT_POLICY_VIOLATION_FALLBACK_MESSAGE.to_string()
                         });
-                    return CxErr::new(CodexErrorDetails::MisalignmentPolicyViolation {
-                        message,
-                    });
+                    return CxErr::new(CodexErrorDetails::MisalignmentPolicyViolation { message });
                 }
 
                 if status == http::StatusCode::BAD_REQUEST {

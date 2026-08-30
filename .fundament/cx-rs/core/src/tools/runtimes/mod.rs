@@ -15,9 +15,9 @@ use cx_apply_patch::CX_APPLY_PATCH_PRESERVE_LINE_ENDINGS_ENV_VAR;
 use cx_core_plugins::PLUGIN_METRICS_OUTPUT_ENV_VAR;
 #[cfg(unix)]
 use cx_install_context::InstallContext;
+use cx_network_proxy::CUSTOM_CA_ENV_KEYS;
 #[cfg(target_os = "macos")]
 use cx_network_proxy::CX_PROXY_GIT_SSH_COMMAND_MARKER;
-use cx_network_proxy::CUSTOM_CA_ENV_KEYS;
 use cx_network_proxy::PROXY_ACTIVE_ENV_KEY;
 use cx_network_proxy::PROXY_ENV_KEYS;
 #[cfg(target_os = "macos")]

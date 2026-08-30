@@ -5,6 +5,8 @@ use app_test_support::MockResponsesConfig;
 use app_test_support::TestAppServer;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_remote;
 use cx_app_server_protocol::ConfigBatchWriteParams;
 use cx_app_server_protocol::ConfigEdit;
 use cx_app_server_protocol::HookEventName;
@@ -29,8 +31,6 @@ use cx_core::config::set_project_trust_level;
 use cx_features::Feature;
 use cx_protocol::config_types::TrustLevel;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_remote;
 use pretty_assertions::assert_eq;
 use serde::Serialize;
 use tempfile::TempDir;
@@ -639,10 +639,7 @@ exec "{real_git}" "$@"
     MockResponsesConfig::new(&server.uri())
         .enable_feature(Feature::Plugins)
         .enable_feature(Feature::CodexHooks)
-        .with_root_config(&format!(
-            "gt_base_url = \"{}/backend-api/\"",
-            server.uri()
-        ))
+        .with_root_config(&format!("gt_base_url = \"{}/backend-api/\"", server.uri()))
         .with_extra_config(&format!(
             r#"[plugins."demo@test"]
 enabled = true
@@ -958,16 +955,12 @@ timeout = 5
 
     let request_id = mcp
         .send_hooks_list_request(HooksListParams {
-            cwds: vec![
-                cx_home.path().to_path_buf(),
-                workspace.path().to_path_buf(),
-            ],
+            cwds: vec![cx_home.path().to_path_buf(), workspace.path().to_path_buf()],
         })
         .await?;
     let HooksListResponse { data } =
         timeout(DEFAULT_TIMEOUT, mcp.read_response(request_id)).await??;
-    let project_config_path =
-        AbsolutePathBuf::try_from(workspace.path().join(".cx/config.toml"))?;
+    let project_config_path = AbsolutePathBuf::try_from(workspace.path().join(".cx/config.toml"))?;
     assert_eq!(
         data,
         vec![
@@ -1055,8 +1048,7 @@ async fn hooks_list_uses_root_repo_hooks_for_linked_worktrees() -> Result<()> {
     let HooksListResponse { data } = timeout(DEFAULT_TIMEOUT, mcp.read_response(list_id)).await??;
     let repo_hook = data[0].hooks[0].clone();
     let worktree_hook = data[1].hooks[0].clone();
-    let repo_config_path =
-        AbsolutePathBuf::from_absolute_path(repo_root.join(".cx/config.toml"))?;
+    let repo_config_path = AbsolutePathBuf::from_absolute_path(repo_root.join(".cx/config.toml"))?;
 
     assert_eq!(
         repo_hook.handler,

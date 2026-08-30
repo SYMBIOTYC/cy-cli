@@ -44,7 +44,7 @@ fn markers_select_wif_and_partial_configuration_fails_closed() {
         resolve_for_test(
             ProcessEnvironment::default(),
             /*gt_login_allowed*/ true,
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
         )
         .expect("no markers")
         .is_none()
@@ -56,7 +56,7 @@ fn markers_select_wif_and_partial_configuration_fails_closed() {
                 ..ProcessEnvironment::default()
             },
             /*gt_login_allowed*/ true,
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
         )
         .expect("context alone is not a WIF marker")
         .is_none()
@@ -80,7 +80,7 @@ fn markers_select_wif_and_partial_configuration_fails_closed() {
         let error = resolve_for_test(
             environment,
             /*gt_login_allowed*/ true,
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
         )
         .expect_err("partial WIF must not fall back");
         assert!(error.to_string().contains(missing), "{error}");
@@ -94,7 +94,7 @@ fn markers_select_wif_and_partial_configuration_fails_closed() {
         resolve_for_test(
             relative,
             /*gt_login_allowed*/ true,
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
         )
         .expect_err("relative assertion path")
         .to_string()
@@ -107,7 +107,7 @@ fn auth_policy_and_app_environment_are_enforced() {
     let policy_error = resolve_for_test(
         complete_environment(),
         /*gt_login_allowed*/ false,
-        "https://cy.symbiotyc.workers.dev/v1",
+        "https://api.cy.symbiotyc.workers.dev/v1",
     )
     .expect_err("gt-disallowing policy");
     assert!(policy_error.to_string().contains("login policy"));
@@ -153,7 +153,7 @@ fn workload_context_is_preserved_without_logging_its_value() {
             ..complete_environment()
         },
         /*gt_login_allowed*/ true,
-        "https://cy.symbiotyc.workers.dev/v1",
+        "https://api.cy.symbiotyc.workers.dev/v1",
     )
     .expect("valid configuration")
     .expect("WIF selected");

@@ -1899,11 +1899,7 @@ mod tests {
         let thread_id = ThreadId::from_string("00000000-0000-0000-0000-000000000401")?;
         let child_thread_id = ThreadId::from_string("00000000-0000-0000-0000-000000000402")?;
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await?;
         seed_thread_cleanup_state(&runtime, thread_id, child_thread_id).await?;
         sqlx::query("INSERT INTO thread_dynamic_tools (thread_id, position, name, description, input_schema) VALUES (?, ?, ?, ?, ?)")
@@ -1949,11 +1945,7 @@ mod tests {
         let thread_id = ThreadId::from_string("00000000-0000-0000-0000-000000000405")?;
         let child_thread_id = ThreadId::from_string("00000000-0000-0000-0000-000000000406")?;
         runtime
-            .upsert_thread(&test_thread_metadata(
-                &cx_home,
-                thread_id,
-                cx_home.clone(),
-            ))
+            .upsert_thread(&test_thread_metadata(&cx_home, thread_id, cx_home.clone()))
             .await?;
         seed_thread_cleanup_state(&runtime, thread_id, child_thread_id).await?;
 

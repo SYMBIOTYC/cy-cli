@@ -7,6 +7,7 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use anyhow::Context;
+use common::exec_server::exec_server;
 use cx_exec_server::EnvironmentManager;
 use cx_exec_server::ExecutorCapabilityDiscoveryCache;
 use cx_exec_server::REMOTE_ENVIRONMENT_ID;
@@ -18,7 +19,6 @@ use cx_http_client::cache_system_proxy_route_for_test;
 use cx_protocol::capabilities::CapabilityRootLocation;
 use cx_protocol::capabilities::SelectedCapabilityRoot;
 use cx_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
 use futures::SinkExt;
 use futures::StreamExt;
 use pretty_assertions::assert_eq;

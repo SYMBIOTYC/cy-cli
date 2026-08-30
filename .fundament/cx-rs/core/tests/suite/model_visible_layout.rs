@@ -4,6 +4,22 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 use anyhow::Result;
+use core_test_support::PathBufExt;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::ContextSnapshotRenderMode;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_config::types::Personality;
 use cx_core::TurnInputRequest;
 use cx_core::config::Config;
@@ -32,22 +48,6 @@ use cx_protocol::user_input::UserInput;
 use cx_skills_extension::SkillsExtensionConfig;
 use cx_skills_extension::install;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::ContextSnapshotRenderMode;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -226,10 +226,7 @@ async fn model_visible_environment_context_preserves_foreign_workspace_roots() -
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let environment_context = response_mock
         .single_request()
@@ -308,10 +305,7 @@ async fn snapshot_model_visible_layout_turn_overrides() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let (second_sandbox_policy, second_permission_profile) = turn_permission_fields(
         PermissionProfile::read_only(),
@@ -341,10 +335,7 @@ async fn snapshot_model_visible_layout_turn_overrides() -> Result<()> {
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2, "expected two requests");
@@ -428,10 +419,7 @@ async fn snapshot_model_visible_layout_cwd_change_refreshes_agents() -> Result<(
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let (second_sandbox_policy, second_permission_profile) =
         turn_permission_fields(PermissionProfile::read_only(), cwd_two.as_path());
@@ -458,10 +446,7 @@ async fn snapshot_model_visible_layout_cwd_change_refreshes_agents() -> Result<(
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2, "expected two requests");
@@ -511,12 +496,11 @@ async fn snapshot_model_visible_layout_resume_with_personality_change() -> Resul
         ]),
     )
     .await;
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "seed resume history".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "seed resume history".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let initial_request = initial_mock.single_request();
 
@@ -615,12 +599,11 @@ async fn snapshot_model_visible_layout_resume_override_matches_rollout_model() -
         ]),
     )
     .await;
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "seed resume history".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "seed resume history".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let initial_request = initial_mock.single_request();
 

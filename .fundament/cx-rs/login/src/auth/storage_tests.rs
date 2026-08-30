@@ -479,10 +479,8 @@ fn keyring_auth_storage_compute_store_key_for_home_directory() -> anyhow::Result
 fn direct_keyring_auth_storage_saves_legacy_keyring_entry() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     let mock_keyring = MockKeyringStore::default();
-    let storage = DirectKeyringAuthStorage::new(
-        cx_home.path().to_path_buf(),
-        Arc::new(mock_keyring.clone()),
-    );
+    let storage =
+        DirectKeyringAuthStorage::new(cx_home.path().to_path_buf(), Arc::new(mock_keyring.clone()));
     let auth_file = get_auth_file(cx_home.path());
     std::fs::write(&auth_file, "stale")?;
     let auth = auth_with_prefix("direct");
@@ -507,10 +505,8 @@ fn direct_keyring_auth_storage_saves_legacy_keyring_entry() -> anyhow::Result<()
 fn direct_keyring_auth_storage_delete_removes_keyring_and_file() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     let mock_keyring = MockKeyringStore::default();
-    let storage = DirectKeyringAuthStorage::new(
-        cx_home.path().to_path_buf(),
-        Arc::new(mock_keyring.clone()),
-    );
+    let storage =
+        DirectKeyringAuthStorage::new(cx_home.path().to_path_buf(), Arc::new(mock_keyring.clone()));
     let auth = auth_with_prefix("direct-delete");
     storage.save(&auth)?;
     let auth_file = get_auth_file(cx_home.path());
@@ -633,10 +629,8 @@ fn secrets_keyring_auth_storage_delete_removes_keyring_and_file() -> anyhow::Res
 fn secrets_keyring_auth_storage_delete_removes_legacy_direct_keyring_entry() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     let mock_keyring = MockKeyringStore::default();
-    let direct_storage = DirectKeyringAuthStorage::new(
-        cx_home.path().to_path_buf(),
-        Arc::new(mock_keyring.clone()),
-    );
+    let direct_storage =
+        DirectKeyringAuthStorage::new(cx_home.path().to_path_buf(), Arc::new(mock_keyring.clone()));
     direct_storage.save(&auth_with_prefix("legacy-direct"))?;
     let storage = SecretsKeyringAuthStorage::new(
         cx_home.path().to_path_buf(),

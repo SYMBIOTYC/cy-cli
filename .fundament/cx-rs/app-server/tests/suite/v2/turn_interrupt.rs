@@ -7,6 +7,7 @@ use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::create_mock_responses_server_sequence_unchecked;
 use app_test_support::create_shell_command_sse_response;
+use core_test_support::skip_if_remote;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::JSONRPCError;
 use cx_app_server_protocol::RequestId;
@@ -21,7 +22,6 @@ use cx_app_server_protocol::TurnStartParams;
 use cx_app_server_protocol::TurnStartResponse;
 use cx_app_server_protocol::TurnStatus;
 use cx_app_server_protocol::UserInput as V2UserInput;
-use core_test_support::skip_if_remote;
 use tempfile::TempDir;
 use tokio::time::timeout;
 

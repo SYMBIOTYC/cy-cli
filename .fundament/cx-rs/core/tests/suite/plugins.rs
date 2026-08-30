@@ -5,29 +5,6 @@ use std::time::Duration;
 use std::time::Instant;
 
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_core::config::Config;
-use cx_core_plugins::store::PluginStore;
-use cx_extension_api::ExtensionRegistry;
-use cx_extension_api::ExtensionRegistryBuilder;
-use cx_features::Feature;
-use cx_login::CodexAuth;
-use cx_mcp::CX_APPS_MCP_SERVER_NAME;
-use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
-use cx_model_provider_info::OPENAI_PROVIDER_ID;
-use cx_plugin::PluginId;
-use cx_protocol::auth::AuthMode;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
-use cx_skills_extension::HostSkillsLoadInput;
-use cx_skills_extension::SkillsExtensionConfig;
-use cx_skills_extension::install;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::SEARCH_CALENDAR_CREATE_TOOL;
 use core_test_support::responses::ResponseMock;
@@ -56,6 +33,29 @@ use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_mcp_server;
 use core_test_support::zsh_fork::zsh_fork_runtime;
 use core_test_support::zsh_fork::zsh_fork_test_builder;
+use cx_core::TurnInputRequest;
+use cx_core::config::Config;
+use cx_core_plugins::store::PluginStore;
+use cx_extension_api::ExtensionRegistry;
+use cx_extension_api::ExtensionRegistryBuilder;
+use cx_features::Feature;
+use cx_login::CodexAuth;
+use cx_mcp::CX_APPS_MCP_SERVER_NAME;
+use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
+use cx_model_provider_info::OPENAI_PROVIDER_ID;
+use cx_plugin::PluginId;
+use cx_protocol::auth::AuthMode;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
+use cx_skills_extension::HostSkillsLoadInput;
+use cx_skills_extension::SkillsExtensionConfig;
+use cx_skills_extension::install;
 use pretty_assertions::assert_eq;
 use tempfile::TempDir;
 use test_case::test_case;
@@ -420,29 +420,28 @@ async fn persisted_remote_plugin_command_attribution_flows_through_turn_context(
     let session_model = test_codex.session_configured.model.clone();
     let (sandbox_policy, permission_profile) =
         turn_permission_fields(PermissionProfile::read_only(), cwd.as_path());
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![cx_protocol::user_input::UserInput::Text {
-                text: "run the remote plugin script".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(cwd)),
-                approval_policy: Some(AskForApproval::Never),
-                sandbox_policy: Some(sandbox_policy),
-                permission_profile,
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Default,
-                    settings: Settings {
-                        model: session_model,
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![cx_protocol::user_input::UserInput::Text {
+            text: "run the remote plugin script".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(cwd)),
+            approval_policy: Some(AskForApproval::Never),
+            sandbox_policy: Some(sandbox_policy),
+            permission_profile,
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Default,
+                settings: Settings {
+                    model: session_model,
+                    reasoning_effort: None,
+                    developer_instructions: None,
+                },
             }),
-        )
-        .await?;
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     let begin = wait_for_event_match(&cx, |event| match event {
         EventMsg::ExecCommandBegin(event) if event.call_id == call_id => Some(event.clone()),
@@ -519,10 +518,7 @@ async fn agent_plugin_skills_use_shared_catalog_and_direct_child_discovery() -> 
         )
     })
     .await;
-    wait_for_event(&test_codex.cx, |ev| {
-        matches!(ev, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test_codex.cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let developer_text = resp_mock
         .single_request()
@@ -620,10 +616,7 @@ async fn plugin_skill_product_policy_and_migrated_command_precedence_reach_agent
             text_elements: Vec::new(),
         }]))
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let developer_text = response
         .single_request()
@@ -671,10 +664,7 @@ async fn legacy_plugin_skill_prompt_remains_complete() -> Result<()> {
             path: skill_path,
         }]))
         .await?;
-    wait_for_event(&test_codex.cx, |ev| {
-        matches!(ev, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test_codex.cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let user_text = resp_mock
         .single_request()
@@ -718,9 +708,7 @@ async fn agent_plugin_root_mcp_stdio_tool_round_trip_expands_reserved_paths() ->
     .await;
     let cx_home = Arc::new(TempDir::new()?);
     write_agent_plugin_skill_plugin(cx_home.as_ref());
-    let plugin_root = cx_home
-        .path()
-        .join("plugins/cache/test/acme.tools/local");
+    let plugin_root = cx_home.path().join("plugins/cache/test/acme.tools/local");
     let stdio_server = match stdio_server_bin() {
         Ok(path) => path,
         Err(err) => {
@@ -938,12 +926,7 @@ enabled = true
 "#,
         )?;
         for (marketplace_name, plugin_name, skill_name, description) in [
-            (
-                "openai-curated",
-                "gt-plugin",
-                "gt-skill",
-                "gt description",
-            ),
+            ("openai-curated", "gt-plugin", "gt-skill", "gt description"),
             (
                 "openai-api-curated",
                 "api-plugin",
@@ -1075,19 +1058,17 @@ async fn explicit_plugin_mentions_use_apps_for_gt_dual_surface_plugins(
     )?;
 
     let test_codex =
-        build_apps_enabled_plugin_test_codex(&server, cx_home, apps_server.gt_base_url)
-            .await?;
+        build_apps_enabled_plugin_test_codex(&server, cx_home, apps_server.gt_base_url).await?;
     let cx = Arc::clone(&test_codex.cx);
     wait_for_mcp_server(&cx, CX_APPS_MCP_SERVER_NAME).await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![
-            cx_protocol::user_input::UserInput::Mention {
-                name: "sample".into(),
-                path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
-            },
-        ]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![
+        cx_protocol::user_input::UserInput::Mention {
+            name: "sample".into(),
+            path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
+        },
+    ]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
@@ -1162,19 +1143,17 @@ async fn explicit_plugin_mentions_keep_non_conflicting_mcp_for_gt_auth() -> Resu
     write_plugin_app_plugin_with_name(cx_home.as_ref(), "sample_app");
 
     let test_codex =
-        build_apps_enabled_plugin_test_codex(&server, cx_home, apps_server.gt_base_url)
-            .await?;
+        build_apps_enabled_plugin_test_codex(&server, cx_home, apps_server.gt_base_url).await?;
     let cx = Arc::clone(&test_codex.cx);
     wait_for_mcp_server(&cx, "sample").await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![
-            cx_protocol::user_input::UserInput::Mention {
-                name: "sample".into(),
-                path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
-            },
-        ]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![
+        cx_protocol::user_input::UserInput::Mention {
+            name: "sample".into(),
+            path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
+        },
+    ]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let requests = mock.requests();
@@ -1264,8 +1243,7 @@ async fn explicitly_requested_mcp_waits_for_startup(request: ExplicitMcpRequest)
             text_elements: Vec::new(),
         },
     };
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![input]))
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![input]))
         .await?;
     tokio::time::sleep(Duration::from_millis(1200)).await;
     assert!(
@@ -1339,14 +1317,13 @@ async fn explicit_plugin_mentions_track_plugin_used_analytics() -> Result<()> {
     let test_codex = build_analytics_plugin_test_codex(&server, cx_home).await?;
     let cx = Arc::clone(&test_codex.cx);
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![
-            cx_protocol::user_input::UserInput::Mention {
-                name: "sample".into(),
-                path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
-            },
-        ]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![
+        cx_protocol::user_input::UserInput::Mention {
+            name: "sample".into(),
+            path: format!("plugin://{SAMPLE_PLUGIN_CONFIG_NAME}"),
+        },
+    ]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let event = wait_for_analytics_event(&server, "cx_plugin_used").await;
@@ -1390,12 +1367,11 @@ async fn explicit_plugin_skill_invocation_tracks_remote_plugin_id() -> Result<()
     let test_codex = build_analytics_plugin_test_codex(&server, cx_home).await?;
     let cx = Arc::clone(&test_codex.cx);
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Skill {
-            name: "sample:sample-search".into(),
-            path: skill_path,
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Skill {
+        name: "sample:sample-search".into(),
+        path: skill_path,
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let event = wait_for_analytics_event(&server, "skill_invocation").await;
@@ -1469,12 +1445,11 @@ async fn implicit_plugin_skill_invocation_tracks_remote_plugin_id(
     let test_codex = build_analytics_plugin_test_codex(&server, cx_home).await?;
     let cx = Arc::clone(&test_codex.cx);
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "inspect the sample skill".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "inspect the sample skill".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let event = wait_for_analytics_event(&server, "skill_invocation").await;

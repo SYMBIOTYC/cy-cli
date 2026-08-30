@@ -125,13 +125,11 @@ fn emit_feedback_request_tags_records_sentry_feedback_fields() {
         Some("true")
     );
     assert_eq!(
-        tags.get("auth_env_cx_api_key_present")
-            .map(String::as_str),
+        tags.get("auth_env_cx_api_key_present").map(String::as_str),
         Some("false")
     );
     assert_eq!(
-        tags.get("auth_env_cx_api_key_enabled")
-            .map(String::as_str),
+        tags.get("auth_env_cx_api_key_enabled").map(String::as_str),
         Some("true")
     );
     assert_eq!(
@@ -388,13 +386,11 @@ fn emit_feedback_request_tags_preserves_auth_env_fields_for_legacy_emitters() {
         Some("true")
     );
     assert_eq!(
-        tags.get("auth_env_cx_api_key_present")
-            .map(String::as_str),
+        tags.get("auth_env_cx_api_key_present").map(String::as_str),
         Some("true")
     );
     assert_eq!(
-        tags.get("auth_env_cx_api_key_enabled")
-            .map(String::as_str),
+        tags.get("auth_env_cx_api_key_enabled").map(String::as_str),
         Some("true")
     );
     assert_eq!(

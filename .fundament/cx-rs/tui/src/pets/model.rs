@@ -661,8 +661,7 @@ mod tests {
         let cx_home = tempfile::tempdir().unwrap();
         super::super::asset_pack::write_test_pack(cx_home.path());
 
-        let pet =
-            Pet::load_with_cx_home("dewey", /*cx_home*/ Some(cx_home.path())).unwrap();
+        let pet = Pet::load_with_cx_home("dewey", /*cx_home*/ Some(cx_home.path())).unwrap();
 
         assert_eq!(pet.id, "dewey");
         assert_eq!(pet.display_name, "Dewey");

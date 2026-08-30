@@ -2,6 +2,36 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
+use core_test_support::TestTargetOs;
+use core_test_support::responses::ResponseMock;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_no_remote_env;
+use core_test_support::skip_if_target_windows;
+use core_test_support::submit_thread_settings;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::TestCodexBuilder;
+use core_test_support::test_codex::local;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::test_env;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::test_docker_container_name;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use cx_api::AuthProvider;
 use cx_config::types::ApprovalsReviewer;
 use cx_core::CodexThreadSettingsOverrides;
@@ -76,36 +106,6 @@ use cx_protocol::request_user_input::RequestUserInputResponse;
 use cx_protocol::user_input::UserInput;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
-use core_test_support::TestTargetOs;
-use core_test_support::responses::ResponseMock;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_no_remote_env;
-use core_test_support::skip_if_target_windows;
-use core_test_support::submit_thread_settings;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::TestCodexBuilder;
-use core_test_support::test_codex::local;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::test_env;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::test_docker_container_name;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use futures::SinkExt;
 use futures::StreamExt;
 use futures::future::BoxFuture;
@@ -600,10 +600,7 @@ async fn environment_permissions_follow_configuration_ownership() -> Result<()> 
         snapshot.profile_workspace_roots,
         vec![owner_profile_workspace_root.clone()]
     );
-    assert_eq!(
-        persisted_settings,
-        test.cx.thread_settings_snapshot().await
-    );
+    assert_eq!(persisted_settings, test.cx.thread_settings_snapshot().await);
     assert_ne!(
         persisted_settings.active_permission_profile,
         snapshot.active_permission_profile
@@ -804,10 +801,7 @@ async fn settings_update_does_not_retarget_active_turn_environment() -> Result<(
     );
     assert_eq!(preview.cwd(), &next_cwd);
     assert_eq!(preview.workspace_roots, vec![next_cwd.clone()]);
-    assert_eq!(
-        test.cx.environment_selections().await,
-        initial_environments
-    );
+    assert_eq!(test.cx.environment_selections().await, initial_environments);
 
     submit_thread_settings(
         &test.cx,
@@ -841,10 +835,7 @@ async fn settings_update_does_not_retarget_active_turn_environment() -> Result<(
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_turn("start the next turn").await?;
 
     let request_texts = response_mock
@@ -981,10 +972,7 @@ async fn deferred_executor_promotes_primary_environment_when_startup_completes()
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = response_mock.requests();
     let updated_context = requests[2]
@@ -1748,10 +1736,8 @@ async fn ready_before_selection_exposes_remote_tools_and_capability_context_afte
         .mount(&registry)
         .await;
 
-    let runtime_paths = ExecServerRuntimePaths::new(
-        std::env::current_exe()?,
-        /*cx_linux_sandbox_exe*/ None,
-    )?;
+    let runtime_paths =
+        ExecServerRuntimePaths::new(std::env::current_exe()?, /*cx_linux_sandbox_exe*/ None)?;
     let remote_config = RemoteEnvironmentConfig::new(
         registry.uri(),
         REMOTE_ENVIRONMENT_ID.to_string(),
@@ -2020,10 +2006,7 @@ async fn deferred_executor_stays_pending_after_materialization() -> Result<()> {
     );
 
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
 
     Ok(())
 }
@@ -2151,10 +2134,7 @@ async fn deferred_executor_spawn_agent_inherits_ready_step_environments(
         .await?;
     wait_for_response_request_count(&response_mock, /*expected_count*/ 1).await;
     attach_tx.send(()).expect("attach remote environment");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     wait_for_response_request_count(&response_mock, /*expected_count*/ 4).await;
 
     let child_thread_id = timeout(Duration::from_secs(5), created_threads.recv())
@@ -2321,10 +2301,7 @@ async fn deferred_executor_guardian_uses_newly_ready_step_environment() -> Resul
         .await?;
     wait_for_response_request_count(&responses, /*expected_count*/ 1).await;
     attach_tx.send(()).expect("attach remote environment");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert!(
@@ -2429,10 +2406,7 @@ async fn deferred_executor_loads_agents_md_when_environment_becomes_ready() -> R
     wait_for_response_request_count(&response_mock, /*expected_count*/ 1).await;
     let agents_path = PathUri::from_abs_path(&test.config.cwd).join("AGENTS.md")?;
     attach_tx.send(()).expect("attach environment");
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     shutdown_tx.send(()).expect("stop exec server");
     let agents_md_reads = exec_server.await?;
 
@@ -2554,10 +2528,7 @@ async fn deferred_executor_compaction_preserves_then_updates_environment_once() 
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = response_mock.requests();
     assert_eq!(requests.len(), 3);
@@ -2950,10 +2921,7 @@ async fn remote_exec_materializes_target_roots_before_sandbox_selection() -> Res
             }),
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response_mock
         .last_request()
@@ -3410,10 +3378,7 @@ async fn apply_patch_approvals_are_remembered_per_environment() -> Result<()> {
             decision: ReviewDecision::ApprovedForSession,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert_eq!(fs::read_to_string(&target_path)?, "local\n");
 
     submit_turn_with_approval_and_environments(
@@ -3430,10 +3395,7 @@ async fn apply_patch_approvals_are_remembered_per_environment() -> Result<()> {
             decision: ReviewDecision::ApprovedForSession,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert_eq!(
         test.fs()
             .read_file_text(&target_path_uri, Default::default(), /*sandbox*/ None)
@@ -3686,10 +3648,7 @@ async fn remote_test_env_remove_removes_symlink_not_target() -> Result<()> {
     let test_env = test_env().await?;
     let file_system = test_env.environment().get_filesystem();
 
-    let root = PathBuf::from(format!(
-        "/tmp/cx-remote-remove-link-{}",
-        std::process::id()
-    ));
+    let root = PathBuf::from(format!("/tmp/cx-remote-remove-link-{}", std::process::id()));
     let allowed_dir = root.join("allowed");
     let outside_file = root.join("outside").join("keep.txt");
     let symlink_path = allowed_dir.join("link");
@@ -3762,10 +3721,7 @@ async fn remote_test_env_copy_preserves_symlink_source() -> Result<()> {
     let test_env = test_env().await?;
     let file_system = test_env.environment().get_filesystem();
 
-    let root = PathBuf::from(format!(
-        "/tmp/cx-remote-copy-link-{}",
-        std::process::id()
-    ));
+    let root = PathBuf::from(format!("/tmp/cx-remote-copy-link-{}", std::process::id()));
     let allowed_dir = root.join("allowed");
     let outside_file = root.join("outside").join("outside.txt");
     let source_symlink = allowed_dir.join("link");

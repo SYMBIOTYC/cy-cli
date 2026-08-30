@@ -52,7 +52,7 @@ async fn init_backend(user_agent_suffix: &str) -> anyhow::Result<BackendContext>
         Some("mock") | Some("MOCK")
     );
     let base_url = std::env::var("CX_CLOUD_TASKS_BASE_URL")
-        .unwrap_or_else(|_| "https://cy.symbiotyc.workers.dev/v1".to_string());
+        .unwrap_or_else(|_| "https://api.cy.symbiotyc.workers.dev/v1".to_string());
 
     set_user_agent_suffix(user_agent_suffix);
 
@@ -318,8 +318,7 @@ async fn collect_attempt_diffs(
     backend: &dyn cx_cloud_tasks_client::CloudBackend,
     task_id: &cx_cloud_tasks_client::TaskId,
 ) -> anyhow::Result<Vec<AttemptDiffData>> {
-    let text =
-        cx_cloud_tasks_client::CloudBackend::get_task_text(backend, task_id.clone()).await?;
+    let text = cx_cloud_tasks_client::CloudBackend::get_task_text(backend, task_id.clone()).await?;
     let mut attempts = Vec::new();
     if let Some(diff) =
         cx_cloud_tasks_client::CloudBackend::get_task_diff(backend, task_id.clone()).await?
@@ -615,10 +614,7 @@ async fn run_apply_command(args: crate::cli::ApplyCommand) -> anyhow::Result<()>
     )
     .await?;
     println!("{}", outcome.message);
-    if !matches!(
-        outcome.status,
-        cx_cloud_tasks_client::ApplyStatus::Success
-    ) {
+    if !matches!(outcome.status, cx_cloud_tasks_client::ApplyStatus::Success) {
         std::process::exit(1);
     }
     Ok(())
@@ -2316,7 +2312,7 @@ mod tests {
         ];
         let lines = format_task_list_lines(
             &tasks,
-            "https://cy.symbiotyc.workers.dev/v1",
+            "https://api.cy.symbiotyc.workers.dev/v1",
             now,
             /*colorize*/ false,
         );

@@ -20,10 +20,7 @@ pub struct ConnectorDirectoryCacheContext {
 
 impl ConnectorDirectoryCacheContext {
     pub fn new(cx_home: PathBuf, cache_key: ConnectorDirectoryCacheKey) -> Self {
-        Self {
-            cx_home,
-            cache_key,
-        }
+        Self { cx_home, cache_key }
     }
 
     /// Returns the persisted connector directory cache path for this identity.

@@ -14,6 +14,12 @@ use app_test_support::create_shell_command_sse_response;
 use app_test_support::format_with_current_shell_display;
 use app_test_support::write_mock_responses_config_toml_with_gt_base_url;
 use app_test_support::write_models_cache;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_remote;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
 use cx_app_server::INPUT_TOO_LARGE_ERROR_CODE;
 use cx_app_server::INVALID_PARAMS_ERROR_CODE;
 use cx_app_server_protocol::AdditionalContextEntry;
@@ -78,12 +84,6 @@ use cx_protocol::openai_models::ReasoningEffort;
 use cx_protocol::protocol::MULTI_AGENT_MODE_OPEN_TAG;
 use cx_protocol::user_input::MAX_USER_INPUT_TEXT_CHARS;
 use cx_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_remote;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -1090,12 +1090,9 @@ async fn code_mode_exec_emits_correlated_production_analytics() -> Result<()> {
         })
         .await?;
 
-    let event = wait_for_analytics_event(
-        &server,
-        DEFAULT_READ_TIMEOUT,
-        "cx_dynamic_tool_call_event",
-    )
-    .await?;
+    let event =
+        wait_for_analytics_event(&server, DEFAULT_READ_TIMEOUT, "cx_dynamic_tool_call_event")
+            .await?;
     assert_eq!(
         json!({
             "tool": event["event_params"]["tool_name"],
@@ -2656,8 +2653,7 @@ async fn turn_start_explicit_local_environment_updates_legacy_cwd_between_turns(
         .await?;
 
     // first turn with workspace-write sandbox and first_cwd
-    let first_writable_root =
-        cx_utils_absolute_path::AbsolutePathBuf::try_from(first_cwd.clone())?;
+    let first_writable_root = cx_utils_absolute_path::AbsolutePathBuf::try_from(first_cwd.clone())?;
     let _: TurnStartResponse = mcp
         .request(|request_id| ClientRequest::TurnStart {
             request_id,

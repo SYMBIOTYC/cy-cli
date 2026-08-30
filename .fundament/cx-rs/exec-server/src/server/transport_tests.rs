@@ -63,9 +63,7 @@ async fn stdio_listen_transport_serves_initialize() {
         server_writer,
         test_runtime_paths(),
         crate::ExecServerTelemetry::default(),
-        cx_http_client::HttpClientFactory::new(
-            cx_http_client::OutboundProxyPolicy::ReqwestDefault,
-        ),
+        cx_http_client::HttpClientFactory::new(cx_http_client::OutboundProxyPolicy::ReqwestDefault),
         RequestDispatchMode::Inline,
     ));
     let mut client_lines = BufReader::new(client_reader).lines();

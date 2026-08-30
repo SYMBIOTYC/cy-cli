@@ -541,13 +541,7 @@ mod tests {
             mcp_backend.get(&scope, &name)?,
             Some("mcp-value".to_string())
         );
-        assert!(
-            cx_home
-                .path()
-                .join("secrets")
-                .join("cx_auth.age")
-                .exists()
-        );
+        assert!(cx_home.path().join("secrets").join("cx_auth.age").exists());
         assert!(
             cx_home
                 .path()

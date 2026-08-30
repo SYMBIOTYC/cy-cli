@@ -3,21 +3,6 @@
 use std::time::Duration;
 
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_core::config::Config;
-use cx_features::Feature;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::ReviewDecision;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::request_permissions::PermissionGrantScope;
-use cx_protocol::request_permissions::RequestPermissionsResponse;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses;
 use core_test_support::responses::ResponseMock;
 use core_test_support::responses::ev_assistant_message;
@@ -33,6 +18,21 @@ use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
 use core_test_support::wait_for_event_with_timeout;
+use cx_core::TurnInputRequest;
+use cx_core::config::Config;
+use cx_features::Feature;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::ReviewDecision;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::request_permissions::PermissionGrantScope;
+use cx_protocol::request_permissions::RequestPermissionsResponse;
+use cx_protocol::user_input::UserInput;
 use wiremock::MockServer;
 
 const YIELD_TIME_MS: u64 = 1_000;
@@ -52,13 +52,12 @@ impl CodeModeElicitationHarness {
         configure: impl FnOnce(&mut Config) + Send + 'static,
     ) -> Result<Self> {
         let server = responses::start_mock_server().await;
-        let mut builder =
-            test_codex()
-                .with_model("test-gpt-5.1-cx")
-                .with_config(move |config| {
-                    let _ = config.features.enable(Feature::CodeMode);
-                    configure(config);
-                });
+        let mut builder = test_codex()
+            .with_model("test-gpt-5.1-cx")
+            .with_config(move |config| {
+                let _ = config.features.enable(Feature::CodeMode);
+                configure(config);
+            });
         let test = builder.build_with_auto_env(&server).await?;
         let follow_up = mount_code_mode_responses(&server, code).await;
         let turn_id = submit_turn(&test, permission_profile).await?;

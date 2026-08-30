@@ -2,6 +2,28 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_function_call_with_namespace;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_with_timeout;
+use core_test_support::zsh_fork::build_zsh_fork_test;
+use core_test_support::zsh_fork::restrictive_workspace_write_profile;
+use core_test_support::zsh_fork::zsh_fork_runtime;
+use core_test_support::zsh_fork::zsh_fork_test_builder;
 use cx_config::types::ApprovalsReviewer;
 use cx_core::CodexThread;
 use cx_core::TurnInputRequest;
@@ -34,28 +56,6 @@ use cx_protocol::protocol::ReviewDecision;
 use cx_protocol::protocol::SandboxPolicy;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_function_call_with_namespace;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_with_timeout;
-use core_test_support::zsh_fork::build_zsh_fork_test;
-use core_test_support::zsh_fork::restrictive_workspace_write_profile;
-use core_test_support::zsh_fork::zsh_fork_runtime;
-use core_test_support::zsh_fork::zsh_fork_test_builder;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::Value;
@@ -855,10 +855,7 @@ async fn wait_for_completion_without_approval(test: &TestCodex) {
 }
 
 async fn wait_for_completion(test: &TestCodex) {
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 }
 
 fn body_contains(req: &Request, text: &str) -> bool {

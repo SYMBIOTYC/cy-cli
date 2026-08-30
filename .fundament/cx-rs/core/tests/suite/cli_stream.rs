@@ -1,10 +1,10 @@
+use core_test_support::fs_wait;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
 use cx_git_utils::collect_git_info;
 use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
 use cx_login::CX_API_KEY_ENV_VAR;
 use cx_protocol::protocol::GitInfo;
-use core_test_support::fs_wait;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use std::io;
 #[cfg(unix)]
@@ -184,10 +184,7 @@ async fn responses_mode_stream_cli_does_not_attempt_oauth_refresh_for_personal_a
     Mock::given(method("POST"))
         .and(path("/api/cx/responses"))
         .and(header("authorization", PERSONAL_ACCESS_TOKEN_AUTHORIZATION))
-        .and(header(
-            "gt-account-id",
-            PERSONAL_ACCESS_TOKEN_ACCOUNT_ID,
-        ))
+        .and(header("gt-account-id", PERSONAL_ACCESS_TOKEN_ACCOUNT_ID))
         .and(header("x-openai-fedramp", "true"))
         .respond_with(ResponseTemplate::new(401).set_body_string("unauthorized"))
         .expect(1..)

@@ -1,11 +1,11 @@
 #![allow(clippy::unwrap_used)]
 use anyhow::Context;
-use cx_core::config::ConfigBuilder;
-use cx_core::init_state_db;
-use cx_protocol::ThreadId;
 use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_cx_exec::test_cx_exec;
+use cx_core::config::ConfigBuilder;
+use cx_core::init_state_db;
+use cx_protocol::ThreadId;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::process::Stdio;

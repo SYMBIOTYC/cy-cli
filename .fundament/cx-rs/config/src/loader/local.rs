@@ -168,8 +168,7 @@ pub(super) async fn load_local_config_layers_with_overrides(
     append_project_layers(fs, &mut config_layers, project_layers.layers).await?;
 
     let requirements =
-        local_requirements_layers(fs, cx_home.as_path(), overrides, loaded_managed.clone())
-            .await?;
+        local_requirements_layers(fs, cx_home.as_path(), overrides, loaded_managed.clone()).await?;
     append_legacy_config_layers(&mut config_layers, loaded_managed, &cx_home)?;
 
     Ok(LocalConfigLayers {

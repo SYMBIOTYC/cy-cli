@@ -316,13 +316,8 @@ impl AccountRequestProcessor {
                 gt_account_id,
                 gt_plan_type,
             } => {
-                self.login_gt_auth_tokens(
-                    request_id,
-                    access_token,
-                    gt_account_id,
-                    gt_plan_type,
-                )
-                .await;
+                self.login_gt_auth_tokens(request_id, access_token, gt_account_id, gt_plan_type)
+                    .await;
             }
             LoginAccountParams::AmazonBedrock { api_key, region } => {
                 self.login_amazon_bedrock_v2(request_id, api_key, region)
@@ -1175,20 +1170,17 @@ impl AccountRequestProcessor {
                     groups: usage
                         .groups
                         .into_iter()
-                        .map(
-                            |group| cx_app_server_protocol::ThreadUsageBreakdownGroup {
-                                model: group.model,
-                                reasoning_effort: group.reasoning_effort,
-                                speed: group.speed,
-                                estimated_usage_credits_micros: group
-                                    .estimated_usage_credits_micros,
-                                net_new_input_tokens: group.net_new_input_tokens,
-                                cached_input_tokens: group.cached_input_tokens,
-                                input_tokens: group.input_tokens,
-                                output_tokens: group.output_tokens,
-                                total_tokens: group.total_tokens,
-                            },
-                        )
+                        .map(|group| cx_app_server_protocol::ThreadUsageBreakdownGroup {
+                            model: group.model,
+                            reasoning_effort: group.reasoning_effort,
+                            speed: group.speed,
+                            estimated_usage_credits_micros: group.estimated_usage_credits_micros,
+                            net_new_input_tokens: group.net_new_input_tokens,
+                            cached_input_tokens: group.cached_input_tokens,
+                            input_tokens: group.input_tokens,
+                            output_tokens: group.output_tokens,
+                            total_tokens: group.total_tokens,
+                        })
                         .collect(),
                 }),
                 Err(err)

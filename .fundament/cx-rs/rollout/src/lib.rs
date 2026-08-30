@@ -75,12 +75,12 @@ pub static INTERACTIVE_SESSION_SOURCES: LazyLock<Vec<SessionSource>> = LazyLock:
     ]
 });
 
-pub use cx_protocol::protocol::SessionMeta;
 pub use compression::RolloutLineReader;
 pub use compression::existing_rollout_path;
 pub use compression::open_rollout_line_reader;
 pub use compression::plain_rollout_path;
 pub use compression::spawn_rollout_compression_worker;
+pub use cx_protocol::protocol::SessionMeta;
 
 /// Materializes a compressed rollout as plain JSONL before another rollout references it.
 pub async fn materialize_rollout_for_reference(

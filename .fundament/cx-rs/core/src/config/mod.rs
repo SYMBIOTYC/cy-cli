@@ -1719,10 +1719,9 @@ impl Config {
                 ElicitationCapability::default()
             },
             mcp_server_catalog: catalog.build(),
-            connector_snapshot:
-                cx_connectors::ConnectorSnapshot::from_plugin_capability_summaries(
-                    loaded_plugins.capability_summaries(),
-                ),
+            connector_snapshot: cx_connectors::ConnectorSnapshot::from_plugin_capability_summaries(
+                loaded_plugins.capability_summaries(),
+            ),
         }
     }
 
@@ -1809,11 +1808,8 @@ impl Config {
         cli_overrides: Vec<(String, TomlValue)>,
     ) -> std::io::Result<Self> {
         let cx_home = find_cx_home()?;
-        Self::load_default_with_cli_overrides_for_cx_home(
-            cx_home.to_path_buf(),
-            cli_overrides,
-        )
-        .await
+        Self::load_default_with_cli_overrides_for_cx_home(cx_home.to_path_buf(), cli_overrides)
+            .await
     }
 
     /// Load a default configuration for a specific CX home without reading
@@ -1880,13 +1876,8 @@ pub async fn load_config_as_toml_with_cli_overrides(
     cli_overrides: Vec<(String, TomlValue)>,
     loader_overrides: LoaderOverrides,
 ) -> std::io::Result<ConfigToml> {
-    load_config_as_toml_with_cli_and_loader_overrides(
-        cx_home,
-        cwd,
-        cli_overrides,
-        loader_overrides,
-    )
-    .await
+    load_config_as_toml_with_cli_and_loader_overrides(cx_home, cwd, cli_overrides, loader_overrides)
+        .await
 }
 
 /// DEPRECATED for most callers: prefer [Config::load_with_cli_overrides()] or

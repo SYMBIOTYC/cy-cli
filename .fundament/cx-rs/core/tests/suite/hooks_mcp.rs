@@ -5,14 +5,6 @@ use std::time::Duration;
 
 use anyhow::Context;
 use anyhow::Result;
-use cx_config::types::AppToolApproval;
-use cx_config::types::ApprovalsReviewer;
-use cx_config::types::McpServerConfig;
-use cx_config::types::McpServerTransportConfig;
-use cx_core::config::Config;
-use cx_features::Feature;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::protocol::AskForApproval;
 use core_test_support::hooks::trust_discovered_hooks;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -27,6 +19,14 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::stdio_server_bin;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_mcp_server;
+use cx_config::types::AppToolApproval;
+use cx_config::types::ApprovalsReviewer;
+use cx_config::types::McpServerConfig;
+use cx_config::types::McpServerTransportConfig;
+use cx_core::config::Config;
+use cx_features::Feature;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::protocol::AskForApproval;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -425,8 +425,7 @@ async fn run_mcp_permission_request_hook_test(outcome: PermissionRequestHookOutc
         ),
     }
 
-    let hook_inputs =
-        read_hook_inputs(test.cx_home_path(), "permission_request_hook_log.jsonl")?;
+    let hook_inputs = read_hook_inputs(test.cx_home_path(), "permission_request_hook_log.jsonl")?;
     assert_eq!(hook_inputs.len(), 1);
     assert_eq!(
         json!({

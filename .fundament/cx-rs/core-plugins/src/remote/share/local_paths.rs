@@ -51,9 +51,7 @@ fn lock_plugin_share_local_paths() -> io::Result<std::sync::MutexGuard<'static, 
         .map_err(|err| io::Error::other(format!("plugin share local path lock poisoned: {err}")))
 }
 
-fn read_plugin_share_local_paths(
-    cx_home: &Path,
-) -> io::Result<BTreeMap<String, AbsolutePathBuf>> {
+fn read_plugin_share_local_paths(cx_home: &Path) -> io::Result<BTreeMap<String, AbsolutePathBuf>> {
     let path = plugin_share_local_paths_path(cx_home);
     let contents = match std::fs::read_to_string(&path) {
         Ok(contents) => contents,

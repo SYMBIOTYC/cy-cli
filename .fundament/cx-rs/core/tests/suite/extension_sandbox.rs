@@ -2,6 +2,13 @@ use std::sync::Arc;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::responses;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_core::TurnInputRequest;
 use cx_core::config::Config;
 use cx_core::config::Constrained;
@@ -32,13 +39,6 @@ use cx_protocol::request_permissions::RequestPermissionProfile;
 use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::user_input::UserInput;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::responses;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 use wiremock::Mock;
@@ -296,10 +296,7 @@ async fn extension_tool_uses_granted_turn_permissions_without_host_local_persist
             },
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response_mock
         .last_request()

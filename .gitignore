@@ -6,3 +6,4 @@ dist/
 *.jar
 .DS_Store
 *.log
+.fundament/cx-rs/.cargo-home-debug/

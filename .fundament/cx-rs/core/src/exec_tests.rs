@@ -1,10 +1,10 @@
 use super::*;
+use core_test_support::PathBufExt;
+use core_test_support::PathExt;
 use cx_protocol::config_types::WindowsSandboxLevel;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::permissions::FileSystemSandboxPolicy;
 use cx_sandboxing::SandboxType;
-use core_test_support::PathBufExt;
-use core_test_support::PathExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
 use std::time::Duration;
@@ -499,10 +499,9 @@ fn windows_restricted_token_allows_workspace_write_profiles() {
 #[test]
 fn windows_elevated_allows_split_restricted_read_policies() {
     let temp_dir = tempfile::TempDir::new().expect("tempdir");
-    let docs = cx_utils_absolute_path::AbsolutePathBuf::from_absolute_path(
-        temp_dir.path().join("docs"),
-    )
-    .expect("absolute docs");
+    let docs =
+        cx_utils_absolute_path::AbsolutePathBuf::from_absolute_path(temp_dir.path().join("docs"))
+            .expect("absolute docs");
     std::fs::create_dir_all(docs.as_path()).expect("create docs");
     let file_system_policy = FileSystemSandboxPolicy::restricted(vec![
         cx_protocol::permissions::FileSystemSandboxEntry {

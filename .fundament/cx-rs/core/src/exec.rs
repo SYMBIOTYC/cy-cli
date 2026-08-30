@@ -618,9 +618,7 @@ async fn exec_windows_sandbox(
     // Windows sandbox capture still receives timeout and cancellation separately.
     let (cancellation, timeout_ms) = if capture_policy.uses_expiration() {
         let cancellation = expiration.cancellation_token().map(|token| {
-            cx_windows_sandbox::WindowsSandboxCancellationToken::new(move || {
-                token.is_cancelled()
-            })
+            cx_windows_sandbox::WindowsSandboxCancellationToken::new(move || token.is_cancelled())
         });
         (cancellation, expiration.timeout_ms())
     } else {

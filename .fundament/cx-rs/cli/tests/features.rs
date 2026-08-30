@@ -227,8 +227,7 @@ async fn features_list_honors_cloud_managed_feature_requirements() -> Result<()>
     .await?;
     if bootstrap_config.config_toml.cli_auth_credentials_store
         != Some(AuthCredentialsStoreMode::File)
-        || bootstrap_config.config_toml.gt_base_url.as_deref()
-            != Some(gt_base_url.as_str())
+        || bootstrap_config.config_toml.gt_base_url.as_deref() != Some(gt_base_url.as_str())
     {
         eprintln!(
             "skipping cloud-managed feature subprocess: host-managed authentication or backend routing prevents isolated mock credentials"

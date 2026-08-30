@@ -235,8 +235,7 @@ where
             if let Some(goal) = goal
                 && matches!(
                     goal.status,
-                    cx_state::ThreadGoalStatus::Active
-                        | cx_state::ThreadGoalStatus::BudgetLimited
+                    cx_state::ThreadGoalStatus::Active | cx_state::ThreadGoalStatus::BudgetLimited
                 )
             {
                 accounting.mark_turn_goal_active(input.turn_id, goal.goal_id);

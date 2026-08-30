@@ -2,6 +2,7 @@ use super::*;
 use crate::legacy_core::config::ConfigBuilder;
 use app_test_support::create_mock_responses_server_sequence;
 use app_test_support::write_mock_responses_config_toml;
+use core_test_support::responses;
 use cx_app_server_client::AppServerEvent;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::RequestId;
@@ -18,7 +19,6 @@ use cx_protocol::protocol::AgentMessageEvent;
 use cx_protocol::protocol::ThreadRolledBackEvent;
 use cx_protocol::protocol::UserMessageEvent;
 use cx_rollout::CompactedItem;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use tempfile::tempdir;
 

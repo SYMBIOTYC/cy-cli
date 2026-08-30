@@ -173,13 +173,9 @@ async fn pending_noise_environment_connects_and_reconnects_after_ready_report() 
     )?;
     let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
     let remote_environment = AbortOnDropHandle::new(tokio::spawn(
-        cx_exec_server::run_remote_environment_until_shutdown(
-            config,
-            runtime_paths,
-            async move {
-                let _ = shutdown_rx.await;
-            },
-        ),
+        cx_exec_server::run_remote_environment_until_shutdown(config, runtime_paths, async move {
+            let _ = shutdown_rx.await;
+        }),
     ));
 
     let environment_websocket = accept_websocket(&listener, "environment").await?;

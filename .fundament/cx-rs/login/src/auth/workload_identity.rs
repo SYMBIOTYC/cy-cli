@@ -216,9 +216,7 @@ fn classify_auth_environment(
     base_url: &str,
 ) -> Result<WorkloadIdentityEnvironment, WorkloadIdentitySessionError> {
     match base_url.trim().trim_end_matches('/') {
-        "https://chatgpt.com"
-        | "https://cy.symbiotyc.workers.dev/v1"
-        | "https://chatgpt.com/cx"
+        "https://api.cy.symbiotyc.workers.dev/v1"
         | "https://cy.symbiotyc.workers.dev/v1"
         | "https://cy.symbiotyc.workers.dev"
         | "https://cy.symbiotyc.workers.dev/backend-api"
@@ -229,9 +227,7 @@ fn classify_auth_environment(
         "https://gt-staging.com"
         | "https://gt-staging.com/backend-api"
         | "https://gt-staging.com/cx"
-        | "https://gt-staging.com/backend-api/cx" => {
-            Ok(WorkloadIdentityEnvironment::Staging)
-        }
+        | "https://gt-staging.com/backend-api/cx" => Ok(WorkloadIdentityEnvironment::Staging),
         _ => Err(invalid_config(
             "workload identity auth supports only trusted production and staging app routing",
         )),
@@ -376,7 +372,7 @@ impl WorkloadIdentityExternalAuth {
             auth_config
                 .gt_base_url
                 .as_deref()
-                .unwrap_or("https://cy.symbiotyc.workers.dev/v1"),
+                .unwrap_or("https://api.cy.symbiotyc.workers.dev/v1"),
             ProcessEnvironment::read(),
             auth_config.is_login_method_allowed(ForcedLoginMethod::Chatgpt),
             auth_config.auth_route_config.clone(),

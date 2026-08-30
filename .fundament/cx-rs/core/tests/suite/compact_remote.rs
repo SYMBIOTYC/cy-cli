@@ -6,6 +6,23 @@ use anyhow::Context;
 use anyhow::Result;
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use core_test_support::PathBufExt;
+use core_test_support::apps_test_server::configure_search_capable_model;
+use core_test_support::context_snapshot;
+use core_test_support::context_snapshot::ContextSnapshotOptions;
+use core_test_support::context_snapshot::ContextSnapshotRenderMode;
+use core_test_support::responses;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_websocket_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodexBuilder;
+use core_test_support::test_codex::TestCodexHarness;
+use core_test_support::test_codex::test_codex as base_test_codex;
+use core_test_support::test_path_buf;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
+use core_test_support::wait_for_event_with_timeout;
 use cx_core::StartThreadOptions;
 use cx_core::TurnInputRequest;
 use cx_core::X_CODEX_ROUTING_HINT_HEADER;
@@ -51,23 +68,6 @@ use cx_protocol::protocol::RealtimeEvent;
 use cx_protocol::protocol::RealtimeOutputModality;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::PathBufExt;
-use core_test_support::apps_test_server::configure_search_capable_model;
-use core_test_support::context_snapshot;
-use core_test_support::context_snapshot::ContextSnapshotOptions;
-use core_test_support::context_snapshot::ContextSnapshotRenderMode;
-use core_test_support::responses;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_websocket_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodexBuilder;
-use core_test_support::test_codex::TestCodexHarness;
-use core_test_support::test_codex::test_codex as base_test_codex;
-use core_test_support::test_path_buf;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
-use core_test_support::wait_for_event_with_timeout;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -262,29 +262,27 @@ async fn start_remote_realtime_server() -> responses::WebSocketTestServer {
 }
 
 async fn start_realtime_conversation(cx: &cx_core::CodexThread) -> Result<()> {
-    cx
-        .submit(Op::RealtimeConversationStart(ConversationStartParams {
-            client_managed_handoffs: false,
-            delegation_ack_filler: None,
-            flush_transcript_tail_on_session_end: false,
-            cx_responses_as_items: false,
-            cx_response_item_prefix: None,
-            cx_response_handoff_mode:
-                cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
-            cx_response_handoff_channel_prefixes: None,
-            model: None,
-            output_modality: RealtimeOutputModality::Audio,
-            include_startup_context: true,
-            initial_items: Vec::new(),
-            realtime_start_instructions: None,
-            realtime_end_instructions: None,
-            prompt: Some(Some("backend prompt".to_string())),
-            realtime_session_id: None,
-            transport: None,
-            version: None,
-            voice: None,
-        }))
-        .await?;
+    cx.submit(Op::RealtimeConversationStart(ConversationStartParams {
+        client_managed_handoffs: false,
+        delegation_ack_filler: None,
+        flush_transcript_tail_on_session_end: false,
+        cx_responses_as_items: false,
+        cx_response_item_prefix: None,
+        cx_response_handoff_mode: cx_protocol::protocol::CodexResponseHandoffMode::Thinking,
+        cx_response_handoff_channel_prefixes: None,
+        model: None,
+        output_modality: RealtimeOutputModality::Audio,
+        include_startup_context: true,
+        initial_items: Vec::new(),
+        realtime_start_instructions: None,
+        realtime_end_instructions: None,
+        prompt: Some(Some("backend prompt".to_string())),
+        realtime_session_id: None,
+        transport: None,
+        version: None,
+        voice: None,
+    }))
+    .await?;
 
     wait_for_event_match(cx, |msg| match msg {
         EventMsg::RealtimeConversationStarted(started) => Some(Ok(started.clone())),
@@ -618,8 +616,7 @@ async fn remote_compact_v2_retains_only_client_developer_messages_when_enabled(
     };
     let cx = &harness.test().cx;
     let rollout_path = cx.rollout_path().context("rollout path")?;
-    cx
-        .inject_response_items(vec![developer("INJECTED_CLIENT_DEVELOPER")])
+    cx.inject_response_items(vec![developer("INJECTED_CLIENT_DEVELOPER")])
         .await?;
     let response_mock = responses::mount_sse_sequence(
         harness.server(),
@@ -777,23 +774,21 @@ async fn remote_compact_replaces_history_for_followups() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "after compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "after compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let compact_request = compact_mock.single_request();
@@ -997,12 +992,11 @@ async fn remote_compact_uses_agent_identity_assertion() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
@@ -1105,56 +1099,51 @@ async fn assert_remote_manual_compact_request_parity(
     )
     .await;
 
-    cx
-        .start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
-            text: "TURN_ONE_USER".to_string(),
+    cx.start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
+        text: "TURN_ONE_USER".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
+    wait_for_turn_complete(&cx).await;
+
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![
+        UserInput::Text {
+            text: "TURN_TWO_PREFIX".to_string(),
             text_elements: Vec::new(),
-        }]))
-        .await?;
-    wait_for_turn_complete(&cx).await;
-
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![
-            UserInput::Text {
-                text: "TURN_TWO_PREFIX".to_string(),
-                text_elements: Vec::new(),
-            },
-            UserInput::Text {
-                text: "TURN_TWO_SUFFIX".to_string(),
-                text_elements: Vec::new(),
-            },
-        ]))
-        .await?;
-    wait_for_turn_complete(&cx).await;
-
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "TURN_THREE_TOOL_USER".to_string(),
+        },
+        UserInput::Text {
+            text: "TURN_TWO_SUFFIX".to_string(),
             text_elements: Vec::new(),
-        }]))
-        .await?;
+        },
+    ]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![
-            UserInput::Image {
-                image_url,
-                detail: None,
-            },
-            UserInput::Text {
-                text: "TURN_FOUR_IMAGE_USER".to_string(),
-                text_elements: Vec::new(),
-            },
-        ]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "TURN_THREE_TOOL_USER".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "TURN_FIVE_USER".to_string(),
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![
+        UserInput::Image {
+            image_url,
+            detail: None,
+        },
+        UserInput::Text {
+            text: "TURN_FOUR_IMAGE_USER".to_string(),
             text_elements: Vec::new(),
-        }]))
-        .await?;
+        },
+    ]))
+    .await?;
+    wait_for_turn_complete(&cx).await;
+
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "TURN_FIVE_USER".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
@@ -1275,8 +1264,7 @@ async fn remote_manual_compact_api_auth_omits_service_tier_and_reuses_prompt_cac
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn remote_manual_compact_gt_auth_reuses_service_tier_and_prompt_cache_key() -> Result<()>
-{
+async fn remote_manual_compact_gt_auth_reuses_service_tier_and_prompt_cache_key() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
     assert_remote_manual_compact_request_parity(
@@ -1387,12 +1375,11 @@ async fn remote_compact_v2_reuses_compaction_trigger_for_followups() -> Result<(
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx
@@ -1419,43 +1406,40 @@ async fn remote_compact_v2_reuses_compaction_trigger_for_followups() -> Result<(
         })
         .await?;
     let delegated_task_ciphertext = format!("delegated compact task{}", "x".repeat(40_000));
-    cx
-        .submit(Op::InterAgentCommunication {
-            communication: InterAgentCommunication::new_encrypted(
-                AgentPath::root(),
-                AgentPath::root().join("worker").expect("valid worker path"),
-                Vec::new(),
-                delegated_task_ciphertext.clone(),
-                /*trigger_turn*/ true,
-            ),
-        })
-        .await?;
+    cx.submit(Op::InterAgentCommunication {
+        communication: InterAgentCommunication::new_encrypted(
+            AgentPath::root(),
+            AgentPath::root().join("worker").expect("valid worker path"),
+            Vec::new(),
+            delegated_task_ciphertext.clone(),
+            /*trigger_turn*/ true,
+        ),
+    })
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let descendant_followup_ciphertext = "descendant follow-up task";
     let worker_path = AgentPath::root().join("worker").expect("valid worker path");
-    cx
-        .submit(Op::InterAgentCommunication {
-            communication: InterAgentCommunication::new_encrypted(
-                worker_path.join("child").expect("valid grandchild path"),
-                worker_path,
-                Vec::new(),
-                descendant_followup_ciphertext.to_string(),
-                /*trigger_turn*/ true,
-            ),
-        })
-        .await?;
+    cx.submit(Op::InterAgentCommunication {
+        communication: InterAgentCommunication::new_encrypted(
+            worker_path.join("child").expect("valid grandchild path"),
+            worker_path,
+            Vec::new(),
+            descendant_followup_ciphertext.to_string(),
+            /*trigger_turn*/ true,
+        ),
+    })
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "after compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "after compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let response_requests = responses_mock.requests();
@@ -1686,23 +1670,21 @@ async fn remote_compact_v2_retries_failures_with_stream_retry_budget() -> Result
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "after compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "after compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let response_requests = responses_mock.requests();
@@ -1777,23 +1759,21 @@ async fn remote_compact_v2_accepts_additional_output_items_before_compaction() -
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
     wait_for_turn_complete(&cx).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "after compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "after compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let response_requests = responses_mock.requests();
@@ -1874,12 +1854,11 @@ async fn remote_compact_filters_deferred_dynamic_tools() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     cx.submit(Op::Compact).await?;
@@ -2054,12 +2033,11 @@ async fn remote_compact_runs_automatically() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
-            text: "hello remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
+        text: "hello remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let message = wait_for_event_match(&cx, |event| match event {
         EventMsg::ContextCompacted(_) => Some(true),
@@ -2185,20 +2163,18 @@ async fn remote_compact_trims_function_call_history_to_fit_context_window() -> R
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: first_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: first_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: second_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: second_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let compact_mock = responses::mount_compact_user_history_with_summary_once(
@@ -2301,20 +2277,18 @@ async fn remote_compact_rewrites_multiple_trailing_function_call_outputs() -> Re
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: first_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: first_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: second_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: second_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let compact_mock = responses::mount_compact_user_history_with_summary_once(
@@ -2415,20 +2389,18 @@ async fn auto_remote_compact_trims_function_call_history_to_fit_context_window()
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: first_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: first_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: second_user_message.into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: second_user_message.into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let compact_mock = responses::mount_compact_user_history_with_summary_once(
@@ -2437,12 +2409,11 @@ async fn auto_remote_compact_trims_function_call_history_to_fit_context_window()
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "turn that triggers auto compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "turn that triggers auto compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     assert_eq!(
         compact_mock.requests().len(),
@@ -2562,12 +2533,11 @@ async fn remote_compact_trims_tool_search_output_to_empty_tools_array() -> Resul
     test.session_configured = new_thread.session_configured;
     let cx = test.cx.clone();
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "Find the oversized deferred tool".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "Find the oversized deferred tool".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let compact_mock =
@@ -2636,20 +2606,18 @@ async fn auto_remote_compact_failure_stops_agent_loop() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "turn that exceeds token threshold".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "turn that exceeds token threshold".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "turn that triggers auto compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "turn that triggers auto compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let error_message = wait_for_event_match(&cx, |event| match event {
         EventMsg::Error(err) => Some(err.message.clone()),
@@ -2909,12 +2877,11 @@ async fn remote_manual_compact_emits_context_compaction_items() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "manual remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "manual remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     cx.submit(Op::Compact).await?;
@@ -2984,12 +2951,11 @@ async fn remote_manual_compact_failure_emits_task_error_event() -> Result<()> {
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "manual remote compact".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "manual remote compact".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     cx.submit(Op::Compact).await?;
@@ -3065,12 +3031,11 @@ async fn remote_compact_persists_replacement_history_in_rollout() -> Result<()> 
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "needs compaction".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "needs compaction".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     cx.submit(Op::Compact).await?;
@@ -3155,8 +3120,7 @@ async fn remote_compact_and_resume_refresh_stale_developer_instructions() -> Res
     let server = wiremock::MockServer::start().await;
     let stale_developer_message = "STALE_DEVELOPER_INSTRUCTIONS_SHOULD_BE_REMOVED";
 
-    let mut start_builder =
-        test_codex().with_auth(CodexAuth::create_dummy_gt_auth_for_testing());
+    let mut start_builder = test_codex().with_auth(CodexAuth::create_dummy_gt_auth_for_testing());
     let initial = start_builder.build(&server).await?;
     let home = initial.home.clone();
     let rollout_path = initial
@@ -3228,13 +3192,9 @@ async fn remote_compact_and_resume_refresh_stale_developer_instructions() -> Res
     wait_for_event(&initial.cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     initial.cx.submit(Op::Shutdown).await?;
-    wait_for_event(&initial.cx, |ev| {
-        matches!(ev, EventMsg::ShutdownComplete)
-    })
-    .await;
+    wait_for_event(&initial.cx, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
 
-    let mut resume_builder =
-        test_codex().with_auth(CodexAuth::create_dummy_gt_auth_for_testing());
+    let mut resume_builder = test_codex().with_auth(CodexAuth::create_dummy_gt_auth_for_testing());
     let resumed = resume_builder.resume(&server, home, rollout_path).await?;
 
     resumed
@@ -3529,16 +3489,13 @@ async fn active_realtime_does_not_diff_changed_start_instructions_after_resume()
     initial.submit_turn("USER_ONE").await?;
     close_realtime_conversation(initial.cx.as_ref()).await?;
     initial.cx.submit(Op::Shutdown).await?;
-    wait_for_event(&initial.cx, |ev| {
-        matches!(ev, EventMsg::ShutdownComplete)
-    })
-    .await;
+    wait_for_event(&initial.cx, |ev| matches!(ev, EventMsg::ShutdownComplete)).await;
     initial_realtime_server.shutdown().await;
 
     let resumed_realtime_server = start_remote_realtime_server().await;
     let changed_instructions = "changed custom realtime start instructions";
-    let mut resume_builder = remote_realtime_test_cx_builder(&resumed_realtime_server)
-        .with_config({
+    let mut resume_builder =
+        remote_realtime_test_cx_builder(&resumed_realtime_server).with_config({
             let changed_instructions = changed_instructions.to_string();
             move |config| {
                 config.experimental_realtime_start_instructions = Some(changed_instructions);
@@ -3797,12 +3754,11 @@ async fn snapshot_request_shape_remote_pre_turn_compaction_including_incoming_us
             )
             .await?;
         }
-        cx
-            .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-                text: user.to_string(),
-                text_elements: Vec::new(),
-            }]))
-            .await?;
+        cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+            text: user.to_string(),
+            text_elements: Vec::new(),
+        }]))
+        .await?;
         wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
     }
 
@@ -3878,12 +3834,11 @@ async fn snapshot_request_shape_remote_pre_turn_compaction_strips_incoming_model
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "BEFORE_SWITCH_USER".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "BEFORE_SWITCH_USER".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     core_test_support::submit_thread_settings(
@@ -3894,12 +3849,11 @@ async fn snapshot_request_shape_remote_pre_turn_compaction_strips_incoming_model
         },
     )
     .await?;
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "AFTER_SWITCH_USER".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "AFTER_SWITCH_USER".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(
@@ -4007,20 +3961,18 @@ async fn snapshot_request_shape_remote_pre_turn_compaction_context_window_exceed
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_ONE".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_ONE".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_TWO".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_TWO".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     let error_message = wait_for_event_match(&cx, |event| match event {
         EventMsg::Error(err) => Some(err.message.clone()),
         _ => None,
@@ -4101,12 +4053,11 @@ async fn remote_pre_turn_compact_response_seeds_turn_state() -> Result<()> {
     // Phase 1: the first turn raises usage above the pre-turn compact threshold.
     // Phase 2: the next turn compacts before sampling and establishes turn state.
     for text in ["BEFORE_COMPACT_USER", "AFTER_COMPACT_USER"] {
-        cx
-            .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-                text: text.to_string(),
-                text_elements: Vec::new(),
-            }]))
-            .await?;
+        cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+            text: text.to_string(),
+            text_elements: Vec::new(),
+        }]))
+        .await?;
         wait_for_turn_complete(&cx).await;
     }
 
@@ -4171,12 +4122,11 @@ async fn remote_mid_turn_compact_v1_sends_turn_state_over_http() -> Result<()> {
     .await;
 
     // Phase 1: sampling mints state and crosses the token limit with a pending tool follow-up.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "RUN_WITH_MID_TURN_COMPACT".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "RUN_WITH_MID_TURN_COMPACT".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     // Phase 2: v1 compact receives the state established by sampling.
@@ -4250,12 +4200,11 @@ async fn remote_mid_turn_compact_v2_sends_turn_state_over_http() -> Result<()> {
     .await;
 
     // Phase 1: sampling mints state and schedules inline v2 compaction.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "RUN_WITH_MID_TURN_COMPACT_V2".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "RUN_WITH_MID_TURN_COMPACT_V2".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_turn_complete(&cx).await;
 
     let requests = responses_mock.requests();
@@ -4419,12 +4368,11 @@ async fn snapshot_request_shape_remote_mid_turn_continuation_compaction() -> Res
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_ONE".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_ONE".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(compact_mock.requests().len(), 1);
@@ -4493,12 +4441,11 @@ async fn snapshot_request_shape_remote_mid_turn_compaction_summary_only_reinject
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_ONE".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_ONE".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(compact_mock.requests().len(), 1);
@@ -4573,23 +4520,21 @@ async fn snapshot_request_shape_remote_mid_turn_compaction_multi_summary_reinjec
     )
     .await;
 
-    cx
-        .start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
-            text: "USER_ONE".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(unrestricted_user_turn(vec![UserInput::Text {
+        text: "USER_ONE".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     cx.submit(Op::Compact).await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_TWO".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_TWO".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(compact_mock.requests().len(), 2);
@@ -4660,12 +4605,11 @@ async fn snapshot_request_shape_remote_manual_compact_without_previous_user_mess
     cx.submit(Op::Compact).await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "USER_ONE".to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "USER_ONE".to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     assert_eq!(

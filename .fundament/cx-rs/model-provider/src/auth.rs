@@ -481,10 +481,7 @@ mod tests {
             AUTHORIZATION,
             HeaderValue::from_static("Bearer ambient-token"),
         );
-        ambient_headers.insert(
-            "gt-Account-ID",
-            HeaderValue::from_static("account-123"),
-        );
+        ambient_headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
         let ambient_auth = CodexAuth::Headers(AuthHeaders::new(ambient_headers));
 
         let auth =
@@ -563,10 +560,7 @@ mod tests {
             AUTHORIZATION,
             HeaderValue::from_static("Bearer ambient-token"),
         );
-        expected.insert(
-            "gt-Account-ID",
-            HeaderValue::from_static("account-123"),
-        );
+        expected.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
         let ambient_auth = CodexAuth::Headers(AuthHeaders::new(expected.clone()));
 
         let auth =
@@ -673,9 +667,8 @@ mod tests {
 
     #[tokio::test]
     async fn first_party_run_scope_uses_agent_assertion_and_exposes_telemetry() {
-        let auth = CodexAuth::AgentIdentity(
-            agent_identity_auth(/*gt_account_is_fedramp*/ false).await,
-        );
+        let auth =
+            CodexAuth::AgentIdentity(agent_identity_auth(/*gt_account_is_fedramp*/ false).await);
         let provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
 
         let auth = resolve_provider_auth_for_scope(

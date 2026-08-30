@@ -1,6 +1,9 @@
 #![allow(clippy::unwrap_used)]
 
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
 use cx_config::McpServerTransportConfig;
 use cx_core::config::ConfigBuilder;
 use cx_core::config::Constrained;
@@ -21,9 +24,6 @@ use cx_mcp::McpStartupPolicy;
 use cx_mcp::McpToolCatalogCache;
 use cx_protocol::mcp::ClientMcpExtensions;
 use cx_protocol::protocol::AskForApproval;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;

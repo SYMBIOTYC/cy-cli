@@ -282,7 +282,8 @@ mod tests {
 
         assert!(apply_ide_context_to_user_input(&context, &mut items));
 
-        let expected_prefix = "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for CX:\n";
+        let expected_prefix =
+            "# Context from my IDE setup:\n\n## Active file: src/lib.rs\n\n## My request for CX:\n";
         let prefix_len = expected_prefix.len();
         assert_eq!(
             items,
@@ -307,8 +308,7 @@ mod tests {
 
     #[test]
     fn extract_prompt_request_returns_text_after_last_delimiter() {
-        let message =
-            "# Context\n## My request for CX:\nFirst\n## My request for CX:\n  Second\n";
+        let message = "# Context\n## My request for CX:\nFirst\n## My request for CX:\n  Second\n";
 
         assert_eq!(
             extract_prompt_request_with_offset(message),

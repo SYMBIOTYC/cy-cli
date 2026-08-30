@@ -1,7 +1,7 @@
-use cx_protocol::ThreadId;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::KeyModifiers;
+use cx_protocol::ThreadId;
 
 use super::LoadTrigger;
 use super::PickerLoadRequest;

@@ -149,9 +149,9 @@ fn append_mcp_tools(
 fn filter_non_cx_apps_mcp_tools_only(
     mcp_tools: &[McpToolInfo],
 ) -> impl Iterator<Item = &McpToolInfo> + '_ {
-    mcp_tools.iter().filter(|tool| {
-        tool.server_name != CX_APPS_MCP_SERVER_NAME && tool_is_model_visible(tool)
-    })
+    mcp_tools
+        .iter()
+        .filter(|tool| tool.server_name != CX_APPS_MCP_SERVER_NAME && tool_is_model_visible(tool))
 }
 
 fn filter_cx_apps_mcp_tools<'a>(

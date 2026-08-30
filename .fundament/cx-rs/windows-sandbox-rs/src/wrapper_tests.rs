@@ -8,9 +8,9 @@ use cx_protocol::permissions::NetworkSandboxPolicy;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use pretty_assertions::assert_eq;
 
-use super::CX_HOME_FLAG;
 use super::CODEX_WINDOWS_SANDBOX_ARG1;
 use super::COMMAND_CWD_FLAG;
+use super::CX_HOME_FLAG;
 use super::DENY_READ_PATHS_JSON_FLAG;
 use super::DENY_WRITE_PATHS_JSON_FLAG;
 use super::ENV_JSON_FLAG;
@@ -52,10 +52,7 @@ fn windows_wrapper_args_round_trip() {
     ];
 
     let args = create_windows_sandbox_command_args_for_permission_profile(
-        vec![
-            "cx.exe".to_string(),
-            "--cx-run-as-fs-helper".to_string(),
-        ],
+        vec!["cx.exe".to_string(), "--cx-run-as-fs-helper".to_string()],
         &command_cwd,
         workspace_roots.as_slice(),
         &env,
@@ -93,10 +90,7 @@ fn windows_wrapper_args_round_trip() {
     let parsed =
         parse_windows_sandbox_wrapper_args(args[1..].to_vec()).expect("parse wrapper args");
 
-    assert_eq!(
-        parsed.command,
-        vec!["cx.exe", "--cx-run-as-fs-helper"]
-    );
+    assert_eq!(parsed.command, vec!["cx.exe", "--cx-run-as-fs-helper"]);
     assert_eq!(parsed.command_cwd, command_cwd);
     assert_eq!(parsed.workspace_roots, workspace_roots);
     assert_eq!(parsed.env_map, env);

@@ -35,8 +35,8 @@ use crate::chatwidget::create_initial_user_message;
 use crate::chatwidget::tests::helpers::render_bottom_popup;
 use crate::chatwidget::tests::helpers::set_active_cell;
 use crate::chatwidget::tests::make_chatwidget_manual_with_sender;
-use crate::chatwidget::tests::set_gt_auth;
 use crate::chatwidget::tests::set_fast_mode_test_catalog;
+use crate::chatwidget::tests::set_gt_auth;
 use crate::file_search::FileSearchManager;
 use crate::goal_files;
 use crate::history_cell::AgentMarkdownCell;
@@ -56,6 +56,7 @@ use crate::legacy_core::config::ConfigBuilder;
 use crate::legacy_core::config::ConfigOverrides;
 use crate::legacy_core::config::PermissionProfileSnapshot;
 use crate::legacy_core::config::TerminalResizeReflowMaxRows;
+use crossterm::event::KeyModifiers;
 use cx_app_server_client::AppServerPath;
 use cx_app_server_protocol::AdditionalFileSystemPermissions;
 use cx_app_server_protocol::AdditionalNetworkPermissions;
@@ -129,7 +130,6 @@ use cx_protocol::protocol::UserMessageEvent;
 use cx_protocol::request_permissions::RequestPermissionProfile;
 use cx_protocol::user_input::TextElement;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use crossterm::event::KeyModifiers;
 use insta::assert_snapshot;
 use pretty_assertions::assert_eq;
 use ratatui::buffer::Buffer;
@@ -334,10 +334,7 @@ async fn external_editor_writable_directory_rejected_snapshot() -> Result<()> {
 
     let (mut app, mut app_event_rx, _op_rx) = make_test_app_with_channels().await;
     let cx_home = app.chat_widget.config_ref().cx_home.clone();
-    let fallback_home = dirs::home_dir()
-        .expect("home directory")
-        .join(".cx")
-        .abs();
+    let fallback_home = dirs::home_dir().expect("home directory").join(".cx").abs();
     let workspace_cx_home = app.chat_widget.config_ref().cwd.join(".cx");
     let permission_profile = PermissionProfile::workspace_write_with(
         &[cx_home, fallback_home, workspace_cx_home],
@@ -6774,8 +6771,7 @@ async fn in_app_resume_uses_configured_or_explicit_cwd() -> Result<()> {
             /*git_info*/ None,
         )
         .expect("materialized rollout should be created");
-        let rollout_path =
-            app_test_support::rollout_path(&cx_home, filename_timestamp, &thread_id);
+        let rollout_path = app_test_support::rollout_path(&cx_home, filename_timestamp, &thread_id);
         let mut rollout_lines = std::fs::read_to_string(&rollout_path)?
             .lines()
             .map(serde_json::from_str::<serde_json::Value>)
@@ -6925,8 +6921,7 @@ async fn remembered_current_cwd_stays_at_launch_across_in_app_resumes() -> Resul
             /*git_info*/ None,
         )
         .expect("materialized rollout should be created");
-        let rollout_path =
-            app_test_support::rollout_path(&cx_home, filename_timestamp, &thread_id);
+        let rollout_path = app_test_support::rollout_path(&cx_home, filename_timestamp, &thread_id);
         let mut rollout_lines = std::fs::read_to_string(&rollout_path)?
             .lines()
             .map(serde_json::from_str::<serde_json::Value>)
@@ -7365,25 +7360,22 @@ async fn replace_chat_widget_reseeds_collab_agent_metadata_for_replay() {
             session: None,
             turns: Vec::new(),
             events: vec![ThreadBufferedEvent::Notification(Box::new(
-                ServerNotification::ItemStarted(
-                    cx_app_server_protocol::ItemStartedNotification {
-                        thread_id: "thread-1".to_string(),
-                        turn_id: "turn-1".to_string(),
-                        started_at_ms: 0,
-                        item: ThreadItem::CollabAgentToolCall {
-                            id: "wait-1".to_string(),
-                            tool: cx_app_server_protocol::CollabAgentTool::Wait,
-                            status:
-                                cx_app_server_protocol::CollabAgentToolCallStatus::InProgress,
-                            sender_thread_id: ThreadId::new().to_string(),
-                            receiver_thread_ids: vec![receiver_thread_id.to_string()],
-                            prompt: None,
-                            model: None,
-                            reasoning_effort: None,
-                            agents_states: HashMap::new(),
-                        },
+                ServerNotification::ItemStarted(cx_app_server_protocol::ItemStartedNotification {
+                    thread_id: "thread-1".to_string(),
+                    turn_id: "turn-1".to_string(),
+                    started_at_ms: 0,
+                    item: ThreadItem::CollabAgentToolCall {
+                        id: "wait-1".to_string(),
+                        tool: cx_app_server_protocol::CollabAgentTool::Wait,
+                        status: cx_app_server_protocol::CollabAgentToolCallStatus::InProgress,
+                        sender_thread_id: ThreadId::new().to_string(),
+                        receiver_thread_ids: vec![receiver_thread_id.to_string()],
+                        prompt: None,
+                        model: None,
+                        reasoning_effort: None,
+                        agents_states: HashMap::new(),
                     },
-                ),
+                }),
             ))],
             input_state: None,
         },
@@ -7852,8 +7844,7 @@ async fn changing_cyber_model_reasoning_preserves_selected_permissions() {
 
         assert!(
             app.apply_permission_profile_selection(PermissionProfileSelection {
-                profile_id: cx_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY
-                    .to_string(),
+                profile_id: cx_protocol::models::BUILT_IN_PERMISSION_PROFILE_READ_ONLY.to_string(),
                 approval_policy: Some(AskForApproval::OnRequest),
                 approvals_reviewer: Some(ApprovalsReviewer::User),
                 display_label: "Read Only".to_string(),

@@ -1,5 +1,8 @@
 #![allow(clippy::unwrap_used)]
 
+use core::time::Duration;
+use core_test_support::load_default_config_for_test;
+use core_test_support::wait_for_event;
 use cx_config::CONFIG_TOML_FILE;
 use cx_core::NewThread;
 use cx_features::Feature;
@@ -9,9 +12,6 @@ use cx_protocol::mcp::ClientMcpExtensions;
 use cx_protocol::protocol::EventMsg;
 use cx_protocol::protocol::WarningEvent;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core::time::Duration;
-use core_test_support::load_default_config_for_test;
-use core_test_support::wait_for_event;
 use tempfile::TempDir;
 use tokio::time::timeout;
 use toml::toml;

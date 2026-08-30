@@ -1,9 +1,9 @@
 use crate::StartThreadOptions;
 use crate::ThreadManager;
 use crate::agent::AgentControl;
-use crate::cx_thread::CodexThread;
 use crate::config::Config;
 use crate::config::test_config;
+use crate::cx_thread::CodexThread;
 use crate::thread_manager::ThreadManagerState;
 use cx_features::Feature;
 use cx_login::CodexAuth;

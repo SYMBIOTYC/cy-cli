@@ -107,9 +107,8 @@ impl PluginStore {
     pub fn try_new(cx_home: PathBuf) -> Result<Self, PluginStoreError> {
         let root = AbsolutePathBuf::from_absolute_path_checked(cx_home.join(PLUGINS_CACHE_DIR))
             .map_err(|err| PluginStoreError::io("failed to resolve plugin cache root", err))?;
-        let data_root =
-            AbsolutePathBuf::from_absolute_path_checked(cx_home.join(PLUGINS_DATA_DIR))
-                .map_err(|err| PluginStoreError::io("failed to resolve plugin data root", err))?;
+        let data_root = AbsolutePathBuf::from_absolute_path_checked(cx_home.join(PLUGINS_DATA_DIR))
+            .map_err(|err| PluginStoreError::io("failed to resolve plugin data root", err))?;
         let cx_home = AbsolutePathBuf::from_absolute_path_checked(cx_home)
             .map_err(|err| PluginStoreError::io("failed to resolve CX home", err))?;
 

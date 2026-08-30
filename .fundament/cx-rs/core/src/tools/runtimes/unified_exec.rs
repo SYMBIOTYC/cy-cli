@@ -280,9 +280,10 @@ impl<'a> ToolRuntime<UnifiedExecRequest, UnifiedExecAttempt> for UnifiedExecRunt
         let env = exec_env_for_sandbox_permissions(&req.env, launch_sandbox_permissions);
         let (mut env, managed_network_context, network_proxy_launch) = match managed_network {
             Some(network) if environment_is_remote => {
-                let mut launch = network.remote_launch_config().await.map_err(|err| {
-                    ToolError::CX(CxErr::Io(io::Error::other(err.to_string())))
-                })?;
+                let mut launch = network
+                    .remote_launch_config()
+                    .await
+                    .map_err(|err| ToolError::CX(CxErr::Io(io::Error::other(err.to_string()))))?;
                 if routes_approval_to_guardian(&ctx.step_context.turn)
                     && network.remote_policy_decider().is_some()
                 {

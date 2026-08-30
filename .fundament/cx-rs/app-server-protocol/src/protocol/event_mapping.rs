@@ -98,9 +98,7 @@ pub fn item_event_to_server_notification(
             let has_receiver = end_event.new_thread_id.is_some();
             let status = match &end_event.status {
                 cx_protocol::protocol::AgentStatus::Errored(_)
-                | cx_protocol::protocol::AgentStatus::NotFound => {
-                    CollabAgentToolCallStatus::Failed
-                }
+                | cx_protocol::protocol::AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
                 _ if has_receiver => CollabAgentToolCallStatus::Completed,
                 _ => CollabAgentToolCallStatus::Failed,
             };
@@ -156,9 +154,7 @@ pub fn item_event_to_server_notification(
         EventMsg::CollabAgentInteractionEnd(end_event) => {
             let status = match &end_event.status {
                 cx_protocol::protocol::AgentStatus::Errored(_)
-                | cx_protocol::protocol::AgentStatus::NotFound => {
-                    CollabAgentToolCallStatus::Failed
-                }
+                | cx_protocol::protocol::AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
                 _ => CollabAgentToolCallStatus::Completed,
             };
             let receiver_id = end_event.receiver_thread_id.to_string();
@@ -277,9 +273,7 @@ pub fn item_event_to_server_notification(
         EventMsg::CollabCloseEnd(end_event) => {
             let status = match &end_event.status {
                 cx_protocol::protocol::AgentStatus::Errored(_)
-                | cx_protocol::protocol::AgentStatus::NotFound => {
-                    CollabAgentToolCallStatus::Failed
-                }
+                | cx_protocol::protocol::AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
                 _ => CollabAgentToolCallStatus::Completed,
             };
             let receiver_id = end_event.receiver_thread_id.to_string();
@@ -329,9 +323,7 @@ pub fn item_event_to_server_notification(
         EventMsg::CollabResumeEnd(end_event) => {
             let status = match &end_event.status {
                 cx_protocol::protocol::AgentStatus::Errored(_)
-                | cx_protocol::protocol::AgentStatus::NotFound => {
-                    CollabAgentToolCallStatus::Failed
-                }
+                | cx_protocol::protocol::AgentStatus::NotFound => CollabAgentToolCallStatus::Failed,
                 _ => CollabAgentToolCallStatus::Completed,
             };
             let receiver_id = end_event.receiver_thread_id.to_string();
@@ -360,8 +352,7 @@ pub fn item_event_to_server_notification(
             })
         }
         EventMsg::AgentMessageContentDelta(event) => {
-            let cx_protocol::protocol::AgentMessageContentDeltaEvent { item_id, delta, .. } =
-                event;
+            let cx_protocol::protocol::AgentMessageContentDeltaEvent { item_id, delta, .. } = event;
             ServerNotification::AgentMessageDelta(AgentMessageDeltaNotification {
                 thread_id,
                 turn_id,

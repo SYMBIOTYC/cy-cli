@@ -218,12 +218,9 @@ mod tests {
         };
         let install_metadata = MarketplaceInstallMetadata::from_source(&source, &[]);
 
-        let err = installed_marketplace_root_for_source(
-            cx_home.path(),
-            &install_root,
-            &install_metadata,
-        )
-        .unwrap_err();
+        let err =
+            installed_marketplace_root_for_source(cx_home.path(), &install_root, &install_metadata)
+                .unwrap_err();
 
         assert!(
             err.to_string().contains(&format!(
@@ -251,12 +248,9 @@ mod tests {
         let install_metadata = MarketplaceInstallMetadata::from_source(&source, &[]);
         record_added_marketplace_entry(cx_home.path(), "debug", &install_metadata).unwrap();
 
-        let root = installed_marketplace_root_for_source(
-            cx_home.path(),
-            &install_root,
-            &install_metadata,
-        )
-        .unwrap();
+        let root =
+            installed_marketplace_root_for_source(cx_home.path(), &install_root, &install_metadata)
+                .unwrap();
 
         assert_eq!(root, Some(source_root));
     }

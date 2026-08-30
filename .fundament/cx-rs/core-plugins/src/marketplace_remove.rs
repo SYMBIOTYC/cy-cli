@@ -147,8 +147,7 @@ mod tests {
             outcome.removed_installed_root,
             Some(AbsolutePathBuf::try_from(installed_root.clone()).unwrap())
         );
-        let config =
-            fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
         assert!(!config.contains("[marketplaces.debug]"));
         assert!(!installed_root.exists());
     }
@@ -201,8 +200,7 @@ mod tests {
             "marketplace `Debug` does not match configured marketplace `debug` exactly"
         );
         assert!(installed_root.exists());
-        let config =
-            fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
         assert!(config.contains("[marketplaces.debug]"));
     }
 
@@ -268,8 +266,7 @@ mod tests {
             }
         );
         assert!(!installed_root.exists());
-        let config =
-            fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
         assert!(!config.contains("[marketplaces.debug]"));
     }
 
@@ -300,8 +297,7 @@ marketplaces = { debug = { source_type = "git", source = "https://github.com/own
             Some(AbsolutePathBuf::try_from(installed_root.clone()).unwrap())
         );
         assert!(!installed_root.exists());
-        let config =
-            fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
+        let config = fs::read_to_string(cx_home.path().join(cx_config::CONFIG_TOML_FILE)).unwrap();
         assert!(!config.contains("debug"));
     }
 }

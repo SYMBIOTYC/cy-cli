@@ -11,6 +11,7 @@ use app_test_support::rollout_path;
 use app_test_support::test_absolute_path;
 use chrono::DateTime;
 use chrono::Utc;
+use core_test_support::responses;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::GitInfo as ApiGitInfo;
 use cx_app_server_protocol::JSONRPCError;
@@ -47,7 +48,6 @@ use cx_rollout::append_rollout_item_to_path;
 use cx_rollout::read_session_meta_line;
 use cx_state::DirectionalThreadSpawnEdgeStatus;
 use cx_utils_absolute_path::test_support::PathExt;
-use core_test_support::responses;
 use pretty_assertions::assert_eq;
 use std::cmp::Reverse;
 use std::fs;
@@ -531,12 +531,7 @@ async fn thread_list_respects_cwd_filters() -> Result<()> {
         &first_target_cwd,
     )?;
     set_rollout_cwd(
-        rollout_path(
-            cx_home.path(),
-            "2025-01-02T12-00-00",
-            &second_filtered_id,
-        )
-        .as_path(),
+        rollout_path(cx_home.path(), "2025-01-02T12-00-00", &second_filtered_id).as_path(),
         &second_target_cwd,
     )?;
 

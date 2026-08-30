@@ -2,6 +2,21 @@
 #![cfg(target_os = "macos")]
 
 use anyhow::Result;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_sandbox;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
 use cx_core::TurnInputRequest;
 use cx_core::config::Constrained;
 use cx_features::Feature;
@@ -22,21 +37,6 @@ use cx_protocol::request_permissions::RequestPermissionProfile;
 use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::user_input::UserInput;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_sandbox;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use serde_json::Value;
@@ -176,10 +176,7 @@ async fn submit_turn(
 }
 
 async fn wait_for_completion(test: &TestCodex) {
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 }
 
 async fn expect_request_permissions_event(
@@ -309,10 +306,7 @@ async fn approved_folder_write_request_permissions_unblocks_later_exec_without_s
                 decision: ReviewDecision::Approved,
             })
             .await?;
-        wait_for_event(&test.cx, |event| {
-            matches!(event, EventMsg::TurnComplete(_))
-        })
-        .await;
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     }
 
     let exec_output = responses

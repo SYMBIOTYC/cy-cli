@@ -51,8 +51,7 @@ pub(super) fn should_delay_startup_composer_for_first_login(
                 }
             }
 
-            let Ok(daemon_socket) =
-                cx_app_server_client::app_server_control_socket_path(cx_home)
+            let Ok(daemon_socket) = cx_app_server_client::app_server_control_socket_path(cx_home)
             else {
                 return false;
             };

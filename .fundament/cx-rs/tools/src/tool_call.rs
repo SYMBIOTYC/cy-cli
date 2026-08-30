@@ -107,10 +107,7 @@ impl std::fmt::Debug for ToolCall {
             .field("call_id", &self.call_id)
             .field("tool_name", &self.tool_name)
             .field("model", &self.model)
-            .field(
-                "has_cx_turn_metadata",
-                &self.cx_turn_metadata.is_some(),
-            )
+            .field("has_cx_turn_metadata", &self.cx_turn_metadata.is_some())
             .field("truncation_policy", &self.truncation_policy)
             .field("conversation_history", &self.conversation_history)
             .field("turn_item_emitter", &"<host turn item emitter>")

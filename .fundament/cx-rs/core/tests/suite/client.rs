@@ -1,3 +1,27 @@
+use core_test_support::TestCodexResponsesRequestKind;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::load_default_config_for_test;
+use core_test_support::responses::ResponsesRequest;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_once_match;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::sse_failed;
+use core_test_support::responses::strip_metadata_from_json;
+use core_test_support::responses::strip_response_item_ids_from_json;
+use core_test_support::responses_metadata as test_responses_metadata;
+use core_test_support::skip_if_no_network;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::local_selections;
+use core_test_support::test_codex::test_codex;
+use core_test_support::wait_for_event;
 use cx_config::types::AuthCredentialsStoreMode;
 use cx_core::ModelClient;
 use cx_core::NewThread;
@@ -56,30 +80,6 @@ use cx_protocol::protocol::SessionMetaLine;
 use cx_protocol::protocol::SessionSource;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
-use core_test_support::TestCodexResponsesRequestKind;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::load_default_config_for_test;
-use core_test_support::responses::ResponsesRequest;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_once_match;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::sse_failed;
-use core_test_support::responses::strip_metadata_from_json;
-use core_test_support::responses::strip_response_item_ids_from_json;
-use core_test_support::responses_metadata as test_responses_metadata;
-use core_test_support::skip_if_no_network;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::local_selections;
-use core_test_support::test_codex::test_codex;
-use core_test_support::wait_for_event;
 use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use serde_json::json;
@@ -319,13 +319,12 @@ async fn non_openai_responses_requests_include_item_ids_without_passthrough_meta
         .unwrap()
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let body = response_mock
@@ -374,12 +373,11 @@ async fn sends_audio_urls_to_responses() {
         .cx;
     let audio_url = "data:audio/wav;base64,AAAA";
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Audio {
-            audio_url: audio_url.to_string(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Audio {
+        audio_url: audio_url.to_string(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let user_message = response_mock
@@ -419,11 +417,10 @@ async fn sends_local_audio_to_responses() -> anyhow::Result<()> {
     let audio_path = temp_dir.path().join("recording.wav");
     std::fs::write(&audio_path, b"audio")?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::LocalAudio {
-            path: audio_path.clone(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::LocalAudio {
+        path: audio_path.clone(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let user_message = response_mock
@@ -641,10 +638,7 @@ async fn response_item_ids_are_sent_for_all_remote_v2_compaction_requests() -> a
 
     test.submit_turn("before compaction").await?;
     test.cx.submit(Op::Compact).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_turn("after compaction").await?;
 
     let requests = response_mock.requests();
@@ -936,13 +930,12 @@ async fn resume_includes_initial_messages_and_sends_prior_items() {
     assert_eq!(initial_json, expected_initial_json);
 
     // 2) Submit new input; the request body must include the prior items, then initial context, then new user input.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     let request = resp_mock.single_request();
@@ -1324,13 +1317,12 @@ async fn includes_session_id_thread_id_and_model_headers_in_request() {
     let expected_session_id = test.session_configured.session_id;
     let expected_thread_id = test.session_configured.thread_id;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1493,8 +1485,7 @@ async fn send_request_with_provider(provider: ModelProviderInfo) {
     let model = cx_core::test_support::get_model_offline(config.model.as_deref());
     config.model = Some(model.clone());
     let config = Arc::new(config);
-    let model_info =
-        cx_core::test_support::construct_model_info_offline(model.as_str(), &config);
+    let model_info = cx_core::test_support::construct_model_info_offline(model.as_str(), &config);
     let thread_id = ThreadId::new();
     let session_telemetry = SessionTelemetry::new(
         thread_id,
@@ -1584,13 +1575,12 @@ async fn includes_base_instructions_override_in_request() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1635,13 +1625,12 @@ async fn gt_auth_sends_correct_request() {
     let expected_session_id = test.session_configured.session_id;
     let expected_thread_id = test.session_configured.thread_id;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1768,13 +1757,12 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_gt_tokens() {
         .await
         .expect("create new conversation");
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 }
@@ -1801,13 +1789,12 @@ async fn includes_user_instructions_message_in_request() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1889,13 +1876,12 @@ async fn includes_apps_guidance_as_developer_message_for_gt_auth() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1946,13 +1932,12 @@ async fn omits_apps_guidance_for_api_key_auth_even_when_feature_enabled() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -1999,13 +1984,12 @@ async fn omits_apps_guidance_when_configured_off() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2070,13 +2054,12 @@ async fn omits_apps_guidance_when_orchestrator_mcp_is_disabled() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2146,13 +2129,12 @@ async fn omits_environment_context_when_configured_off() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2182,13 +2164,12 @@ async fn includes_configured_max_effort_in_request() -> anyhow::Result<()> {
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2218,13 +2199,12 @@ async fn includes_no_effort_in_request() -> anyhow::Result<()> {
     .await;
     let TestCodex { cx, .. } = test_codex().with_model("gpt-5.4").build(&server).await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2255,13 +2235,12 @@ async fn includes_default_reasoning_effort_in_request_when_defined_by_model_info
     .await;
     let TestCodex { cx, .. } = test_codex().with_model("gpt-5.4").build(&server).await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2300,26 +2279,25 @@ async fn user_turn_collaboration_mode_overrides_model_and_effort() -> anyhow::Re
         },
     };
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "hello".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(config.cwd.clone())),
-                approval_policy: Some(config.permissions.approval_policy.value()),
-                sandbox_policy: Some(config.legacy_sandbox_policy()),
-                summary: Some(
-                    config
-                        .model_reasoning_summary
-                        .unwrap_or(ReasoningSummary::Auto),
-                ),
-                collaboration_mode: Some(collaboration_mode),
-                ..Default::default()
-            }),
-        )
-        .await?;
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "hello".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(config.cwd.clone())),
+            approval_policy: Some(config.permissions.approval_policy.value()),
+            sandbox_policy: Some(config.legacy_sandbox_policy()),
+            summary: Some(
+                config
+                    .model_reasoning_summary
+                    .unwrap_or(ReasoningSummary::Auto),
+            ),
+            collaboration_mode: Some(collaboration_mode),
+            ..Default::default()
+        }),
+    )
+    .await?;
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2356,13 +2334,12 @@ async fn configured_reasoning_summary_is_sent() -> anyhow::Result<()> {
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2425,12 +2402,11 @@ async fn model_without_summary_parameter_support_omits_configured_summary() -> a
         .build_with_auto_env(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2466,13 +2442,12 @@ async fn sequential_cutoff_is_omitted_for_non_openai_provider() -> anyhow::Resul
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2503,12 +2478,11 @@ async fn responses_lite_sets_all_turns_context_and_disables_parallel_tool_calls(
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2558,30 +2532,29 @@ async fn user_turn_explicit_reasoning_summary_overrides_model_catalog_default() 
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(
-            TurnInputRequest::user_input(vec![UserInput::Text {
-                text: "hello".into(),
-                text_elements: Vec::new(),
-            }])
-            .with_thread_settings(ThreadSettingsOverrides {
-                environments: Some(local_selections(config.cwd.clone())),
-                approval_policy: Some(config.permissions.approval_policy.value()),
-                sandbox_policy: Some(config.legacy_sandbox_policy()),
-                summary: Some(ReasoningSummary::Concise),
-                collaboration_mode: Some(CollaborationMode {
-                    mode: ModeKind::Default,
-                    settings: Settings {
-                        model: session_configured.model,
-                        reasoning_effort: None,
-                        developer_instructions: None,
-                    },
-                }),
-                ..Default::default()
+    cx.start_or_steer_turn(
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "hello".into(),
+            text_elements: Vec::new(),
+        }])
+        .with_thread_settings(ThreadSettingsOverrides {
+            environments: Some(local_selections(config.cwd.clone())),
+            approval_policy: Some(config.permissions.approval_policy.value()),
+            sandbox_policy: Some(config.legacy_sandbox_policy()),
+            summary: Some(ReasoningSummary::Concise),
+            collaboration_mode: Some(CollaborationMode {
+                mode: ModeKind::Default,
+                settings: Settings {
+                    model: session_configured.model,
+                    reasoning_effort: None,
+                    developer_instructions: None,
+                },
             }),
-        )
-        .await
-        .unwrap();
+            ..Default::default()
+        }),
+    )
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2615,13 +2588,12 @@ async fn reasoning_summary_is_omitted_when_disabled() -> anyhow::Result<()> {
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2667,13 +2639,12 @@ async fn reasoning_summary_none_overrides_model_catalog_default() -> anyhow::Res
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2700,13 +2671,12 @@ async fn includes_default_verbosity_in_request() -> anyhow::Result<()> {
     .await;
     let TestCodex { cx, .. } = test_codex().with_model("gpt-5.4").build(&server).await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2742,13 +2712,12 @@ async fn configured_verbosity_not_sent_for_models_without_support() -> anyhow::R
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2783,13 +2752,12 @@ async fn configured_verbosity_is_sent() -> anyhow::Result<()> {
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2831,13 +2799,12 @@ async fn includes_developer_instructions_message_in_request() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -2935,8 +2902,7 @@ async fn azure_responses_request_does_not_store_and_preserves_prefixed_item_ids(
     let model = cx_core::test_support::get_model_offline(config.model.as_deref());
     config.model = Some(model.clone());
     let config = Arc::new(config);
-    let model_info =
-        cx_core::test_support::construct_model_info_offline(model.as_str(), &config);
+    let model_info = cx_core::test_support::construct_model_info_offline(model.as_str(), &config);
     let thread_id = ThreadId::new();
     let auth_manager =
         cx_core::test_support::auth_manager_from_auth(CodexAuth::from_api_key("Test API Key"));
@@ -3152,13 +3118,12 @@ async fn token_count_includes_rate_limits_snapshot() {
         .expect("create conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     let token_event = wait_for_event(
         &cx,
@@ -3373,21 +3338,19 @@ async fn context_window_error_sets_total_tokens_to_model_window() -> anyhow::Res
         .build(&server)
         .await?;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "seed turn".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "seed turn".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "trigger context window".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "trigger context window".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let token_event = wait_for_event(&cx, |event| {
         matches!(
@@ -3461,12 +3424,11 @@ async fn incomplete_response_emits_content_filter_error_message() -> anyhow::Res
         })
         .build(&server)
         .await?;
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "trigger incomplete".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "trigger incomplete".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let error_event = wait_for_event(&cx, |ev| matches!(ev, EventMsg::Error(_))).await;
     assert!(
@@ -3567,13 +3529,12 @@ async fn azure_overrides_assign_properties_used_for_responses_url() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 }
@@ -3651,13 +3612,12 @@ async fn env_var_overrides_loaded_auth() {
         .expect("create new conversation")
         .cx;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "hello".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "hello".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
 
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
@@ -3711,33 +3671,30 @@ async fn history_dedupes_streamed_and_final_messages_across_turns() {
         .cx;
 
     // Turn 1: user sends U1; wait for completion.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "U1".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "U1".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     // Turn 2: user sends U2; wait for completion.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "U2".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "U2".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     // Turn 3: user sends U3; wait for completion.
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "U3".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await
-        .unwrap();
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "U3".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await
+    .unwrap();
     wait_for_event(&cx, |ev| matches!(ev, EventMsg::TurnComplete(_))).await;
 
     // Inspect the three captured requests.

@@ -74,10 +74,7 @@ pub(crate) struct ImportedSourceState {
     pub imported_at: i64,
 }
 
-pub fn has_current_session_been_imported(
-    cx_home: &Path,
-    source_path: &Path,
-) -> io::Result<bool> {
+pub fn has_current_session_been_imported(cx_home: &Path, source_path: &Path) -> io::Result<bool> {
     load_import_ledger(cx_home)?.contains_current_source(source_path)
 }
 
@@ -370,9 +367,7 @@ impl ImportedExternalAgentSessionLedger {
     }
 }
 
-pub(crate) fn load_import_ledger(
-    cx_home: &Path,
-) -> io::Result<ImportedExternalAgentSessionLedger> {
+pub(crate) fn load_import_ledger(cx_home: &Path) -> io::Result<ImportedExternalAgentSessionLedger> {
     let path = import_ledger_path(cx_home);
     let raw = match fs::read_to_string(path) {
         Ok(raw) => raw,

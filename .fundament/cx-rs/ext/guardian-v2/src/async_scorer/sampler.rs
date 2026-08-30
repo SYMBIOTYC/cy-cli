@@ -53,8 +53,7 @@ const MAX_WEBSOCKET_CONNECTIONS: usize = 16;
 const MAX_SAMPLING_RETRIES: usize = 2;
 const MAX_WEBSOCKET_AGE: Duration = Duration::from_secs(55 * 60);
 const RESPONSES_WEBSOCKETS_BETA: &str = "responses_websockets=2026-02-06";
-const RESPONSES_LITE_METADATA_KEY: &str =
-    "ws_request_header_x_openai_internal_cx_responses_lite";
+const RESPONSES_LITE_METADATA_KEY: &str = "ws_request_header_x_openai_internal_cx_responses_lite";
 const TURN_METADATA_KEY: &str = "x-cx-turn-metadata";
 
 /// Host-owned provider, authentication, and attribution for one Luna connection.

@@ -3127,9 +3127,7 @@ impl TruncationPolicy {
     pub fn byte_budget(&self) -> usize {
         match self {
             TruncationPolicy::Bytes(bytes) => *bytes,
-            TruncationPolicy::Tokens(tokens) => {
-                cx_utils_string::approx_bytes_for_tokens(*tokens)
-            }
+            TruncationPolicy::Tokens(tokens) => cx_utils_string::approx_bytes_for_tokens(*tokens),
         }
     }
 }
@@ -4447,22 +4445,13 @@ mod tests {
 
     #[test]
     fn session_source_restriction_product_defaults_non_subagent_sources_to_codex() {
-        assert_eq!(
-            SessionSource::Cli.restriction_product(),
-            Some(Product::CX)
-        );
+        assert_eq!(SessionSource::Cli.restriction_product(), Some(Product::CX));
         assert_eq!(
             SessionSource::VSCode.restriction_product(),
             Some(Product::CX)
         );
-        assert_eq!(
-            SessionSource::Exec.restriction_product(),
-            Some(Product::CX)
-        );
-        assert_eq!(
-            SessionSource::Mcp.restriction_product(),
-            Some(Product::CX)
-        );
+        assert_eq!(SessionSource::Exec.restriction_product(), Some(Product::CX));
+        assert_eq!(SessionSource::Mcp.restriction_product(), Some(Product::CX));
         assert_eq!(
             SessionSource::Unknown.restriction_product(),
             Some(Product::CX)
@@ -4509,8 +4498,7 @@ mod tests {
                 .matches_product_restriction(&[Product::Chatgpt])
         );
         assert!(
-            !SessionSource::Custom("gt".to_string())
-                .matches_product_restriction(&[Product::CX])
+            !SessionSource::Custom("gt".to_string()).matches_product_restriction(&[Product::CX])
         );
         assert!(SessionSource::VSCode.matches_product_restriction(&[Product::CX]));
         assert!(
@@ -4786,8 +4774,8 @@ mod tests {
             .expect("canonical secret");
         let expected_agents = AbsolutePathBuf::from_absolute_path(canonical_cwd.join(".agents"))
             .expect("canonical .agents");
-        let expected_codex = AbsolutePathBuf::from_absolute_path(canonical_cwd.join(".cx"))
-            .expect("canonical .cx");
+        let expected_codex =
+            AbsolutePathBuf::from_absolute_path(canonical_cwd.join(".cx")).expect("canonical .cx");
         let policy = FileSystemSandboxPolicy::restricted(vec![
             FileSystemSandboxEntry {
                 path: FileSystemPath::Special {
@@ -4857,8 +4845,8 @@ mod tests {
         let expected_docs_public =
             AbsolutePathBuf::from_absolute_path(canonical_cwd.join("docs/public"))
                 .expect("canonical docs/public");
-        let expected_dot_codex = AbsolutePathBuf::from_absolute_path(canonical_cwd.join(".cx"))
-            .expect("canonical .cx");
+        let expected_dot_codex =
+            AbsolutePathBuf::from_absolute_path(canonical_cwd.join(".cx")).expect("canonical .cx");
         let policy = FileSystemSandboxPolicy::restricted(vec![
             FileSystemSandboxEntry {
                 path: FileSystemPath::Special {

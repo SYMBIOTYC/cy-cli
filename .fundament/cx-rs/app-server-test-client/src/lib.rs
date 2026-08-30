@@ -521,8 +521,7 @@ pub async fn run() -> Result<()> {
                     "plugin-analytics-mutation-smoke requires --cx-bin and does not support --url"
                 );
             }
-            let cx_bin =
-                cx_bin.context("plugin-analytics-mutation-smoke requires --cx-bin")?;
+            let cx_bin = cx_bin.context("plugin-analytics-mutation-smoke requires --cx-bin")?;
             plugin_analytics_mutation_smoke::run(
                 &cx_bin,
                 &config_overrides,

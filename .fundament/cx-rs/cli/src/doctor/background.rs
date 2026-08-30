@@ -193,8 +193,8 @@ mod tests {
     }
 
     fn create_socket_placeholder(config: &Config) {
-        let socket_path = cx_app_server::app_server_control_socket_path(&config.cx_home)
-            .expect("socket path");
+        let socket_path =
+            cx_app_server::app_server_control_socket_path(&config.cx_home).expect("socket path");
         std::fs::create_dir_all(socket_path.parent().expect("socket parent"))
             .expect("create socket dir");
         std::fs::write(socket_path, "").expect("create socket placeholder");

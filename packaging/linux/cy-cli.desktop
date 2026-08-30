@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CY-CLI
+Comment=Advanced CLI built on Codex CLI foundation
+Exec=cy
+Icon=utilities-terminal
+Terminal=true
+Categories=Utility;TerminalEmulator;Development;
+Keywords=cli;ai;terminal;

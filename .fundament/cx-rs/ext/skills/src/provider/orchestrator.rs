@@ -61,8 +61,7 @@ impl SkillProvider for OrchestratorSkillProvider {
             }
 
             let _discovery_timer =
-                cx_otel::start_global_timer(ORCHESTRATOR_SKILL_DISCOVERY_DURATION_METRIC, &[])
-                    .ok();
+                cx_otel::start_global_timer(ORCHESTRATOR_SKILL_DISCOVERY_DURATION_METRIC, &[]).ok();
             let discovery_deadline =
                 tokio::time::Instant::now() + ORCHESTRATOR_SKILL_DISCOVERY_TIMEOUT;
             let mut catalog = SkillCatalog::default();

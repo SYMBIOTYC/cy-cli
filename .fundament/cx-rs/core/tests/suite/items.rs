@@ -1,26 +1,6 @@
 #![cfg(not(target_os = "windows"))]
 
 use anyhow::Ok;
-use cx_core::TurnInputRequest;
-use cx_features::Feature;
-use cx_history::RolloutItem;
-use cx_history::RolloutLine;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::items::AgentMessageContent;
-use cx_protocol::items::TurnItem;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::models::WebSearchAction;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ItemCompletedEvent;
-use cx_protocol::protocol::ItemStartedEvent;
-use cx_protocol::protocol::ThreadHistoryMode;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::ByteRange;
-use cx_protocol::user_input::TextElement;
-use cx_protocol::user_input::UserInput;
 use core_test_support::PathBufExt;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -43,6 +23,26 @@ use core_test_support::test_codex::test_codex;
 use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
 use core_test_support::wait_for_event_match;
+use cx_core::TurnInputRequest;
+use cx_features::Feature;
+use cx_history::RolloutItem;
+use cx_history::RolloutLine;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::items::AgentMessageContent;
+use cx_protocol::items::TurnItem;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::models::WebSearchAction;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ItemCompletedEvent;
+use cx_protocol::protocol::ItemStartedEvent;
+use cx_protocol::protocol::ThreadHistoryMode;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::ByteRange;
+use cx_protocol::user_input::TextElement;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 
 fn disabled_plan_turn(
@@ -87,8 +87,7 @@ async fn user_message_item_is_emitted() -> anyhow::Result<()> {
         text_elements: text_elements.clone(),
     };
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![expected_input.clone()]))
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![expected_input.clone()]))
         .await?;
 
     let started_item = wait_for_event_match(&cx, |ev| match ev {
@@ -137,12 +136,11 @@ async fn assistant_message_item_is_emitted() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, first_response).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "please summarize results".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "please summarize results".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let started = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -192,12 +190,11 @@ async fn reasoning_item_is_emitted() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, first_response).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "explain your reasoning".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "explain your reasoning".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let started = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -257,12 +254,11 @@ async fn missing_streamed_reasoning_id_is_reused_for_completion() -> anyhow::Res
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "explain your reasoning".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "explain your reasoning".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let started_id = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -310,12 +306,11 @@ async fn web_search_item_is_emitted() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, first_response).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "find the weather".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "find the weather".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let started = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -399,12 +394,11 @@ async fn agent_message_content_delta_has_item_metadata() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, stream).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "please stream text".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "please stream text".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let (started_turn_id, started_item) = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -472,13 +466,12 @@ async fn plan_mode_emits_plan_item_from_proposed_plan_block() -> anyhow::Result<
         },
     };
 
-    cx
-        .start_or_steer_turn(disabled_plan_turn(
-            "please plan",
-            session_configured.model.clone(),
-            collaboration_mode,
-        )?)
-        .await?;
+    cx.start_or_steer_turn(disabled_plan_turn(
+        "please plan",
+        session_configured.model.clone(),
+        collaboration_mode,
+    )?)
+    .await?;
 
     let plan_delta = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::PlanDelta(event) => Some(event.clone()),
@@ -537,13 +530,12 @@ async fn plan_mode_strips_plan_from_agent_messages() -> anyhow::Result<()> {
         },
     };
 
-    cx
-        .start_or_steer_turn(disabled_plan_turn(
-            "please plan",
-            session_configured.model.clone(),
-            collaboration_mode,
-        )?)
-        .await?;
+    cx.start_or_steer_turn(disabled_plan_turn(
+        "please plan",
+        session_configured.model.clone(),
+        collaboration_mode,
+    )?)
+    .await?;
 
     let mut agent_deltas = Vec::new();
     let mut plan_delta = None;
@@ -634,13 +626,12 @@ async fn plan_mode_streaming_citations_are_stripped_across_added_deltas_and_done
         },
     };
 
-    cx
-        .start_or_steer_turn(disabled_plan_turn(
-            "please plan with citations",
-            session_configured.model.clone(),
-            collaboration_mode,
-        )?)
-        .await?;
+    cx.start_or_steer_turn(disabled_plan_turn(
+        "please plan with citations",
+        session_configured.model.clone(),
+        collaboration_mode,
+    )?)
+    .await?;
 
     let mut agent_started = None;
     let mut agent_started_idx = None;
@@ -809,13 +800,12 @@ async fn plan_mode_streaming_proposed_plan_tag_split_across_added_and_delta_is_p
         },
     };
 
-    cx
-        .start_or_steer_turn(disabled_plan_turn(
-            "please plan",
-            session_configured.model.clone(),
-            collaboration_mode,
-        )?)
-        .await?;
+    cx.start_or_steer_turn(disabled_plan_turn(
+        "please plan",
+        session_configured.model.clone(),
+        collaboration_mode,
+    )?)
+    .await?;
 
     let mut agent_started = None;
     let mut agent_completed = None;
@@ -911,13 +901,12 @@ async fn plan_mode_handles_missing_plan_close_tag() -> anyhow::Result<()> {
         },
     };
 
-    cx
-        .start_or_steer_turn(disabled_plan_turn(
-            "please plan",
-            session_configured.model.clone(),
-            collaboration_mode,
-        )?)
-        .await?;
+    cx.start_or_steer_turn(disabled_plan_turn(
+        "please plan",
+        session_configured.model.clone(),
+        collaboration_mode,
+    )?)
+    .await?;
 
     let mut plan_delta = None;
     let mut plan_item = None;
@@ -977,12 +966,11 @@ async fn reasoning_content_delta_has_item_metadata() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, stream).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "reason through it".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "reason through it".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let reasoning_item = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -1048,12 +1036,11 @@ async fn sequential_cutoff_renders_done_summaries_for_active_reasoning_item() ->
     )
     .await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "reason through it".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "reason through it".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let reasoning_item = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {
@@ -1112,12 +1099,11 @@ async fn reasoning_raw_content_delta_respects_flag() -> anyhow::Result<()> {
     ]);
     mount_sse_once(&server, stream).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "show raw reasoning".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "show raw reasoning".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     let reasoning_item = wait_for_event_match(&cx, |ev| match ev {
         EventMsg::ItemStarted(ItemStartedEvent {

@@ -905,8 +905,7 @@ async fn assert_legacy_tty_descendant_lifecycle(
             powershell_literal(&ready_marker),
         ),
     };
-    let parent_command =
-        start_powershell_child(pwsh, cx_home.path(), &child_command, &parent_tail);
+    let parent_command = start_powershell_child(pwsh, cx_home.path(), &child_command, &parent_tail);
     let permission_profile = PermissionProfile::workspace_write();
     let spawned = spawn_windows_sandbox_session_legacy(
         &permission_profile,

@@ -1,5 +1,6 @@
 mod common;
 
+use common::exec_server::exec_server;
 use cx_exec_server::CAPABILITY_ROOTS_DISCOVER_METHOD;
 use cx_exec_server::CapabilityRootDiscovery;
 use cx_exec_server::CapabilityRootsDiscoverParams;
@@ -23,7 +24,6 @@ use cx_protocol::permissions::NetworkSandboxPolicy;
 #[cfg(unix)]
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_path_uri::PathUri;
-use common::exec_server::exec_server;
 use pretty_assertions::assert_eq;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

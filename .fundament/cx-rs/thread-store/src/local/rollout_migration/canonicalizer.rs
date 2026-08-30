@@ -278,8 +278,7 @@ impl LegacyRolloutCanonicalizer {
                     }
                 } else {
                     let item = RolloutItem::EventMsg(event);
-                    if cx_rollout::is_persisted_rollout_item(&item, ThreadHistoryMode::Paginated)
-                    {
+                    if cx_rollout::is_persisted_rollout_item(&item, ThreadHistoryMode::Paginated) {
                         self.write_item(writer, &timestamp, item).await?;
                     }
                 }

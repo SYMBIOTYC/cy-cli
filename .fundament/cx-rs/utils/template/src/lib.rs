@@ -296,10 +296,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(
-            rendered,
-            "Hello, CX. You are in cx-rs. CX is repeated."
-        );
+        assert_eq!(rendered, "Hello, CX. You are in cx-rs. CX is repeated.");
     }
 
     #[test]
@@ -342,10 +339,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(
-            rendered,
-            "literal open: {{, literal close: }}, value: CX"
-        );
+        assert_eq!(rendered, "literal open: {{, literal close: }}, value: CX");
     }
 
     #[test]

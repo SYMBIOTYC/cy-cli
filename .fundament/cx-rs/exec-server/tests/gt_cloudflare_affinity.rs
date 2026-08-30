@@ -15,6 +15,8 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
+use common::exec_server::ExecServerHarness;
+use common::exec_server::exec_server_with_env;
 use cx_exec_server::HttpRedirectPolicy;
 use cx_exec_server::HttpRequestParams;
 use cx_exec_server::HttpRequestResponse;
@@ -22,8 +24,6 @@ use cx_exec_server::InitializeParams;
 use cx_exec_server_protocol::JSONRPCMessage;
 use cx_exec_server_protocol::JSONRPCResponse;
 use cx_exec_server_protocol::RequestId;
-use common::exec_server::ExecServerHarness;
-use common::exec_server::exec_server_with_env;
 use pretty_assertions::assert_eq;
 use rcgen::BasicConstraints;
 use rcgen::CertificateParams;

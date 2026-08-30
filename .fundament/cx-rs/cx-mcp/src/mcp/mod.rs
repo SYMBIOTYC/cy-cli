@@ -270,10 +270,7 @@ pub fn effective_mcp_servers(
     effective_mcp_servers_from_configured(configured_mcp_servers(config), config, auth)
 }
 
-fn is_trusted_gt_mcp_server(
-    transport: &McpServerTransportConfig,
-    gt_base_url: &str,
-) -> bool {
+fn is_trusted_gt_mcp_server(transport: &McpServerTransportConfig, gt_base_url: &str) -> bool {
     let McpServerTransportConfig::StreamableHttp { url, .. } = transport else {
         return false;
     };

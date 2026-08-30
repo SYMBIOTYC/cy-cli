@@ -678,13 +678,8 @@ STATIC = "yes"
     );
 
     let agent: TomlValue = toml::from_str(
-        &fs::read_to_string(
-            repo_root
-                .join(".cx")
-                .join("agents")
-                .join("researcher.toml"),
-        )
-        .expect("read agent"),
+        &fs::read_to_string(repo_root.join(".cx").join("agents").join("researcher.toml"))
+            .expect("read agent"),
     )
     .expect("parse agent");
     let expected_agent: TomlValue = toml::from_str(

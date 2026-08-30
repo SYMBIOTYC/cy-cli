@@ -107,10 +107,7 @@ impl StatusHistoryHandle {
         state.refreshing_rate_limits = false;
     }
 
-    pub(crate) fn set_thread_usage(
-        &self,
-        estimate: Option<cx_app_server_protocol::ThreadUsage>,
-    ) {
+    pub(crate) fn set_thread_usage(&self, estimate: Option<cx_app_server_protocol::ThreadUsage>) {
         self.thread_usage.set_estimate(estimate);
     }
 }

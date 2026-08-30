@@ -113,11 +113,7 @@ pub fn writable_root_cap_sid_for_path(cx_home: &Path, root: &Path) -> Result<Str
     Ok(sid)
 }
 
-pub fn workspace_write_cap_sid_for_root(
-    cx_home: &Path,
-    cwd: &Path,
-    root: &Path,
-) -> Result<String> {
+pub fn workspace_write_cap_sid_for_root(cx_home: &Path, cwd: &Path, root: &Path) -> Result<String> {
     if canonical_path_key(root) == canonical_path_key(cwd) {
         workspace_cap_sid_for_cwd(cx_home, cwd)
     } else {

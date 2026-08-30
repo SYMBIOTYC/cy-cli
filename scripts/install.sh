@@ -7,6 +7,7 @@ set -euo pipefail
 REPO="SYMBIOTYC/CY-CLI-releases"
 INSTALL_DIR="${CY_INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="cy"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Colors
 RED='\033[0;31m'
@@ -157,6 +158,19 @@ main() {
   mkdir -p "$INSTALL_DIR"
   cp "$tmpdir/$binary_name" "$INSTALL_DIR/$binary_name"
   chmod +x "$INSTALL_DIR/$binary_name"
+
+  # Install desktop entry on Linux
+  if [ "$os" = "linux" ]; then
+    info "Installing desktop entry..."
+    local desktop_file="$INSTALL_DIR/../share/applications/cy-cli.desktop"
+    if [ "$(id -u)" = "0" ]; then
+      desktop_file="/usr/share/applications/cy-cli.desktop"
+    fi
+    mkdir -p "$(dirname "$desktop_file")"
+    sed "s|Exec=cy|Exec=$INSTALL_DIR/$binary_name|" "$REPO_ROOT/packaging/linux/cy-cli.desktop" > "$desktop_file"
+    chmod 644 "$desktop_file"
+    info "Desktop entry installed to $desktop_file"
+  fi
 
   info "Installed $BINARY_NAME to $INSTALL_DIR/$binary_name"
 

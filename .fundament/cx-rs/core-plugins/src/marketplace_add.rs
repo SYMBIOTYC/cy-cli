@@ -190,8 +190,7 @@ where
             destination.display()
         ))
     })?;
-    if let Err(err) =
-        record_added_marketplace_entry(cx_home, &marketplace_name, &install_metadata)
+    if let Err(err) = record_added_marketplace_entry(cx_home, &marketplace_name, &install_metadata)
     {
         if let Err(rollback_err) = fs::rename(&destination, &staged_root) {
             return Err(MarketplaceAddError::Internal(format!(
@@ -306,12 +305,7 @@ url = "https://github.com/example/allowed.git"
         assert!(err.to_string().contains("is not allowed by requirements"));
         assert!(!cloner_called.get());
         assert!(!marketplace_install_root(cx_home.path()).exists());
-        assert!(
-            !cx_home
-                .path()
-                .join(cx_config::CONFIG_TOML_FILE)
-                .exists()
-        );
+        assert!(!cx_home.path().join(cx_config::CONFIG_TOML_FILE).exists());
     }
 
     #[test]
@@ -383,12 +377,7 @@ url = "https://github.com/example/allowed.git"
             err.to_string(),
             "--sparse is only supported for git marketplace sources"
         );
-        assert!(
-            !cx_home
-                .path()
-                .join(cx_config::CONFIG_TOML_FILE)
-                .exists()
-        );
+        assert!(!cx_home.path().join(cx_config::CONFIG_TOML_FILE).exists());
         Ok(())
     }
 

@@ -80,10 +80,7 @@ pub fn app_server_json_shutdown_event(
     args: &[&str],
     cx_home: &Path,
 ) -> Result<Value> {
-    std::fs::write(
-        cx_home.join("config.toml"),
-        "[features]\nplugins = false\n",
-    )?;
+    std::fs::write(cx_home.join("config.toml"), "[features]\nplugins = false\n")?;
     let output = Command::new(cx_utils_cargo_bin::cargo_bin(binary)?)
         .stdin(Stdio::null())
         .env("CX_HOME", cx_home)

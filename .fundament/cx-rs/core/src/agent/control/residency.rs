@@ -1,11 +1,11 @@
 use super::AgentControl;
 use crate::agent::AgentStatus;
-use crate::cx_thread::CodexThread;
 use crate::config::Config;
+use crate::cx_thread::CodexThread;
 use crate::thread_manager::ThreadManagerState;
 use cx_protocol::ThreadId;
-use cx_protocol::error::CxErr;
 use cx_protocol::error::CodexErrorDetails;
+use cx_protocol::error::CxErr;
 use cx_protocol::error::Result as CodexResult;
 use cx_protocol::protocol::MultiAgentVersion;
 use cx_protocol::protocol::SessionSource;

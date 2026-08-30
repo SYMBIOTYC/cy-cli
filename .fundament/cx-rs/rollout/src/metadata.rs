@@ -156,13 +156,7 @@ pub(crate) async fn backfill_sessions(
     cx_home: &Path,
     default_provider: &str,
 ) {
-    backfill_sessions_with_lease(
-        runtime,
-        cx_home,
-        default_provider,
-        BACKFILL_LEASE_SECONDS,
-    )
-    .await;
+    backfill_sessions_with_lease(runtime, cx_home, default_provider, BACKFILL_LEASE_SECONDS).await;
 }
 
 pub(crate) async fn backfill_sessions_with_lease(

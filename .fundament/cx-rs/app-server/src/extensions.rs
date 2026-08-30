@@ -122,9 +122,7 @@ where
             max_context_tokens: config.skill_max_context_tokens,
             bundled_skills_enabled: config.bundled_skills_enabled(),
             orchestrator_skills_enabled: config.orchestrator_skills_enabled,
-            shadow_selection_enabled: config
-                .features
-                .enabled(cx_features::Feature::SkillSearch),
+            shadow_selection_enabled: config.features.enabled(cx_features::Feature::SkillSearch),
         },
     );
     Arc::new(builder.build())
@@ -310,9 +308,9 @@ pub(crate) fn guardian_agent_spawner(
           -> AgentSpawnFuture<'static, NewThread, CxErr> {
         let thread_manager = thread_manager.clone();
         Box::pin(async move {
-            let thread_manager = thread_manager.upgrade().ok_or_else(|| {
-                CxErr::UnsupportedOperation("thread manager dropped".to_string())
-            })?;
+            let thread_manager = thread_manager
+                .upgrade()
+                .ok_or_else(|| CxErr::UnsupportedOperation("thread manager dropped".to_string()))?;
             thread_manager
                 .spawn_subagent(forked_from_thread_id, options)
                 .await

@@ -2,6 +2,22 @@
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::apps_test_server::AppsTestServer;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::test_codex::TestCodex;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::wait_for_event;
+use core_test_support::wait_for_event_match;
 use cx_config::types::ToolSuggestDisabledTool;
 use cx_config::types::ToolSuggestDiscoverable;
 use cx_config::types::ToolSuggestDiscoverableType;
@@ -24,22 +40,6 @@ use cx_protocol::protocol::Op;
 use cx_protocol::protocol::ThreadSettingsOverrides;
 use cx_protocol::user_input::UserInput;
 use cx_utils_path_uri::PathUri;
-use core_test_support::apps_test_server::AppsTestServer;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::test_codex::TestCodex;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::wait_for_event;
-use core_test_support::wait_for_event_match;
 use serde_json::Value;
 use serde_json::json;
 use std::sync::Arc;
@@ -303,10 +303,7 @@ async fn resolve_install_elicitation(
             meta: None,
         })
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     Ok(())
 }
 
@@ -431,10 +428,7 @@ async fn mcp_discovery_overlaps_endpoint_plugin_recommendations() -> Result<()> 
             /*sandbox*/ None,
         )
         .await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let request = response.single_request();
     assert!(
@@ -484,10 +478,7 @@ async fn interrupting_concurrent_step_preparation_prevents_sampling() -> Result<
     let barrier = start_gated_step_preparation(&test, &server).await?;
     assert!(response.requests().is_empty());
     test.cx.submit(Op::Interrupt).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnAborted(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnAborted(_))).await;
     assert!(
         response.requests().is_empty(),
         "cancelling concurrent step preparation must prevent model sampling"

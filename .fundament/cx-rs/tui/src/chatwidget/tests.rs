@@ -27,6 +27,9 @@ pub(super) use crate::token_usage::TokenUsage;
 pub(super) use crate::token_usage::TokenUsageInfo;
 pub(super) use crate::tui::FrameRequester;
 pub(super) use assert_matches::assert_matches;
+pub(super) use crossterm::event::KeyCode;
+pub(super) use crossterm::event::KeyEvent;
+pub(super) use crossterm::event::KeyModifiers;
 pub(super) use cx_app_server_protocol::AddCreditsNudgeCreditType;
 pub(super) use cx_app_server_protocol::AddCreditsNudgeEmailStatus;
 pub(super) use cx_app_server_protocol::AdditionalFileSystemPermissions as AppServerAdditionalFileSystemPermissions;
@@ -166,9 +169,6 @@ pub(super) use cx_terminal_detection::TerminalName;
 pub(super) use cx_utils_absolute_path::AbsolutePathBuf;
 pub(super) use cx_utils_approval_presets::builtin_approval_presets;
 pub(super) use cx_utils_path_uri::LegacyAppPathString;
-pub(super) use crossterm::event::KeyCode;
-pub(super) use crossterm::event::KeyEvent;
-pub(super) use crossterm::event::KeyModifiers;
 pub(super) use insta::assert_snapshot;
 pub(super) use serde_json::json;
 #[cfg(target_os = "windows")]
@@ -260,6 +260,6 @@ mod terminal_title;
 mod usage;
 
 pub(crate) use helpers::make_chatwidget_manual_with_sender;
-pub(crate) use helpers::set_gt_auth;
 pub(crate) use helpers::set_fast_mode_test_catalog;
+pub(crate) use helpers::set_gt_auth;
 pub(super) use helpers::*;

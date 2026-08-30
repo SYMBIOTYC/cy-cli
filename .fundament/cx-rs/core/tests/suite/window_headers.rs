@@ -1,12 +1,5 @@
 use super::compact::COMPACT_WARNING_MESSAGE;
 use anyhow::Result;
-use cx_core::CodexThread;
-use cx_core::TurnInputRequest;
-use cx_core::compact::SUMMARIZATION_PROMPT;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::Op;
-use cx_protocol::protocol::WarningEvent;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ResponsesRequest;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -16,6 +9,13 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_core::CodexThread;
+use cx_core::TurnInputRequest;
+use cx_core::compact::SUMMARIZATION_PROMPT;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::Op;
+use cx_protocol::protocol::WarningEvent;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 
@@ -101,12 +101,11 @@ async fn window_id_advances_after_compact_persists_on_resume_and_resets_on_fork(
 }
 
 async fn submit_user_turn(cx: &Arc<CodexThread>, text: &str) -> Result<()> {
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: text.to_string(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: text.to_string(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     Ok(())
 }

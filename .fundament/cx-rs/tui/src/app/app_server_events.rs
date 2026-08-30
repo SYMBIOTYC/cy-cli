@@ -181,9 +181,7 @@ impl App {
                         notification.plan_type,
                     ),
                     notification.plan_type,
-                    notification
-                        .auth_mode
-                        .is_some_and(AuthMode::has_gt_account),
+                    notification.auth_mode.is_some_and(AuthMode::has_gt_account),
                     has_cx_backend_auth,
                 );
                 return;

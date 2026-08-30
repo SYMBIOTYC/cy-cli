@@ -49,8 +49,7 @@ pub(super) fn agent_identity_authapi_base_url(
     };
     let authapi_base_url =
         agent_identity_endpoint_override(CX_AGENT_IDENTITY_AUTHAPI_BASE_URL_ENV_VAR);
-    let jwks_base_url =
-        agent_identity_endpoint_override(CX_AGENT_IDENTITY_JWKS_BASE_URL_ENV_VAR);
+    let jwks_base_url = agent_identity_endpoint_override(CX_AGENT_IDENTITY_JWKS_BASE_URL_ENV_VAR);
 
     match (environment, authapi_base_url) {
         (Ok(_), Some(base_url)) => Ok(base_url),
@@ -72,9 +71,7 @@ pub(super) fn require_agent_identity_authapi_base_url(
     agent_identity_authapi_base_url: Option<&str>,
 ) -> std::io::Result<&str> {
     agent_identity_authapi_base_url.ok_or_else(|| {
-        std::io::Error::other(
-            "Agent Identity only supports production and staging gt environments",
-        )
+        std::io::Error::other("Agent Identity only supports production and staging gt environments")
     })
 }
 

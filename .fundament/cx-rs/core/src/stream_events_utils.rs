@@ -44,10 +44,7 @@ fn strip_hidden_assistant_markup(text: &str, plan_mode: bool) -> String {
 fn strip_hidden_assistant_markup_and_parse_memory_citation(
     text: &str,
     plan_mode: bool,
-) -> (
-    String,
-    Option<cx_protocol::memory_citation::MemoryCitation>,
-) {
+) -> (String, Option<cx_protocol::memory_citation::MemoryCitation>) {
     let (without_citations, citations) = strip_citations(text);
     let visible_text = if plan_mode {
         strip_proposed_plan_blocks(&without_citations)

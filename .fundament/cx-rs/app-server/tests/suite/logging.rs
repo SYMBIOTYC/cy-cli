@@ -6,13 +6,13 @@ use app_test_support::app_server_json_shutdown_event;
 use app_test_support::create_exec_command_sse_response;
 use app_test_support::create_final_assistant_message_sse_response;
 use app_test_support::create_mock_responses_server_sequence;
+use core_test_support::skip_if_no_network;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::ThreadStartParams;
 use cx_app_server_protocol::TurnStartParams;
 use cx_app_server_protocol::TurnStartResponse;
 use cx_app_server_protocol::UserInput;
 use cx_features::Feature;
-use core_test_support::skip_if_no_network;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -94,9 +94,7 @@ async fn app_server_emits_structured_tool_call_timing_event() -> Result<()> {
     )
     .await??;
 
-    let mut tool_call = app_server
-        .wait_for_json_log_event("cx.tool_call")
-        .await?;
+    let mut tool_call = app_server.wait_for_json_log_event("cx.tool_call").await?;
     let tool_call_object = tool_call
         .as_object_mut()
         .context("tool call log event must be an object")?;

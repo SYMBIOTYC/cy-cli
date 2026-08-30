@@ -46,7 +46,5 @@ pub use sources::SkillProviders;
 
 /// Recognizes persisted explicit skill prompts without exposing their fragment implementation.
 pub fn is_skill_prompt_fragment(text: &str) -> bool {
-    <fragments::SkillInstructions as cx_extension_api::ContextualUserFragment>::matches_text(
-        text,
-    )
+    <fragments::SkillInstructions as cx_extension_api::ContextualUserFragment>::matches_text(text)
 }

@@ -18,10 +18,7 @@ fn only_matching_enforced_apple_security_events_are_failures() {
         ),
         ("malware detected gt.app", Evidence::Malware),
         ("audit token blocked gt.app", Evidence::Blocked),
-        (
-            "audit token XP_MALWARE_DETECTED gt.app",
-            Evidence::Malware,
-        ),
+        ("audit token XP_MALWARE_DETECTED gt.app", Evidence::Malware),
         ("XP_MALWARE_REMEDIATED gt.app", Evidence::Malware),
         ("denied .plugin-appserver", Evidence::Blocked),
         ("audit would block gt.app", Evidence::Audit),

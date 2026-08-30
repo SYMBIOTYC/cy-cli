@@ -366,11 +366,7 @@ async fn tmux_scrolled_composer_resize_preserves_visible_draft_text() -> Result<
     )?;
     let cx_pane = stdout_text(&start_output).trim().to_string();
     anyhow::ensure!(!cx_pane.is_empty(), "tmux did not report a pane id");
-    wait_for_capture_contains(
-        &cx_pane,
-        "gpt-5.6-terra",
-        Duration::from_secs(/*secs*/ 15),
-    )?;
+    wait_for_capture_contains(&cx_pane, "gpt-5.6-terra", Duration::from_secs(/*secs*/ 15))?;
 
     for index in 1..=9 {
         let line = format!("probe-{index:02} clean words");

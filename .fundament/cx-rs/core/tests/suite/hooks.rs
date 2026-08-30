@@ -3,6 +3,33 @@ use std::path::Path;
 
 use anyhow::Context;
 use anyhow::Result;
+use core_test_support::TestTargetOs;
+use core_test_support::fs_wait;
+use core_test_support::hooks::trust_discovered_hooks;
+use core_test_support::hooks::trust_hooks;
+use core_test_support::managed_network_requirements_loader;
+use core_test_support::responses::ev_apply_patch_custom_tool_call;
+use core_test_support::responses::ev_assistant_message;
+use core_test_support::responses::ev_completed;
+use core_test_support::responses::ev_completed_with_tokens;
+use core_test_support::responses::ev_custom_tool_call;
+use core_test_support::responses::ev_function_call;
+use core_test_support::responses::ev_message_item_added;
+use core_test_support::responses::ev_output_text_delta;
+use core_test_support::responses::ev_response_created;
+use core_test_support::responses::mount_sse_once;
+use core_test_support::responses::mount_sse_sequence;
+use core_test_support::responses::sse;
+use core_test_support::responses::start_mock_server;
+use core_test_support::skip_if_host_windows;
+use core_test_support::skip_if_no_network;
+use core_test_support::skip_if_wine_exec;
+use core_test_support::streaming_sse::StreamingSseChunk;
+use core_test_support::streaming_sse::start_streaming_sse_server;
+use core_test_support::test_codex::test_codex;
+use core_test_support::test_codex::turn_permission_fields;
+use core_test_support::test_target_os;
+use core_test_support::wait_for_event;
 use cx_config::test_support::CloudConfigBundleFixture;
 use cx_core::StartThreadOptions;
 use cx_core::TurnInputRequest;
@@ -34,33 +61,6 @@ use cx_protocol::request_permissions::RequestPermissionsResponse;
 use cx_protocol::user_input::UserInput;
 use cx_thread_store::InMemoryThreadStore;
 use cx_utils_absolute_path::AbsolutePathBuf;
-use core_test_support::TestTargetOs;
-use core_test_support::fs_wait;
-use core_test_support::hooks::trust_discovered_hooks;
-use core_test_support::hooks::trust_hooks;
-use core_test_support::managed_network_requirements_loader;
-use core_test_support::responses::ev_apply_patch_custom_tool_call;
-use core_test_support::responses::ev_assistant_message;
-use core_test_support::responses::ev_completed;
-use core_test_support::responses::ev_completed_with_tokens;
-use core_test_support::responses::ev_custom_tool_call;
-use core_test_support::responses::ev_function_call;
-use core_test_support::responses::ev_message_item_added;
-use core_test_support::responses::ev_output_text_delta;
-use core_test_support::responses::ev_response_created;
-use core_test_support::responses::mount_sse_once;
-use core_test_support::responses::mount_sse_sequence;
-use core_test_support::responses::sse;
-use core_test_support::responses::start_mock_server;
-use core_test_support::skip_if_host_windows;
-use core_test_support::skip_if_no_network;
-use core_test_support::skip_if_wine_exec;
-use core_test_support::streaming_sse::StreamingSseChunk;
-use core_test_support::streaming_sse::start_streaming_sse_server;
-use core_test_support::test_codex::test_codex;
-use core_test_support::test_codex::turn_permission_fields;
-use core_test_support::test_target_os;
-use core_test_support::wait_for_event;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use std::sync::Arc;
@@ -1652,14 +1652,12 @@ async fn async_hook_context_is_injected_into_the_active_turn() -> Result<()> {
                 text: "observe async context immediately".to_string(),
                 text_elements: Vec::new(),
             }])
-            .with_thread_settings(
-                cx_protocol::protocol::ThreadSettingsOverrides {
-                    approval_policy: Some(AskForApproval::Never),
-                    sandbox_policy: Some(sandbox_policy),
-                    permission_profile,
-                    ..Default::default()
-                },
-            ),
+            .with_thread_settings(cx_protocol::protocol::ThreadSettingsOverrides {
+                approval_policy: Some(AskForApproval::Never),
+                sandbox_policy: Some(sandbox_policy),
+                permission_profile,
+                ..Default::default()
+            }),
         )
         .await?;
 
@@ -1697,10 +1695,7 @@ async fn async_hook_context_is_injected_into_the_active_turn() -> Result<()> {
     )
     .await
     .context("timed out waiting for the async hook warning after sampling")?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2);
@@ -1750,16 +1745,13 @@ async fn async_hook_finishing_while_idle_waits_for_the_next_turn() -> Result<()>
         .as_str()
         .context("first model request should include its turn ID")?
         .to_string();
-    let started_path = test
-        .cx_home_path()
-        .join("async_user_prompt_submit_started");
+    let started_path = test.cx_home_path().join("async_user_prompt_submit_started");
     fs_wait::wait_for_path_exists(started_path, Duration::from_secs(5))
         .await
         .context("timed out waiting for the async hook to start")?;
 
     fs::write(
-        test.cx_home_path()
-            .join("async_user_prompt_submit_release"),
+        test.cx_home_path().join("async_user_prompt_submit_release"),
         "ready",
     )
     .context("release gated async hook")?;
@@ -2041,10 +2033,7 @@ async fn compact_session_start_hook_records_additional_context_for_next_turn() -
 
     test.submit_turn("hello before compact").await?;
     test.cx.submit(Op::Compact).await?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     test.submit_turn("hello after compact").await?;
 
     let requests = request_log.requests();
@@ -2959,10 +2948,7 @@ async fn permission_request_hook_allow_bypasses_strict_auto_review() -> Result<(
         })
         .await?;
 
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 3);
@@ -3617,14 +3603,12 @@ Path(r"{hook_finished_path}").write_text("finished", encoding="utf-8")
                 text: "run the original command with async pre-tool hooks".to_string(),
                 text_elements: Vec::new(),
             }])
-            .with_thread_settings(
-                cx_protocol::protocol::ThreadSettingsOverrides {
-                    approval_policy: Some(AskForApproval::Never),
-                    sandbox_policy: Some(sandbox_policy),
-                    permission_profile,
-                    ..Default::default()
-                },
-            ),
+            .with_thread_settings(cx_protocol::protocol::ThreadSettingsOverrides {
+                approval_policy: Some(AskForApproval::Never),
+                sandbox_policy: Some(sandbox_policy),
+                permission_profile,
+                ..Default::default()
+            }),
         )
         .await?;
 
@@ -3653,10 +3637,7 @@ Path(r"{hook_finished_path}").write_text("finished", encoding="utf-8")
     )
     .await
     .context("timed out waiting for the async pre-tool warning after sampling")?;
-    wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     let requests = responses.requests();
     assert_eq!(requests.len(), 2);

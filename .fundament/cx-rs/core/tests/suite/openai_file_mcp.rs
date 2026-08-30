@@ -5,15 +5,6 @@ use std::path::Path;
 
 use anyhow::Context;
 use anyhow::Result;
-use cx_core::config::Config;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::permissions::FileSystemAccessMode;
-use cx_protocol::permissions::FileSystemSandboxEntry;
-use cx_protocol::permissions::FileSystemSandboxPolicy;
-use cx_protocol::permissions::NetworkSandboxPolicy;
-use cx_protocol::protocol::AskForApproval;
-use cx_utils_absolute_path::AbsolutePathBuf;
-use cx_utils_path_uri::PathUri;
 use core_test_support::PathExt;
 use core_test_support::apps_test_server::AppsTestServer;
 use core_test_support::apps_test_server::CALENDAR_EXTRACT_TEXT_TOOL_NAME;
@@ -38,6 +29,15 @@ use core_test_support::skip_if_sandbox;
 use core_test_support::skip_if_target_windows;
 use core_test_support::test_codex::TestCodex;
 use core_test_support::test_codex::executor_path_uri;
+use cx_core::config::Config;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::permissions::FileSystemAccessMode;
+use cx_protocol::permissions::FileSystemSandboxEntry;
+use cx_protocol::permissions::FileSystemSandboxPolicy;
+use cx_protocol::permissions::NetworkSandboxPolicy;
+use cx_protocol::protocol::AskForApproval;
+use cx_utils_absolute_path::AbsolutePathBuf;
+use cx_utils_path_uri::PathUri;
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use serde_json::json;
@@ -230,8 +230,8 @@ async fn cx_apps_file_params_omit_fields_absent_from_tool_schema() -> Result<()>
     let apps_server = AppsTestServer::mount(&server).await?;
     mount_file_upload_mocks(&server, STREAMED_FILE_SIZE as u64).await;
 
-    let mut builder = apps_enabled_builder(apps_server.gt_base_url.clone())
-        .with_workspace_setup(|cwd, fs| async move {
+    let mut builder = apps_enabled_builder(apps_server.gt_base_url.clone()).with_workspace_setup(
+        |cwd, fs| async move {
             let report_path = executor_path_uri(cwd.join("report.txt"))?;
             fs.write_file(
                 &report_path,
@@ -241,7 +241,8 @@ async fn cx_apps_file_params_omit_fields_absent_from_tool_schema() -> Result<()>
             )
             .await?;
             Ok(())
-        });
+        },
+    );
     let test = builder.build_with_auto_env(&server).await?;
     let mock = run_extract_turn(&test, &server, PermissionProfile::Disabled).await?;
 
@@ -287,10 +288,7 @@ async fn cx_apps_file_params_omit_fields_absent_from_tool_schema() -> Result<()>
         .expect("app tool should create a Files upload");
     let upload_body: Value =
         serde_json::from_slice(&upload_request.body).expect("Files request should be JSON");
-    assert_eq!(
-        upload_body.get("cx_connector_id"),
-        Some(&json!("calendar"))
-    );
+    assert_eq!(upload_body.get("cx_connector_id"), Some(&json!("calendar")));
     assert_eq!(upload_body.get("upload_source"), None);
     assert_eq!(upload_body.get("store_in_library"), None);
 

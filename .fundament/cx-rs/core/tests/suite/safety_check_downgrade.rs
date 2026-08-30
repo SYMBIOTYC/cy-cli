@@ -1,18 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_protocol::config_types::CollaborationMode;
-use cx_protocol::config_types::ModeKind;
-use cx_protocol::config_types::Settings;
-use cx_protocol::models::ContentItem;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::models::ResponseItem;
-use cx_protocol::protocol::AskForApproval;
-use cx_protocol::protocol::CodexErrorInfo;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ModelRerouteReason;
-use cx_protocol::protocol::ModelVerification;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_function_call;
 use core_test_support::responses::ev_model_verification_metadata;
@@ -29,6 +15,20 @@ use core_test_support::test_codex::local_selections;
 use core_test_support::test_codex::test_codex;
 use core_test_support::test_codex::turn_permission_fields;
 use core_test_support::wait_for_event;
+use cx_core::TurnInputRequest;
+use cx_protocol::config_types::CollaborationMode;
+use cx_protocol::config_types::ModeKind;
+use cx_protocol::config_types::Settings;
+use cx_protocol::models::ContentItem;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::models::ResponseItem;
+use cx_protocol::protocol::AskForApproval;
+use cx_protocol::protocol::CodexErrorInfo;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ModelRerouteReason;
+use cx_protocol::protocol::ModelVerification;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use wiremock::ResponseTemplate;
 
@@ -68,8 +68,7 @@ async fn openai_model_header_mismatch_emits_warning_event() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
     let server = start_mock_server().await;
-    let response =
-        sse_response(sse_completed("resp-1")).insert_header("oi-Model", SERVER_MODEL);
+    let response = sse_response(sse_completed("resp-1")).insert_header("oi-Model", SERVER_MODEL);
     let _mock = mount_response_once(&server, response).await;
 
     let mut builder = test_codex().with_model(REQUESTED_MODEL);
@@ -79,10 +78,8 @@ async fn openai_model_header_mismatch_emits_warning_event() -> Result<()> {
         .start_or_steer_turn(disabled_text_turn(&test, "trigger safety check"))
         .await?;
 
-    let reroute = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::ModelReroute(_))
-    })
-    .await;
+    let reroute =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::ModelReroute(_))).await;
     let EventMsg::ModelReroute(reroute) = reroute else {
         panic!("expected model reroute event");
     };
@@ -97,10 +94,7 @@ async fn openai_model_header_mismatch_emits_warning_event() -> Result<()> {
     assert!(warning.message.contains(REQUESTED_MODEL));
     assert!(warning.message.contains(SERVER_MODEL));
 
-    let _ = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    let _ = wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }
@@ -166,10 +160,8 @@ async fn response_model_field_mismatch_emits_warning_when_header_matches_request
         .start_or_steer_turn(disabled_text_turn(&test, "trigger response model check"))
         .await?;
 
-    let reroute = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::ModelReroute(_))
-    })
-    .await;
+    let reroute =
+        wait_for_event(&test.cx, |event| matches!(event, EventMsg::ModelReroute(_))).await;
     let EventMsg::ModelReroute(reroute) = reroute else {
         panic!("expected model reroute event");
     };
@@ -193,10 +185,7 @@ async fn response_model_field_mismatch_emits_warning_when_header_matches_request
     assert!(warning.message.contains(REQUESTED_MODEL));
     assert!(warning.message.contains(SERVER_MODEL));
 
-    let _ = wait_for_event(&test.cx, |event| {
-        matches!(event, EventMsg::TurnComplete(_))
-    })
-    .await;
+    let _ = wait_for_event(&test.cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
 
     Ok(())
 }
@@ -263,8 +252,8 @@ async fn openai_model_header_casing_only_mismatch_does_not_warn() -> Result<()> 
 
     let server = start_mock_server().await;
     let requested_header = REQUESTED_MODEL.to_ascii_uppercase();
-    let response = sse_response(sse_completed("resp-1"))
-        .insert_header("oi-Model", requested_header.as_str());
+    let response =
+        sse_response(sse_completed("resp-1")).insert_header("oi-Model", requested_header.as_str());
     let _mock = mount_response_once(&server, response).await;
 
     let mut builder = test_codex().with_model(REQUESTED_MODEL);

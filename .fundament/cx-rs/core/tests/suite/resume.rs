@@ -1,10 +1,4 @@
 use anyhow::Result;
-use cx_core::TurnInputRequest;
-use cx_protocol::protocol::EventMsg;
-use cx_protocol::protocol::ThreadSettingsOverrides;
-use cx_protocol::user_input::ByteRange;
-use cx_protocol::user_input::TextElement;
-use cx_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
 use core_test_support::responses::ev_reasoning_item;
@@ -16,6 +10,12 @@ use core_test_support::responses::start_mock_server;
 use core_test_support::skip_if_no_network;
 use core_test_support::test_codex::test_codex;
 use core_test_support::wait_for_event;
+use cx_core::TurnInputRequest;
+use cx_protocol::protocol::EventMsg;
+use cx_protocol::protocol::ThreadSettingsOverrides;
+use cx_protocol::user_input::ByteRange;
+use cx_protocol::user_input::TextElement;
+use cx_protocol::user_input::UserInput;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 
@@ -40,12 +40,11 @@ async fn resume_includes_initial_messages_from_rollout_events() -> Result<()> {
         Some("<note>".into()),
     )];
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "Record some messages".into(),
-            text_elements: text_elements.clone(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "Record some messages".into(),
+        text_elements: text_elements.clone(),
+    }]))
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let resumed = builder.restart(&server, &initial).await?;
@@ -95,12 +94,11 @@ async fn resume_includes_initial_messages_from_reasoning_events() -> Result<()> 
     ]);
     mount_sse_once(&server, initial_sse).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "Record reasoning messages".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "Record reasoning messages".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
 
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let resumed = builder.restart(&server, &initial).await?;
@@ -152,12 +150,11 @@ async fn resume_switches_models_preserves_base_instructions() -> Result<()> {
     ]);
     let initial_mock = mount_sse_once(&server, initial_sse).await;
 
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "Record initial instructions".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "Record initial instructions".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let initial_body = initial_mock.single_request().body_json();
     let initial_instructions = initial_body
@@ -261,12 +258,11 @@ async fn resume_model_switch_is_not_duplicated_after_pre_turn_override() -> Resu
         ]),
     )
     .await;
-    cx
-        .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
-            text: "Record initial instructions".into(),
-            text_elements: Vec::new(),
-        }]))
-        .await?;
+    cx.start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "Record initial instructions".into(),
+        text_elements: Vec::new(),
+    }]))
+    .await?;
     wait_for_event(&cx, |event| matches!(event, EventMsg::TurnComplete(_))).await;
     let _ = initial_mock.single_request();
 

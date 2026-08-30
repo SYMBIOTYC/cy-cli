@@ -1,12 +1,12 @@
 use super::*;
 use crate::sandboxing::SandboxPermissions;
+use core_test_support::PathBufExt;
+use core_test_support::test_path_buf;
 use cx_network_proxy::BlockedRequestArgs;
 use cx_protocol::models::PermissionProfile;
 use cx_protocol::permissions::NetworkSandboxPolicy;
 use cx_protocol::protocol::AskForApproval;
 use cx_utils_path_uri::PathUri;
-use core_test_support::PathBufExt;
-use core_test_support::test_path_buf;
 use futures::poll;
 use pretty_assertions::assert_eq;
 use std::time::Duration;

@@ -1,12 +1,5 @@
 use anyhow::Context;
 use anyhow::Result;
-use cx_exec_server::CreateDirectoryOptions;
-use cx_exec_server::RemoveOptions;
-use cx_features::Feature;
-use cx_protocol::models::PermissionProfile;
-use cx_protocol::permissions::NetworkSandboxPolicy;
-use cx_utils_absolute_path::AbsolutePathBuf;
-use cx_utils_path_uri::PathUri;
 #[cfg(windows)]
 use core_test_support::PathExt;
 use core_test_support::TestTargetOs;
@@ -23,6 +16,13 @@ use core_test_support::skip_if_wine_exec;
 use core_test_support::test_codex::TestCodex;
 use core_test_support::test_codex::test_codex;
 use core_test_support::test_target_os;
+use cx_exec_server::CreateDirectoryOptions;
+use cx_exec_server::RemoveOptions;
+use cx_features::Feature;
+use cx_protocol::models::PermissionProfile;
+use cx_protocol::permissions::NetworkSandboxPolicy;
+use cx_utils_absolute_path::AbsolutePathBuf;
+use cx_utils_path_uri::PathUri;
 use serde_json::json;
 use wiremock::MockServer;
 

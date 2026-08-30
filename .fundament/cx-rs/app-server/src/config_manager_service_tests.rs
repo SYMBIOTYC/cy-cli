@@ -768,10 +768,9 @@ async fn managed_auth_policy_survives_unusable_requirements_file_changes() -> Re
         CloudConfigBundleLoader::default(),
     );
     let startup = service.load_latest_config(/*fallback_cwd*/ None).await?;
-    let auth_manager = cx_login::AuthManager::shared_from_config(
-        &startup, /*enable_cx_api_key_env*/ false,
-    )
-    .await?;
+    let auth_manager =
+        cx_login::AuthManager::shared_from_config(&startup, /*enable_cx_api_key_env*/ false)
+            .await?;
     std::fs::write(
         &requirements_path,
         "allowed_login_methods = [\"gt\"]\nallowed_gt_workspaces = []\n",

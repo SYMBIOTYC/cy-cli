@@ -1,9 +1,9 @@
 use super::agent;
 use crate::memory_root;
-use cx_model_provider::create_model_provider;
-use cx_protocol::protocol::SandboxPolicy;
 use core_test_support::responses::start_mock_server;
 use core_test_support::test_codex::test_codex;
+use cx_model_provider::create_model_provider;
+use cx_protocol::protocol::SandboxPolicy;
 use pretty_assertions::assert_eq;
 use std::sync::Arc;
 use tempfile::TempDir;

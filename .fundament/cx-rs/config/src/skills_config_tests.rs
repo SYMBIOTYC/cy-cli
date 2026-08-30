@@ -55,11 +55,7 @@ enabled = {enabled}
 fn bundled_skills_follow_effective_configuration() {
     let cx_home = TempDir::new().expect("temp dir");
 
-    assert!(bundled_skills_enabled_from_stack(&stack(
-        &cx_home,
-        "",
-        ""
-    )));
+    assert!(bundled_skills_enabled_from_stack(&stack(&cx_home, "", "")));
     assert!(!bundled_skills_enabled_from_stack(&stack(
         &cx_home,
         "[skills.bundled]\nenabled = false\n",

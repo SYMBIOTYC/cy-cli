@@ -429,11 +429,7 @@ fn validate_plugin_events(events: Vec<Value>, expected: &ExpectedPlugin) -> Resu
 }
 
 fn required_event_types() -> [&'static str; 3] {
-    [
-        "cx_plugin_disabled",
-        "cx_plugin_enabled",
-        "cx_plugin_used",
-    ]
+    ["cx_plugin_disabled", "cx_plugin_enabled", "cx_plugin_used"]
 }
 
 fn event_count(events: &[Value], event_type: &str) -> usize {
@@ -483,10 +479,8 @@ struct TemporaryConfigFile {
 
 impl TemporaryConfigFile {
     fn create() -> Result<Self> {
-        let path = std::env::temp_dir().join(format!(
-            "cx-plugin-analytics-config-{}.toml",
-            process::id()
-        ));
+        let path =
+            std::env::temp_dir().join(format!("cx-plugin-analytics-config-{}.toml", process::id()));
         fs::write(&path, "")
             .with_context(|| format!("create temporary config file {}", path.display()))?;
         Ok(Self { path })

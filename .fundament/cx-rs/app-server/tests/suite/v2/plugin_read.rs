@@ -360,10 +360,7 @@ apps = true
 async fn plugin_read_returns_share_context_for_shared_remote_plugin() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -512,10 +509,7 @@ async fn plugin_read_returns_share_context_for_shared_remote_plugin() -> Result<
 async fn plugin_read_includes_share_url_for_admin_disabled_remote_plugin() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -754,10 +748,7 @@ async fn plugin_read_includes_share_url_for_admin_disabled_remote_plugin() -> Re
 async fn plugin_skill_read_reads_remote_skill_contents_when_remote_plugin_enabled() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -817,10 +808,7 @@ async fn plugin_skill_read_reads_remote_skill_contents_when_remote_plugin_enable
 async fn plugin_read_maps_missing_remote_plugin_to_invalid_request() -> Result<()> {
     let cx_home = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -1016,10 +1004,7 @@ async fn plugin_read_returns_share_context_for_shared_local_plugin() -> Result<(
     let cx_home = TempDir::new()?;
     let repo_root = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -1036,9 +1021,7 @@ async fn plugin_read_returns_share_context_for_shared_local_plugin() -> Result<(
     )?;
     std::fs::create_dir_all(repo_root.path().join("demo-plugin/.cx-plugin"))?;
     std::fs::write(
-        repo_root
-            .path()
-            .join("demo-plugin/.cx-plugin/plugin.json"),
+        repo_root.path().join("demo-plugin/.cx-plugin/plugin.json"),
         r#"{"name":"demo-plugin","version":"1.2.3"}"#,
     )?;
     std::fs::write(
@@ -1158,10 +1141,7 @@ async fn plugin_read_keeps_remote_version_when_share_principals_are_missing() ->
     let cx_home = TempDir::new()?;
     let repo_root = TempDir::new()?;
     let server = MockServer::start().await;
-    write_remote_plugin_catalog_config(
-        cx_home.path(),
-        &format!("{}/backend-api/", server.uri()),
-    )?;
+    write_remote_plugin_catalog_config(cx_home.path(), &format!("{}/backend-api/", server.uri()))?;
     write_gt_auth(
         cx_home.path(),
         ChatGptAuthFixture::new("gt-token")
@@ -1178,9 +1158,7 @@ async fn plugin_read_keeps_remote_version_when_share_principals_are_missing() ->
     )?;
     std::fs::create_dir_all(repo_root.path().join("demo-plugin/.cx-plugin"))?;
     std::fs::write(
-        repo_root
-            .path()
-            .join("demo-plugin/.cx-plugin/plugin.json"),
+        repo_root.path().join("demo-plugin/.cx-plugin/plugin.json"),
         r#"{"name":"demo-plugin","version":"1.2.3"}"#,
     )?;
     std::fs::write(
@@ -1323,9 +1301,7 @@ async fn plugin_read_fails_on_malformed_share_mapping() -> Result<()> {
     write_plugin_source(repo_root.path(), "demo-plugin", &[])?;
     std::fs::create_dir_all(cx_home.path().join(".tmp"))?;
     std::fs::write(
-        cx_home
-            .path()
-            .join(".tmp/plugin-share-local-paths-v1.json"),
+        cx_home.path().join(".tmp/plugin-share-local-paths-v1.json"),
         "not valid json\n",
     )?;
 

@@ -118,10 +118,7 @@ pub(crate) async fn run_pending_session_start_hooks(
         // start hooks.
         let target = match &turn_context.session_source {
             SessionSource::SubAgent(SubAgentSource::ThreadSpawn { agent_role, .. })
-                if matches!(
-                    session_start_source,
-                    cx_hooks::SessionStartSource::Startup
-                ) =>
+                if matches!(session_start_source, cx_hooks::SessionStartSource::Startup) =>
             {
                 let context = subagent_hook_context(sess, agent_role);
                 StartHookTarget::SubagentStart {

@@ -25,8 +25,8 @@ fn context_with_fragment(fragment: &str) -> (TempDir, InlineVisualizationContext
 #[test]
 fn granted_visualization_root_overrides_thread_id_derived_root() {
     let cx_home = tempfile::tempdir().expect("temp cx home");
-    let granted_context = InlineVisualizationContext::new(cx_home.path(), ThreadId::new())
-        .expect("granted context");
+    let granted_context =
+        InlineVisualizationContext::new(cx_home.path(), ThreadId::new()).expect("granted context");
     fs::create_dir_all(&granted_context.thread_dir).expect("create granted directory");
     fs::write(
         granted_context.thread_dir.join("chart.html"),

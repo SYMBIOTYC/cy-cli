@@ -61,9 +61,7 @@ const SYSTEM_SKILLS_MARKER_SALT: &str = "v1";
 
 /// Returns the on-disk cache location for embedded system skills from an absolute CX_HOME.
 pub fn system_cache_root_dir(cx_home: &AbsolutePathBuf) -> AbsolutePathBuf {
-    cx_home
-        .join(SKILLS_DIR_NAME)
-        .join(SYSTEM_SKILLS_DIR_NAME)
+    cx_home.join(SKILLS_DIR_NAME).join(SYSTEM_SKILLS_DIR_NAME)
 }
 
 /// Installs embedded system skills into `CX_HOME/skills/.system`.
