@@ -14,15 +14,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: ubuntu-latest
-            asset: cy-linux-x86_64
-            target: x86_64-unknown-linux-gnu
-          - runner: ubuntu-latest
-            asset: cy-linux-aarch64
-            target: aarch64-unknown-linux-gnu
-          - runner: macos-latest
-            asset: cy-macos-aarch64
-            target: aarch64-apple-darwin
           - runner: macos-latest
             asset: cy-macos-x86_64
             target: x86_64-apple-darwin
