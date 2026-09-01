@@ -94,8 +94,8 @@ impl WidgetRef for &WelcomeWidget {
         lines.push(Line::from(vec![
             "  ".into(),
             "Welcome to ".into(),
-            "CX".bold(),
-            ", oi's command-line coding agent".into(),
+            "CY".bold(),
+            ", SYMBIOTYC Terminal Agent".into(),
         ]));
 
         Paragraph::new(lines)

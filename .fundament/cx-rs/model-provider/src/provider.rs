@@ -1067,11 +1067,11 @@ mod tests {
         assert_eq!(
             models,
             vec![
-                ("openai.gpt-5.6-sol", "GPT-5.6 Sol"),
-                ("openai.gpt-5.6-terra", "GPT-5.6 Terra"),
-                ("openai.gpt-5.6-luna", "GPT-5.6 Luna"),
-                ("openai.gpt-5.5", "GPT-5.5"),
-                ("openai.gpt-5.4", "GPT-5.4"),
+                ("openai.gpt-5.6-sol", "Sol"),
+                ("openai.gpt-5.6-terra", "Terra"),
+                ("openai.gpt-5.6-luna", "Luna"),
+                ("openai.gpt-5.5", "5.5"),
+                ("openai.gpt-5.4", "5.4"),
             ]
         );
 
@@ -1110,7 +1110,7 @@ mod tests {
             .models
             .into_iter()
             .find(|model| model.slug == "gpt-5.5")
-            .expect("bundled models should include GPT-5.5");
+            .expect("bundled models should include 5.5");
         assert!(!configured_model.additional_speed_tiers.is_empty());
         assert!(!configured_model.service_tiers.is_empty());
 
