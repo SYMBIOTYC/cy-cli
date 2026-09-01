@@ -11,7 +11,7 @@ cargo run -p cx-thread-manager-sample -- "Say hello"
 Use `--model` to override the configured default model:
 
 ```sh
-cargo run -p cx-thread-manager-sample -- --model gpt-5.2 "Say hello"
+cargo run -p cx-thread-manager-sample -- --model cy/i1a "Say hello"
 ```
 
 The prompt can also be piped through stdin:
