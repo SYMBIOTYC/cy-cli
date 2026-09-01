@@ -1212,7 +1212,19 @@ async fn cli_main(
     let open_agents_overview = matches!(&subcommand, Some(Subcommand::Agents(_)));
     match subcommand {
         None => {
-            cx_tui::ncview::run_ncview().await?;
+            // Default to classic interactive TUI (Codex CLI style), not 4-panel ncview
+            prepend_config_flags(
+                &mut interactive.config_overrides,
+                root_config_overrides.clone(),
+            );
+            let exit_info = run_interactive_tui(
+                interactive,
+                root_remote.clone(),
+                root_remote_auth_token_env.clone(),
+                arg0_paths.clone(),
+            )
+            .await?;
+            handle_app_exit(exit_info)?;
         }
         Some(Subcommand::Agents(_)) => {
             if open_agents_overview {
