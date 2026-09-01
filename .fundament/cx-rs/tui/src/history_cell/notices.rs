@@ -28,7 +28,7 @@ impl HistoryCell for UpdateAvailableHistoryCell {
         } else {
             line![
                 "See ",
-                "https://github.com/openai/cx".cyan().underlined(),
+                "https://github.com/SYMBIOTYC/cy-cli".cyan().underlined(),
                 " for installation options."
             ]
         };
@@ -60,7 +60,7 @@ impl HistoryCell for UpdateAvailableHistoryCell {
         let update_instruction = if let Some(update_action) = self.update_action {
             format!("Run {} to update.", update_action.command_str())
         } else {
-            "See https://github.com/openai/cx for installation options.".to_string()
+            "See https://github.com/SYMBIOTYC/cy-cli for installation options.".to_string()
         };
         vec![
             Line::from("Update available!"),
@@ -92,7 +92,7 @@ pub(crate) struct SafetyAccessBlockCell {
 }
 
 const SAFETY_ACCESS_BLOCK_TITLE: &str = "This content can't be shown";
-const SAFETY_ACCESS_BLOCK_LEARN_MORE_URL: &str = "https://help.openai.com/en/articles/20001326";
+const SAFETY_ACCESS_BLOCK_LEARN_MORE_URL: &str = "https://cy.symbiotyc.workers.dev/help/safety";
 
 pub(crate) fn new_safety_access_block_event() -> SafetyAccessBlockCell {
     SafetyAccessBlockCell {
