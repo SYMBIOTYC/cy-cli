@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-latest
+          - runner: macos-14
             asset: cy-macos-x86_64
             target: x86_64-apple-darwin
     runs-on: ${{ matrix.runner }}
@@ -23,15 +23,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: ${{ matrix.target }}
       - name: Build release binary
         run: |
           cd .fundament/cx-rs
-          cargo build --release --bin cy --target ${{ matrix.target }}
+          cargo build --release --bin cy
       - name: Package
         run: |
           mkdir -p dist
-          cp .fundament/cx-rs/target/${{ matrix.target }}/release/cy dist/${{ matrix.asset }}
+          cp .fundament/cx-rs/target/x86_64-apple-darwin/release/cy dist/${{ matrix.asset }}
           cd dist
           tar czf ${{ matrix.asset }}.tar.gz ${{ matrix.asset }}
       - name: Upload release asset
