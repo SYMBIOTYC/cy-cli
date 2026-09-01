@@ -35,7 +35,7 @@ jobs:
       - name: Build release binary
         run: |
           cd .fundament/cx-rs
-          cargo build --release -p cy-cli --target ${{ matrix.target }}
+          cargo build --release --bin cy --target ${{ matrix.target }}
       - name: Package
         run: |
           mkdir -p dist
