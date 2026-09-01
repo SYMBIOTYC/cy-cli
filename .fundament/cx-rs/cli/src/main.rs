@@ -1013,7 +1013,7 @@ fn run_update_command() -> anyhow::Result<()> {
     {
         let Some(action) = cx_tui::get_update_action() else {
             anyhow::bail!(
-                "Could not detect the CX installation method. Please update manually: https://developers.cy.symbiotyc.workers.dev/cx/cli/"
+                "Could not detect the CY installation method. Please update manually: https://developers.cy.symbiotyc.workers.dev/cy/cli/"
             );
         };
         run_update_action(action)

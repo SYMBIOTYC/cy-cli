@@ -146,7 +146,7 @@ pub async fn read_connector_metadata(
     );
     anyhow::ensure!(
         auth.get_account_id().is_some(),
-        "gt account ID not available, please re-run cx login"
+        "gt account ID not available, please re-run cy login"
     );
 
     let store = ConnectorMetadataStore::new(

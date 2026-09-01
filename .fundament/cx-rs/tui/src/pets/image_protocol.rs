@@ -64,7 +64,7 @@ impl PetImageUnsupportedReason {
     fn message(self) -> &'static str {
         match self {
             Self::Tmux => {
-                "Pets are disabled in tmux. Terminal images don’t stay pane-local in tmux and can corrupt scrollback or move between panes. Run CX outside tmux to use pets."
+                "Pets are disabled in tmux. Terminal images don’t stay pane-local in tmux and can corrupt scrollback or move between panes. Run CY outside tmux to use pets."
             }
             Self::Zellij => {
                 "Pets are disabled in Zellij. Terminal images don’t stay reliably pane-local in Zellij. Run CX outside Zellij to use pets."
@@ -73,7 +73,7 @@ impl PetImageUnsupportedReason {
                 "Pets require iTerm2 3.6 or newer. Upgrade iTerm2 to use terminal pets."
             }
             Self::Terminal => {
-                "Pets aren’t available in this terminal. Terminal pets need image support, and this terminal environment doesn’t expose a supported image protocol. Try a terminal with Kitty graphics or Sixel support, or run CX outside tmux."
+                "Pets aren’t available in this terminal. Terminal pets need image support, and this terminal environment doesn’t expose a supported image protocol. Try a terminal with Kitty graphics or Sixel support, or run CY outside tmux."
             }
         }
     }

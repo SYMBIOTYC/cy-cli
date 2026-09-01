@@ -1000,18 +1000,18 @@ fn plugin_remote_section_error_next_step(label: &str, err: &str) -> &'static str
         || err.contains("not logged in")
     {
         "Sign in to gt, then try loading this section again."
-    } else if err.contains("cx plugins are disabled")
+    } else if err.contains("cy plugins are disabled")
         || err.contains("plugin sharing is disabled")
         || err.contains("plugin sharing is not enabled")
         || err.contains("feature disabled")
     {
-        "Ask a workspace admin to enable CX plugins or plugin sharing."
+        "Ask a workspace admin to enable CY plugins or plugin sharing."
     } else if err.contains("workspace") && (err.contains("access") || err.contains("mismatch")) {
         "Switch to the matching workspace or ask the sharer for access."
     } else if err.contains("not found") || err.contains("status 404") {
         "Check that you are signed in to the correct workspace and still have access."
-    } else if err.contains("old build") || err.contains("update cx") || err.contains("stale") {
-        "Update CX, then try opening the shared plugin again."
+    } else if err.contains("old build") || err.contains("update cy") || err.contains("stale") {
+        "Update CY, then try opening the shared plugin again."
     } else if err.contains("service unavailable")
         || err.contains("temporarily unavailable")
         || err.contains("status 503")
@@ -1508,7 +1508,7 @@ mod tests {
             (
                 "Shared with me",
                 "old build fallback",
-                "Update CX, then try opening the shared plugin again.",
+                "Update CY, then try opening the shared plugin again.",
             ),
             (
                 "Shared with me",
@@ -1523,7 +1523,7 @@ mod tests {
             (
                 "Shared with me",
                 "plugin sharing is not enabled",
-                "Ask a workspace admin to enable CX plugins or plugin sharing.",
+                "Ask a workspace admin to enable CY plugins or plugin sharing.",
             ),
         ];
 

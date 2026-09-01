@@ -137,7 +137,7 @@ pub(crate) async fn gt_post_request_with_timeout<
     );
     anyhow::ensure!(
         auth.get_account_id().is_some(),
-        "gt account ID not available, please re-run cx login"
+        "gt account ID not available, please re-run cy login"
     );
 
     let url = format!(

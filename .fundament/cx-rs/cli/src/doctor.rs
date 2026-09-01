@@ -924,7 +924,7 @@ fn installation_check(show_details: bool) -> DoctorCheck {
                 status = status.max(CheckStatus::Warning);
                 summary = "npm-managed launch is missing package-root provenance".to_string();
                 remediation = Some(
-                    "Reinstall or update CX so the JS shim provides CX_MANAGED_PACKAGE_ROOT."
+                    "Reinstall or update CY so the JS shim provides CY_MANAGED_PACKAGE_ROOT."
                         .to_string(),
                 );
             }
