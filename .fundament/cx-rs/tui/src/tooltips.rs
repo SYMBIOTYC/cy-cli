@@ -10,14 +10,14 @@ const IS_MACOS: bool = cfg!(target_os = "macos");
 const IS_WINDOWS: bool = cfg!(target_os = "windows");
 
 const APP_TOOLTIP: &str =
-    "Try the **Desktop app**. Run 'cx app' or visit https://chatgpt.com/cx?app-landing-page=true";
+    "Tip: type / to see commands, or paste a path to attach files.";
 const MACOS_APP_TOOLTIP: &str =
-    "Run `cx app` to open the Desktop app (it installs on macOS if needed).";
-const LINUX_APP_TOOLTIP: &str = "Try the **Desktop app** on Linux: install it from https://learn.chatgpt.com/docs/linux/linux-app and run 'gt'.";
+    "Tip: type / to see commands, or paste a path to attach files.";
+const LINUX_APP_TOOLTIP: &str = "Tip: type / to see commands, or paste a path to attach files.";
 const FAST_TOOLTIP: &str =
     "*New* Use **/fast** to enable our fastest inference with increased plan usage.";
-const OTHER_TOOLTIP: &str = "*New* Build faster with the **Desktop app**. Run 'cx app' or visit https://chatgpt.com/cx?app-landing-page=true";
-const OTHER_TOOLTIP_NON_MAC: &str = "*New* Build faster with CX.";
+const OTHER_TOOLTIP: &str = "Tip: type / to see commands, or paste a path to attach files.";
+const OTHER_TOOLTIP_NON_MAC: &str = "*New* Build faster with CY.";
 const FREE_GO_TOOLTIP: &str =
     "*New* For a limited time, CX is included in your plan for free – let’s build together.";
 
