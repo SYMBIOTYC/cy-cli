@@ -126,7 +126,7 @@ impl PtyCodex {
             self.read_output(Duration::from_millis(/*millis*/ 50))?;
             self.answer_startup_queries()?;
 
-            if self.palette_answered && self.screen_contains("oi CX") {
+            if self.palette_answered && self.screen_contains("CY") {
                 return Ok(());
             }
 
