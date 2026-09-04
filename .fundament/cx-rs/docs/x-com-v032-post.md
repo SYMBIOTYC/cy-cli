@@ -1,30 +1,19 @@
----
-title: "CY-CLI v0.3.2 GOD_MODE"
-type: announcement
-audience: x-com investors/devs
----
+# CY v0.3.2 "GOD_MODE"
+*— The agent that does whatever you say, no questions asked*
 
-## CY v0.3.2 — "GOD_MODE" 🚀
+## Что нового:
+- **Полный доступ к браузеру** — CY может открывать любые сайты, читать страницы, делать скриншоты
+- **Никогда не спрашивает "Разрешить?"** — CY просто делает. Полный доступ к файлам, сети, системе
+- **Анимация статуса** — мигающий индикатор как на роутере: зеленый когда работает, красный если ошибка
+- **Логотип SYMBIOTYC** — маленький шестиугольник в углу экрана плавно меняет форму
 
-**Full system access. Browser built-in. Zero prompts.**
+## Пример:
+> Вы: "CY, открой google.com и найди погоду в Москве"
+> CY: (открывает браузер, читает страницу, отвечает) "Дождь, +15°C"
 
-### What's new:
-- **Browser tools**: `browser_fetch` (curl + HTML strip), `browser_open` (system browser), `browser_screenshot`
-- **GOD_MODE default**: `approval_policy = "Never"`, `default_permissions = "danger-full-access"` 
-- **LED indicator**: chaotic router-style blink (green=working, red=error, cyan=done)
-- **Hex morph**: SYMBIOTYC logo in top-right — square↔hexagon continuously
-- **Popup VFX**: wink (show) + poof (hide)
-- **All CX→CY branding** fixed
+Просто говорите — CY делает.
 
-### Try it:
-```bash
-cy exec "fetch https://httpbin.org/json and summarize"
-```
+GitHub: @SYMBIOTYC/cy-cli
+Telegram: @symbiotyc
 
-GitHub: @SYMBIOTYC/cy-cli  
-Build: #33894449148
-
-We're 5 dev teams shipping fast. Follow for more.
-
----
-#CYCLI #GODMODE #BrowserAutomation #TerminalAI #CodingAgent
+#CY #GODMODE #AI-agent #coding #startup
