@@ -91,7 +91,7 @@ pub(super) fn endpoint_check(inspection: EndpointInspection) -> DoctorCheck {
     for product in products {
         let remedy = match product {
             "CrowdStrike Falcon" => {
-                "CrowdStrike Falcon: Add a certificate or IOA exclusion for CX. If sensor overhead continues, exclude the CX agent from sensor visibility. Keep monitoring descendant processes."
+                "CrowdStrike Falcon: Add a certificate or IOA exclusion for CY. If sensor overhead continues, exclude the CX agent from sensor visibility. Keep monitoring descendant processes."
             }
             "BeyondTrust Privilege Management" => {
                 "BeyondTrust: Remove CX from application blocking rules. Add allow rules for CX helper executables. Do not grant administrator privileges."

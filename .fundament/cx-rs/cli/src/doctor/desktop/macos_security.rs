@@ -144,7 +144,7 @@ fn enforcement_check(gatekeeper: Evidence, events: Evidence) -> DoctorCheck {
         (
             CheckStatus::Fail,
             "macos XProtect blocked or remediated the desktop application",
-            "collect the XProtect detection and ask your security administrator to review the official CX installation",
+            "collect the XProtect detection and ask your security administrator to review the official CY installation",
         )
     } else if gatekeeper == Evidence::Blocked {
         (

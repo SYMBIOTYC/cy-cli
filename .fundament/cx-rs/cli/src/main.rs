@@ -145,7 +145,7 @@ enum Subcommand {
     /// Browse all agent sessions on the shared local app-server daemon.
     Agents(AgentsCommand),
 
-    /// Run CX non-interactively.
+    /// Run CY non-interactively.
     #[clap(visible_alias = "e")]
     Exec(ExecCli),
 
@@ -158,13 +158,13 @@ enum Subcommand {
     /// Remove stored authentication credentials.
     Logout(LogoutCommand),
 
-    /// Manage external MCP servers for CX.
+    /// Manage external MCP servers for CY.
     Mcp(McpCli),
 
-    /// Manage CX plugins.
+    /// Manage CY plugins.
     Plugin(PluginCli),
 
-    /// Start CX as an MCP server (stdio).
+    /// Start CY as an MCP server (stdio).
     McpServer(McpServerCommand),
 
     /// [experimental] Run the app server or related tooling.
@@ -180,13 +180,13 @@ enum Subcommand {
     /// Generate shell completion scripts.
     Completion(CompletionCommand),
 
-    /// Update CX to the latest version.
+    /// Update CY to the latest version.
     Update,
 
-    /// Diagnose local CX installation, config, auth, and runtime health.
+    /// Diagnose local CY installation, config, auth, and runtime health.
     Doctor(DoctorCommand),
 
-    /// Run commands within a CX-provided sandbox.
+    /// Run commands within a CY-provided sandbox.
     Sandbox(HostSandboxArgs),
 
     /// Debugging tools.
@@ -196,7 +196,7 @@ enum Subcommand {
     #[clap(hide = true)]
     Execpolicy(ExecpolicyCommand),
 
-    /// Apply the latest diff produced by CX agent as a `git apply` to your local working tree.
+    /// Apply the latest diff produced by CY agent as a `git apply` to your local working tree.
     #[clap(visible_alias = "a")]
     Apply(ApplyCommand),
 
@@ -241,7 +241,7 @@ enum Subcommand {
     #[clap(visible_alias = "b")]
     Batch(BatchCommand),
 
-    /// [EXPERIMENTAL] Browse tasks from CX Cloud and apply changes locally.
+    /// [EXPERIMENTAL] Browse tasks from CY Cloud and apply changes locally.
     #[clap(name = "cloud", alias = "cloud-tasks")]
     Cloud(CloudTasksCli),
 
@@ -335,7 +335,7 @@ struct DebugModelsCommand {
 
 #[derive(Debug, Parser)]
 struct ReviewCommand {
-    /// Error out when config.toml contains fields that are not recognized by this version of CX.
+    /// Error out when config.toml contains fields that are not recognized by this version of CY.
     #[arg(long = "strict-config", default_value_t = false)]
     strict_config: bool,
 
@@ -345,7 +345,7 @@ struct ReviewCommand {
 
 #[derive(Debug, Parser)]
 struct McpServerCommand {
-    /// Error out when config.toml contains fields that are not recognized by this version of CX.
+    /// Error out when config.toml contains fields that are not recognized by this version of CY.
     #[arg(long = "strict-config", default_value_t = false)]
     strict_config: bool,
 }
@@ -419,7 +419,7 @@ struct SessionArchiveConfigOverrides {
     #[clap(flatten)]
     shared: SharedCliOptions,
 
-    /// Error out when config.toml contains fields that are not recognized by this version of CX.
+    /// Error out when config.toml contains fields that are not recognized by this version of CY.
     #[arg(long = "strict-config", default_value_t = false)]
     strict_config: bool,
 
@@ -673,7 +673,7 @@ struct AppServerCommand {
     #[command(flatten)]
     code_mode_host: cx_app_server::AppServerCodeModeHostArgs,
 
-    /// Error out when config.toml contains fields that are not recognized by this version of CX.
+    /// Error out when config.toml contains fields that are not recognized by this version of CY.
     #[arg(long = "strict-config", default_value_t = false)]
     strict_config: bool,
 
@@ -721,7 +721,7 @@ struct ExecServerCommand {
     #[command(subcommand)]
     command: Option<ExecServerSubcommand>,
 
-    /// Error out when config.toml contains fields that are not recognized by this version of CX.
+    /// Error out when config.toml contains fields that are not recognized by this version of CY.
     #[arg(
         id = "exec_server_strict_config",
         long = "strict-config",
@@ -807,7 +807,7 @@ enum AppServerSubcommand {
     /// [experimental] Generate JSON Schema for the app server protocol.
     GenerateJsonSchema(GenerateJsonSchemaCommand),
 
-    /// [internal] Generate internal JSON Schema artifacts for CX tooling.
+    /// [internal] Generate internal JSON Schema artifacts for CY tooling.
     #[clap(hide = true)]
     GenerateInternalJsonSchema(GenerateInternalJsonSchemaCommand),
 }
@@ -962,7 +962,7 @@ fn handle_app_exit(exit_info: AppExitInfo) -> anyhow::Result<()> {
 fn run_update_action(action: UpdateAction) -> anyhow::Result<()> {
     println!();
     let cmd_str = action.command_str();
-    println!("Updating CX via `{cmd_str}`...");
+    println!("Updating CY via `{cmd_str}`...");
 
     let status = {
         #[cfg(windows)]
@@ -997,7 +997,7 @@ fn run_update_action(action: UpdateAction) -> anyhow::Result<()> {
     if !status.success() {
         anyhow::bail!("`{cmd_str}` failed with status {status}");
     }
-    println!("\n🎉 Update ran successfully! Please restart CX.");
+    println!("\n🎉 Update ran successfully! Please restart CY.");
     Ok(())
 }
 
@@ -1005,7 +1005,7 @@ fn run_update_command() -> anyhow::Result<()> {
     #[cfg(debug_assertions)]
     {
         anyhow::bail!(
-            "`cx update` is not available in debug builds. Install a release build of CX to use this command."
+            "`cx update` is not available in debug builds. Install a release build of CY to use this command."
         );
     }
 
@@ -2349,7 +2349,7 @@ async fn run_exec_server_command(
     let cx_self_exe = arg0_paths
         .cx_self_exe
         .clone()
-        .ok_or_else(|| anyhow::anyhow!("CX executable path is not configured"))?;
+        .ok_or_else(|| anyhow::anyhow!("CY executable path is not configured"))?;
     let runtime_paths = cx_exec_server::ExecServerRuntimePaths::new(
         cx_self_exe,
         arg0_paths.cx_linux_sandbox_exe.clone(),
@@ -3068,7 +3068,7 @@ async fn run_interactive_tui(
         }
 
         eprintln!(
-            "WARNING: TERM is set to \"dumb\". CX's interactive TUI may not work in this terminal."
+            "WARNING: TERM is set to \"dumb\". CY'''s interactive TUI may not work in this terminal."
         );
         if !confirm("Continue anyway? [y/N]: ")? {
             return Ok(AppExitInfo::fatal(
@@ -3137,7 +3137,7 @@ async fn run_interactive_tui(
             Err(backup_err) => {
                 local_state_db::print_diagnostic_guidance(startup_error);
                 return Ok(AppExitInfo::fatal(format!(
-                    "failed to move damaged CX local database files into a backup folder automatically: {backup_err}"
+                    "failed to move damaged CY local database files into a backup folder automatically: {backup_err}"
                 )));
             }
         }
