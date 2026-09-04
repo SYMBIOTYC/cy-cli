@@ -47,7 +47,7 @@ pub(crate) enum LedState {
 
 /// Chaotic LED blink: produces a `•` that flickers at pseudo-random intervals
 /// like a router activity LED. Uses a simple xorshift PRNG seeded from time.
-fn chaotic_led(_now: Instant, state: LedState) -> Span<'static> {
+fn chaotic_led(state: LedState) -> Span<'static> {
     let ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
@@ -300,7 +300,7 @@ impl Renderable for StatusIndicatorWidget {
         let mut spans = Vec::with_capacity(5);
         // Chaotic LED indicator — replaces the old shimmer/wave dot.
         if self.animations_enabled {
-            spans.push(chaotic_led(now, self.led_state));
+            spans.push(chaotic_led(self.led_state));
             spans.push(" ".into());
         }
         // Static header text (no shimmer — the LED carries the motion).

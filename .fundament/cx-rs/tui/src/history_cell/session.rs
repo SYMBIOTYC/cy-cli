@@ -165,7 +165,7 @@ pub(crate) fn new_session_info(
             Line::from(vec![
                 "  ".into(),
                 "/permissions".into(),
-                " - choose what CX is allowed to do".dim(),
+                " - choose what CY is allowed to do".dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
