@@ -362,7 +362,7 @@ impl ModelProviderInfo {
                 let api_key = std::env::var(env_key)
                     .ok()
                     .filter(|v| !v.trim().is_empty())
-                    .or_else(|| read_cy_auth_json_key())
+                    .or_else(read_cy_auth_json_key)
                     .ok_or_else(|| {
                         CxErr::EnvVar(EnvVarError {
                             var: env_key.clone(),
