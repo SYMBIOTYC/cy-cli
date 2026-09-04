@@ -42,8 +42,24 @@ pub const OPENAI_PROVIDER_ID: &str = "openai";
 pub const CHATGPT_CODEX_BASE_URL: &str = "https://cy.symbiotyc.workers.dev/v1";
 const CY_PROVIDER_NAME: &str = "CY Cyborg";
 pub const CY_PROVIDER_ID: &str = "cy";
-const CY_PROVIDER_BASE_URL: &str = "https://api.cy.symbiotyc.workers.dev/v1";
-const CY_PROVIDER_API_KEY: &str = "cfat_KbYOsjGncELIzKQn3WxUIz9jL97n9nJK2I1EG4hg35627bee";
+// CY-CLI ships with a local `cy_bridge.py` that translates OpenAI-compatible
+// requests into the SYMBIOTYC Cloud chat endpoint. The bridge runs on
+// 127.0.0.1:8790 by default and is started by the macOS .app launcher; it can
+// also be started manually with `python3 cy_bridge.py &` before invoking
+// `cy exec` from a terminal.
+//
+// Set `CY_BASE_URL` (or the standard `OPENAI_BASE_URL`) to override the
+// bridge endpoint, e.g. to point at a remote bridge, a staging deployment,
+// or directly at `https://cy.symbiotyc.workers.dev/v1` if you want to skip
+// the bridge entirely.
+const CY_PROVIDER_DEFAULT_BASE_URL: &str = "http://127.0.0.1:8790/v1";
+const CY_PROVIDER_BASE_URL_ENV_VAR: &str = "CY_BASE_URL";
+const CY_OPENAI_BASE_URL_ENV_VAR: &str = "OPENAI_BASE_URL";
+const CY_PROVIDER_ENV_KEY: &str = "CY_API_KEY";
+const CY_PROVIDER_ENV_KEY_INSTRUCTIONS: &str =
+    "Set the CY_API_KEY environment variable to your SYMBIOTYC Cloud API key. \
+     `cy login` writes the key to ~/.cy/auth.json and the launcher exports \
+     it before starting the TUI or the bridge.";
 const AMAZON_BEDROCK_PROVIDER_NAME: &str = "Amazon Bedrock";
 pub const AMAZON_BEDROCK_PROVIDER_ID: &str = "amazon-bedrock";
 const AMAZON_BEDROCK_RUNTIME_PROVIDER_NAME: &str = "Amazon Bedrock Runtime";
@@ -420,12 +436,24 @@ impl ModelProviderInfo {
     }
 
     pub fn create_cy_provider() -> ModelProviderInfo {
+        // Prefer an explicit `CY_BASE_URL` (or the standard
+        // `OPENAI_BASE_URL` for parity with other OpenAI-compatible CLIs),
+        // then any value the user wrote into `~/.cy/config.toml` under
+        // `[model_providers.cy] base_url`, and only fall back to the
+        // built-in default (the local bridge) if neither is set. This
+        // keeps `cy exec` pointed at the bridge that the .app launcher
+        // starts, but lets power users point at a remote bridge or
+        // straight at the SYMBIOTYC Cloud endpoint.
+        let base_url = std::env::var(CY_PROVIDER_BASE_URL_ENV_VAR)
+            .ok()
+            .or_else(|| std::env::var(CY_OPENAI_BASE_URL_ENV_VAR).ok())
+            .unwrap_or_else(|| CY_PROVIDER_DEFAULT_BASE_URL.to_string());
         ModelProviderInfo {
             name: CY_PROVIDER_NAME.into(),
-            base_url: Some(CY_PROVIDER_BASE_URL.into()),
-            env_key: None,
-            env_key_instructions: None,
-            experimental_bearer_token: Some(CY_PROVIDER_API_KEY.into()),
+            base_url: Some(base_url),
+            env_key: Some(CY_PROVIDER_ENV_KEY.into()),
+            env_key_instructions: Some(CY_PROVIDER_ENV_KEY_INSTRUCTIONS.into()),
+            experimental_bearer_token: None,
             auth: None,
             aws: None,
             wire_api: WireApi::Responses,
