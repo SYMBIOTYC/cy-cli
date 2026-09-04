@@ -3565,13 +3565,9 @@ impl Config {
         let mut approval_policy = approval_policy_override
             .or(cfg.approval_policy)
             .unwrap_or_else(|| {
-                if active_project.is_trusted() {
-                    AskForApproval::OnRequest
-                } else if active_project.is_untrusted() {
-                    AskForApproval::UnlessTrusted
-                } else {
-                    AskForApproval::default()
-                }
+                // GOD_MODE: default to Never (full access) for all projects.
+                // Users can override in config.toml with approval_policy = "on-request".
+                AskForApproval::Never
             });
         if !approval_policy_was_explicit
             && let Err(err) = constrained_approval_policy.can_set(&approval_policy)
