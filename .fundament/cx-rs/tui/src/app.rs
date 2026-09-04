@@ -859,16 +859,27 @@ impl App {
                 desired_height
             };
             let mut rendered_area = Rect::default();
+            let frame_req = tui.frame_requester();
             tui.draw_with_resize_reflow(desired_height, screen_size, |frame| {
                 let area = frame.area();
                 rendered_area = area;
                 chat_widget.render(area, frame.buffer);
+                // Render hex morph overlay in the top-right corner (5 cols × 3 rows).
+                let morph_area = Rect {
+                    x: area.right().saturating_sub(6),
+                    y: area.y,
+                    width: 5.min(area.width),
+                    height: 3.min(area.height),
+                };
+                crate::hex_morph::render_hex_morph(morph_area, frame.buffer);
                 self.chat_widget.note_rendered_width(area.width);
                 if let Some((x, y)) = chat_widget.cursor_pos(area) {
                     frame.set_cursor_style(chat_widget.cursor_style(area));
                     frame.set_cursor_position((x, y));
                 }
             })?;
+            // Schedule next frame for hex morph animation (~30fps).
+            frame_req.schedule_frame_in(std::time::Duration::from_millis(33));
             Ok(rendered_area)
         })
     }

@@ -10,6 +10,7 @@ use std::time::Instant;
 use crossterm::event::KeyCode;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
+use ratatui::style::Color;
 use ratatui::style::Stylize;
 use ratatui::text::Line;
 use ratatui::text::Span;
@@ -22,10 +23,6 @@ use crate::app_event_sender::AppEventSender;
 use crate::key_hint;
 use crate::key_hint::ShortcutHint;
 use crate::line_truncation::truncate_line_with_ellipsis_if_overflow;
-use crate::motion::MotionMode;
-use crate::motion::ReducedMotionIndicator;
-use crate::motion::activity_indicator;
-use crate::motion::shimmer_text;
 use crate::render::renderable::Renderable;
 use crate::text_formatting::capitalize_first;
 use crate::tui::FrameRequester;
@@ -34,6 +31,48 @@ use crate::wrapping::word_wrap_lines;
 
 pub(crate) const STATUS_DETAILS_DEFAULT_MAX_LINES: usize = 3;
 const DETAILS_PREFIX: &str = "  └ ";
+
+/// LED indicator state for the status line.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LedState {
+    /// Green chaotic blink — task in progress.
+    Working,
+    /// Red — error.
+    #[allow(dead_code)]
+    Error,
+    /// Cyan — complete / notifying.
+    #[allow(dead_code)]
+    Complete,
+}
+
+/// Chaotic LED blink: produces a `•` that flickers at pseudo-random intervals
+/// like a router activity LED. Uses a simple xorshift PRNG seeded from time.
+fn chaotic_led(_now: Instant, state: LedState) -> Span<'static> {
+    let ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64;
+    // Simple xorshift32 PRNG — fast, no deps, good enough for visuals.
+    let mut seed = ms ^ 0xDEAD_BEEF;
+    seed ^= seed << 13;
+    seed ^= seed >> 7;
+    seed ^= seed << 17;
+    // Decide on/off: use bit position that changes at a chaotic rate.
+    let duty_bit = (ms / 37) % 8; // changes every 37ms → chaotic rhythm
+    let on = ((seed >> duty_bit) & 1) == 1;
+
+    let color = match state {
+        LedState::Working => Color::Green,
+        LedState::Error => Color::Red,
+        LedState::Complete => Color::Cyan,
+    };
+
+    if on {
+        Span::styled("•", ratatui::style::Style::default().fg(color).bold())
+    } else {
+        Span::styled("•", ratatui::style::Style::default().fg(color).dim())
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum StatusDetailsCapitalization {
@@ -58,6 +97,8 @@ pub(crate) struct StatusIndicatorWidget {
     app_event_tx: AppEventSender,
     frame_requester: FrameRequester,
     animations_enabled: bool,
+    /// LED state — controls the color of the activity dot.
+    led_state: LedState,
 }
 
 // Format elapsed seconds into a compact human-friendly form used by the status line.
@@ -97,6 +138,7 @@ impl StatusIndicatorWidget {
             app_event_tx,
             frame_requester,
             animations_enabled,
+            led_state: LedState::Working,
         }
     }
 
@@ -107,6 +149,12 @@ impl StatusIndicatorWidget {
     /// Update the animated header label (left of the brackets).
     pub(crate) fn update_header(&mut self, header: String) {
         self.header = header;
+    }
+
+    /// Set the LED indicator state (controls dot color).
+    #[allow(dead_code)]
+    pub(crate) fn set_led_state(&mut self, state: LedState) {
+        self.led_state = state;
     }
 
     /// Update the details text shown below the header.
@@ -241,25 +289,22 @@ impl Renderable for StatusIndicatorWidget {
         }
 
         if self.animations_enabled {
-            // Schedule next animation frame.
+            // Schedule next animation frame (~30fps for chaotic blink).
             self.frame_requester
                 .schedule_frame_in(Duration::from_millis(32));
         }
         let now = Instant::now();
         let elapsed_duration = self.elapsed_duration_at(now);
         let pretty_elapsed = fmt_elapsed_compact(elapsed_duration.as_secs());
-        let motion_mode = MotionMode::from_animations_enabled(self.animations_enabled);
 
         let mut spans = Vec::with_capacity(5);
-        if let Some(indicator) = activity_indicator(
-            Some(self.last_resume_at),
-            motion_mode,
-            ReducedMotionIndicator::Hidden,
-        ) {
-            spans.push(indicator);
+        // Chaotic LED indicator — replaces the old shimmer/wave dot.
+        if self.animations_enabled {
+            spans.push(chaotic_led(now, self.led_state));
             spans.push(" ".into());
         }
-        spans.extend(shimmer_text(&self.header, motion_mode));
+        // Static header text (no shimmer — the LED carries the motion).
+        spans.push(Span::from(self.header.clone()));
         if !spans.is_empty() {
             spans.push(" ".into());
         }
