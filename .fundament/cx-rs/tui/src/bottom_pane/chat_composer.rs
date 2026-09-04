@@ -284,6 +284,7 @@ mod draft_state;
 mod footer_state;
 mod history_search;
 mod popup_state;
+mod popup_vfx;
 mod slash_input;
 
 use self::attachment_state::AttachmentState;
@@ -2112,7 +2113,7 @@ impl ChatComposer {
                     self.popups.dismissed_file_token =
                         Some(DismissedToken::new(&self.draft.textarea, range, query));
                 }
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
                 (InputResult::None, true)
             }
             KeyEvent {
@@ -2124,7 +2125,7 @@ impl ChatComposer {
                 ..
             } => {
                 let Some(sel) = popup.selected_match() else {
-                    self.popups.active = ActivePopup::None;
+                    self.popups.set_active(ActivePopup::None);
                     return if key_event.code == KeyCode::Enter {
                         self.handle_key_event_without_popup(key_event)
                     } else {
@@ -2138,7 +2139,7 @@ impl ChatComposer {
                 {
                     self.insert_selected_file_path(token_range, &sel_path);
                 }
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
                 (InputResult::None, true)
             }
             input => self.handle_input_basic(input),
@@ -2193,7 +2194,7 @@ impl ChatComposer {
                         target.query,
                     ));
                 }
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
                 (InputResult::None, true)
             }
             KeyEvent {
@@ -2219,7 +2220,7 @@ impl ChatComposer {
             {
                 self.insert_selected_mention(target.range, &insert_text, path.as_deref());
             }
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
         }
 
         result
@@ -2298,7 +2299,7 @@ impl ChatComposer {
                     self.popups.dismissed_mention_token =
                         Some(DismissedToken::new(&self.draft.textarea, range, query));
                 }
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
                 (InputResult::None, true)
             }
             KeyEvent {
@@ -2338,7 +2339,7 @@ impl ChatComposer {
                     }
                 }
             }
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             if submit_without_popup {
                 return self.handle_key_event_without_popup(key_event);
             }
@@ -3850,13 +3851,13 @@ impl ChatComposer {
                     .send(AppEvent::StartFileSearch(String::new()));
                 self.popups.current_file_query = None;
             }
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             self.popups.dismissed_file_token = None;
             self.popups.dismissed_mention_token = None;
             return;
         }
         if !self.popups_enabled() {
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             return;
         }
         let mut mentions_v2_token = self.current_mentions_v2_token_range();
@@ -3876,7 +3877,7 @@ impl ChatComposer {
                     .send(AppEvent::StartFileSearch(String::new()));
                 self.popups.current_file_query = None;
             }
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             return;
         }
         let mut mention_target = self.current_mention_target();
@@ -3945,8 +3946,13 @@ impl ChatComposer {
             self.popups.active,
             ActivePopup::File(_) | ActivePopup::Skill(_) | ActivePopup::MentionV2(_)
         ) {
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
         }
+    }
+
+    /// Tick the popup VFX animation. Returns true if animation is still running.
+    pub(crate) fn tick_popup_vfx(&mut self) -> bool {
+        self.popups.tick_vfx()
     }
 
     /// Synchronize `self.command_popup` with the current text in the
@@ -3967,7 +3973,7 @@ impl ChatComposer {
 
         if !allow {
             if matches!(self.popups.active, ActivePopup::Command(_)) {
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
             }
             return;
         }
@@ -3988,7 +3994,7 @@ impl ChatComposer {
         // as an argument to the command (e.g., "/review @docs/...").
         if Self::current_at_token(&self.draft.textarea).is_some() {
             if matches!(self.popups.active, ActivePopup::Command(_)) {
-                self.popups.active = ActivePopup::None;
+                self.popups.set_active(ActivePopup::None);
             }
             return;
         }
@@ -3999,7 +4005,7 @@ impl ChatComposer {
                         popup.on_composer_text_change(command_filter_text.to_string());
                     }
                 } else {
-                    self.popups.active = ActivePopup::None;
+                    self.popups.set_active(ActivePopup::None);
                 }
             }
             _ => {
@@ -4007,7 +4013,7 @@ impl ChatComposer {
                     && let Some(command_filter_text) = command_filter_text.as_deref()
                 {
                     let command_popup = self.slash_input().command_popup(command_filter_text);
-                    self.popups.active = ActivePopup::Command(command_popup);
+                    self.popups.set_active(ActivePopup::Command(command_popup));
                 }
             }
         }
@@ -4047,7 +4053,7 @@ impl ChatComposer {
                 } else {
                     popup.set_query(&query);
                 }
-                self.popups.active = ActivePopup::File(popup);
+                self.popups.set_active(ActivePopup::File(popup));
             }
         }
 
@@ -4076,7 +4082,7 @@ impl ChatComposer {
 
         let mentions = prebuilt_mentions.unwrap_or_else(|| self.mention_items());
         if mentions.is_empty() {
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             return;
         }
 
@@ -4088,7 +4094,7 @@ impl ChatComposer {
             _ => {
                 let mut popup = SkillPopup::new(mentions);
                 popup.set_query(&query);
-                self.popups.active = ActivePopup::Skill(popup);
+                self.popups.set_active(ActivePopup::Skill(popup));
             }
         }
     }
@@ -4266,7 +4272,7 @@ impl ChatComposer {
 
         // Avoid leaving interactive popups open while input is blocked.
         if !enabled && self.popups.active() {
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
         }
     }
 
@@ -4817,6 +4823,8 @@ impl ChatComposer {
                 }
             }
         }
+        // Render popup VFX (wink/poof animations)
+        self.render_popup_vfx(popup_rect, buf);
         let style = user_message_style();
         Block::default().style(style).render(composer_rect, buf);
         if !remote_images_rect.is_empty() {
@@ -4917,6 +4925,64 @@ impl ChatComposer {
                 && let Some(frame_requester) = &self.frame_requester
             {
                 frame_requester.schedule_frame_in(IGNITION_FRAME_TICK);
+            }
+        }
+    }
+}
+
+impl ChatComposer {
+    /// Render popup VFX (wink/poof animations) over the popup area.
+    fn render_popup_vfx(&self, area: Rect, buf: &mut Buffer) {
+        use popup_vfx::PopupVfx;
+        use ratatui::style::Color;
+
+        let vfx = self.popups.vfx();
+        match vfx {
+            PopupVfx::None => {}
+            PopupVfx::Wink { frame, max_frames } => {
+                // White wink effect: flash from bright to dim
+                let progress = *frame as f32 / *max_frames as f32;
+                // Start bright (white), fade to transparent
+                let alpha = (1.0f32 - progress * 2.0f32).max(0.0f32);
+                if alpha > 0.0 {
+                    let style = Style::default().fg(Color::White);
+                    // Draw a flash line at the top of the popup area
+                    let flash_height = (area.height as f32 * alpha) as u16;
+                    if flash_height > 0 {
+                        let flash_area = Rect {
+                            x: area.x,
+                            y: area.y,
+                            width: area.width,
+                            height: flash_height.min(area.height),
+                        };
+                        // Fill with white flash
+                        for y in flash_area.y..flash_area.y + flash_area.height {
+                            for x in flash_area.x..flash_area.x + flash_area.width {
+                                buf.set_string(x, y, " ", style);
+                            }
+                        }
+                    }
+                }
+            }
+            PopupVfx::Poof { frame, max_frames } => {
+                // Pink poof effect: particles burst outward
+                let progress = *frame as f32 / *max_frames as f32;
+                let particle_count = 8;
+                let center_x = area.x + area.width / 2;
+                let center_y = area.y + area.height / 2;
+
+                for i in 0..particle_count {
+                    let angle = (i as f32 / particle_count as f32) * std::f32::consts::PI * 2.0;
+                    let distance = progress * 3.0; // Max distance in cells
+                    let px = center_x + (angle.cos() * distance) as u16;
+                    let py = center_y + (angle.sin() * distance) as u16;
+
+                    // Only draw if within bounds
+                    if px >= area.x && px < area.x + area.width && py >= area.y && py < area.y + area.height {
+                        let style = Style::default().fg(Color::Magenta);
+                        buf.set_string(px, py, "•", style);
+                    }
+                }
             }
         }
     }
@@ -6059,7 +6125,7 @@ mod tests {
 
         composer.handle_key_event(KeyEvent::new(KeyCode::Char('i'), KeyModifiers::NONE));
         composer.set_text_content("/plan investigate this".to_string(), Vec::new(), Vec::new());
-        composer.popups.active = ActivePopup::None;
+        composer.popups.set_active(ActivePopup::None);
         let (result, needs_redraw) =
             composer.handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
 
@@ -12377,7 +12443,7 @@ mod tests {
         composer.set_collaboration_modes_enabled(/*enabled*/ true);
 
         composer.set_text_content("/plan investigate this".to_string(), Vec::new(), Vec::new());
-        composer.popups.active = ActivePopup::None;
+        composer.popups.set_active(ActivePopup::None);
         let (result, _needs_redraw) =
             composer.handle_key_event(KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE));
 

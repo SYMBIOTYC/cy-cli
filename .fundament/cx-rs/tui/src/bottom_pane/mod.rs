@@ -791,6 +791,10 @@ impl BottomPane {
         self.maybe_show_delayed_approval_requests_at(now);
         self.tick_active_view(now);
         self.schedule_active_view_frame();
+        // Tick popup VFX animation
+        if self.composer.tick_popup_vfx() {
+            self.request_redraw();
+        }
     }
 
     fn tick_active_view(&mut self, now: Instant) {

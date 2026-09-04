@@ -112,7 +112,7 @@ impl ChatComposer {
                 .send(AppEvent::StartFileSearch(String::new()));
             self.popups.current_file_query = None;
         }
-        self.popups.active = ActivePopup::None;
+        self.popups.set_active(ActivePopup::None);
         self.attachments.clear_remote_image_selection();
         self.history_search = Some(HistorySearchSession {
             original_draft: self.snapshot_draft(),

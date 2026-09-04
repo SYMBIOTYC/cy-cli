@@ -219,7 +219,7 @@ impl ChatComposer {
             let first_line = self.draft.textarea.text().lines().next().unwrap_or("");
             self.popups.dismissed_command_token =
                 command_popup_filter_text(first_line, /*cursor*/ 0);
-            self.popups.active = ActivePopup::None;
+            self.popups.set_active(ActivePopup::None);
             return (InputResult::None, true);
         }
         self.footer.mode = reset_mode_after_activity(self.footer.mode);

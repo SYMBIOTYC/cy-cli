@@ -6,7 +6,9 @@ use crate::bottom_pane::file_search_popup::FileSearchPopup;
 use crate::bottom_pane::mentions_v2::MentionV2Popup;
 use crate::bottom_pane::skill_popup::SkillPopup;
 use crate::bottom_pane::textarea::TextArea;
+use super::popup_vfx::PopupVfx;
 use std::ops::Range;
+use std::time::Instant;
 
 /// One token occurrence whose autocomplete popup should remain hidden.
 pub(super) struct DismissedToken {
@@ -93,11 +95,53 @@ pub(super) struct PopupState {
     pub(super) dismissed_file_token: Option<DismissedToken>,
     pub(super) current_file_query: Option<String>,
     pub(super) dismissed_mention_token: Option<DismissedToken>,
+    /// Visual effect animation state for popup transitions.
+    pub(super) vfx: PopupVfx,
+    /// Last time VFX was ticked (for rate limiting).
+    last_vfx_tick: Option<Instant>,
 }
 
 impl PopupState {
     pub(super) fn active(&self) -> bool {
         !matches!(self.active, ActivePopup::None)
+    }
+
+    /// Set the active popup and trigger appropriate VFX animation.
+    pub(super) fn set_active(&mut self, popup: ActivePopup) {
+        let was_active = self.active();
+        self.active = popup;
+        let is_active = self.active();
+
+        // Trigger VFX based on transition
+        if !was_active && is_active {
+            // None -> Some: wink (show)
+            self.vfx = PopupVfx::wink();
+        } else if was_active && !is_active {
+            // Some -> None: poof (hide)
+            self.vfx = PopupVfx::poof();
+        }
+    }
+
+    /// Get the current VFX state.
+    pub(super) fn vfx(&self) -> &PopupVfx {
+        &self.vfx
+    }
+
+    /// Tick the VFX animation. Returns true if animation is still running.
+    /// Rate-limited to VFX_FRAME_INTERVAL to maintain consistent animation speed.
+    pub(super) fn tick_vfx(&mut self) -> bool {
+        let now = Instant::now();
+        let interval = PopupVfx::frame_interval();
+
+        // Rate limit: only tick if enough time has passed
+        if let Some(last_tick) = self.last_vfx_tick {
+            if now.duration_since(last_tick) < interval {
+                return self.vfx.is_active();
+            }
+        }
+
+        self.last_vfx_tick = Some(now);
+        self.vfx.tick()
     }
 }
 
