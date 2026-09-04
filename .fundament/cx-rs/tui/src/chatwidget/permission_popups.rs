@@ -156,7 +156,7 @@ impl ChatWidget {
         });
 
         self.bottom_pane.show_selection_view(SelectionViewParams {
-            title: Some("Update Model Permissions".to_string()),
+            title: Some("CY · Permissions".to_string()),
             footer_note,
             footer_hint: Some(standard_popup_hint_line()),
             items,
@@ -420,27 +420,26 @@ impl ChatWidget {
         let title_line = Line::from("Enable full access?").bold();
         let info_lines = if is_cyber_model {
             let recommendation = if auto_review_available(&self.config) {
-                "We strongly recommend selecting \"Approve for me\" instead, and customizing the reviewer policy for your use case."
+                "Use \u{201c}Approve for me\u{201d} with a custom reviewer policy."
             } else {
-                "We strongly recommend selecting \"Ask for approval\" instead."
+                "Use \u{201c}Ask for approval\u{201d} instead."
             };
             vec![
                 Line::default(),
                 Line::from(
-                    "When CX runs with full access, it can edit any file on your computer and run commands with network, without your approval.",
+                    "Full access lets CY edit any file and use the network without asking.",
                 ),
                 Line::default(),
                 Line::from(vec![
-                    "Cyber models carry a higher risk of dangerous actions.".red(),
-                    " Ensure proper safeguards are in place before granting full access. ".into(),
+                    "Higher-risk model. ".red().bold(),
                     recommendation.into(),
                 ]),
             ]
         } else {
             vec![Line::from(vec![
-                "When CX runs with full access, it can edit any file on your computer and run commands with network, without your approval. "
+                "Full access lets CY edit any file and use the network without asking. "
                     .into(),
-                "Exercise caution when enabling full access. This significantly increases the risk of data loss, leaks, or unexpected behavior."
+                "Data loss and leaks are possible. Use with care."
                     .red(),
             ])]
         };

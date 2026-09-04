@@ -189,12 +189,38 @@ fn load_custom_theme(name: &str, cx_home: &Path) -> Option<Theme> {
 }
 
 fn adaptive_default_theme_selection() -> (EmbeddedThemeName, &'static str) {
+    let (light_embedded, light_name, dark_embedded, dark_name) = cy_default_themes();
     match crate::terminal_palette::default_bg() {
-        Some(bg) if crate::color::is_light(bg) => {
-            (EmbeddedThemeName::CatppuccinLatte, "catppuccin-latte")
-        }
-        _ => (EmbeddedThemeName::CatppuccinMocha, "catppuccin-mocha"),
+        Some(bg) if crate::color::is_light(bg) => (light_embedded, light_name),
+        _ => (dark_embedded, dark_name),
     }
+}
+
+/// SYMBIOTYC: default theme pair. The macOS launcher seeds 7 branded
+/// `.tmTheme` files into `~/.cy/themes/`. When the user has not picked
+/// anything, we prefer our own `cy-prime` (dark) / `photon-blade` (light)
+/// over the upstream Catppuccin defaults. The upstream theme names are
+/// still returned when the custom files are not on disk (e.g. users on
+/// other platforms who installed the CLI without the launcher).
+fn cy_default_themes() -> (EmbeddedThemeName, &'static str, EmbeddedThemeName, &'static str) {
+    let cx_home = CX_HOME.get().and_then(|o| o.as_ref());
+    let dark_custom = cx_home
+        .map(|home| custom_theme_path("cy-prime", home).is_file())
+        .unwrap_or(false);
+    let light_custom = cx_home
+        .map(|home| custom_theme_path("photon-blade", home).is_file())
+        .unwrap_or(false);
+    let dark = if dark_custom {
+        (EmbeddedThemeName::CatppuccinMocha, "cy-prime")
+    } else {
+        (EmbeddedThemeName::CatppuccinMocha, "catppuccin-mocha")
+    };
+    let light = if light_custom {
+        (EmbeddedThemeName::CatppuccinLatte, "photon-blade")
+    } else {
+        (EmbeddedThemeName::CatppuccinLatte, "catppuccin-latte")
+    };
+    (light.0, light.1, dark.0, dark.1)
 }
 
 fn adaptive_default_embedded_theme_name() -> EmbeddedThemeName {

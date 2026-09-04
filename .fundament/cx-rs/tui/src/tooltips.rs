@@ -4,7 +4,7 @@ use lazy_static::lazy_static;
 use rand::Rng;
 
 const ANNOUNCEMENT_TIP_URL: &str =
-    "https://raw.githubusercontent.com/openai/cx/main/announcement_tip.toml";
+    "https://raw.githubusercontent.com/SYMBIOTYC/cy-cli/main/announcement_tip.toml";
 
 const IS_MACOS: bool = cfg!(target_os = "macos");
 const IS_WINDOWS: bool = cfg!(target_os = "windows");

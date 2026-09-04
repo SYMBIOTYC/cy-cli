@@ -8,17 +8,17 @@ use cx_install_context::StandalonePlatform;
 /// Update action the CLI should perform after the TUI exits.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UpdateAction {
-    /// Update via `npm install -g @openai/cx@latest`.
+    /// Update via `npm install -g @symbiotyc/cy@latest`.
     NpmGlobalLatest,
-    /// Update via `bun install -g @openai/cx@latest`.
+    /// Update via `bun install -g @symbiotyc/cy@latest`.
     BunGlobalLatest,
-    /// Update via `pnpm add -g @openai/cx@latest`.
+    /// Update via `pnpm add -g @symbiotyc/cy@latest`.
     PnpmGlobalLatest,
-    /// Update via `brew upgrade cx`.
+    /// Update via `brew upgrade cy`.
     BrewUpgrade,
-    /// Update via `curl -fsSL https://chatgpt.com/cx/install.sh | CX_NON_INTERACTIVE=1 sh`.
+    /// Update via `curl -fsSL https://cy.symbiotyc.com/install.sh | CY_NON_INTERACTIVE=1 sh`.
     StandaloneUnix,
-    /// Update via `$env:CX_NON_INTERACTIVE=1; irm https://chatgpt.com/cx/install.ps1 | iex`.
+    /// Update via `$env:CY_NON_INTERACTIVE=1; irm https://cy.symbiotyc.com/install.ps1 | iex`.
     StandaloneWindows,
 }
 
@@ -41,15 +41,15 @@ impl UpdateAction {
     /// Returns the list of command-line arguments for invoking the update.
     pub fn command_args(self) -> (&'static str, &'static [&'static str]) {
         match self {
-            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "@openai/cx"]),
-            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "@openai/cx"]),
-            UpdateAction::PnpmGlobalLatest => ("pnpm", &["add", "-g", "@openai/cx"]),
-            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "cx"]),
+            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "@symbiotyc/cy"]),
+            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "@symbiotyc/cy"]),
+            UpdateAction::PnpmGlobalLatest => ("pnpm", &["add", "-g", "@symbiotyc/cy"]),
+            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "cy"]),
             UpdateAction::StandaloneUnix => (
                 "sh",
                 &[
                     "-c",
-                    "curl -fsSL https://chatgpt.com/cx/install.sh | CX_NON_INTERACTIVE=1 sh",
+                    "curl -fsSL https://cy.symbiotyc.com/install.sh | CY_NON_INTERACTIVE=1 sh",
                 ],
             ),
             UpdateAction::StandaloneWindows => (
@@ -58,7 +58,7 @@ impl UpdateAction {
                     "-ExecutionPolicy",
                     "Bypass",
                     "-c",
-                    "$env:CX_NON_INTERACTIVE=1; irm https://chatgpt.com/cx/install.ps1 | iex",
+                    "$env:CY_NON_INTERACTIVE=1; irm https://cy.symbiotyc.com/install.ps1 | iex",
                 ],
             ),
         }

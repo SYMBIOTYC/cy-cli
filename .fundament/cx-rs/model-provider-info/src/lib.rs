@@ -76,9 +76,9 @@ pub const AMAZON_BEDROCK_DEFAULT_BASE_URL: &str =
     "https://bedrock-mantle.us-east-1.api.aws/openai/v1";
 const AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_HEADER: &str = "x-amzn-mantle-client-agent";
 const AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_VALUE: &str = "cx";
-const CHAT_WIRE_API_REMOVED_ERROR: &str = "`wire_api = \"chat\"` is no longer supported.\nHow to fix: set `wire_api = \"responses\"` in your provider config.\nMore info: https://github.com/openai/cx/discussions/7782";
+const CHAT_WIRE_API_REMOVED_ERROR: &str = "`wire_api = \"chat\"` is no longer supported.\nHow to fix: set `wire_api = \"responses\"` in your provider config.\nMore info: https://github.com/SYMBIOTYC/cy-cli/discussions/7782";
 pub const LEGACY_OLLAMA_CHAT_PROVIDER_ID: &str = "ollama-chat";
-pub const OLLAMA_CHAT_PROVIDER_REMOVED_ERROR: &str = "`ollama-chat` is no longer supported.\nHow to fix: replace `ollama-chat` with `ollama` in `model_provider`, `oss_provider`, or `--local-provider`.\nMore info: https://github.com/openai/cx/discussions/7782";
+pub const OLLAMA_CHAT_PROVIDER_REMOVED_ERROR: &str = "`ollama-chat` is no longer supported.\nHow to fix: replace `ollama-chat` with `ollama` in `model_provider`, `oss_provider`, or `--local-provider`.\nMore info: https://github.com/SYMBIOTYC/cy-cli/discussions/7782";
 
 /// Wire protocol that the provider speaks.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, JsonSchema)]
@@ -351,12 +351,18 @@ impl ModelProviderInfo {
     /// If `env_key` is Some, returns the API key for this provider if present
     /// (and non-empty) in the environment. If `env_key` is required but
     /// cannot be found, returns an error.
+    ///
+    /// SYMBIOTYC: for the `cy` provider, fall back to reading
+    /// `~/.cy/auth.json` (or `$CY_HOME/auth.json`) when the env var is not
+    /// set, so the macOS launcher-spawned shell and direct `cy exec` from a
+    /// plain terminal both work without an extra `export CY_API_KEY=...`.
     pub fn api_key(&self) -> CodexResult<Option<String>> {
         match &self.env_key {
             Some(env_key) => {
                 let api_key = std::env::var(env_key)
                     .ok()
                     .filter(|v| !v.trim().is_empty())
+                    .or_else(|| read_cy_auth_json_key())
                     .ok_or_else(|| {
                         CxErr::EnvVar(EnvVarError {
                             var: env_key.clone(),
@@ -676,3 +682,29 @@ pub fn create_oss_provider_with_base_url(base_url: &str, wire_api: WireApi) -> M
 #[cfg(test)]
 #[path = "model_provider_info_tests.rs"]
 mod tests;
+
+/// SYMBIOTYC: read the API key from `~/.cy/auth.json` so direct shell
+/// invocations of `cy exec` work without `CY_API_KEY` being exported. The
+/// file shape is the standard one written by the CY-CLI macOS launcher
+/// (`{"auth_mode": "apiKey", "openai_api_key": "..."}`). Respects
+/// `$CY_HOME` so tests / sandboxed runs can point at a fixture.
+fn read_cy_auth_json_key() -> Option<String> {
+    use std::path::PathBuf;
+
+    let home = std::env::var_os("CY_HOME")
+        .map(PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME")
+                .or_else(|| std::env::var_os("USERPROFILE"))
+                .map(PathBuf::from)
+        })?;
+    let path = home.join(".cy").join("auth.json");
+    let bytes = std::fs::read(&path).ok()?;
+    let value: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
+    let key = value.get("openai_api_key")?.as_str()?.trim();
+    if key.is_empty() {
+        None
+    } else {
+        Some(key.to_string())
+    }
+}

@@ -76,7 +76,7 @@ mod tests {
         serde_json::json!({
             "dist": {
                 "integrity": format!("sha512-{version}"),
-                "tarball": format!("https://registry.npmjs.org/@openai/cx/-/cx-{version}.tgz"),
+                "tarball": format!("https://registry.npmjs.org/@symbiotyc/cy/-/cy-{version}.tgz"),
             }
         })
     }

@@ -137,6 +137,23 @@ const PREVIEW_FRAME_PADDING: u16 = 1;
 
 const PREVIEW_FALLBACK_SUBTITLE: &str = "Move up/down to live preview themes";
 
+/// SYMBIOTYC: the 7 themes we ship inside the macOS .app bundle under
+/// `Contents/Resources/themes/`. The launcher seeds them into
+/// `~/.cy/themes/` on first run; this list is what the `/theme` picker
+/// uses to mark them with a star prefix and to drive the default-theme
+/// resolution in `render/highlight.rs`. Keep this in lock-step with the
+/// `.tmTheme` files in `packaging/themes/`.
+const CY_THEME_NAMES: &[&str] = &[
+    "cy-prime",
+    "neon-aurora",
+    "quantum-field",
+    "void-sync",
+    "carbon-core",
+    "cipher-lattice",
+    "photon-blade",
+    "solar-cortex",
+];
+
 /// Side-by-side preview: syntax-highlighted Rust diff snippet, vertically
 /// centered with a 2-column left inset.  Fills the entire side panel height.
 struct ThemePreviewWideRenderable;
@@ -290,7 +307,9 @@ fn theme_picker_subtitle(cx_home: Option<&Path>, terminal_width: Option<u16>) ->
     if let Some(path) = themes_dir_display
         && path.starts_with('~')
     {
-        let subtitle = format!("Custom .tmTheme files can be added to the {path} directory.");
+        let subtitle = format!(
+            "★ SYMBIOTYC themes ship in this build. Custom .tmTheme files can be added to {path}."
+        );
         if UnicodeWidthStr::width(subtitle.as_str()) <= available_width {
             return subtitle;
         }
@@ -348,6 +367,16 @@ pub(crate) fn build_theme_picker_params(
                 initial_idx = Some(idx);
             }
             let name_for_action = entry.name.clone();
+            // SYMBIOTYC: mark our 7 branded themes with a leading accent so
+            // users can spot them in the long upstream list. The marker is
+            // also part of the search value so typing "prime" or "aurora"
+            // jumps straight to the row.
+            let is_cy_theme = CY_THEME_NAMES.iter().any(|n| *n == entry.name);
+            let display_name = if is_cy_theme {
+                format!("{display_name}  ★ SYMBIOTYC")
+            } else {
+                display_name
+            };
             SelectionItem {
                 name: display_name,
                 is_current,
@@ -388,7 +417,7 @@ pub(crate) fn build_theme_picker_params(
         }) as Box<dyn Fn(&crate::app_event_sender::AppEventSender) + Send + Sync>,
     );
     SelectionViewParams {
-        title: Some("Select Syntax Theme".to_string()),
+        title: Some("CY · Select Syntax Theme".to_string()),
         subtitle: Some(theme_picker_subtitle(
             cx_home_owned.as_deref(),
             terminal_width,
