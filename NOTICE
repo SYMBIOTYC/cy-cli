@@ -1,0 +1,38 @@
+CY-CLI (cy-cli)
+Copyright 2026 SYMBIOTYC
+
+This product is a modified fork of the Rust CLI client "codex"
+originally written by OpenAI and released under the Apache License,
+Version 2.0 (the "License"). The original copyright notices and license
+terms from that work are preserved in:
+
+    .fundament/cx-rs/LICENSE
+    .fundament/cx-rs/NOTICE
+
+In accordance with Apache 2.0 § 4(d), the SYMBIOTYC modifications are
+documented in the commit history of this repository. The modifications
+include, but are not limited to:
+
+  1. Rebranding of user-facing strings (Codex / codex -> CY / cy).
+  2. Removal of OpenAI-specific landing-page links from the TUI.
+  3. A local Python bridge (packaging/macos/cy_bridge.py) that
+     translates between the Responses API (used by this CLI) and the
+     Chat Completions API (used by the configured upstream endpoint).
+  4. A macOS .app bundle and a launcher shell script that resolves the
+     end-user's API key from environment, auth file, keychain, or a
+     one-shot prompt.
+  5. Local tool execution (read_file, write_file, list_dir, shell_exec,
+     glob_files) inside the bridge so the end-user can operate on
+     files and the local filesystem without sending them upstream.
+
+This product does NOT redistribute any language model weights,
+training data, or proprietary runtime artifacts. The CLI is a
+model-agnostic client: at install time the end user selects which
+upstream provider to talk to (e.g. SYMBIOTYC Cloud, OpenRouter,
+Anthropic, or a self-hosted endpoint). Each upstream provider's own
+terms of service govern the model invocation; they are not affected
+by this NOTICE or by the Apache 2.0 License.
+
+For the full Apache 2.0 license text, see:
+  https://www.apache.org/licenses/LICENSE-2.0
+or the copy in .fundament/cx-rs/LICENSE.

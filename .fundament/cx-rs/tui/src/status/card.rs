@@ -724,7 +724,7 @@ impl HistoryCell for StatusHistoryCell {
         let mut lines: Vec<Line<'static>> = Vec::new();
         lines.push(Line::from(vec![
             Span::from(format!("{}>_ ", FieldFormatter::INDENT)).dim(),
-            Span::from("oi CX").bold(),
+            Span::from("CY").bold(),
             Span::from(" ").dim(),
             Span::from(format!("(v{CX_CLI_VERSION})")).dim(),
         ]));

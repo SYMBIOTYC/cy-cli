@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,7 +13,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-14
+          - runner: macos-13
             asset: cy-macos-x86_64
             target: x86_64-apple-darwin
     runs-on: ${{ matrix.runner }}
@@ -22,15 +21,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          targets: ${{ matrix.target }}
       - name: Build release binary
         run: |
           cd .fundament/cx-rs
-          cargo build --release --bin cy
+          cargo build --release -p cy-cli --target ${{ matrix.target }}
       - name: Package
         run: |
           mkdir -p dist
-          cp .fundament/cx-rs/target/x86_64-apple-darwin/release/cy dist/${{ matrix.asset }}
+          cp .fundament/cx-rs/target/${{ matrix.target }}/release/cy dist/${{ matrix.asset }}
           cd dist
           tar czf ${{ matrix.asset }}.tar.gz ${{ matrix.asset }}
       - name: Upload release asset
