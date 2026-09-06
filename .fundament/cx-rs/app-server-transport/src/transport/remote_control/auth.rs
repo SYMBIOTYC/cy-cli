@@ -142,7 +142,7 @@ mod tests {
                 axum::http::header::AUTHORIZATION,
                 HeaderValue::from_static("Bearer test-token"),
             );
-            headers.insert("x-openai-fedramp", HeaderValue::from_static("true"));
+            headers.insert("x-cy-fedramp", HeaderValue::from_static("true"));
             for account_id in &self.account_ids {
                 headers.append("gt-Account-ID", HeaderValue::from_static(account_id));
             }
@@ -202,7 +202,7 @@ mod tests {
         );
         assert_eq!(
             headers
-                .get("x-openai-fedramp")
+                .get("x-cy-fedramp")
                 .and_then(|value| value.to_str().ok()),
             Some("true")
         );

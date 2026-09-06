@@ -29,7 +29,7 @@ use crate::rmcp_client::SendElicitation;
 
 const MCP_PROGRESS_TOKEN_META_KEY: &str = "progressToken";
 const MCP_ELICITATION_CREATE_METHOD: &str = "elicitation/create";
-const OPENAI_FORM_METHOD: &str = "openai/form";
+const CY_FORM_METHOD: &str = "cy/form";
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -43,7 +43,7 @@ struct OpenAiFormRequestParams {
 #[derive(Clone)]
 pub(crate) struct ElicitationClientService {
     handler: LoggingClientHandler,
-    supports_openai_form: bool,
+    supports_cy_form: bool,
     send_elicitation: Arc<SendElicitation>,
     pause_state: ElicitationPauseState,
 }
@@ -54,18 +54,18 @@ impl ElicitationClientService {
         send_elicitation: SendElicitation,
         pause_state: ElicitationPauseState,
     ) -> Self {
-        let supports_openai_form = client_info
+        let supports_cy_form = client_info
             .capabilities
             .extensions
             .as_ref()
-            .is_some_and(|extensions| extensions.contains_key(OPENAI_FORM_METHOD));
+            .is_some_and(|extensions| extensions.contains_key(CY_FORM_METHOD));
         let send_elicitation = Arc::new(send_elicitation);
         Self {
             handler: LoggingClientHandler::new(
                 client_info,
                 clone_send_elicitation(Arc::clone(&send_elicitation)),
             ),
-            supports_openai_form,
+            supports_cy_form,
             send_elicitation,
             pause_state,
         }
@@ -135,10 +135,10 @@ impl Service<RoleClient> for ElicitationClientService {
                 }
             }
             ServerRequest::CustomRequest(request)
-                if request.method == OPENAI_FORM_METHOD && self.supports_openai_form =>
+                if request.method == CY_FORM_METHOD && self.supports_cy_form =>
             {
                 let response = self
-                    .create_elicitation(openai_form_elicitation(request)?, context)
+                    .create_elicitation(cy_form_elicitation(request)?, context)
                     .await?;
                 Ok(ClientResult::CustomResult(elicitation_response_result(
                     response,
@@ -182,7 +182,7 @@ fn custom_mcp_elicitation(request: CustomRequest) -> Result<Elicitation, rmcp::E
     Ok(Elicitation::Mcp(params))
 }
 
-fn openai_form_elicitation(request: CustomRequest) -> Result<Elicitation, rmcp::ErrorData> {
+fn cy_form_elicitation(request: CustomRequest) -> Result<Elicitation, rmcp::ErrorData> {
     let params = request
         .params_as::<OpenAiFormRequestParams>()
         .map_err(|err| rmcp::ErrorData::invalid_params(err.to_string(), None))?
@@ -400,15 +400,15 @@ mod tests {
 
     #[test]
     fn parses_openai_form_custom_requests() {
-        let elicitation = openai_form_elicitation(CustomRequest::new(
-            OPENAI_FORM_METHOD,
+        let elicitation = cy_form_elicitation(CustomRequest::new(
+            CY_FORM_METHOD,
             Some(json!({
                 "message": "Select a template",
                 "requestedSchema": {
                     "type": "object",
                     "properties": {
                         "template": {
-                            "type": "openai/imagePicker",
+                            "type": "cy/imagePicker",
                             "items": [{
                                 "id": "monthly-review",
                                 "title": "Monthly review",
@@ -419,7 +419,7 @@ mod tests {
                 }
             })),
         ))
-        .expect("valid openai/form request");
+        .expect("valid cy/form request");
 
         assert_eq!(
             elicitation,
@@ -430,7 +430,7 @@ mod tests {
                     "type": "object",
                     "properties": {
                         "template": {
-                            "type": "openai/imagePicker",
+                            "type": "cy/imagePicker",
                             "items": [{
                                 "id": "monthly-review",
                                 "title": "Monthly review",

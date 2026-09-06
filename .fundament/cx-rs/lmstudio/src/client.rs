@@ -234,7 +234,7 @@ mod tests {
                 wiremock::ResponseTemplate::new(200).set_body_raw(
                     serde_json::json!({
                         "data": [
-                            {"id": "openai/gpt-oss-20b"},
+                            {"id": "cy/gpt-oss-20b"},
                         ]
                     })
                     .to_string(),
@@ -246,7 +246,7 @@ mod tests {
 
         let client = client_from_host_root(server.uri(), LMSTUDIO_CONNECTION_TIMEOUT);
         let models = client.fetch_models().await.expect("fetch models");
-        assert!(models.contains(&"openai/gpt-oss-20b".to_string()));
+        assert!(models.contains(&"cy/gpt-oss-20b".to_string()));
     }
 
     #[tokio::test]

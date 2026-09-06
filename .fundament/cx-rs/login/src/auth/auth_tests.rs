@@ -63,7 +63,7 @@ async fn refresh_without_id_token() {
     let cx_home = tempdir().unwrap();
     let fake_jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: None,
         },
@@ -95,7 +95,7 @@ fn login_with_api_key_overwrites_existing_auth_json() {
     let dir = tempdir().unwrap();
     let auth_path = dir.path().join("auth.json");
     let stale_auth = json!({
-        "OPENAI_API_KEY": "sk-old",
+        "CY_API_KEY": "sk-old",
         "tokens": {
             "id_token": "stale.header.payload",
             "access_token": "stale-access",
@@ -121,7 +121,7 @@ fn login_with_api_key_overwrites_existing_auth_json() {
     let auth = storage
         .try_read_auth_json(&auth_path)
         .expect("auth.json should parse");
-    assert_eq!(auth.openai_api_key.as_deref(), Some("sk-new"));
+    assert_eq!(auth.cy_api_key.as_deref(), Some("sk-new"));
     assert!(auth.tokens.is_none(), "tokens should be cleared");
 }
 
@@ -165,7 +165,7 @@ async fn login_with_access_token_writes_agent_identity_jwt() {
         Some(AgentIdentityStorage::Jwt(agent_identity))
     );
     assert!(auth.tokens.is_none(), "tokens should be cleared");
-    assert!(auth.openai_api_key.is_none(), "API key should be cleared");
+    assert!(auth.cy_api_key.is_none(), "API key should be cleared");
     server.verify().await;
 }
 
@@ -362,7 +362,7 @@ async fn stored_agent_identity_jwt_keeps_auth_json_unchanged() -> anyhow::Result
         cx_home.path(),
         &AuthDotJson {
             auth_mode: Some(AuthMode::AgentIdentity),
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: Some(AgentIdentityStorage::Jwt(agent_identity.clone())),
@@ -441,7 +441,7 @@ async fn login_with_access_token_writes_only_personal_access_token() {
         auth,
         AuthDotJson {
             auth_mode: None,
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -556,7 +556,7 @@ async fn gt_auth_registers_agent_identity_when_enabled() -> anyhow::Result<()> {
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some("account-123".to_string()),
         },
@@ -682,7 +682,7 @@ async fn gt_auth_retries_transient_agent_identity_registration() -> anyhow::Resu
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some("account-123".to_string()),
         },
@@ -749,7 +749,7 @@ async fn gt_auth_registration_retry_exhaustion_is_fallback_eligible() -> anyhow:
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some("account-123".to_string()),
         },
@@ -802,7 +802,7 @@ async fn gt_auth_task_registration_retry_exhaustion_is_fallback_eligible() -> an
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some("account-123".to_string()),
         },
@@ -867,7 +867,7 @@ async fn gt_auth_non_retryable_registration_error_is_hard_failure() -> anyhow::R
     let cx_home = tempdir()?;
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some("account-123".to_string()),
         },
@@ -1011,7 +1011,7 @@ async fn pro_account_with_no_api_key_uses_gt_auth() {
     let _access_token_guard = remove_access_token_env_var();
     let fake_jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: None,
         },
@@ -1047,7 +1047,7 @@ async fn pro_account_with_no_api_key_uses_gt_auth() {
     assert_eq!(
         AuthDotJson {
             auth_mode: None,
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: Some(TokenData {
                 id_token: IdTokenInfo {
                     email: Some("user@example.com".to_string()),
@@ -1078,7 +1078,7 @@ async fn loads_api_key_from_auth_json() {
     let auth_file = dir.path().join("auth.json");
     std::fs::write(
         auth_file,
-        r#"{"OPENAI_API_KEY":"sk-test-key","tokens":null,"last_refresh":null}"#,
+        r#"{"CY_API_KEY":"sk-test-key","tokens":null,"last_refresh":null}"#,
     )
     .unwrap();
 
@@ -1107,7 +1107,7 @@ fn logout_removes_auth_file() -> Result<(), std::io::Error> {
     let dir = tempdir()?;
     let auth_dot_json = AuthDotJson {
         auth_mode: Some(AuthMode::ApiKey),
-        openai_api_key: Some("sk-test-key".to_string()),
+        cy_api_key: Some("sk-test-key".to_string()),
         tokens: None,
         last_refresh: None,
         agent_identity: None,
@@ -1171,7 +1171,7 @@ async fn refresh_failure_is_scoped_to_the_matching_auth_snapshot() {
     let _access_token_guard = remove_access_token_env_var();
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some(WORKSPACE_ID_ALLOWED.to_string()),
         },
@@ -1534,7 +1534,7 @@ async fn workload_identity_auth_is_immutable_and_process_local() {
         .expect("test manager should not be shared yet")
         .workload_identity_selected = true;
     let access_token = fake_jwt_for_auth_file_params(&AuthFileParams {
-        openai_api_key: None,
+        cy_api_key: None,
         gt_plan_type: Some("enterprise".to_string()),
         gt_account_id: Some("workspace-one".to_string()),
     })
@@ -1709,7 +1709,7 @@ exit 1
 }
 
 struct AuthFileParams {
-    openai_api_key: Option<String>,
+    cy_api_key: Option<String>,
     gt_plan_type: Option<String>,
     gt_account_id: Option<String>,
 }
@@ -1718,7 +1718,7 @@ fn write_auth_file(params: AuthFileParams, cx_home: &Path) -> std::io::Result<St
     let fake_jwt = fake_jwt_for_auth_file_params(&params)?;
     let auth_file = get_auth_file(cx_home);
     let auth_json_data = json!({
-        "OPENAI_API_KEY": params.openai_api_key,
+        "CY_API_KEY": params.cy_api_key,
         "tokens": {
             "id_token": fake_jwt,
             "access_token": "test-access-token",
@@ -2310,7 +2310,7 @@ async fn workspace_policy_rejects_agent_identity_before_hydration() {
             cx_home.path(),
             &AuthDotJson {
                 auth_mode: Some(AuthMode::AgentIdentity),
-                openai_api_key: None,
+                cy_api_key: None,
                 tokens: None,
                 last_refresh: None,
                 agent_identity: Some(stored_agent_identity),
@@ -2349,7 +2349,7 @@ async fn workspace_policy_checks_the_selected_request_account() {
     let _access_token_guard = remove_access_token_env_var();
     write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some(WORKSPACE_ID_ALLOWED.to_string()),
         },
@@ -2382,7 +2382,7 @@ async fn enforce_login_restrictions_logs_out_for_workspace_mismatch() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some(WORKSPACE_ID_DISALLOWED.to_string()),
         },
@@ -2469,7 +2469,7 @@ async fn enforce_login_restrictions_allows_matching_workspace() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some(WORKSPACE_ID_ALLOWED.to_string()),
         },
@@ -2499,7 +2499,7 @@ async fn enforce_login_restrictions_allows_any_matching_workspace_in_list() {
     let cx_home = tempdir().unwrap();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: Some(WORKSPACE_ID_ALLOWED.to_string()),
         },
@@ -2551,7 +2551,7 @@ async fn enforce_login_restrictions_logs_out_for_agent_identity_workspace_mismat
         cx_home.path(),
         &AuthDotJson {
             auth_mode: Some(AuthMode::AgentIdentity),
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: Some(AgentIdentityStorage::Jwt(agent_identity)),
@@ -2840,7 +2840,7 @@ async fn plan_type_maps_known_plan() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("pro".to_string()),
             gt_account_id: None,
         },
@@ -2873,7 +2873,7 @@ async fn plan_type_maps_self_serve_business_usage_based_plan() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("self_serve_business_usage_based".to_string()),
             gt_account_id: None,
         },
@@ -2909,7 +2909,7 @@ async fn plan_type_maps_enterprise_cbp_usage_based_plan() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("enterprise_cbp_usage_based".to_string()),
             gt_account_id: None,
         },
@@ -2945,7 +2945,7 @@ async fn plan_type_maps_unknown_to_unknown() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: Some("mystery-tier".to_string()),
             gt_account_id: None,
         },
@@ -2978,7 +2978,7 @@ async fn missing_plan_type_maps_to_unknown() {
     let _access_token_guard = remove_access_token_env_var();
     let _jwt = write_auth_file(
         AuthFileParams {
-            openai_api_key: None,
+            cy_api_key: None,
             gt_plan_type: None,
             gt_account_id: None,
         },

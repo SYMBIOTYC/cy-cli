@@ -35,7 +35,7 @@ use cx_core_api::MultiAgentV2Config;
 use cx_core_api::NewThread;
 use cx_core_api::Notice;
 use cx_core_api::OAuthCredentialsStoreMode;
-use cx_core_api::OPENAI_PROVIDER_ID;
+use cx_core_api::CY_PROVIDER_ID;
 use cx_core_api::OtelConfig;
 use cx_core_api::PermissionProfile;
 use cx_core_api::Permissions;
@@ -177,7 +177,7 @@ async fn run_main(arg0_paths: Arg0DispatchPaths) -> anyhow::Result<()> {
 fn new_config(model: Option<String>, arg0_paths: Arg0DispatchPaths) -> anyhow::Result<Config> {
     let cx_home = find_cx_home().context("find CX home")?;
     let cwd = AbsolutePathBuf::current_dir().context("resolve current directory")?;
-    let model_provider_id = OPENAI_PROVIDER_ID.to_string();
+    let model_provider_id = CY_PROVIDER_ID.to_string();
     let model_providers = built_in_model_providers(/*openai_base_url*/ None);
     let model_provider = model_providers
         .get(&model_provider_id)

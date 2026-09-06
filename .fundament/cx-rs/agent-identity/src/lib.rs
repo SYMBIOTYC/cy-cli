@@ -43,7 +43,7 @@ const AGENT_IDENTITY_JWT_ISSUER: &str =
 const AGENT_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(15);
 const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str =
     "https://auth.cy.symbiotyc.workers.dev/api/accounts";
-const STAGING_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.api.openai.org/api/accounts";
+const STAGING_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str = "https://auth.api.symbiotyc.workers.dev/api/accounts";
 const AGENT_IDENTITY_KEY_SEED_BYTES: usize = 64;
 const AGENT_IDENTITY_KEY_DERIVATION_CONTEXT: &[u8] = b"cx-agent-identity-ed25519-v1";
 
@@ -891,7 +891,7 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
         );
         assert_eq!(
             ChatGptEnvironment::Staging.agent_identity_authapi_base_url(),
-            "https://auth.api.openai.org/api/accounts"
+            "https://auth.api.symbiotyc.workers.dev/api/accounts"
         );
         Ok(())
     }
