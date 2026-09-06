@@ -18,7 +18,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PUBLIC_REPO_PAT }}
-          repository: SYMBIOTYC/cy-cli-releases
+          repository: SYMBIOTYC/CY_CLI
           event-type: release-build
           client-payload: |
             {
