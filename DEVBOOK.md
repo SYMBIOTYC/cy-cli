@@ -1,9 +1,17 @@
 # CY-CLI Developer Book
 
 ## Version
-- Current: `0.3.2`
+- Current: `0.3.3` (commit `bfe0458`, tag `v0.3.3`)
 - Repo: `SYMBIOTYC/cy-cli` at `/Volumes/Work/CY/structured/cy-cli`
 - Release repo: `SYMBIOTYC/CY_CLI` at `/Volumes/Work/CY/structured/CY-CLI-releases`
+
+## Status
+- Commit pushed: `bfe0458` on `main`
+- Tag created: `v0.3.3`
+- CI/CD triggered:
+  - macOS: https://github.com/SYMBIOTYC/CY_CLI/actions/runs/34015276140
+  - Linux: https://github.com/SYMBIOTYC/CY_CLI/actions/runs/34015389472
+  - Windows: https://github.com/SYMBIOTYC/CY_CLI/actions/runs/34015389429
 
 ## Config / paths
 - Config: `~/.cy/config.toml`, `~/.cy/auth.json`
@@ -27,15 +35,17 @@
 - Rust handlers registered in `cx-core`: `browser_open`, `browser_fetch`, `browser_screenshot`
 - Handlers implemented in `core/src/tools/handlers/browser_*.rs`
 - Registered via `add_browser_tools()` in `core/src/tools/spec_plan.rs`
-- Rust handlers now use flat tool names (`browser_open`, `browser_fetch`, `browser_screenshot`) matching the bridge's system prompt
+- Rust handlers use flat tool names (`browser_open`, `browser_fetch`, `browser_screenshot`) matching bridge system prompt
 - **Current execution path:** Python bridge (`cy_bridge.py`) handles browser tools locally
 - Rust handlers are registered but not yet invoked in the bridge-forwarding path
-- Bridge tool loop limit: `max_tool_rounds = 12`
+- Bridge tool loop limit: `max_tool_rounds = 20`
 - Bridge stability improvements:
   - Request timeout: 300s
   - Conversation history limit: 50 messages
-  - Per-round logging for tool execution
+  - Per-round tool call logging with truncated arguments
+  - Explicit instruction to synthesize after 1-3 tool calls
   - Better exception handling with graceful error messages
+- Bridge tested successfully with tehnoskarb.ua multi-tool task
 
 ## Build
 - Release: `cd .fundament/cx-rs && cargo build --release -p cy-cli --target x86_64-apple-darwin`
@@ -48,6 +58,14 @@
 - Ensure `Info.plist` exists in `/Applications/CY-CLI-intel.app/Contents/`
 - Launcher starts bridge, writes `~/.cy/config.toml`, opens Terminal with splash screen
 - Bridge auto-starts on port `8790` if not already running
+
+## CI/CD
+- Source repo: `SYMBIOTYC/cy-cli` → tag push triggers `release.yml` in source repo
+- Release repo: `SYMBIOTYC/CY_CLI` → `repository_dispatch` triggers platform builds
+  - macOS DMG: `build-macos.yml` (x86_64 + arm64)
+  - Linux tarball: `build-linux.yml`
+  - Windows ZIP: `build-windows.yml`
+- Release assets are uploaded to GitHub Release in `SYMBIOTYC/CY_CLI`
 
 ## Config template (launcher-generated)
 ```toml
@@ -76,9 +94,10 @@ models = ["cy/i1a"]
 - `packaging/macos/cy_bridge.py` — local bridge with tool execution and stability fixes
 
 ## Next steps
-- Test improved bridge with complex multi-tool task (e.g., OLX search)
-- If stable, migrate tool execution from Python to Rust handlers (requires bridge protocol changes)
-- Package and release updated binary
+- Wait for CI/CD builds to complete
+- Verify release artifacts in `SYMBIOTYC/CY_CLI`
+- Install new version locally and test
+- If stable, migrate tool execution from Python to Rust handlers
 
 ## Notes
 - Do NOT use `default_permissions = "danger-full-access"` in config
