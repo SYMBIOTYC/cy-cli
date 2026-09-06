@@ -22,6 +22,7 @@ cx-utils-home-dir = { workspace = true }
 cx-utils-rustls-provider = { workspace = true }
 globset = { workspace = true }
 rand = { workspace = true }
+rama-error = "=0.3.0-alpha.4"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
