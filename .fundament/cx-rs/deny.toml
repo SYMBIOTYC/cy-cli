@@ -309,14 +309,11 @@ required-git-spec = "rev"
 # if not specified. If it is specified but empty, no registries are allowed.
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 # List of URLs for allowed Git repositories
-allow-git = [
-    "https://github.com/dzbarsky/rules_rust",
-    "https://github.com/helix-editor/nucleo.git",
-    "https://github.com/juberti-oai/rust-sdks.git",
-    "https://github.com/openai-oss-forks/crossterm",
-    "https://github.com/openai-oss-forks/tokio-tungstenite",
-    "https://github.com/openai-oss-forks/tungstenite-rs",
-]
+ allow-git = [
+     "https://github.com/dzbarsky/rules_rust",
+     "https://github.com/helix-editor/nucleo.git",
+     "https://github.com/juberti-oai/rust-sdks.git",
+ ]
 
 [sources.allow-org]
 # github.com organizations to allow git sources for
