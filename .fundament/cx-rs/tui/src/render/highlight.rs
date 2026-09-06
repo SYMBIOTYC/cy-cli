@@ -202,7 +202,12 @@ fn adaptive_default_theme_selection() -> (EmbeddedThemeName, &'static str) {
 /// over the upstream Catppuccin defaults. The upstream theme names are
 /// still returned when the custom files are not on disk (e.g. users on
 /// other platforms who installed the CLI without the launcher).
-fn cy_default_themes() -> (EmbeddedThemeName, &'static str, EmbeddedThemeName, &'static str) {
+fn cy_default_themes() -> (
+    EmbeddedThemeName,
+    &'static str,
+    EmbeddedThemeName,
+    &'static str,
+) {
     let cx_home = CX_HOME.get().and_then(|o| o.as_ref());
     let dark_custom = cx_home
         .map(|home| custom_theme_path("cy-prime", home).is_file())

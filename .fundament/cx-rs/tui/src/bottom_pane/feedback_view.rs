@@ -866,7 +866,8 @@ mod tests {
         );
         let bug_url_non_employee =
             issue_url_for_category(FeedbackCategory::Bug, "t", FeedbackAudience::External);
-        let expected_external_url = "https://github.com/SYMBIOTYC/cy-cli/issues/new&steps=Uploaded%20thread:%20t";
+        let expected_external_url =
+            "https://github.com/SYMBIOTYC/cy-cli/issues/new&steps=Uploaded%20thread:%20t";
         assert_eq!(bug_url_non_employee.as_deref(), Some(expected_external_url));
     }
 

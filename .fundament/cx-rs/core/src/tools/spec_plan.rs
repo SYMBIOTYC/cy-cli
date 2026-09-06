@@ -8,6 +8,9 @@ use crate::tools::code_mode::execute_spec::create_code_mode_tool;
 use crate::tools::context::ToolInvocation;
 use crate::tools::effective_tool_mode;
 use crate::tools::handlers::ApplyPatchHandler;
+use crate::tools::handlers::BrowserFetchHandler;
+use crate::tools::handlers::BrowserOpenHandler;
+use crate::tools::handlers::BrowserScreenshotHandler;
 use crate::tools::handlers::CodeModeExecuteHandler;
 use crate::tools::handlers::CodeModeWaitHandler;
 use crate::tools::handlers::CurrentTimeHandler;
@@ -935,6 +938,7 @@ fn add_core_tool_sources(context: &CoreToolPlanContext<'_>, registry: &mut ToolR
     add_mcp_resource_tools(context, registry);
     add_core_utility_tools(context, registry);
     add_collaboration_tools(context, registry);
+    add_browser_tools(context, registry);
 }
 
 fn standalone_web_search_enabled(turn_context: &TurnContext) -> bool {
@@ -1226,6 +1230,12 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
             registry.add_with_exposure(CloseAgentHandler, exposure);
         }
     }
+}
+
+fn add_browser_tools(_context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistry) {
+    registry.add(BrowserOpenHandler);
+    registry.add(BrowserFetchHandler);
+    registry.add(BrowserScreenshotHandler);
 }
 
 #[instrument(level = "trace", skip_all, fields(dynamic_tool_count = dynamic_tools.len()))]

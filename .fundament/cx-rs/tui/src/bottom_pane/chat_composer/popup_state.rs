@@ -1,12 +1,12 @@
 //! Popup lifecycle state for the chat composer.
 //! Tracks the single active popup plus dismissal/query state used to synchronize it.
 
+use super::popup_vfx::PopupVfx;
 use crate::bottom_pane::command_popup::CommandPopup;
 use crate::bottom_pane::file_search_popup::FileSearchPopup;
 use crate::bottom_pane::mentions_v2::MentionV2Popup;
 use crate::bottom_pane::skill_popup::SkillPopup;
 use crate::bottom_pane::textarea::TextArea;
-use super::popup_vfx::PopupVfx;
 use std::ops::Range;
 use std::time::Instant;
 

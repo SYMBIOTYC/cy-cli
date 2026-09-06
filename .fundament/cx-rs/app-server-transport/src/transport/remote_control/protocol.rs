@@ -302,8 +302,9 @@ mod tests {
             RemoteControlTarget {
                 websocket_url: "wss://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server"
                     .to_string(),
-                enroll_url: "https://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server/enroll"
-                    .to_string(),
+                enroll_url:
+                    "https://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server/enroll"
+                        .to_string(),
                 refresh_url:
                     "https://api.cy.symbiotyc.workers.dev/v1/wham/remote/control/server/refresh"
                         .to_string(),

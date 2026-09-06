@@ -9,10 +9,8 @@ const ANNOUNCEMENT_TIP_URL: &str =
 const IS_MACOS: bool = cfg!(target_os = "macos");
 const IS_WINDOWS: bool = cfg!(target_os = "windows");
 
-const APP_TOOLTIP: &str =
-    "Tip: type / to see commands, or paste a path to attach files.";
-const MACOS_APP_TOOLTIP: &str =
-    "Tip: type / to see commands, or paste a path to attach files.";
+const APP_TOOLTIP: &str = "Tip: type / to see commands, or paste a path to attach files.";
+const MACOS_APP_TOOLTIP: &str = "Tip: type / to see commands, or paste a path to attach files.";
 const LINUX_APP_TOOLTIP: &str = "Tip: type / to see commands, or paste a path to attach files.";
 const FAST_TOOLTIP: &str =
     "*New* Use **/fast** to enable our fastest inference with increased plan usage.";

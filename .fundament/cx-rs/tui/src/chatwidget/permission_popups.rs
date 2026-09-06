@@ -426,9 +426,7 @@ impl ChatWidget {
             };
             vec![
                 Line::default(),
-                Line::from(
-                    "Full access lets CY edit any file and use the network without asking.",
-                ),
+                Line::from("Full access lets CY edit any file and use the network without asking."),
                 Line::default(),
                 Line::from(vec![
                     "Higher-risk model. ".red().bold(),
@@ -437,10 +435,8 @@ impl ChatWidget {
             ]
         } else {
             vec![Line::from(vec![
-                "Full access lets CY edit any file and use the network without asking. "
-                    .into(),
-                "Data loss and leaks are possible. Use with care."
-                    .red(),
+                "Full access lets CY edit any file and use the network without asking. ".into(),
+                "Data loss and leaks are possible. Use with care.".red(),
             ])]
         };
         let header = Paragraph::new(

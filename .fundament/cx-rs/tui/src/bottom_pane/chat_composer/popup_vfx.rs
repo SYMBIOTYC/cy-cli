@@ -18,15 +18,9 @@ pub(super) enum PopupVfx {
     #[default]
     None,
     /// White wink effect when popup appears.
-    Wink {
-        frame: u8,
-        max_frames: u8,
-    },
+    Wink { frame: u8, max_frames: u8 },
     /// Pink poof effect when popup disappears.
-    Poof {
-        frame: u8,
-        max_frames: u8,
-    },
+    Poof { frame: u8, max_frames: u8 },
 }
 
 impl PopupVfx {

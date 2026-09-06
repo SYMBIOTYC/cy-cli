@@ -4978,7 +4978,11 @@ impl ChatComposer {
                     let py = center_y + (angle.sin() * distance) as u16;
 
                     // Only draw if within bounds
-                    if px >= area.x && px < area.x + area.width && py >= area.y && py < area.y + area.height {
+                    if px >= area.x
+                        && px < area.x + area.width
+                        && py >= area.y
+                        && py < area.y + area.height
+                    {
                         let style = Style::default().fg(Color::Magenta);
                         buf.set_string(px, py, "•", style);
                     }

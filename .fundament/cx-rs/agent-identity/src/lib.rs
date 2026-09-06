@@ -38,7 +38,8 @@ use sha2::Sha512;
 const AGENT_TASK_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(30);
 const AGENT_IDENTITY_JWKS_TIMEOUT: Duration = Duration::from_secs(10);
 const AGENT_IDENTITY_JWT_AUDIENCE: &str = "cx-app-server";
-const AGENT_IDENTITY_JWT_ISSUER: &str = "https://api.cy.symbiotyc.workers.dev/cx-backend/agent-identity";
+const AGENT_IDENTITY_JWT_ISSUER: &str =
+    "https://api.cy.symbiotyc.workers.dev/cx-backend/agent-identity";
 const AGENT_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(15);
 const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str =
     "https://auth.cy.symbiotyc.workers.dev/api/accounts";

@@ -56,8 +56,7 @@ const CY_PROVIDER_DEFAULT_BASE_URL: &str = "http://127.0.0.1:8790/v1";
 const CY_PROVIDER_BASE_URL_ENV_VAR: &str = "CY_BASE_URL";
 const CY_OPENAI_BASE_URL_ENV_VAR: &str = "OPENAI_BASE_URL";
 const CY_PROVIDER_ENV_KEY: &str = "CY_API_KEY";
-const CY_PROVIDER_ENV_KEY_INSTRUCTIONS: &str =
-    "Set the CY_API_KEY environment variable to your SYMBIOTYC Cloud API key. \
+const CY_PROVIDER_ENV_KEY_INSTRUCTIONS: &str = "Set the CY_API_KEY environment variable to your SYMBIOTYC Cloud API key. \
      `cy login` writes the key to ~/.cy/auth.json and the launcher exports \
      it before starting the TUI or the bridge.";
 const AMAZON_BEDROCK_PROVIDER_NAME: &str = "Amazon Bedrock";
@@ -691,13 +690,11 @@ mod tests;
 fn read_cy_auth_json_key() -> Option<String> {
     use std::path::PathBuf;
 
-    let home = std::env::var_os("CY_HOME")
-        .map(PathBuf::from)
-        .or_else(|| {
-            std::env::var_os("HOME")
-                .or_else(|| std::env::var_os("USERPROFILE"))
-                .map(PathBuf::from)
-        })?;
+    let home = std::env::var_os("CY_HOME").map(PathBuf::from).or_else(|| {
+        std::env::var_os("HOME")
+            .or_else(|| std::env::var_os("USERPROFILE"))
+            .map(PathBuf::from)
+    })?;
     let path = home.join(".cy").join("auth.json");
     let bytes = std::fs::read(&path).ok()?;
     let value: serde_json::Value = serde_json::from_slice(&bytes).ok()?;

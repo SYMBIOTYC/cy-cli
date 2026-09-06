@@ -1032,7 +1032,10 @@ mod tests {
             "https://example.test/api/cx/accounts/send_add_credits_nudge_email"
         );
 
-        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client(
+            "https://api.cy.symbiotyc.workers.dev/v1",
+            PathStyle::ChatGptApi,
+        );
         assert_eq!(
             gt_client.send_add_credits_nudge_email_url(),
             "https://api.cy.symbiotyc.workers.dev/v1/wham/accounts/send_add_credits_nudge_email"
@@ -1062,7 +1065,10 @@ mod tests {
             "https://example.test/api/cx/profiles/me"
         );
 
-        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client(
+            "https://api.cy.symbiotyc.workers.dev/v1",
+            PathStyle::ChatGptApi,
+        );
         assert_eq!(
             gt_client.token_usage_profile_url(),
             "https://api.cy.symbiotyc.workers.dev/v1/wham/profiles/me"
@@ -1077,7 +1083,10 @@ mod tests {
             "https://example.test/api/cx/workspace-messages"
         );
 
-        let gt_client = test_client("https://api.cy.symbiotyc.workers.dev/v1", PathStyle::ChatGptApi);
+        let gt_client = test_client(
+            "https://api.cy.symbiotyc.workers.dev/v1",
+            PathStyle::ChatGptApi,
+        );
         assert_eq!(
             gt_client.workspace_messages_url(),
             "https://api.cy.symbiotyc.workers.dev/v1/wham/workspace-messages"

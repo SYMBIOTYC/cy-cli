@@ -1,5 +1,8 @@
 pub(crate) mod apply_patch;
 pub(crate) mod apply_patch_spec;
+mod browser_fetch;
+mod browser_open;
+pub(crate) mod browser_screenshot;
 mod current_time;
 mod dynamic;
 pub(crate) mod extension_tools;
@@ -54,6 +57,9 @@ use crate::session::turn_context::TurnEnvironment;
 pub(crate) use crate::tools::code_mode::CodeModeExecuteHandler;
 pub(crate) use crate::tools::code_mode::CodeModeWaitHandler;
 pub use apply_patch::ApplyPatchHandler;
+pub use browser_fetch::BrowserFetchHandler;
+pub use browser_open::BrowserOpenHandler;
+pub use browser_screenshot::BrowserScreenshotHandler;
 pub use current_time::CurrentTimeHandler;
 use cx_protocol::models::AdditionalPermissionProfile;
 use cx_protocol::protocol::AskForApproval;
