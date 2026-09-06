@@ -313,6 +313,9 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
      "https://github.com/dzbarsky/rules_rust",
      "https://github.com/helix-editor/nucleo.git",
      "https://github.com/juberti-oai/rust-sdks.git",
+     "https://github.com/SYMBIOTYC/crossterm",
+     "https://github.com/SYMBIOTYC/tokio-tungstenite",
+     "https://github.com/SYMBIOTYC/tungstenite-rs",
  ]
 
 [sources.allow-org]
