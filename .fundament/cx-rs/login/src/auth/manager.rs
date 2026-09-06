@@ -879,7 +879,7 @@ fn persist_agent_identity_record(
     Ok(())
 }
 
-pub const CY_API_KEY_ENV_VAR: pub const CY_API_KEY_ENV_VAR: &str = "OPENAI_API_KEY"str = "CY_API_KEY";
+pub const CY_API_KEY_ENV_VAR: &str = "CY_API_KEY";
 pub const CX_API_KEY_ENV_VAR: &str = "CX_API_KEY";
 pub const CX_ACCESS_TOKEN_ENV_VAR: &str = "CX_ACCESS_TOKEN";
 
