@@ -51,6 +51,7 @@ use cx_login::AuthDotJson;
 use cx_login::AuthManager;
 use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
 use cx_login::CX_API_KEY_ENV_VAR;
+use cx_login::CY_API_KEY_ENV_VAR;
 use cx_login::CodexAuth;
 use cx_login::default_client::create_client_without_request_logging;
 use cx_login::default_client::default_headers;
