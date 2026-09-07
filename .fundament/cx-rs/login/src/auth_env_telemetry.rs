@@ -2,7 +2,7 @@ use cx_model_provider_info::ModelProviderInfo;
 use cx_otel::AuthEnvTelemetryMetadata;
 
 use crate::CX_API_KEY_ENV_VAR;
-use crate::OPENAI_API_KEY_ENV_VAR;
+use crate::CY_API_KEY_ENV_VAR;
 use crate::REFRESH_TOKEN_URL_OVERRIDE_ENV_VAR;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -33,7 +33,7 @@ pub fn collect_auth_env_telemetry(
     cx_api_key_env_enabled: bool,
 ) -> AuthEnvTelemetry {
     AuthEnvTelemetry {
-        openai_api_key_env_present: env_var_present(OPENAI_API_KEY_ENV_VAR),
+        openai_api_key_env_present: env_var_present(CY_API_KEY_ENV_VAR),
         cx_api_key_env_present: env_var_present(CX_API_KEY_ENV_VAR),
         cx_api_key_env_enabled,
         provider_env_key_name: provider.env_key.as_ref().map(|_| "configured".to_string()),
