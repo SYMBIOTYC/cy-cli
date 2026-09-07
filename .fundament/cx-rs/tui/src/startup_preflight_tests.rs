@@ -54,7 +54,7 @@ fn startup_delays_composer_for_homes_without_authentication_state() -> std::io::
         |name| { (name == cx_login::CX_ACCESS_TOKEN_ENV_VAR).then(|| "access-token".into()) },
     ));
     for disabled_credential in [
-        cx_login::OPENAI_API_KEY_ENV_VAR,
+        cx_login::CY_API_KEY_ENV_VAR,
         cx_login::CX_API_KEY_ENV_VAR,
     ] {
         assert!(should_delay_startup_composer_for_first_login(

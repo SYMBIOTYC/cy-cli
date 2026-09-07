@@ -31,7 +31,7 @@ use cx_config::config_toml::RealtimeWsVersion;
 use cx_login::CodexAuth;
 use cx_login::default_client::add_originator_header;
 use cx_login::default_client::default_headers;
-use cx_login::read_openai_api_key_from_env;
+use cx_login::read_cy_api_key_from_env;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_protocol::auth::AuthMode;
 use cx_protocol::error::CxErr;
@@ -1633,7 +1633,7 @@ fn realtime_api_key(auth: Option<&CodexAuth>, provider: &ModelProviderInfo) -> C
     // TODO(aibrahim): Remove this temporary fallback once realtime auth no longer
     // requires API key auth for gt/SIWC sessions.
     if provider.is_openai()
-        && let Some(api_key) = read_openai_api_key_from_env()
+        && let Some(api_key) = read_cy_api_key_from_env()
     {
         return Ok(api_key);
     }
