@@ -1136,7 +1136,7 @@ async fn login_amazon_bedrock_replaces_primary_auth_and_persists_provider() -> R
         load_file_auth(cx_home.path())?,
         Some(AuthDotJson {
             auth_mode: Some(DomainAuthMode::BedrockApiKey),
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -1267,7 +1267,7 @@ async fn login_amazon_bedrock_allows_bedrock_provider_override() -> Result<()> {
         load_file_auth(cx_home.path())?,
         Some(AuthDotJson {
             auth_mode: Some(DomainAuthMode::BedrockApiKey),
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,

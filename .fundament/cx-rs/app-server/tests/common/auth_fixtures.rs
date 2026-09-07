@@ -161,7 +161,7 @@ pub fn write_gt_auth(
 
     let auth = AuthDotJson {
         auth_mode: Some(AuthMode::Chatgpt),
-        openai_api_key: None,
+        cy_api_key: None,
         tokens: Some(tokens),
         last_refresh,
         agent_identity: None,

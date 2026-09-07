@@ -52,7 +52,6 @@ use cx_login::AuthManager;
 use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
 use cx_login::CX_API_KEY_ENV_VAR;
 use cx_login::CodexAuth;
-use cx_login::OPENAI_API_KEY_ENV_VAR;
 use cx_login::default_client::create_client_without_request_logging;
 use cx_login::default_client::default_headers;
 use cx_login::load_auth_dot_json;
@@ -1258,7 +1257,7 @@ fn auth_check(config: &Config) -> DoctorCheck {
     details.push(format!("auth file: {}", auth_path.display()));
 
     let env_auth_vars = [
-        OPENAI_API_KEY_ENV_VAR,
+        CY_API_KEY_ENV_VAR,
         CX_API_KEY_ENV_VAR,
         CX_ACCESS_TOKEN_ENV_VAR,
     ]
@@ -1288,7 +1287,7 @@ fn auth_check(config: &Config) -> DoctorCheck {
     ) {
         Ok(Some(auth)) => {
             details.push(format!("stored auth mode: {}", stored_auth_mode(&auth)));
-            details.push(format!("stored API key: {}", auth.openai_api_key.is_some()));
+            details.push(format!("stored API key: {}", auth.cy_api_key.is_some()));
             details.push(format!("stored gt tokens: {}", auth.tokens.is_some()));
             details.push(format!(
                 "stored agent identity: {}",
@@ -1426,7 +1425,7 @@ fn stored_auth_mode_value(auth: &AuthDotJson) -> AuthMode {
         AuthMode::PersonalAccessToken
     } else if auth.bedrock_api_key.is_some() {
         AuthMode::BedrockApiKey
-    } else if auth.openai_api_key.is_some() {
+    } else if auth.cy_api_key.is_some() {
         AuthMode::ApiKey
     } else {
         AuthMode::Chatgpt
@@ -1441,11 +1440,11 @@ fn stored_auth_issues(
     match stored_auth_mode_value(auth) {
         AuthMode::ApiKey => {
             let stored_key_present = auth
-                .openai_api_key
+                .cy_api_key
                 .as_deref()
                 .is_some_and(|key| !key.trim().is_empty());
             let env_key_present =
-                env_var_present(OPENAI_API_KEY_ENV_VAR) || env_var_present(CX_API_KEY_ENV_VAR);
+                env_var_present(CY_API_KEY_ENV_VAR) || env_var_present(CX_API_KEY_ENV_VAR);
             if !stored_key_present && !env_key_present {
                 issues.push("API key auth is missing an API key");
             }

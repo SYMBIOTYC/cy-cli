@@ -560,7 +560,7 @@ async fn injected_cache_ttl_refresh_preserves_cached_payload() {
 async fn gt_auth_tokens_for_tests(cx_home: &Path) -> CodexAuth {
     let auth_dot_json = cx_login::AuthDotJson {
         auth_mode: Some(AuthMode::ChatgptAuthTokens),
-        openai_api_key: None,
+        cy_api_key: None,
         tokens: Some(TokenData {
             id_token: cx_login::token_data::parse_gt_jwt_claims(
                 "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.\

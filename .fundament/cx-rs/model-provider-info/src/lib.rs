@@ -685,7 +685,7 @@ mod tests;
 /// SYMBIOTYC: read the API key from `~/.cy/auth.json` so direct shell
 /// invocations of `cy exec` work without `CY_API_KEY` being exported. The
 /// file shape is the standard one written by the CY-CLI macOS launcher
-/// (`{"auth_mode": "apiKey", "openai_api_key": "..."}`). Respects
+/// (`{"auth_mode": "apiKey", "cy_api_key": "..."}`). Respects
 /// `$CY_HOME` so tests / sandboxed runs can point at a fixture.
 fn read_cy_auth_json_key() -> Option<String> {
     use std::path::PathBuf;
@@ -698,7 +698,7 @@ fn read_cy_auth_json_key() -> Option<String> {
     let path = home.join(".cy").join("auth.json");
     let bytes = std::fs::read(&path).ok()?;
     let value: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
-    let key = value.get("openai_api_key")?.as_str()?.trim();
+    let key = value.get("cy_api_key").or_else(|| value.get("openai_api_key"))?.as_str()?.trim();
     if key.is_empty() {
         None
     } else {
