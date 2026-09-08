@@ -30,7 +30,7 @@
           "enum": [
             "gt"
           ],
-          "title": "Chatgptv2::LoginAccountResponseType",
+          "title": "Gtv2::LoginAccountResponseType",
           "type": "string"
         }
       },
@@ -39,7 +39,7 @@
         "loginId",
         "type"
       ],
-      "title": "Chatgptv2::LoginAccountResponse",
+      "title": "Gtv2::LoginAccountResponse",
       "type": "object"
     },
     {
@@ -51,7 +51,7 @@
           "enum": [
             "gtDeviceCode"
           ],
-          "title": "ChatgptDeviceCodev2::LoginAccountResponseType",
+          "title": "GtDeviceCodev2::LoginAccountResponseType",
           "type": "string"
         },
         "userCode": {
@@ -69,7 +69,7 @@
         "userCode",
         "verificationUrl"
       ],
-      "title": "ChatgptDeviceCodev2::LoginAccountResponse",
+      "title": "GtDeviceCodev2::LoginAccountResponse",
       "type": "object"
     },
     {
@@ -78,14 +78,14 @@
           "enum": [
             "gtAuthTokens"
           ],
-          "title": "ChatgptAuthTokensv2::LoginAccountResponseType",
+          "title": "GtAuthTokensv2::LoginAccountResponseType",
           "type": "string"
         }
       },
       "required": [
         "type"
       ],
-      "title": "ChatgptAuthTokensv2::LoginAccountResponse",
+      "title": "GtAuthTokensv2::LoginAccountResponse",
       "type": "object"
     },
     {

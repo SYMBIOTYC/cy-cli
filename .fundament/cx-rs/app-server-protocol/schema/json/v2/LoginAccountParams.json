@@ -4,7 +4,7 @@
     "LoginAppBrand": {
       "enum": [
         "cx",
-        "gt"
+        "chatgpt"
       ],
       "type": "string"
     }
@@ -43,14 +43,14 @@
           ],
           "default": null
         },
-        "codexStreamlinedLogin": {
+        "cxStreamlinedLogin": {
           "type": "boolean"
         },
         "type": {
           "enum": [
             "gt"
           ],
-          "title": "Chatgptv2::LoginAccountParamsType",
+          "title": "Gtv2::LoginAccountParamsType",
           "type": "string"
         },
         "useHostedLoginSuccessPage": {
@@ -60,7 +60,7 @@
       "required": [
         "type"
       ],
-      "title": "Chatgptv2::LoginAccountParams",
+      "title": "Gtv2::LoginAccountParams",
       "type": "object"
     },
     {
@@ -69,14 +69,14 @@
           "enum": [
             "gtDeviceCode"
           ],
-          "title": "ChatgptDeviceCodev2::LoginAccountParamsType",
+          "title": "GtDeviceCodev2::LoginAccountParamsType",
           "type": "string"
         }
       },
       "required": [
         "type"
       ],
-      "title": "ChatgptDeviceCodev2::LoginAccountParams",
+      "title": "GtDeviceCodev2::LoginAccountParams",
       "type": "object"
     },
     {
@@ -101,7 +101,7 @@
           "enum": [
             "gtAuthTokens"
           ],
-          "title": "ChatgptAuthTokensv2::LoginAccountParamsType",
+          "title": "GtAuthTokensv2::LoginAccountParamsType",
           "type": "string"
         }
       },
@@ -110,7 +110,7 @@
         "gtAccountId",
         "type"
       ],
-      "title": "ChatgptAuthTokensv2::LoginAccountParams",
+      "title": "GtAuthTokensv2::LoginAccountParams",
       "type": "object"
     },
     {

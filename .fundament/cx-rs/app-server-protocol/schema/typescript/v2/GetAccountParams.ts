@@ -8,6 +8,6 @@ export type GetAccountParams = {
  *
  * In managed auth mode this triggers the normal refresh-token flow. In
  * external auth mode this flag is ignored. Clients should refresh tokens
- * themselves and call `account/login/start` with `chatgptAuthTokens`.
+ * themselves and call `account/login/start` with `gtAuthTokens`.
  */
 refreshToken?: boolean, };

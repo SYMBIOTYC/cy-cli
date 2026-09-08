@@ -34,7 +34,7 @@
               "enum": [
                 "gt"
               ],
-              "title": "ChatgptAccountType",
+              "title": "GtAccountType",
               "type": "string"
             }
           },
@@ -43,7 +43,7 @@
             "planType",
             "type"
           ],
-          "title": "ChatgptAccount",
+          "title": "GtAccount",
           "type": "object"
         },
         {
@@ -55,7 +55,7 @@
               "title": "AmazonBedrockAccountType",
               "type": "string"
             },
-            "usesCodexManagedCredentials": {
+            "usesCxManagedCredentials": {
               "default": false,
               "type": "boolean"
             }

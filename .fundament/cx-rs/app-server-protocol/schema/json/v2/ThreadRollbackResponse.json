@@ -2091,7 +2091,7 @@
             "null"
           ]
         },
-        "codexErrorInfo": {
+        "cxErrorInfo": {
           "anyOf": [
             {
               "$ref": "#/definitions/CodexErrorInfo"

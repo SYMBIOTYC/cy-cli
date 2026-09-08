@@ -3178,13 +3178,13 @@
     "InitializeResponse": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "properties": {
-        "codexHome": {
+        "cxHome": {
           "allOf": [
             {
               "$ref": "#/definitions/v2/AbsolutePathBuf"
             }
           ],
-          "description": "Absolute path to the server's $CODEX_HOME directory."
+          "description": "Absolute path to the server's $CX_HOME directory."
         },
         "platformFamily": {
           "description": "Platform family for the running app-server target, for example `\"unix\"` or `\"windows\"`.",
@@ -3199,7 +3199,7 @@
         }
       },
       "required": [
-        "codexHome",
+        "cxHome",
         "platformFamily",
         "platformOs",
         "userAgent"
@@ -6293,7 +6293,7 @@
                 "enum": [
                   "gt"
                 ],
-                "title": "ChatgptAccountType",
+                "title": "GtAccountType",
                 "type": "string"
               }
             },
@@ -6302,7 +6302,7 @@
               "planType",
               "type"
             ],
-            "title": "ChatgptAccount",
+            "title": "GtAccount",
             "type": "object"
           },
           {
@@ -6314,7 +6314,7 @@
                 "title": "AmazonBedrockAccountType",
                 "type": "string"
               },
-              "usesCodexManagedCredentials": {
+              "usesCxManagedCredentials": {
                 "default": false,
                 "type": "boolean"
               }
@@ -7438,14 +7438,14 @@
           {
             "description": "oi API key provided by the caller and stored by CX.",
             "enum": [
-              "apikey"
+              "apiKey"
             ],
             "type": "string"
           },
           {
             "description": "gt OAuth managed by CX (tokens persisted and refreshed by CX).",
             "enum": [
-              "gt"
+              "chatgpt"
             ],
             "type": "string"
           },
@@ -8751,7 +8751,7 @@
             "type": "object"
           },
           {
-            "description": "User config layer from $CODEX_HOME/config.toml. This layer is special in that it is expected to be: - writable by the user - generally outside the workspace directory",
+            "description": "User config layer from $CX_HOME/config.toml. This layer is special in that it is expected to be: - writable by the user - generally outside the workspace directory",
             "properties": {
               "file": {
                 "allOf": [
@@ -8786,7 +8786,7 @@
           {
             "description": "Path to a .cx/ folder within a project. There could be multiple of these between `cwd` and the project/repo root.",
             "properties": {
-              "dotCodexFolder": {
+              "dotCxFolder": {
                 "$ref": "#/definitions/v2/AbsolutePathBuf"
               },
               "type": {
@@ -8798,7 +8798,7 @@
               }
             },
             "required": [
-              "dotCodexFolder",
+              "dotCxFolder",
               "type"
             ],
             "title": "ProjectConfigLayerSource",
@@ -8997,12 +8997,6 @@
               }
             ]
           },
-          "gtBaseUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
           "checkForUpdateOnStartup": {
             "type": [
               "boolean",
@@ -9062,6 +9056,12 @@
               {
                 "type": "null"
               }
+            ]
+          },
+          "gtBaseUrl": {
+            "type": [
+              "string",
+              "null"
             ]
           },
           "logDir": {
@@ -10955,7 +10955,7 @@
       },
       "ForcedLoginMethod": {
         "enum": [
-          "gt",
+          "chatgpt",
           "api"
         ],
         "type": "string"
@@ -12804,14 +12804,14 @@
                 ],
                 "default": null
               },
-              "codexStreamlinedLogin": {
+              "cxStreamlinedLogin": {
                 "type": "boolean"
               },
               "type": {
                 "enum": [
                   "gt"
                 ],
-                "title": "Chatgptv2::LoginAccountParamsType",
+                "title": "Gtv2::LoginAccountParamsType",
                 "type": "string"
               },
               "useHostedLoginSuccessPage": {
@@ -12821,7 +12821,7 @@
             "required": [
               "type"
             ],
-            "title": "Chatgptv2::LoginAccountParams",
+            "title": "Gtv2::LoginAccountParams",
             "type": "object"
           },
           {
@@ -12830,14 +12830,14 @@
                 "enum": [
                   "gtDeviceCode"
                 ],
-                "title": "ChatgptDeviceCodev2::LoginAccountParamsType",
+                "title": "GtDeviceCodev2::LoginAccountParamsType",
                 "type": "string"
               }
             },
             "required": [
               "type"
             ],
-            "title": "ChatgptDeviceCodev2::LoginAccountParams",
+            "title": "GtDeviceCodev2::LoginAccountParams",
             "type": "object"
           },
           {
@@ -12862,7 +12862,7 @@
                 "enum": [
                   "gtAuthTokens"
                 ],
-                "title": "ChatgptAuthTokensv2::LoginAccountParamsType",
+                "title": "GtAuthTokensv2::LoginAccountParamsType",
                 "type": "string"
               }
             },
@@ -12871,7 +12871,7 @@
               "gtAccountId",
               "type"
             ],
-            "title": "ChatgptAuthTokensv2::LoginAccountParams",
+            "title": "GtAuthTokensv2::LoginAccountParams",
             "type": "object"
           },
           {
@@ -12934,7 +12934,7 @@
                 "enum": [
                   "gt"
                 ],
-                "title": "Chatgptv2::LoginAccountResponseType",
+                "title": "Gtv2::LoginAccountResponseType",
                 "type": "string"
               }
             },
@@ -12943,7 +12943,7 @@
               "loginId",
               "type"
             ],
-            "title": "Chatgptv2::LoginAccountResponse",
+            "title": "Gtv2::LoginAccountResponse",
             "type": "object"
           },
           {
@@ -12955,7 +12955,7 @@
                 "enum": [
                   "gtDeviceCode"
                 ],
-                "title": "ChatgptDeviceCodev2::LoginAccountResponseType",
+                "title": "GtDeviceCodev2::LoginAccountResponseType",
                 "type": "string"
               },
               "userCode": {
@@ -12973,7 +12973,7 @@
               "userCode",
               "verificationUrl"
             ],
-            "title": "ChatgptDeviceCodev2::LoginAccountResponse",
+            "title": "GtDeviceCodev2::LoginAccountResponse",
             "type": "object"
           },
           {
@@ -12982,14 +12982,14 @@
                 "enum": [
                   "gtAuthTokens"
                 ],
-                "title": "ChatgptAuthTokensv2::LoginAccountResponseType",
+                "title": "GtAuthTokensv2::LoginAccountResponseType",
                 "type": "string"
               }
             },
             "required": [
               "type"
             ],
-            "title": "ChatgptAuthTokensv2::LoginAccountResponse",
+            "title": "GtAuthTokensv2::LoginAccountResponse",
             "type": "object"
           },
           {
@@ -13014,7 +13014,7 @@
       "LoginAppBrand": {
         "enum": [
           "cx",
-          "gt"
+          "chatgpt"
         ],
         "type": "string"
       },
@@ -22595,7 +22595,7 @@
               "null"
             ]
           },
-          "codexErrorInfo": {
+          "cxErrorInfo": {
             "anyOf": [
               {
                 "$ref": "#/definitions/v2/CodexErrorInfo"

@@ -528,14 +528,14 @@
         {
           "description": "oi API key provided by the caller and stored by CX.",
           "enum": [
-            "apikey"
+            "apiKey"
           ],
           "type": "string"
         },
         {
           "description": "gt OAuth managed by CX (tokens persisted and refreshed by CX).",
           "enum": [
-            "gt"
+            "chatgpt"
           ],
           "type": "string"
         },
@@ -5628,7 +5628,7 @@
             "null"
           ]
         },
-        "codexErrorInfo": {
+        "cxErrorInfo": {
           "anyOf": [
             {
               "$ref": "#/definitions/CodexErrorInfo"

@@ -204,12 +204,6 @@
             }
           ]
         },
-        "gtBaseUrl": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "checkForUpdateOnStartup": {
           "type": [
             "boolean",
@@ -269,6 +263,12 @@
             {
               "type": "null"
             }
+          ]
+        },
+        "gtBaseUrl": {
+          "type": [
+            "string",
+            "null"
           ]
         },
         "logDir": {

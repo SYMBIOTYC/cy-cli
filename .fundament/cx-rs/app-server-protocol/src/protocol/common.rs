@@ -20,9 +20,12 @@ use strum_macros::Display;
 
 /// Authentication mode for oi-backed providers.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Display, JsonSchema, TS)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase")]
 pub enum AuthMode {
     /// oi API key provided by the caller and stored by CX.
+    #[serde(rename = "apiKey")]
+    #[ts(rename = "apiKey")]
     ApiKey,
     /// gt OAuth managed by CX (tokens persisted and refreshed by CX).
     Chatgpt,

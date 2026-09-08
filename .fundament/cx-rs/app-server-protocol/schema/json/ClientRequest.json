@@ -1758,14 +1758,14 @@
               ],
               "default": null
             },
-            "codexStreamlinedLogin": {
+            "cxStreamlinedLogin": {
               "type": "boolean"
             },
             "type": {
               "enum": [
                 "gt"
               ],
-              "title": "ChatgptLoginAccountParamsType",
+              "title": "GtLoginAccountParamsType",
               "type": "string"
             },
             "useHostedLoginSuccessPage": {
@@ -1775,7 +1775,7 @@
           "required": [
             "type"
           ],
-          "title": "ChatgptLoginAccountParams",
+          "title": "GtLoginAccountParams",
           "type": "object"
         },
         {
@@ -1784,14 +1784,14 @@
               "enum": [
                 "gtDeviceCode"
               ],
-              "title": "ChatgptDeviceCodeLoginAccountParamsType",
+              "title": "GtDeviceCodeLoginAccountParamsType",
               "type": "string"
             }
           },
           "required": [
             "type"
           ],
-          "title": "ChatgptDeviceCodeLoginAccountParams",
+          "title": "GtDeviceCodeLoginAccountParams",
           "type": "object"
         },
         {
@@ -1816,7 +1816,7 @@
               "enum": [
                 "gtAuthTokens"
               ],
-              "title": "ChatgptAuthTokensLoginAccountParamsType",
+              "title": "GtAuthTokensLoginAccountParamsType",
               "type": "string"
             }
           },
@@ -1825,7 +1825,7 @@
             "gtAccountId",
             "type"
           ],
-          "title": "ChatgptAuthTokensLoginAccountParams",
+          "title": "GtAuthTokensLoginAccountParams",
           "type": "object"
         },
         {
@@ -1858,7 +1858,7 @@
     "LoginAppBrand": {
       "enum": [
         "cx",
-        "gt"
+        "chatgpt"
       ],
       "type": "string"
     },
