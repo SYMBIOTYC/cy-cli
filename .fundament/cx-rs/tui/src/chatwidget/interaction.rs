@@ -9,6 +9,12 @@ impl ChatWidget {
     }
 
     pub(crate) fn handle_key_event(&mut self, key_event: KeyEvent) {
+        // The CY answer popup is a transient overlay: Esc closes it before the
+        // bottom-pane view stack or any other shortcut sees the key.
+        if self.handle_answer_popup_key_event(key_event) {
+            return;
+        }
+
         if self.bottom_pane.has_active_view()
             && !matches!(
                 key_event,

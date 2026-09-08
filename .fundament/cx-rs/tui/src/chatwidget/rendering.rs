@@ -5,6 +5,13 @@ use super::transcript::ActiveCellLayoutCacheKey;
 use super::*;
 use std::cell::Cell;
 
+// CY answer popup lives in dedicated modules; declared here so the popup can slot into the
+// chat flex layout without touching the orchestration root (`chatwidget.rs`).
+#[path = "answer_popup.rs"]
+mod answer_popup;
+#[path = "answer_popup_backend.rs"]
+mod answer_popup_backend;
+
 impl ChatWidget {
     pub(crate) fn as_renderable(&self) -> RenderableItem<'_> {
         if self
@@ -78,6 +85,9 @@ impl ChatWidget {
                     persistent_layout: None,
                 })),
             );
+        }
+        if let Some(popup) = answer_popup::answer_popup_renderable() {
+            flex.push(/*flex*/ 0, RenderableItem::Owned(popup));
         }
         flex.push(
             /*flex*/ 0,

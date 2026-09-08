@@ -849,6 +849,18 @@ pub(crate) enum AppEvent {
     /// Finish buffering initial resume replay after all replay events have been queued.
     EndInitialHistoryReplayBuffer,
 
+    /// Show the transient CY answer popup with `text`.
+    ///
+    /// UI-only event handled like `InsertHistoryCell`: set the popup state and schedule a
+    /// frame. It never interrupts the running turn; it carries answers computed out-of-band
+    /// by the lightweight read-only question subagent while the main turn keeps running.
+    ShowAnswerPopup {
+        text: String,
+    },
+
+    /// Dismiss the CY answer popup immediately (Esc or explicit close).
+    DismissAnswerPopup,
+
     /// Replace the contiguous run of streaming `AgentMessageCell`s at the end of
     /// the transcript with a single `AgentMarkdownCell` that stores the raw
     /// markdown source and re-renders from it on resize.

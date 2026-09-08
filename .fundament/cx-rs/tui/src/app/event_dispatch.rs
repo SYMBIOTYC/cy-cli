@@ -514,6 +514,14 @@ impl App {
             AppEvent::InsertHistoryCell(cell) => {
                 self.insert_history_cell(tui, cell);
             }
+            AppEvent::ShowAnswerPopup { text } => {
+                self.chat_widget.show_answer_popup(text);
+                tui.frame_requester().schedule_frame();
+            }
+            AppEvent::DismissAnswerPopup => {
+                self.chat_widget.dismiss_answer_popup();
+                tui.frame_requester().schedule_frame();
+            }
             AppEvent::EndInitialHistoryReplayBuffer => {
                 self.scrollback_has_older_history = self
                     .chat_widget
