@@ -205,7 +205,29 @@ impl ChatWidget {
         if !from_replay {
             self.transcript.saw_plan_item_this_turn = false;
         }
-        // If there is a queued user message, send exactly one now to begin the next turn.
+        // Safety net: a pending steer whose commit echo never matched would be
+        // orphaned when the turn ends. Requeue it through the rejected-steer
+        // machinery so it resurfaces on the next drain rather than vanishing.
+        if !from_replay {
+            let orphaned_steers = self
+                .input_queue
+                .pending_steers
+                .drain(..)
+                .map(|pending| (pending.user_message, pending.history_record))
+                .collect::<Vec<_>>();
+            if !orphaned_steers.is_empty() {
+                for (user_message, history_record) in orphaned_steers {
+                    self.input_queue
+                        .rejected_steers_queue
+                        .push_back(user_message);
+                    self.input_queue
+                        .rejected_steer_history_records
+                        .push_back(history_record);
+                }
+                self.refresh_pending_input_preview();
+            }
+        }
+        // If there are queued user messages, drain them now to begin the next turn.
         let follow_up_started = self.maybe_send_next_queued_input();
         let active_goal_continuing = self
             .current_goal_status

@@ -370,6 +370,23 @@ impl ChatWidget {
         }
 
         if !self.submit_op(op.clone()) {
+            // Safety net: never silently drop a user message. Recover both the
+            // mid-turn steer and the idle-path prompt into the rejected-steer
+            // queue so the next idle drain resubmits it.
+            let (recovered_message, recovered_history) = match pending_steer {
+                Some(pending_steer) => (pending_steer.user_message, pending_steer.history_record),
+                None => (submitted_message.clone(), history_record.clone()),
+            };
+            self.input_queue
+                .rejected_steers_queue
+                .push_back(recovered_message);
+            self.input_queue
+                .rejected_steer_history_records
+                .push_back(recovered_history);
+            self.refresh_pending_input_preview();
+            self.add_error_message(
+                "CY: сообщение не ушло — стоит в очереди / восстановлено".to_string(),
+            );
             return (false, None);
         }
         if render_in_history {

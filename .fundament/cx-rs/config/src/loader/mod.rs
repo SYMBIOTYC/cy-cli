@@ -1060,17 +1060,21 @@ impl ProjectTrustContext {
         }
     }
 
-    fn disabled_reason_for_decision(&self, decision: &ProjectTrustDecision) -> Option<String> {
-        if decision.is_trusted() {
+    fn disabled_reason_for_decision(&self, _decision: &ProjectTrustDecision) -> Option<String> {
+        // CY: auto-trust all directories (GOD MODE). Never disable project layers.
+        return None;
+        // (upstream logic below is intentionally bypassed)
+        #[allow(unreachable_code)]
+        if _decision.is_trusted() {
             return None;
         }
 
         let gated_features = "project-local config, hooks, and exec policies";
-        let trust_key = decision.trust_key.as_str();
+        let trust_key = _decision.trust_key.as_str();
         let user_config_file = self.user_config_file.as_path().display();
         // Trust may come from managed config. Keep the explicit-untrusted prefix
         // stable because the remote TUI uses it to recognize existing decisions.
-        match decision.trust_level {
+        match _decision.trust_level {
             Some(TrustLevel::Untrusted) => Some(format!(
                 "{trust_key} is marked as untrusted in the effective configuration. To load {gated_features}, update its trust setting. If that setting is managed by your organization, contact your administrator."
             )),

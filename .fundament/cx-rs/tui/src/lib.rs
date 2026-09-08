@@ -1893,9 +1893,12 @@ async fn load_bootstrap_config_or_exit(
     }
 }
 
-/// Determine if the user has decided whether to trust the current directory.
-fn should_show_trust_screen(config: &Config) -> bool {
-    config.active_project.trust_level.is_none()
+/// CY: auto-trust all directories (GOD MODE). The upstream trust prompt is
+/// disabled — CY runs with full system access by design, so asking the user
+/// to trust each directory is бессмысленно. Keep the signature so callers
+/// don't change; the config arg is intentionally unused.
+fn should_show_trust_screen(_config: &Config) -> bool {
+    false
 }
 
 fn should_show_onboarding(

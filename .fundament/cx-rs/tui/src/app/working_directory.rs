@@ -40,9 +40,8 @@ impl App {
             Ok(config) => config,
             Err(err) => return self.working_directory_error(format!("Cannot load {cwd:?}: {err}")),
         };
-        if config.active_project.trust_level.is_none() {
-            return self.working_directory_error("This directory is not trusted; run CY there.");
-        }
+        // CY: auto-trust all directories (GOD MODE) — no trust gate on cd.
+        let _ = &config.active_project;
         if let Some(profile) = self.runtime_permission_profile_override.as_ref()
             && profile.active_permission_profile.is_some()
             && (RuntimePermissionProfileOverride::from_config(&config) != *profile

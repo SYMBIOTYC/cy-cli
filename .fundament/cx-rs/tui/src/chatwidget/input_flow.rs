@@ -157,9 +157,29 @@ impl ChatWidget {
             };
             match queued_message.action {
                 QueuedInputAction::Plain => {
+                    let mut to_merge = vec![(queued_message.into_user_message(), history_record)];
+                    // Guaranteed progress: merge every remaining plain queued
+                    // input into this one follow-up turn instead of draining
+                    // one message per completed turn.
+                    while self
+                        .input_queue
+                        .queued_user_messages
+                        .front()
+                        .is_some_and(|next| matches!(next.action, QueuedInputAction::Plain))
+                    {
+                        let (next_message, next_history_record) = self
+                            .pop_next_queued_user_message()
+                            .expect("front queued message");
+                        to_merge.push((next_message.into_user_message(), next_history_record));
+                    }
+                    let (merged_message, merged_history_record) = if to_merge.len() == 1 {
+                        to_merge.pop().expect("non-empty queue payload")
+                    } else {
+                        merge_user_messages_with_history_record(to_merge)
+                    };
                     submitted_follow_up = self.submit_user_message_with_history_record(
-                        queued_message.into_user_message(),
-                        history_record,
+                        merged_message,
+                        merged_history_record,
                     );
                     break;
                 }
