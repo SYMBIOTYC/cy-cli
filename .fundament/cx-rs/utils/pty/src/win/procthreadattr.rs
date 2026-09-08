@@ -24,10 +24,10 @@ use anyhow::ensure;
 // CY: winapi 0.3 functions (UpdateProcThreadAttribute) speak winapi's own
 // c_void, which is a distinct type from std::ffi::c_void since Rust edition
 // changes; keep the parameter types aligned with winapi to compile.
-use winapi::ctypes::c_void;
 use std::io::Error as IoError;
 use std::mem;
 use std::ptr;
+use winapi::ctypes::c_void;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::processthreadsapi::*;
 use winapi::um::winnt::HANDLE;

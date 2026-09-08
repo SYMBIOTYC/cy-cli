@@ -162,6 +162,17 @@ impl ChatWidget {
             return (app_command.is_some(), app_command);
         }
 
+        // Guaranteed response for side questions: while a turn is running, a plain-text
+        // question gets a visible popup answer from the read-only subagent instead of a
+        // steer that the core may silently refuse. The active turn is never interrupted.
+        if self.turn_lifecycle.agent_turn_running
+            && local_images.is_empty()
+            && remote_image_urls.is_empty()
+            && self.maybe_intercept_inflight_question(&text)
+        {
+            return (true, None);
+        }
+
         for image_url in &remote_image_urls {
             items.push(UserInput::Image {
                 url: image_url.clone(),

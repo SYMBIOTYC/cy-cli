@@ -1,4 +1,4 @@
-set working-directory := "codex-rs"
+set working-directory := "cx-rs"
 set positional-arguments
 export CODEX_REPO_ROOT := justfile_directory()
 export JUST_SHELL := justfile_directory() / "scripts/just-shell.py"

@@ -940,12 +940,27 @@ async fn replay_thread_snapshot_restores_draft_and_queued_input() {
 
     assert_eq!(app.chat_widget.composer_text_with_pending(), "draft prompt");
     assert!(app.chat_widget.queued_user_message_texts().is_empty());
+    // The harness drops the first widget's op receiver, so the live submit of
+    // "queued follow-up" fails. The delivery guarantee recovers it into the
+    // queue instead of dropping it, and resuming the restored queue must
+    // resubmit it. The composer draft itself must never be auto-submitted.
+    let mut saw_recovered_follow_up = false;
     while let Ok(op) = new_op_rx.try_recv() {
-        assert!(
-            !matches!(op, Op::UserTurn { .. }),
-            "draft-only replay should not auto-submit queued input"
-        );
+        if let Op::UserTurn { items, .. } = op {
+            assert_eq!(
+                items,
+                vec![UserInput::Text {
+                    text: "queued follow-up".to_string(),
+                    text_elements: Vec::new(),
+                }]
+            );
+            saw_recovered_follow_up = true;
+        }
     }
+    assert!(
+        saw_recovered_follow_up,
+        "expected the recovered queued follow-up to resubmit when the restored queue resumes"
+    );
 }
 
 #[tokio::test]

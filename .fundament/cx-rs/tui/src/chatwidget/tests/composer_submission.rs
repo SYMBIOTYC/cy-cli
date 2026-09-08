@@ -1796,7 +1796,9 @@ async fn restore_thread_input_state_applies_running_state_policy() {
     );
     assert!(chat.maybe_send_next_queued_input());
     assert_matches!(next_submit_op(&mut op_rx), Op::UserTurn { .. });
-    assert_eq!(chat.queued_user_message_texts(), vec!["already queued"]);
+    // Guaranteed progress: the recovered steer and the queued draft are merged
+    // into a single follow-up turn, leaving nothing behind.
+    assert!(chat.queued_user_message_texts().is_empty());
 
     chat.restore_thread_input_state(
         /*input_state*/ None,

@@ -260,29 +260,20 @@ async fn steer_rejection_queues_review_follow_up_before_existing_queued_messages
     handle_exited_review_mode(&mut chat);
     handle_turn_completed(&mut chat, "turn-1", /*duration_ms*/ None);
 
+    // Guaranteed progress: rejected steers and queued drafts are merged into a
+    // single follow-up turn instead of draining one message per turn.
     match next_submit_op(&mut op_rx) {
         Op::UserTurn { items, .. } => assert_eq!(
             items,
             vec![UserInput::Text {
-                text: "review follow-up one\nreview follow-up two".to_string(),
+                text: "review follow-up one\nreview follow-up two\nqueued later".to_string(),
                 text_elements: Vec::new(),
             }]
         ),
         other => panic!("expected merged rejected-steer follow-up submit, got {other:?}"),
     }
-
-    handle_turn_completed(&mut chat, "turn-1", /*duration_ms*/ None);
-
-    match next_submit_op(&mut op_rx) {
-        Op::UserTurn { items, .. } => assert_eq!(
-            items,
-            vec![UserInput::Text {
-                text: "queued later".to_string(),
-                text_elements: Vec::new(),
-            }]
-        ),
-        other => panic!("expected queued draft submit after rejected steers, got {other:?}"),
-    }
+    assert!(chat.queued_user_message_texts().is_empty());
+    assert_no_submit_op(&mut op_rx);
 }
 
 #[tokio::test]
@@ -520,7 +511,7 @@ async fn steer_enter_uses_pending_steers_while_final_answer_stream_is_active() {
 }
 
 #[tokio::test]
-async fn failed_pending_steer_submit_does_not_add_pending_preview() {
+async fn failed_pending_steer_submit_is_recovered_to_rejected_queue() {
     let (mut chat, mut rx, op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     chat.thread_id = Some(ThreadId::new());
     chat.on_task_started();
@@ -535,7 +526,20 @@ async fn failed_pending_steer_submit_does_not_add_pending_preview() {
 
     assert!(chat.input_queue.pending_steers.is_empty());
     assert!(chat.input_queue.queued_user_messages.is_empty());
-    assert!(drain_insert_history(&mut rx).is_empty());
+    assert_eq!(
+        chat.queued_user_message_texts(),
+        vec!["queued while streaming"]
+    );
+    let cells = drain_insert_history(&mut rx);
+    let rendered = cells
+        .iter()
+        .map(|lines| lines_to_single_string(lines))
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert!(
+        rendered.contains("стоит в очереди"),
+        "expected a visible queued-notice for the failed steer, got {rendered:?}"
+    );
 }
 
 #[tokio::test]

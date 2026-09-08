@@ -500,7 +500,7 @@ async fn queued_bare_rename_drains_next_input_after_name_update() {
 }
 
 #[tokio::test]
-async fn queued_inline_rename_does_not_drain_again_before_turn_started() {
+async fn queued_inline_rename_merges_plain_follow_ups_into_one_turn() {
     let (mut chat, mut rx, mut op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     let thread_id = ThreadId::new();
     chat.thread_id = Some(thread_id);
@@ -521,24 +521,24 @@ async fn queued_inline_rename_does_not_drain_again_before_turn_started() {
         "expected queued /rename to submit thread name; events: {events:?}"
     );
 
+    // Guaranteed progress: the queued /rename does not start a turn, so both
+    // plain follow-ups merge into a single submitted turn.
     match next_submit_op(&mut op_rx) {
         Op::UserTurn { items, .. } => assert_eq!(
             items,
             vec![UserInput::Text {
-                text: "first after rename".to_string(),
+                text: "first after rename\nsecond after rename".to_string(),
                 text_elements: Vec::new(),
             }]
         ),
-        other => panic!("expected first queued message after /rename, got {other:?}"),
+        other => panic!("expected merged queued messages after /rename, got {other:?}"),
     }
     assert!(events.iter().any(|event| matches!(
         event,
-        AppEvent::AppendMessageHistoryEntry { text, .. } if text == "first after rename"
+        AppEvent::AppendMessageHistoryEntry { text, .. }
+            if text == "first after rename\nsecond after rename"
     )));
-    assert_eq!(
-        chat.queued_user_message_texts(),
-        vec!["second after rename"]
-    );
+    assert!(chat.queued_user_message_texts().is_empty());
     let input_state = chat.capture_thread_input_state().unwrap();
     assert!(input_state.user_turn_pending_start);
     chat.restore_thread_input_state(
@@ -555,10 +555,7 @@ async fn queued_inline_rename_does_not_drain_again_before_turn_started() {
         },
     );
     assert!(chat.input_queue.user_turn_pending_start);
-    assert_eq!(
-        chat.queued_user_message_texts(),
-        vec!["second after rename"]
-    );
+    assert!(chat.queued_user_message_texts().is_empty());
 
     chat.handle_server_notification(
         ServerNotification::ThreadNameUpdated(
@@ -571,24 +568,12 @@ async fn queued_inline_rename_does_not_drain_again_before_turn_started() {
     );
 
     assert_matches!(op_rx.try_recv(), Err(TryRecvError::Empty));
-    assert_eq!(
-        chat.queued_user_message_texts(),
-        vec!["second after rename"]
-    );
+    assert!(chat.queued_user_message_texts().is_empty());
 
     handle_turn_started(&mut chat, "turn-2");
     complete_turn_with_message(&mut chat, "turn-2", Some("done"));
 
-    match next_submit_op(&mut op_rx) {
-        Op::UserTurn { items, .. } => assert_eq!(
-            items,
-            vec![UserInput::Text {
-                text: "second after rename".to_string(),
-                text_elements: Vec::new(),
-            }]
-        ),
-        other => panic!("expected second queued message after turn complete, got {other:?}"),
-    }
+    assert_no_submit_op(&mut op_rx);
     assert!(chat.input_queue.queued_user_messages.is_empty());
 }
 
