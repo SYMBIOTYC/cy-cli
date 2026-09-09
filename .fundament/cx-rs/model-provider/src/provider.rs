@@ -731,10 +731,7 @@ mod tests {
     fn cy_provider_returns_unauthenticated_openai_account_state() {
         let mut provider_base = ModelProviderInfo::create_cy_provider();
         provider_base.requires_openai_auth = true;
-        let provider = create_model_provider(
-            provider_base,
-            /*auth_manager*/ None,
-        );
+        let provider = create_model_provider(provider_base, /*auth_manager*/ None);
 
         assert_eq!(
             provider.account_state(),

@@ -184,9 +184,7 @@ impl AccountRequestProcessor {
     fn current_account_updated_notification(&self) -> AccountUpdatedNotification {
         let auth = self.auth_manager.auth_cached();
         AccountUpdatedNotification {
-            auth_mode: auth
-                .as_ref()
-                .map(CodexAuth::api_auth_mode),
+            auth_mode: auth.as_ref().map(CodexAuth::api_auth_mode),
             plan_type: auth.as_ref().and_then(CodexAuth::account_plan_type),
         }
     }
@@ -805,9 +803,7 @@ impl AccountRequestProcessor {
             )
             .await;
             let payload_v2 = AccountUpdatedNotification {
-                auth_mode: auth
-                    .as_ref()
-                    .map(CodexAuth::api_auth_mode),
+                auth_mode: auth.as_ref().map(CodexAuth::api_auth_mode),
                 plan_type: auth.as_ref().and_then(CodexAuth::account_plan_type),
             };
             outgoing

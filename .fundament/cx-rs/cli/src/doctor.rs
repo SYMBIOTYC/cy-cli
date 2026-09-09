@@ -1256,13 +1256,10 @@ fn auth_check(config: &Config) -> DoctorCheck {
     ));
     details.push(format!("auth file: {}", auth_path.display()));
 
-    let env_auth_vars = [
-        CY_API_KEY_ENV_VAR,
-        CX_ACCESS_TOKEN_ENV_VAR,
-    ]
-    .into_iter()
-    .filter(|name| env_var_present(name))
-    .collect::<Vec<_>>();
+    let env_auth_vars = [CY_API_KEY_ENV_VAR, CX_ACCESS_TOKEN_ENV_VAR]
+        .into_iter()
+        .filter(|name| env_var_present(name))
+        .collect::<Vec<_>>();
     if !env_auth_vars.is_empty() {
         details.push(format!(
             "auth env vars present: {}",
@@ -1439,8 +1436,7 @@ fn stored_auth_issues(
                 .cy_api_key
                 .as_deref()
                 .is_some_and(|key| !key.trim().is_empty());
-            let env_key_present =
-                env_var_present(CY_API_KEY_ENV_VAR);
+            let env_key_present = env_var_present(CY_API_KEY_ENV_VAR);
             if !stored_key_present && !env_key_present {
                 issues.push("API key auth is missing an API key");
             }
