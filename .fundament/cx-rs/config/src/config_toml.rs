@@ -31,11 +31,7 @@ use crate::types::WindowsToml;
 use cx_features::FeaturesToml;
 use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use cx_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
-use cx_model_provider_info::LEGACY_OLLAMA_CHAT_PROVIDER_ID;
-use cx_model_provider_info::LMSTUDIO_OSS_PROVIDER_ID;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_model_provider_info::OLLAMA_CHAT_PROVIDER_REMOVED_ERROR;
-use cx_model_provider_info::OLLAMA_OSS_PROVIDER_ID;
 use cx_protocol::config_types::AutoCompactTokenLimitScope;
 use cx_protocol::config_types::ForcedLoginMethod;
 use cx_protocol::config_types::Personality;
@@ -59,11 +55,9 @@ use serde::Serialize;
 use serde::de::Error as SerdeError;
 use serde_json::Value as JsonValue;
 
-const RESERVED_MODEL_PROVIDER_IDS: [&str; 4] = [
+const RESERVED_MODEL_PROVIDER_IDS: [&str; 2] = [
     AMAZON_BEDROCK_PROVIDER_ID,
     AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
-    OLLAMA_OSS_PROVIDER_ID,
-    LMSTUDIO_OSS_PROVIDER_ID,
 ];
 
 pub const DEFAULT_PROJECT_DOC_MAX_BYTES: usize = 32 * 1024;
@@ -941,22 +935,6 @@ where
 #[cfg(test)]
 #[path = "bedrock_runtime_tests.rs"]
 mod bedrock_runtime_tests;
-
-pub fn validate_oss_provider(provider: &str) -> std::io::Result<()> {
-    match provider {
-        LMSTUDIO_OSS_PROVIDER_ID | OLLAMA_OSS_PROVIDER_ID => Ok(()),
-        LEGACY_OLLAMA_CHAT_PROVIDER_ID => Err(std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            OLLAMA_CHAT_PROVIDER_REMOVED_ERROR,
-        )),
-        _ => Err(std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            format!(
-                "Invalid OSS provider '{provider}'. Must be one of: {LMSTUDIO_OSS_PROVIDER_ID}, {OLLAMA_OSS_PROVIDER_ID}"
-            ),
-        )),
-    }
-}
 
 #[cfg(test)]
 mod tests {

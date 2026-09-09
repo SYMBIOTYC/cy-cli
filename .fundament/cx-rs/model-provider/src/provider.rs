@@ -511,7 +511,6 @@ mod tests {
     use cx_model_provider_info::AwsAuthRefreshConfig;
     use cx_model_provider_info::ModelProviderAwsAuthInfo;
     use cx_model_provider_info::WireApi;
-    use cx_model_provider_info::create_oss_provider_with_base_url;
     use cx_models_manager::ModelsManagerConfig;
     use cx_models_manager::manager::RefreshStrategy;
     use cx_protocol::account::PlanType;
@@ -610,7 +609,10 @@ mod tests {
     #[tokio::test]
     async fn scoped_auth_ignores_scope_for_non_openai_provider() {
         let provider = create_model_provider(
-            create_oss_provider_with_base_url("http://localhost:11434/v1", WireApi::Responses),
+            ModelProviderInfo {
+                base_url: Some("http://localhost:11434/v1".to_string()),
+                ..ModelProviderInfo::default()
+            },
             /*auth_manager*/ None,
         );
 

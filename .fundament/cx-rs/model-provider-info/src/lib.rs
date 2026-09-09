@@ -502,12 +502,6 @@ impl ModelProviderInfo {
     }
 }
 
-pub const DEFAULT_LMSTUDIO_PORT: u16 = 1234;
-pub const DEFAULT_OLLAMA_PORT: u16 = 11434;
-
-pub const LMSTUDIO_OSS_PROVIDER_ID: &str = "lmstudio";
-pub const OLLAMA_OSS_PROVIDER_ID: &str = "ollama";
-
 /// Built-in default provider list: SYMBIOTYC only.
 pub fn built_in_model_providers() -> HashMap<String, ModelProviderInfo> {
     use ModelProviderInfo as P;
@@ -523,14 +517,6 @@ pub fn built_in_model_providers() -> HashMap<String, ModelProviderInfo> {
         (
             AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
             amazon_bedrock_runtime_provider,
-        ),
-        (
-            OLLAMA_OSS_PROVIDER_ID,
-            create_oss_provider(DEFAULT_OLLAMA_PORT, WireApi::Responses),
-        ),
-        (
-            LMSTUDIO_OSS_PROVIDER_ID,
-            create_oss_provider(DEFAULT_LMSTUDIO_PORT, WireApi::Responses),
         ),
     ]
     .into_iter()
@@ -583,48 +569,6 @@ other non-default provider fields are not supported"
     }
 
     Ok(model_providers)
-}
-
-pub fn create_oss_provider(default_provider_port: u16, wire_api: WireApi) -> ModelProviderInfo {
-    // These CX_OSS_ environment variables are experimental: we may
-    // switch to reading values from config.toml instead.
-    let default_cx_oss_base_url = format!(
-        "http://localhost:{cx_oss_port}/v1",
-        cx_oss_port = std::env::var("CX_OSS_PORT")
-            .ok()
-            .filter(|value| !value.trim().is_empty())
-            .and_then(|value| value.parse::<u16>().ok())
-            .unwrap_or(default_provider_port)
-    );
-
-    let cx_oss_base_url = std::env::var("CX_OSS_BASE_URL")
-        .ok()
-        .filter(|v| !v.trim().is_empty())
-        .unwrap_or(default_cx_oss_base_url);
-    create_oss_provider_with_base_url(&cx_oss_base_url, wire_api)
-}
-
-pub fn create_oss_provider_with_base_url(base_url: &str, wire_api: WireApi) -> ModelProviderInfo {
-    ModelProviderInfo {
-        name: "gpt-oss".into(),
-        base_url: Some(base_url.into()),
-        env_key: None,
-        env_key_instructions: None,
-        experimental_bearer_token: None,
-        auth: None,
-        aws: None,
-        wire_api,
-        query_params: None,
-        http_headers: None,
-        env_http_headers: None,
-        request_max_retries: None,
-        stream_max_retries: None,
-        stream_idle_timeout_ms: None,
-        websocket_connect_timeout_ms: None,
-        requires_openai_auth: false,
-        supports_websockets: false,
-        supports_standalone_web_search: false,
-    }
 }
 
 #[cfg(test)]

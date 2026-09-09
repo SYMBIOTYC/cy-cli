@@ -39,7 +39,6 @@ cx-otel = { workspace = true }
 cx-protocol = { workspace = true }
 cx-utils-absolute-path = { workspace = true }
 cx-utils-cli = { workspace = true }
-cx-utils-oss = { workspace = true }
 cx-utils-sandbox-summary = { workspace = true }
 owo-colors = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

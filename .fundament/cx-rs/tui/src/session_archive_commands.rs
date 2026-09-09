@@ -14,7 +14,6 @@ use crate::app_server_session::AppServerSession;
 use crate::legacy_core::config::ConfigBuilder;
 use crate::legacy_core::config::ConfigOverrides;
 use crate::legacy_core::config::load_config_toml_with_layer_stack;
-use crate::legacy_core::config::resolve_oss_provider;
 use crate::legacy_core::config::resolve_profile_v2_config_path;
 use crate::named_session_lookup::NamedSessionCandidates;
 use crate::named_session_lookup::SessionCollection;
@@ -33,7 +32,6 @@ use cx_exec_server::ExecServerRuntimePaths;
 use cx_protocol::ThreadId;
 use cx_utils_cli::CliConfigOverrides;
 use cx_utils_home_dir::find_cx_home;
-use cx_utils_oss::get_default_model_for_oss_provider;
 
 use super::RemoteAppServerEndpoint;
 
@@ -393,7 +391,6 @@ pub(super) async fn start_app_server_for_session_command(
     )
     .await
     .wrap_err("failed to load config.toml")?;
-    let config_toml = &bootstrap_config.config_toml;
     let cloud_config_bundle = super::cloud_config_bundle_for_app_server_target(
         &app_server_target,
         &bootstrap_config,
@@ -401,17 +398,11 @@ pub(super) async fn start_app_server_for_session_command(
     )
     .await?;
 
-    let model_provider = if cli.oss {
-        resolve_oss_provider(cli.oss_provider.as_deref(), config_toml)
-    } else {
-        None
-    };
-    let model = cli.model.clone().or_else(|| {
-        model_provider
-            .as_deref()
-            .and_then(get_default_model_for_oss_provider)
-            .map(ToOwned::to_owned)
-    });
+    if cli.oss {
+        return Err(eyre!("OSS providers were removed; CY is the only provider"));
+    }
+    let model_provider: Option<String> = None;
+    let model = cli.model.clone();
     let cwd = cli.cwd.clone();
     let config = ConfigBuilder::default()
         .cli_overrides(cli_kv_overrides.clone())

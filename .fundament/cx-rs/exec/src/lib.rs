@@ -70,7 +70,6 @@ use cx_core::config::ConfigTomlLoadResult;
 use cx_core::config::bootstrap_auth_config;
 use cx_core::config::find_cx_home;
 use cx_core::config::load_config_toml_with_layer_stack;
-use cx_core::config::resolve_oss_provider;
 use cx_core::config::resolve_profile_v2_config_path;
 use cx_core::find_thread_meta_by_name_str;
 use cx_core::format_exec_policy_error_with_source;
@@ -84,8 +83,6 @@ use cx_login::default_client::set_default_client_residency_requirement;
 use cx_login::default_client::set_default_originator;
 use cx_login::enforce_login_restrictions;
 use cx_login::is_workload_identity_selected;
-use cx_model_provider_info::LMSTUDIO_OSS_PROVIDER_ID;
-use cx_model_provider_info::OLLAMA_OSS_PROVIDER_ID;
 use cx_otel::set_parent_from_context;
 use cx_otel::traceparent_context_from_env;
 use cx_protocol::SessionId;
@@ -103,8 +100,6 @@ use cx_protocol::user_input::UserInput;
 use cx_utils_absolute_path::AbsolutePathBuf;
 use cx_utils_absolute_path::canonicalize_existing_preserving_symlinks;
 use cx_utils_cli::SharedCliOptions;
-use cx_utils_oss::ensure_oss_provider_ready;
-use cx_utils_oss::get_default_model_for_oss_provider;
 use event_processor_with_human_output::EventProcessorWithHumanOutput;
 pub use event_processor_with_jsonl_output::CodexStatus;
 pub use event_processor_with_jsonl_output::CollectedThreadEvents;
@@ -152,7 +147,6 @@ use std::path::PathBuf;
 use supports_color::Stream;
 use tokio::sync::mpsc;
 use tracing::Instrument;
-use tracing::error;
 use tracing::field;
 use tracing::info;
 use tracing::info_span;
@@ -344,7 +338,6 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
         CloudConfigBundleLoader::default(),
     )
     .await;
-    let bootstrap_config_toml = &bootstrap_config.config_toml;
     let bootstrap_auth_config = bootstrap_auth_config(&cx_home, &bootstrap_config)?;
     // API keys cannot fetch workspace-managed configuration. Preserve the
     // existing gt bootstrap identity even when model requests allow
@@ -358,50 +351,14 @@ pub async fn run_main(cli: Cli, arg0_paths: Arg0DispatchPaths) -> anyhow::Result
     let run_loader_overrides = loader_overrides.clone();
     let run_cloud_config_bundle = cloud_config_bundle.clone();
 
-    let model_provider = if oss {
-        let bootstrap_config_with_cloud_config;
-        let config_toml_for_oss = if oss_provider.is_none() {
-            // The first load intentionally skips cloud config so we can read
-            // auth/base-url settings needed to fetch the bundle. If OSS mode
-            // needs a default provider from config, reload with the bundle.
-            bootstrap_config_with_cloud_config = load_bootstrap_config_or_exit(
-                &cx_home,
-                Some(&config_cwd),
-                cli_kv_overrides.clone(),
-                loader_overrides.clone(),
-                strict_config,
-                cloud_config_bundle.clone(),
-            )
-            .await;
-            &bootstrap_config_with_cloud_config.config_toml
-        } else {
-            bootstrap_config_toml
-        };
+    if oss {
+        return Err(anyhow::anyhow!(
+            "OSS providers were removed; CY is the only provider"
+        ));
+    }
+    let model_provider: Option<String> = None;
 
-        let resolved = resolve_oss_provider(oss_provider.as_deref(), config_toml_for_oss);
-
-        if let Some(provider) = resolved {
-            Some(provider)
-        } else {
-            return Err(anyhow::anyhow!(
-                "No default OSS provider configured. Use --local-provider=provider or set oss_provider to one of: {LMSTUDIO_OSS_PROVIDER_ID}, {OLLAMA_OSS_PROVIDER_ID} in config.toml"
-            ));
-        }
-    } else {
-        None // No OSS mode enabled
-    };
-
-    // When using `--oss`, let the bootstrapper pick the model based on selected provider
-    let model = if let Some(model) = model_cli_arg {
-        Some(model)
-    } else if oss {
-        model_provider
-            .as_ref()
-            .and_then(|provider_id| get_default_model_for_oss_provider(provider_id))
-            .map(std::borrow::ToOwned::to_owned)
-    } else {
-        None // No model specified, will use the default.
-    };
+    let model = model_cli_arg;
 
     let overrides = ConfigOverrides {
         model,
@@ -682,23 +639,6 @@ async fn run_exec_session(args: ExecRunArgs) -> anyhow::Result<()> {
             last_message_file.clone(),
         )),
     };
-    if oss {
-        // We're in the oss section, so provider_id should be Some
-        // Let's handle None case gracefully though just in case
-        let provider_id = match model_provider.as_ref() {
-            Some(id) => id,
-            None => {
-                error!("OSS provider unexpectedly not set when oss flag is used");
-                return Err(anyhow::anyhow!(
-                    "OSS provider not set but oss flag was used"
-                ));
-            }
-        };
-        ensure_oss_provider_ready(provider_id, &config)
-            .await
-            .map_err(|e| anyhow::anyhow!("OSS setup failed: {e}"))?;
-    }
-
     let default_cwd = config.cwd.to_path_buf();
     let default_approval_policy = config.permissions.approval_policy.value();
     let default_effort = config.model_reasoning_effort.clone();

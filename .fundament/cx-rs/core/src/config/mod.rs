@@ -2253,22 +2253,6 @@ pub fn set_project_trust_level(
         .apply_blocking()
 }
 
-/// Save the default OSS provider preference to config.toml
-pub fn set_default_oss_provider(cx_home: &Path, provider: &str) -> std::io::Result<()> {
-    cx_config::config_toml::validate_oss_provider(provider)?;
-    use toml_edit::value;
-
-    let edits = [ConfigEdit::SetPath {
-        segments: vec!["oss_provider".to_string()],
-        value: value(provider),
-    }];
-
-    ConfigEditsBuilder::new(cx_home)
-        .with_edits(edits)
-        .apply_blocking()
-        .map_err(|err| std::io::Error::other(format!("failed to persist config.toml: {err}")))
-}
-
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct AgentRoleConfig {
     /// Human-facing role documentation used in spawn tool guidance.
@@ -2540,18 +2524,6 @@ fn dedupe_absolute_paths(paths: &mut Vec<AbsolutePathBuf>) {
 
 /// Resolves the OSS provider from CLI override or global config.
 /// Returns `None` if no provider is configured at any level.
-pub fn resolve_oss_provider(
-    explicit_provider: Option<&str>,
-    config_toml: &ConfigToml,
-) -> Option<String> {
-    if let Some(provider) = explicit_provider {
-        // Explicit provider specified (e.g., via --local-provider)
-        Some(provider.to_string())
-    } else {
-        config_toml.oss_provider.clone()
-    }
-}
-
 /// Resolve the web search mode from explicit config and feature flags.
 fn resolve_web_search_mode(config_toml: &ConfigToml, features: &Features) -> Option<WebSearchMode> {
     if let Some(mode) = config_toml.web_search {

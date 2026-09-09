@@ -71,7 +71,6 @@ members = [
     "file-search",
     "file-watcher",
     "linux-sandbox",
-    "lmstudio",
     "login",
     "cx-mcp",
     "mcp-server",
@@ -80,7 +79,6 @@ members = [
     "model-provider-info",
     "models-manager",
     "network-proxy",
-    "ollama",
     "process-hardening",
     "protocol",
     "prompts",
@@ -115,7 +113,6 @@ members = [
     "utils/sandbox-summary",
     "utils/sleep-inhibitor",
     "utils/approval-presets",
-    "utils/oss",
     "utils/output-truncation",
     "utils/path-utils",
     "utils/plugins",
@@ -210,7 +207,6 @@ cx-hooks = { path = "hooks" }
 cx-history = { path = "history" }
 cx-keyring-store = { path = "keyring-store" }
 cx-linux-sandbox = { path = "linux-sandbox" }
-cx-lmstudio = { path = "lmstudio" }
 cx-login = { path = "login" }
 cx-message-history = { path = "message-history" }
 cx-memories-extension = { path = "ext/memories" }
@@ -223,7 +219,6 @@ cx-mcp-server = { path = "mcp-server" }
 cx-model-provider-info = { path = "model-provider-info" }
 cx-models-manager = { path = "models-manager" }
 cx-network-proxy = { path = "network-proxy" }
-cx-ollama = { path = "ollama" }
 cx-otel = { path = "otel" }
 cx-plugin = { path = "plugin" }
 cx-model-provider = { path = "model-provider" }
@@ -261,7 +256,6 @@ cx-utils-fuzzy-match = { path = "utils/fuzzy-match" }
 cx-utils-home-dir = { path = "utils/home-dir" }
 cx-utils-image = { path = "utils/image" }
 cx-utils-json-to-toml = { path = "utils/json-to-toml" }
-cx-utils-oss = { path = "utils/oss" }
 cx-utils-output-truncation = { path = "utils/output-truncation" }
 cx-utils-path = { path = "utils/path-utils" }
 cx-utils-path-uri = { path = "utils/path-uri" }

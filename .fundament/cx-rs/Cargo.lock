@@ -3335,7 +3335,6 @@ dependencies = [
  "cx-utils-absolute-path",
  "cx-utils-cargo-bin",
  "cx-utils-cli",
- "cx-utils-oss",
  "cx-utils-sandbox-summary",
  "libc",
  "opentelemetry",
@@ -3855,20 +3854,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cx-lmstudio"
-version = "0.3.5"
-dependencies = [
- "cx-core",
- "cx-http-client",
- "cx-model-provider-info",
- "serde_json",
- "tokio",
- "tracing",
- "which 8.0.0",
- "wiremock",
-]
-
-[[package]]
 name = "cx-login"
 version = "0.3.5"
 dependencies = [
@@ -4278,26 +4263,6 @@ dependencies = [
  "tracing",
  "url",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "cx-ollama"
-version = "0.3.5"
-dependencies = [
- "assert_matches",
- "async-stream",
- "bytes",
- "cx-core",
- "cx-http-client",
- "cx-model-provider-info",
- "futures",
- "memchr",
- "pretty_assertions",
- "semver",
- "serde_json",
- "tokio",
- "tracing",
- "wiremock",
 ]
 
 [[package]]
@@ -4859,7 +4824,6 @@ dependencies = [
  "cx-utils-elapsed",
  "cx-utils-fuzzy-match",
  "cx-utils-home-dir",
- "cx-utils-oss",
  "cx-utils-path",
  "cx-utils-path-uri",
  "cx-utils-plugins",
@@ -5035,16 +4999,6 @@ dependencies = [
  "pretty_assertions",
  "serde_json",
  "toml 0.9.11+spec-1.1.0",
-]
-
-[[package]]
-name = "cx-utils-oss"
-version = "0.3.5"
-dependencies = [
- "cx-core",
- "cx-lmstudio",
- "cx-model-provider-info",
- "cx-ollama",
 ]
 
 [[package]]

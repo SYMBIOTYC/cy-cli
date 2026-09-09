@@ -34,8 +34,6 @@ use cx_model_provider::ProviderUnauthorizedRecovery;
 use cx_model_provider::SharedModelProvider;
 use cx_model_provider::create_model_provider;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_model_provider_info::WireApi;
-use cx_model_provider_info::create_oss_provider_with_base_url;
 use cx_models_manager::manager::SharedModelsManager;
 use cx_otel::SessionTelemetry;
 use cx_protocol::ThreadId;
@@ -100,7 +98,8 @@ fn test_model_client_with_thread_id(
     thread_id: ThreadId,
     session_source: SessionSource,
 ) -> ModelClient {
-    let provider = create_oss_provider_with_base_url("https://example.com/v1", WireApi::Responses);
+    let mut provider = ModelProviderInfo::create_cy_provider();
+    provider.base_url = Some("https://example.com/v1".to_string());
     ModelClient::new(
         /*auth_manager*/ None,
         AgentIdentityAuthPolicy::JwtOnly,
@@ -921,10 +920,9 @@ fn model_client_with_counting_attestation(
             ModelProviderInfo::create_cy_provider(),
         )
     } else {
-        (
-            None,
-            create_oss_provider_with_base_url("https://example.com/v1", WireApi::Responses),
-        )
+        let mut cy_base = ModelProviderInfo::create_cy_provider();
+        cy_base.base_url = Some("https://example.com/v1".to_string());
+        (None, cy_base)
     };
     let model_client = ModelClient::new(
         auth_manager,

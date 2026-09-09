@@ -115,15 +115,7 @@ pub(super) async fn run_main_inner(
                 approval_policy,
                 sandbox_mode,
                 cwd: validation_cwd.map(AbsolutePathBuf::into_path_buf),
-                model_provider: cli
-                    .oss
-                    .then(|| {
-                        resolve_oss_provider(
-                            cli.oss_provider.as_deref(),
-                            &validation_bootstrap.config_toml,
-                        )
-                    })
-                    .flatten(),
+                model_provider: None,
                 bypass_hook_trust: cli.bypass_hook_trust.then_some(true),
                 additional_writable_roots: cli.add_dir.clone(),
                 ..Default::default()
@@ -231,7 +223,6 @@ pub(super) async fn run_main_inner(
             CloudConfigBundleLoader::default(),
         ))
         .await?;
-    let bootstrap_config_toml = &bootstrap_config.config_toml;
     let cloud_config_bundle = startup_draft
         .run_until(cloud_config_bundle_for_app_server_target(
             &app_server_target,
@@ -246,78 +237,14 @@ pub(super) async fn run_main_inner(
         cwd.clone()
     };
 
-    let mut manually_selected_oss_provider = None;
-    let model_provider_override = if cli.oss {
-        let bootstrap_config_with_cloud_config;
-        let config_toml_for_oss = if cli.oss_provider.is_none() {
-            // The first load intentionally skips cloud config so we can read
-            // auth/base-url settings needed to fetch the bundle. If OSS mode
-            // needs a default provider from config, reload with the bundle.
-            bootstrap_config_with_cloud_config = startup_draft
-                .run_until(load_bootstrap_config_or_exit(
-                    &cx_home,
-                    config_cwd.as_ref(),
-                    cli_kv_overrides.clone(),
-                    loader_overrides.clone(),
-                    strict_config,
-                    cloud_config_bundle.clone(),
-                ))
-                .await?;
-            &bootstrap_config_with_cloud_config.config_toml
-        } else {
-            bootstrap_config_toml
-        };
+    if cli.oss {
+        return Err(std::io::Error::other(
+            "OSS providers were removed; CY is the only provider",
+        ));
+    }
+    let model_provider_override: Option<String> = None;
 
-        let resolved = resolve_oss_provider(cli.oss_provider.as_deref(), config_toml_for_oss);
-
-        if let Some(provider) = resolved {
-            Some(provider)
-        } else {
-            let selection = match startup_draft
-                .run_until(oss_selection::detect_oss_provider())
-                .await?
-            {
-                oss_selection::OssProviderDetection::AutoSelected(selection) => selection,
-                oss_selection::OssProviderDetection::NeedsSelection {
-                    lmstudio_status,
-                    ollama_status,
-                } => {
-                    startup_draft.flush_pending_events().await?;
-                    startup_draft
-                        .tui_mut()
-                        .with_restored(|| {
-                            oss_selection::select_oss_provider(lmstudio_status, ollama_status)
-                        })
-                        .await?
-                }
-            };
-            let provider = selection.provider;
-            if provider == "__CANCELLED__" {
-                return Err(std::io::Error::other(
-                    "OSS provider selection was cancelled by user",
-                ));
-            }
-            if selection.manually_selected {
-                manually_selected_oss_provider = Some(provider.clone());
-            }
-            Some(provider)
-        }
-    } else {
-        None
-    };
-
-    // When using `--oss`, let the bootstrapper pick the model based on selected provider
-    let model = if let Some(model) = &cli.model {
-        Some(model.clone())
-    } else if cli.oss {
-        // Use the provider from model_provider_override
-        model_provider_override
-            .as_ref()
-            .and_then(|provider_id| get_default_model_for_oss_provider(provider_id))
-            .map(std::borrow::ToOwned::to_owned)
-    } else {
-        None // No model specified, will use the default.
-    };
+    let model = cli.model.clone();
 
     let additional_dirs = cli.add_dir.clone();
 
@@ -330,7 +257,7 @@ pub(super) async fn run_main_inner(
         cx_self_exe: arg0_paths.cx_self_exe.clone(),
         cx_linux_sandbox_exe: arg0_paths.cx_linux_sandbox_exe.clone(),
         main_execve_wrapper_exe: arg0_paths.main_execve_wrapper_exe.clone(),
-        show_raw_agent_reasoning: cli.oss.then_some(true),
+        show_raw_agent_reasoning: None,
         bypass_hook_trust: cli.bypass_hook_trust.then_some(true),
         additional_writable_roots: additional_dirs,
         ..Default::default()
@@ -484,30 +411,6 @@ pub(super) async fn run_main_inner(
     let feedback_layer = feedback.logger_layer();
     let feedback_metadata_layer = feedback.metadata_layer();
 
-    if cli.oss && model_provider_override.is_some() {
-        // We're in the oss section, so provider_id should be Some
-        // Let's handle None case gracefully though just in case
-        let provider_id = match model_provider_override.as_ref() {
-            Some(id) => id,
-            None => {
-                error!("OSS provider unexpectedly not set when oss flag is used");
-                return Err(std::io::Error::other(
-                    "OSS provider not set but oss flag was used",
-                ));
-            }
-        };
-        startup_draft.flush_pending_events().await?;
-        startup_draft
-            .tui_mut()
-            .with_restored(|| async {
-                // Provider setup may print progress or block in an external downloader.
-                // Restore ordinary signal handling so Ctrl+C can interrupt that process.
-                crossterm::terminal::disable_raw_mode()?;
-                ensure_oss_provider_ready(provider_id, &config).await
-            })
-            .await?;
-    }
-
     let otel_logger_layer = otel.as_ref().and_then(|o| o.logger_layer());
 
     let otel_tracing_layer = otel.as_ref().and_then(|o| o.tracing_layer());
@@ -534,7 +437,6 @@ pub(super) async fn run_main_inner(
         app_server_target,
         remote_cwd_override,
         config,
-        manually_selected_oss_provider,
         overrides,
         cli_kv_overrides,
         cloud_config_bundle,

@@ -13,8 +13,6 @@ use cx_login::ExternalAuthRefreshContext;
 use cx_model_provider_info::AwsAuthRefreshConfig;
 use cx_model_provider_info::ModelProviderAwsAuthInfo;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_model_provider_info::WireApi;
-use cx_model_provider_info::create_oss_provider_with_base_url;
 use http::HeaderMap;
 use http::HeaderValue;
 use http::header::AUTHORIZATION;
@@ -118,8 +116,8 @@ async fn custom_provider_does_not_receive_ambient_auth_headers() -> anyhow::Resu
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, HeaderValue::from_static("Bearer ambient"));
     headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
-    let provider =
-        create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
+    let mut provider = ModelProviderInfo::create_cy_provider();
+    provider.base_url = Some(format!("{}/v1", server.uri()));
     let mut builder = test_codex()
         .with_auth(CodexAuth::Headers(AuthHeaders::new(headers)))
         .with_config(move |config| {
@@ -149,8 +147,8 @@ async fn custom_provider_uses_explicit_bearer_without_ambient_account() -> anyho
     let mut headers = HeaderMap::new();
     headers.insert(AUTHORIZATION, HeaderValue::from_static("Bearer ambient"));
     headers.insert("gt-Account-ID", HeaderValue::from_static("account-123"));
-    let mut provider =
-        create_oss_provider_with_base_url(&format!("{}/v1", server.uri()), WireApi::Responses);
+    let mut provider = ModelProviderInfo::create_cy_provider();
+    provider.base_url = Some(format!("{}/v1", server.uri()));
     provider.experimental_bearer_token = Some("provider-token".to_string());
     let mut builder = test_codex()
         .with_auth(CodexAuth::Headers(AuthHeaders::new(headers)))

@@ -61,7 +61,6 @@ cx-utils-cli = { workspace = true }
 cx-utils-elapsed = { workspace = true }
 cx-utils-fuzzy-match = { workspace = true }
 cx-utils-home-dir = { workspace = true }
-cx-utils-oss = { workspace = true }
 cx-utils-path = { workspace = true }
 cx-utils-path-uri = { workspace = true }
 cx-utils-plugins = { workspace = true }
