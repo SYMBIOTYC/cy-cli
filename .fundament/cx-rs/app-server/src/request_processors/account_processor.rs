@@ -1,7 +1,6 @@
 use super::bedrock_auth::clear_user_model_provider_if_bedrock;
 use super::bedrock_auth::set_user_model_provider_to_bedrock;
 use super::*;
-use crate::auth_mode::auth_mode_to_api;
 use crate::external_auth::ExternalAuthBridge;
 use chrono::DateTime;
 use cx_app_server_protocol::DesktopOnboardingEntrypoint;
@@ -189,8 +188,7 @@ impl AccountRequestProcessor {
         AccountUpdatedNotification {
             auth_mode: auth
                 .as_ref()
-                .map(CodexAuth::api_auth_mode)
-                .map(auth_mode_to_api),
+                .map(CodexAuth::api_auth_mode),
             plan_type: auth.as_ref().and_then(CodexAuth::account_plan_type),
         }
     }
@@ -855,8 +853,7 @@ impl AccountRequestProcessor {
             let payload_v2 = AccountUpdatedNotification {
                 auth_mode: auth
                     .as_ref()
-                    .map(CodexAuth::api_auth_mode)
-                    .map(auth_mode_to_api),
+                    .map(CodexAuth::api_auth_mode),
                 plan_type: auth.as_ref().and_then(CodexAuth::account_plan_type),
             };
             outgoing
@@ -913,8 +910,7 @@ impl AccountRequestProcessor {
             .auth_manager
             .auth_cached()
             .as_ref()
-            .map(CodexAuth::api_auth_mode)
-            .map(auth_mode_to_api))
+            .map(CodexAuth::api_auth_mode))
     }
 
     async fn logout_v2(&self, request_id: ConnectionRequestId) -> Result<(), JSONRPCErrorError> {
@@ -986,7 +982,7 @@ impl AccountRequestProcessor {
                 Some(auth) => {
                     let permanent_refresh_failure =
                         self.auth_manager.refresh_failure_for_auth(&auth).is_some();
-                    let auth_mode = auth_mode_to_api(auth.api_auth_mode());
+                    let auth_mode = auth.api_auth_mode();
                     let (reported_auth_method, token_opt) =
                         if self.auth_manager.is_workload_identity_selected()
                             || matches!(

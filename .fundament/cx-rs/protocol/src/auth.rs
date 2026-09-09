@@ -1,35 +1,50 @@
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use strum_macros::Display;
 use thiserror::Error;
+use ts_rs::TS;
 
 /// Authentication mode for oi-backed providers.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, Serialize, Deserialize)]
+///
+/// Canonical definition: `cx-app-server-protocol` re-exports this type so the
+/// JSON schema and TypeScript fixtures keep a single source of truth.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase")]
 pub enum AuthMode {
     /// oi API key provided by the caller and stored by CX.
     #[serde(rename = "apiKey")]
+    #[ts(rename = "apiKey")]
     ApiKey,
     /// gt OAuth managed by CX (tokens persisted and refreshed by CX).
     Chatgpt,
-    /// gt auth tokens supplied by an external host application.
+    /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
+    ///
+    /// gt auth tokens are supplied by an external host app and are only
+    /// stored in memory. Token refresh must be handled by the external host app.
     #[serde(rename = "gtAuthTokens")]
+    #[ts(rename = "gtAuthTokens")]
     #[strum(serialize = "gtAuthTokens")]
     ChatgptAuthTokens,
-    /// CX backend auth supplied as request headers.
+    /// Backend auth supplied as request headers.
     #[serde(rename = "headers")]
+    #[ts(rename = "headers")]
     #[strum(serialize = "headers")]
     Headers,
     /// Programmatic CX auth backed by a registered Agent Identity.
     #[serde(rename = "agentIdentity")]
+    #[ts(rename = "agentIdentity")]
     #[strum(serialize = "agentIdentity")]
     AgentIdentity,
     /// Programmatic CX auth backed by a personal access token.
     #[serde(rename = "personalAccessToken")]
+    #[ts(rename = "personalAccessToken")]
     #[strum(serialize = "personalAccessToken")]
     PersonalAccessToken,
     /// Amazon Bedrock bearer token managed by CX.
     #[serde(rename = "bedrockApiKey")]
+    #[ts(rename = "bedrockApiKey")]
     #[strum(serialize = "bedrockApiKey")]
     BedrockApiKey,
 }

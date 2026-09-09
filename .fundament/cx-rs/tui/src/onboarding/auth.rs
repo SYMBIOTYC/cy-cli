@@ -14,7 +14,6 @@ use crossterm::event::KeyModifiers;
 use cx_app_server_client::AppServerRequestHandle;
 use cx_app_server_protocol::AccountLoginCompletedNotification;
 use cx_app_server_protocol::AccountUpdatedNotification;
-use cx_app_server_protocol::AuthMode as ApiAuthMode;
 use cx_app_server_protocol::CancelLoginAccountParams;
 use cx_app_server_protocol::ClientRequest;
 use cx_app_server_protocol::LoginAccountParams;
@@ -946,17 +945,7 @@ impl AuthModeWidget {
     pub(crate) fn on_account_updated(&mut self, notification: AccountUpdatedNotification) {
         self.login_status = notification
             .auth_mode
-            .map(|auth_mode| {
-                LoginStatus::AuthMode(match auth_mode {
-                    ApiAuthMode::ApiKey => AuthMode::ApiKey,
-                    ApiAuthMode::Chatgpt => AuthMode::Chatgpt,
-                    ApiAuthMode::ChatgptAuthTokens => AuthMode::ChatgptAuthTokens,
-                    ApiAuthMode::Headers => AuthMode::Headers,
-                    ApiAuthMode::AgentIdentity => AuthMode::AgentIdentity,
-                    ApiAuthMode::PersonalAccessToken => AuthMode::PersonalAccessToken,
-                    ApiAuthMode::BedrockApiKey => AuthMode::BedrockApiKey,
-                })
-            })
+            .map(LoginStatus::AuthMode)
             .unwrap_or(LoginStatus::NotAuthenticated);
     }
 }

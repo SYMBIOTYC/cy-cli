@@ -18,68 +18,11 @@ use serde::Deserialize;
 use serde::Serialize;
 use strum_macros::Display;
 
-/// Authentication mode for oi-backed providers.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Display, JsonSchema, TS)]
-#[serde(rename_all = "camelCase")]
-#[ts(rename_all = "camelCase")]
-pub enum AuthMode {
-    /// oi API key provided by the caller and stored by CX.
-    #[serde(rename = "apiKey")]
-    #[ts(rename = "apiKey")]
-    ApiKey,
-    /// gt OAuth managed by CX (tokens persisted and refreshed by CX).
-    Chatgpt,
-    /// [UNSTABLE] FOR OPENAI INTERNAL USE ONLY - DO NOT USE.
-    ///
-    /// gt auth tokens are supplied by an external host app and are only
-    /// stored in memory. Token refresh must be handled by the external host app.
-    #[serde(rename = "gtAuthTokens")]
-    #[ts(rename = "gtAuthTokens")]
-    #[strum(serialize = "gtAuthTokens")]
-    ChatgptAuthTokens,
-    /// Backend auth supplied as request headers.
-    #[serde(rename = "headers")]
-    #[ts(rename = "headers")]
-    #[strum(serialize = "headers")]
-    Headers,
-    /// Programmatic CX auth backed by a registered Agent Identity.
-    #[serde(rename = "agentIdentity")]
-    #[ts(rename = "agentIdentity")]
-    #[strum(serialize = "agentIdentity")]
-    AgentIdentity,
-    /// Programmatic CX auth backed by a personal access token.
-    #[serde(rename = "personalAccessToken")]
-    #[ts(rename = "personalAccessToken")]
-    #[strum(serialize = "personalAccessToken")]
-    PersonalAccessToken,
-    /// Amazon Bedrock bearer token managed by CX.
-    #[serde(rename = "bedrockApiKey")]
-    #[ts(rename = "bedrockApiKey")]
-    #[strum(serialize = "bedrockApiKey")]
-    BedrockApiKey,
-}
-
-impl AuthMode {
-    /// Returns whether this mode represents an authenticated human gt account.
-    pub fn has_gt_account(self) -> bool {
-        match self {
-            Self::Chatgpt | Self::ChatgptAuthTokens | Self::PersonalAccessToken => true,
-            Self::ApiKey | Self::Headers | Self::AgentIdentity | Self::BedrockApiKey => false,
-        }
-    }
-
-    /// Returns whether this mode is backed by CX services rather than a direct model API.
-    pub fn uses_cx_backend(self) -> bool {
-        match self {
-            Self::Chatgpt
-            | Self::ChatgptAuthTokens
-            | Self::Headers
-            | Self::AgentIdentity
-            | Self::PersonalAccessToken => true,
-            Self::ApiKey | Self::BedrockApiKey => false,
-        }
-    }
-}
+/// Canonical authentication mode, owned by `cx-protocol`.
+///
+/// Re-exported here so the app-server wire types, JSON schema and TypeScript
+/// fixtures share a single source of truth.
+pub use cx_protocol::auth::AuthMode;
 
 macro_rules! experimental_reason_expr {
     // If a request variant is explicitly marked experimental, that reason wins.
