@@ -1,0 +1,63 @@
+name: Build macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Upload to GitHub release"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build macOS (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-apple-darwin
+            runner: macos-13
+            asset: cy-macos-x86_64
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+            asset: cy-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            .fundament/cx-rs/target
+          key: ${{ runner.os }}-build-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.target }}-
+      - name: Build release
+        working-directory: .fundament/cx-rs
+        run: cargo build --release -p cy-cli --target ${{ matrix.target }}
+      - name: Package
+        run: |
+          mkdir -p dist
+          cp .fundament/cx-rs/target/${{ matrix.target }}/release/cy dist/${{ matrix.asset }}
+          cd dist
+          tar czf ${{ matrix.asset }}.tar.gz ${{ matrix.asset }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist/${{ matrix.asset }}.tar.gz
+      - name: Upload release asset
+        if: ${{ inputs.release }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

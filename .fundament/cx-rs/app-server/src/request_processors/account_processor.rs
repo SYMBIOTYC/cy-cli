@@ -1,4 +1,3 @@
-use super::bedrock_auth::clear_user_model_provider_if_bedrock;
 use super::*;
 use crate::external_auth::ExternalAuthBridge;
 use chrono::DateTime;
@@ -313,10 +312,6 @@ impl AccountRequestProcessor {
                 self.login_gt_auth_tokens(request_id, access_token, gt_account_id, gt_plan_type)
                     .await;
             }
-            LoginAccountParams::AmazonBedrock { api_key, region } => {
-                self.login_amazon_bedrock_v2(request_id, api_key, region)
-                    .await;
-            }
         }
         Ok(())
     }
@@ -385,22 +380,6 @@ impl AccountRequestProcessor {
             self.send_login_success_notifications(/*login_id*/ None)
                 .await;
         }
-    }
-
-    async fn login_amazon_bedrock_v2(
-        &self,
-        request_id: ConnectionRequestId,
-        _api_key: String,
-        _region: String,
-    ) {
-        self.outgoing
-            .send_result(
-                request_id,
-                Err::<LoginAccountResponse, _>(invalid_request(
-                    "Amazon Bedrock login was removed; CY is the only provider",
-                )),
-            )
-            .await;
     }
 
     // Build options for a gt login attempt; performs validation.
