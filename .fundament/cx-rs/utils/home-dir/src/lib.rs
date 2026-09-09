@@ -2,9 +2,9 @@ use cx_utils_absolute_path::AbsolutePathBuf;
 use dirs::home_dir;
 use std::path::PathBuf;
 
-/// Returns the path to the CX configuration directory, which can be
+/// Returns the path to the CY configuration directory, which can be
 /// specified by the `CX_HOME` environment variable. If not set, defaults to
-/// `~/.cx`.
+/// `~/.cy`.
 ///
 /// - If `CX_HOME` is set, the value must exist and be a directory. The
 ///   value will be canonicalized and this function will Err otherwise.
@@ -54,7 +54,7 @@ fn find_cx_home_from_env(cx_home_env: Option<&str>) -> std::io::Result<AbsoluteP
                     "Could not find home directory",
                 )
             })?;
-            p.push(".cx");
+            p.push(".cy");
             AbsolutePathBuf::from_absolute_path(p)
         }
     }
@@ -124,7 +124,7 @@ mod tests {
     fn find_cx_home_without_env_uses_default_home_dir() {
         let resolved = find_cx_home_from_env(/*cx_home_env*/ None).expect("default CX_HOME");
         let mut expected = home_dir().expect("home dir");
-        expected.push(".cx");
+        expected.push(".cy");
         let expected = AbsolutePathBuf::from_absolute_path(expected).expect("absolute home");
         assert_eq!(resolved, expected);
     }

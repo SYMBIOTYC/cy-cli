@@ -3,7 +3,7 @@ use core_test_support::responses;
 use core_test_support::skip_if_no_network;
 use cx_git_utils::collect_git_info;
 use cx_login::CX_ACCESS_TOKEN_ENV_VAR;
-use cx_login::CX_API_KEY_ENV_VAR;
+use cx_login::CY_API_KEY_ENV_VAR;
 use cx_protocol::protocol::GitInfo;
 use pretty_assertions::assert_eq;
 use std::io;
@@ -82,7 +82,7 @@ fn personal_access_token_exec_command(server: &MockServer, home: &TempDir) -> Co
     cmd.env("CX_HOME", home.path())
         .env(CX_ACCESS_TOKEN_ENV_VAR, PERSONAL_ACCESS_TOKEN)
         .env("CX_AUTHAPI_BASE_URL", server.uri())
-        .env_remove(CX_API_KEY_ENV_VAR)
+        .env_remove(CY_API_KEY_ENV_VAR)
         .env_remove("OPENAI_API_KEY");
     cmd
 }
@@ -488,7 +488,7 @@ async fn integration_creates_and_checks_session_file() -> anyhow::Result<()> {
         .arg(&repo_root)
         .arg(&prompt);
     cmd.env("CX_HOME", home.path())
-        .env(CX_API_KEY_ENV_VAR, "dummy");
+        .env(CY_API_KEY_ENV_VAR, "dummy");
 
     let output = run_cli_command(&mut cmd).unwrap();
     assert!(

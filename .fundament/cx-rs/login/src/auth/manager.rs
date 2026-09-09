@@ -880,7 +880,6 @@ fn persist_agent_identity_record(
 }
 
 pub const CY_API_KEY_ENV_VAR: &str = "CY_API_KEY";
-pub const CX_API_KEY_ENV_VAR: &str = "CX_API_KEY";
 pub const CX_ACCESS_TOKEN_ENV_VAR: &str = "CX_ACCESS_TOKEN";
 
 pub fn read_cy_api_key_from_env() -> Option<String> {
@@ -888,10 +887,6 @@ pub fn read_cy_api_key_from_env() -> Option<String> {
         .ok()
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty())
-}
-
-pub fn read_cx_api_key_from_env() -> Option<String> {
-    read_non_empty_env_var(CX_API_KEY_ENV_VAR)
 }
 
 pub fn read_cx_access_token_from_env() -> Option<String> {
@@ -1401,7 +1396,7 @@ async fn load_auth(
     // API key via env var takes precedence over any other auth method.
     if enable_cx_api_key_env
         && auth_mode_is_allowed(allowed_login_methods, AuthMode::ApiKey)
-        && let Some(api_key) = read_cx_api_key_from_env()
+        && let Some(api_key) = read_cy_api_key_from_env()
     {
         return Ok(Some(CodexAuth::from_api_key(api_key.as_str())));
     }

@@ -1,14 +1,12 @@
 use cx_model_provider_info::ModelProviderInfo;
 use cx_otel::AuthEnvTelemetryMetadata;
 
-use crate::CX_API_KEY_ENV_VAR;
 use crate::CY_API_KEY_ENV_VAR;
 use crate::REFRESH_TOKEN_URL_OVERRIDE_ENV_VAR;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct AuthEnvTelemetry {
-    pub openai_api_key_env_present: bool,
-    pub cx_api_key_env_present: bool,
+    pub cy_api_key_env_present: bool,
     pub cx_api_key_env_enabled: bool,
     pub provider_env_key_name: Option<String>,
     pub provider_env_key_present: Option<bool>,
@@ -18,8 +16,7 @@ pub struct AuthEnvTelemetry {
 impl AuthEnvTelemetry {
     pub fn to_otel_metadata(&self) -> AuthEnvTelemetryMetadata {
         AuthEnvTelemetryMetadata {
-            openai_api_key_env_present: self.openai_api_key_env_present,
-            cx_api_key_env_present: self.cx_api_key_env_present,
+            cy_api_key_env_present: self.cy_api_key_env_present,
             cx_api_key_env_enabled: self.cx_api_key_env_enabled,
             provider_env_key_name: self.provider_env_key_name.clone(),
             provider_env_key_present: self.provider_env_key_present,
@@ -33,8 +30,7 @@ pub fn collect_auth_env_telemetry(
     cx_api_key_env_enabled: bool,
 ) -> AuthEnvTelemetry {
     AuthEnvTelemetry {
-        openai_api_key_env_present: env_var_present(CY_API_KEY_ENV_VAR),
-        cx_api_key_env_present: env_var_present(CX_API_KEY_ENV_VAR),
+        cy_api_key_env_present: env_var_present(CY_API_KEY_ENV_VAR),
         cx_api_key_env_enabled,
         provider_env_key_name: provider.env_key.as_ref().map(|_| "configured".to_string()),
         provider_env_key_present: provider.env_key.as_deref().map(env_var_present),

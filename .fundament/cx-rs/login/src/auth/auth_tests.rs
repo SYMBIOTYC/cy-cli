@@ -2160,7 +2160,7 @@ async fn load_auth_keeps_cx_api_key_env_precedence() {
     let record = agent_identity_record(WORKSPACE_ID_ALLOWED);
     let agent_identity = fake_agent_identity_jwt(&record).expect("fake agent identity");
     let _access_token_guard = EnvVarGuard::set(CX_ACCESS_TOKEN_ENV_VAR, &agent_identity);
-    let _api_key_guard = EnvVarGuard::set(CX_API_KEY_ENV_VAR, "sk-env");
+    let _api_key_guard = EnvVarGuard::set(CY_API_KEY_ENV_VAR, "sk-env");
 
     let auth = super::load_auth(
         cx_home.path(),
@@ -2627,7 +2627,7 @@ async fn enforce_login_restrictions_allows_api_key_if_login_method_not_set_but_f
 #[tokio::test]
 #[serial(cx_auth_env)]
 async fn enforce_login_restrictions_blocks_env_api_key_when_gt_required() {
-    let _guard = EnvVarGuard::set(CX_API_KEY_ENV_VAR, "sk-env");
+    let _guard = EnvVarGuard::set(CY_API_KEY_ENV_VAR, "sk-env");
     let _access_token_guard = remove_access_token_env_var();
     let cx_home = tempdir().unwrap();
 

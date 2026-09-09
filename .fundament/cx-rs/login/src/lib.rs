@@ -37,7 +37,6 @@ pub use auth::AuthManagerInitializationError;
 pub use auth::CLIENT_ID;
 pub use auth::CLIENT_ID_OVERRIDE_ENV_VAR;
 pub use auth::CX_ACCESS_TOKEN_ENV_VAR;
-pub use auth::CX_API_KEY_ENV_VAR;
 pub use auth::CY_API_KEY_ENV_VAR;
 pub use auth::CodexAuth;
 pub use auth::ExternalAuth;
