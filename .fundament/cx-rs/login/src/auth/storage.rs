@@ -35,10 +35,19 @@ use cx_secrets::SecretsBackendKind;
 use cx_secrets::SecretsManager;
 use once_cell::sync::Lazy;
 
+/// `skip_serializing_if` for `AuthDotJson::auth_mode`: key-based auth is the
+/// default and is inferred on read, so it is never written to the file.
+fn is_api_key_mode_or_unset(mode: &Option<AuthMode>) -> bool {
+    matches!(mode, None | Some(AuthMode::ApiKey))
+}
+
 /// Expected structure for $CX_HOME/auth.json.
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct AuthDotJson {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    /// Explicit mode is only written for non-key auth. Key users get a
+    /// single-field file: `{ "cy_api_key": "..." }` — the mode is inferred
+    /// as `ApiKey` by `resolved_mode` on read.
+    #[serde(default, skip_serializing_if = "is_api_key_mode_or_unset")]
     pub auth_mode: Option<AuthMode>,
 
     /// Single canonical user API key. Exactly one name: `cy_api_key`.
