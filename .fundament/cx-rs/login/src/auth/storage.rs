@@ -41,7 +41,7 @@ fn is_api_key_mode_or_unset(mode: &Option<AuthMode>) -> bool {
     matches!(mode, None | Some(AuthMode::ApiKey))
 }
 
-/// Expected structure for $CX_HOME/auth.json.
+/// Expected structure for ~/.cy/auth.json (or $CX_HOME/auth.json).
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct AuthDotJson {
     /// Explicit mode is only written for non-key auth. Key users get a
