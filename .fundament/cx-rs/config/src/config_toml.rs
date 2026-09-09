@@ -966,3 +966,4 @@ mod tests {
         assert!(message.contains("TOML list of strings"));
         assert!(message.contains("comma-separated strings are not supported"));
     }
+}
