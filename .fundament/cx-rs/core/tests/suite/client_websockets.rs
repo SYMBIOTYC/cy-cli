@@ -227,7 +227,7 @@ async fn responses_websocket_omits_routing_hint_for_provider_with_own_credential
     .await;
 
     let mut provider = websocket_provider(&server);
-    provider.name = ModelProviderInfo::create_openai_provider(/*base_url*/ None).name;
+    provider.name = ModelProviderInfo::create_cy_provider().name;
     provider.experimental_bearer_token = Some("provider-specific-token".to_string());
     let harness = websocket_harness_with_provider_options_and_auth(
         provider,
@@ -516,7 +516,7 @@ async fn responses_websocket_request_prewarm_reuses_connection() {
     .await;
 
     let mut provider = websocket_provider(&server);
-    provider.name = ModelProviderInfo::create_openai_provider(/*base_url*/ None).name;
+    provider.name = ModelProviderInfo::create_cy_provider().name;
     let harness = websocket_harness_with_provider_options(
         provider,
         /*runtime_metrics_enabled*/ true,
@@ -1189,7 +1189,7 @@ async fn responses_websocket_v2_incremental_requests_are_reused_across_turns() {
 
     // use oi provider to check metadata logic
     let mut provider = websocket_provider(&server);
-    provider.name = ModelProviderInfo::create_openai_provider(/*base_url*/ None).name;
+    provider.name = ModelProviderInfo::create_cy_provider().name;
     let harness = websocket_harness_with_provider_options(
         provider,
         /*runtime_metrics_enabled*/ false,
@@ -2388,7 +2388,8 @@ async fn websocket_harness(server: &WebSocketTestServer) -> WebsocketTestHarness
 }
 
 async fn websocket_harness_for_cx_backend(server: &WebSocketTestServer) -> WebsocketTestHarness {
-    let provider = ModelProviderInfo::create_openai_provider(Some(format!("{}/v1", server.uri())));
+    let mut provider = ModelProviderInfo::create_cy_provider();
+    provider.base_url = Some(format!("{}/v1", server.uri()));
     websocket_harness_with_provider_options_and_auth(
         provider,
         /*runtime_metrics_enabled*/ false,

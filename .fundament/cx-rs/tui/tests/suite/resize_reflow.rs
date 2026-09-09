@@ -30,7 +30,7 @@ async fn tmux_split_preserves_fresh_session_composer_row_after_resize_reflow() -
     let cx_home = tempdir()?;
     let server = MockServer::start().await;
     let _response_mock = responses::mount_sse_once(&server, resize_reflow_sse()).await;
-    let openai_base_url_config = format!("openai_base_url=\"{}/v1\"", server.uri());
+    let cy_base_url_env = format!("CY_BASE_URL={}/v1", server.uri());
     write_config(cx_home.path(), &repo_root)?;
     write_auth(cx_home.path())?;
 
@@ -56,12 +56,11 @@ async fn tmux_split_preserves_fresh_session_composer_row_after_resize_reflow() -
             .arg("--")
             .arg("env")
             .arg(format!("CX_HOME={}", cx_home.path().display()))
-            .arg("OPENAI_API_KEY=dummy")
+            .arg("CY_API_KEY=dummy")
+            .arg(&cy_base_url_env)
             .arg(cx)
             .arg("-c")
             .arg("analytics.enabled=false")
-            .arg("-c")
-            .arg(&openai_base_url_config)
             .arg("--no-alt-screen")
             .arg("-C")
             .arg(&repo_root)
@@ -197,7 +196,7 @@ async fn tmux_width_resize_restore_keeps_visible_content_anchored() -> Result<()
     let cx_home = tempdir()?;
     let server = MockServer::start().await;
     let _response_mock = responses::mount_sse_once(&server, resize_reflow_sse()).await;
-    let openai_base_url_config = format!("openai_base_url=\"{}/v1\"", server.uri());
+    let cy_base_url_env = format!("CY_BASE_URL={}/v1", server.uri());
     write_config(cx_home.path(), &repo_root)?;
     write_auth(cx_home.path())?;
 
@@ -223,12 +222,11 @@ async fn tmux_width_resize_restore_keeps_visible_content_anchored() -> Result<()
             .arg("--")
             .arg("env")
             .arg(format!("CX_HOME={}", cx_home.path().display()))
-            .arg("OPENAI_API_KEY=dummy")
+            .arg("CY_API_KEY=dummy")
+            .arg(&cy_base_url_env)
             .arg(cx)
             .arg("-c")
             .arg("analytics.enabled=false")
-            .arg("-c")
-            .arg(&openai_base_url_config)
             .arg("--no-alt-screen")
             .arg("-C")
             .arg(&repo_root)
@@ -327,7 +325,7 @@ async fn tmux_scrolled_composer_resize_preserves_visible_draft_text() -> Result<
     let cx = cx_binary(&repo_root)?;
     let cx_home = tempdir()?;
     let server = MockServer::start().await;
-    let openai_base_url_config = format!("openai_base_url=\"{}/v1\"", server.uri());
+    let cy_base_url_env = format!("CY_BASE_URL={}/v1", server.uri());
     write_config(cx_home.path(), &repo_root)?;
     write_auth(cx_home.path())?;
 
@@ -352,14 +350,13 @@ async fn tmux_scrolled_composer_resize_preserves_visible_draft_text() -> Result<
             .arg("--")
             .arg("env")
             .arg(format!("CX_HOME={}", cx_home.path().display()))
-            .arg("OPENAI_API_KEY=dummy")
+            .arg("CY_API_KEY=dummy")
+            .arg(&cy_base_url_env)
             .arg(cx)
             .arg("--model")
             .arg("gpt-5.6-terra")
             .arg("-c")
             .arg("analytics.enabled=false")
-            .arg("-c")
-            .arg(&openai_base_url_config)
             .arg("--no-alt-screen")
             .arg("-C")
             .arg(&repo_root),
@@ -450,7 +447,7 @@ async fn run_repeated_resize_smoke() -> Result<()> {
     let cx_home = tempdir()?;
     let server = MockServer::start().await;
     let _response_mock = responses::mount_sse_once(&server, resize_reflow_sse()).await;
-    let openai_base_url_config = format!("openai_base_url=\"{}/v1\"", server.uri());
+    let cy_base_url_env = format!("CY_BASE_URL={}/v1", server.uri());
     write_config(cx_home.path(), &repo_root)?;
     write_auth(cx_home.path())?;
 
@@ -476,12 +473,11 @@ async fn run_repeated_resize_smoke() -> Result<()> {
             .arg("--")
             .arg("env")
             .arg(format!("CX_HOME={}", cx_home.path().display()))
-            .arg("OPENAI_API_KEY=dummy")
+            .arg("CY_API_KEY=dummy")
+            .arg(&cy_base_url_env)
             .arg(cx)
             .arg("-c")
             .arg("analytics.enabled=false")
-            .arg("-c")
-            .arg(&openai_base_url_config)
             .arg("--no-alt-screen")
             .arg("-C")
             .arg(&repo_root)
@@ -612,7 +608,7 @@ trust_level = "trusted"
 fn write_auth(cx_home: &Path) -> Result<()> {
     std::fs::write(
         cx_home.join("auth.json"),
-        r#"{"OPENAI_API_KEY":"dummy","tokens":null,"last_refresh":null}"#,
+        r#"{"cy_api_key":"dummy","tokens":null,"last_refresh":null}"#,
     )?;
     Ok(())
 }

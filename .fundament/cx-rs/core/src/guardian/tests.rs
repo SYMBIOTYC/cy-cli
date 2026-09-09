@@ -50,7 +50,7 @@ use cx_model_provider::create_model_provider;
 use cx_model_provider_info::AMAZON_BEDROCK_GPT_5_4_MODEL_ID;
 use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_model_provider_info::OPENAI_PROVIDER_ID;
+use cx_model_provider_info::CY_PROVIDER_ID;
 use cx_models_manager::manager::StaticModelsManager;
 use cx_network_proxy::NetworkProxyConfig;
 use cx_protocol::ThreadId;
@@ -1786,7 +1786,7 @@ async fn guardian_review_uses_model_catalog_override_when_preferred_review_model
     );
     assert_eq!(
         analytics_result.guardian_model_provider_id.as_deref(),
-        Some(OPENAI_PROVIDER_ID)
+        Some(CY_PROVIDER_ID)
     );
 
     Ok(())
@@ -1824,7 +1824,7 @@ async fn guardian_review_uses_preferred_review_model_without_model_catalog_overr
     );
     assert_eq!(
         analytics_result.guardian_model_provider_id.as_deref(),
-        Some(OPENAI_PROVIDER_ID)
+        Some(CY_PROVIDER_ID)
     );
 
     Ok(())
@@ -1862,7 +1862,7 @@ async fn guardian_review_records_missing_auto_review_model_in_analytics_metadata
     );
     assert_eq!(
         analytics_result.guardian_model_provider_id.as_deref(),
-        Some(OPENAI_PROVIDER_ID)
+        Some(CY_PROVIDER_ID)
     );
 
     Ok(())

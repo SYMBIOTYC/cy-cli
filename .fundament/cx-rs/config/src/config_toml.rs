@@ -36,7 +36,6 @@ use cx_model_provider_info::LMSTUDIO_OSS_PROVIDER_ID;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_model_provider_info::OLLAMA_CHAT_PROVIDER_REMOVED_ERROR;
 use cx_model_provider_info::OLLAMA_OSS_PROVIDER_ID;
-use cx_model_provider_info::OPENAI_PROVIDER_ID;
 use cx_protocol::config_types::AutoCompactTokenLimitScope;
 use cx_protocol::config_types::ForcedLoginMethod;
 use cx_protocol::config_types::Personality;
@@ -60,10 +59,9 @@ use serde::Serialize;
 use serde::de::Error as SerdeError;
 use serde_json::Value as JsonValue;
 
-const RESERVED_MODEL_PROVIDER_IDS: [&str; 5] = [
+const RESERVED_MODEL_PROVIDER_IDS: [&str; 4] = [
     AMAZON_BEDROCK_PROVIDER_ID,
     AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
-    OPENAI_PROVIDER_ID,
     OLLAMA_OSS_PROVIDER_ID,
     LMSTUDIO_OSS_PROVIDER_ID,
 ];

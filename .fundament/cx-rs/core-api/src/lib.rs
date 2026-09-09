@@ -100,7 +100,6 @@ pub use cx_login::ExternalAuthFuture;
 pub use cx_login::ExternalAuthRefreshContext;
 pub use cx_login::ExternalAuthRefreshReason;
 pub use cx_login::default_client::set_default_originator;
-pub use cx_model_provider_info::OPENAI_PROVIDER_ID;
 pub use cx_model_provider_info::built_in_model_providers;
 pub use cx_models_manager::manager::RefreshStrategy;
 pub use cx_models_manager::manager::SharedModelsManager;

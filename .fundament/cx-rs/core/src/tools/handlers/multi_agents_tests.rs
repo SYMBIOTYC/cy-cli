@@ -131,7 +131,7 @@ async fn wait_for_recorded_user_input(thread: &crate::CodexThread, expected: &[U
 fn thread_manager() -> ThreadManager {
     ThreadManager::with_models_provider_for_tests(
         CodexAuth::from_api_key("dummy"),
-        built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["openai"].clone(),
+        built_in_model_providers()["cy"].clone(),
     )
 }
 
@@ -288,7 +288,7 @@ async fn spawn_agent_uses_explorer_role_and_preserves_approval_policy() {
     session.services.agent_control = manager.agent_control();
     let mut config = (*turn.config).clone();
     let provider_info =
-        built_in_model_providers(/* openai_base_url */ /*openai_base_url*/ None)["ollama"].clone();
+        built_in_model_providers()["ollama"].clone();
     config.model_provider_id = "ollama".to_string();
     config.model_provider = provider_info.clone();
     config
@@ -2256,7 +2256,7 @@ async fn spawn_agent_reapplies_runtime_sandbox_after_role_config() {
     let environment_manager = sandbox_runtime.thread_manager.environment_manager();
     let manager = ThreadManager::with_models_provider_and_home_for_tests(
         CodexAuth::from_api_key("dummy"),
-        built_in_model_providers(/*openai_base_url*/ None)["openai"].clone(),
+        built_in_model_providers()["cy"].clone(),
         turn.config.cx_home.to_path_buf(),
         Arc::clone(&environment_manager),
     );

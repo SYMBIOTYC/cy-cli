@@ -676,7 +676,7 @@ fn test_model_client_session() -> crate::client::ModelClientSession {
         /*auth_manager*/ None,
         AgentIdentityAuthPolicy::JwtOnly,
         thread_id,
-        ModelProviderInfo::create_openai_provider(/* base_url */ /*base_url*/ None),
+        ModelProviderInfo::create_cy_provider(),
         cx_protocol::protocol::SessionSource::Exec,
         "test_originator".to_string(),
         /*model_verbosity*/ None,

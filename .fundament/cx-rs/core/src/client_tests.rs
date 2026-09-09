@@ -33,7 +33,6 @@ use cx_model_provider::ProviderAccountResult;
 use cx_model_provider::ProviderUnauthorizedRecovery;
 use cx_model_provider::SharedModelProvider;
 use cx_model_provider::create_model_provider;
-use cx_model_provider_info::CHATGPT_CODEX_BASE_URL;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_model_provider_info::WireApi;
 use cx_model_provider_info::create_oss_provider_with_base_url;
@@ -143,7 +142,7 @@ async fn compact_uses_bearer_after_agent_identity_session_fallback() -> anyhow::
 
     let cx_home = TempDir::new()?;
     let auth_manager = gt_auth_manager(&cx_home, server.uri()).await;
-    let mut provider = ModelProviderInfo::create_openai_provider(/*base_url*/ None);
+    let mut provider = ModelProviderInfo::create_cy_provider();
     provider.base_url = Some(format!("{}/v1", server.uri()));
     provider.supports_websockets = false;
     let thread_id = ThreadId::new();
@@ -919,7 +918,7 @@ fn model_client_with_counting_attestation(
             Some(AuthManager::from_auth_for_testing(
                 CodexAuth::create_dummy_gt_auth_for_testing(),
             )),
-            ModelProviderInfo::create_openai_provider(Some(CHATGPT_CODEX_BASE_URL.to_string())),
+            ModelProviderInfo::create_cy_provider(),
         )
     } else {
         (

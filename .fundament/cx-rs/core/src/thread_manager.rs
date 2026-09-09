@@ -43,7 +43,7 @@ use cx_login::default_client::CX_INTERNAL_ORIGINATOR_OVERRIDE_ENV_VAR;
 use cx_login::default_client::originator;
 use cx_model_provider::create_model_provider;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_model_provider_info::OPENAI_PROVIDER_ID;
+use cx_model_provider_info::CY_PROVIDER_ID;
 use cx_models_manager::manager::RefreshStrategy;
 use cx_models_manager::manager::SharedModelsManager;
 use cx_protocol::ThreadId;
@@ -596,7 +596,7 @@ impl ThreadManager {
             LocalThreadStoreConfig {
                 cx_home: cx_home.clone(),
                 sqlite: cx_state::SqliteConfig::new_for_testing(absolute_cx_home),
-                default_model_provider_id: OPENAI_PROVIDER_ID.to_string(),
+                default_model_provider_id: CY_PROVIDER_ID.to_string(),
             },
             state_db.clone(),
         ));

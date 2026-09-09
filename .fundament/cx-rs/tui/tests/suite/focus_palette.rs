@@ -98,7 +98,7 @@ impl PtyCodex {
             .arg("-c")
             .arg("analytics.enabled=false")
             .env("TERM", "xterm-256color")
-            .env("OPENAI_API_KEY", "focus-palette-test")
+            .env("CY_API_KEY", "focus-palette-test")
             .env("CX_HOME", cx_home.path())
             .stdin(stdin)
             .stdout(stdout)
@@ -253,7 +253,7 @@ fn contains_bytes(buffer: &[u8], needle: &[u8]) -> bool {
 fn write_test_config(cx_home: &Path, repo_root: &Path) -> Result<()> {
     let repo_root = repo_root.display();
     let config = format!(
-        "model = \"gpt-5.6-terra\"\nmodel_provider = \"openai\"\n\
+        "model = \"gpt-5.6-terra\"\nmodel_provider = \"cy\"\n\
          suppress_unstable_features_warning = true\n\n\
          [projects.\"{repo_root}\"]\ntrust_level = \"trusted\"\n"
     );
@@ -261,7 +261,7 @@ fn write_test_config(cx_home: &Path, repo_root: &Path) -> Result<()> {
         .context("write focus-test CX configuration")?;
     std::fs::write(
         cx_home.join("auth.json"),
-        r#"{"OPENAI_API_KEY":"focus-palette-test","tokens":null,"last_refresh":null}"#,
+        r#"{"cy_api_key":"focus-palette-test","tokens":null,"last_refresh":null}"#,
     )
     .context("write focus-test API-key authentication")
 }

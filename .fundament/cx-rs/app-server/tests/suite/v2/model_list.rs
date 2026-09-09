@@ -213,7 +213,9 @@ async fn list_models_uses_gt_remote_catalog_as_source_of_truth() -> Result<()> {
 model = "mock-model"
 approval_policy = "never"
 sandbox_mode = "read-only"
-openai_base_url = "{server_uri}/v1"
+
+[model_providers.cy]
+base_url = "{server_uri}/v1"
 "#
         ),
     )?;

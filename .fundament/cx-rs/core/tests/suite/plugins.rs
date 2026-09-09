@@ -42,7 +42,7 @@ use cx_features::Feature;
 use cx_login::CodexAuth;
 use cx_mcp::CX_APPS_MCP_SERVER_NAME;
 use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
-use cx_model_provider_info::OPENAI_PROVIDER_ID;
+use cx_model_provider_info::CY_PROVIDER_ID;
 use cx_plugin::PluginId;
 use cx_protocol::auth::AuthMode;
 use cx_protocol::config_types::CollaborationMode;
@@ -810,7 +810,7 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         Fixture {
             name: "gt",
             target_auth: TargetAuth::Chatgpt,
-            target_model_provider_id: OPENAI_PROVIDER_ID,
+            target_model_provider_id: CY_PROVIDER_ID,
             expected_target_loaded_plugin_skills: &[CHATGPT_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "gt description",
         },
@@ -824,7 +824,7 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         Fixture {
             name: "API key",
             target_auth: TargetAuth::ApiKey,
-            target_model_provider_id: OPENAI_PROVIDER_ID,
+            target_model_provider_id: CY_PROVIDER_ID,
             expected_target_loaded_plugin_skills: &[API_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "api description before",
         },
@@ -845,7 +845,7 @@ async fn curated_plugin_skills_follow_auth_switch() -> Result<()> {
         Fixture {
             name: "unauthenticated oi",
             target_auth: TargetAuth::NoCodexAuth,
-            target_model_provider_id: OPENAI_PROVIDER_ID,
+            target_model_provider_id: CY_PROVIDER_ID,
             expected_target_loaded_plugin_skills: &[API_CURATED_PLUGIN_SKILL],
             expected_target_skill_description: "api description before",
         },

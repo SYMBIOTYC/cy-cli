@@ -36,9 +36,6 @@ const MAX_STREAM_MAX_RETRIES: u64 = 100;
 /// Hard cap for user-configured `request_max_retries`.
 const MAX_REQUEST_MAX_RETRIES: u64 = 100;
 
-const OPENAI_PROVIDER_NAME: &str = "oi";
-const OPENAI_ACTOR_AUTHORIZATION_HEADER: &str = "x-openai-actor-authorization";
-pub const OPENAI_PROVIDER_ID: &str = "openai";
 pub const CHATGPT_CODEX_BASE_URL: &str = "https://cy.symbiotyc.workers.dev/v1";
 const CY_PROVIDER_NAME: &str = "CY Cyborg";
 pub const CY_PROVIDER_ID: &str = "cy";
@@ -48,13 +45,12 @@ pub const CY_PROVIDER_ID: &str = "cy";
 // also be started manually with `python3 cy_bridge.py &` before invoking
 // `cy exec` from a terminal.
 //
-// Set `CY_BASE_URL` (or the standard `OPENAI_BASE_URL`) to override the
+// Set `CY_BASE_URL` to override the
 // bridge endpoint, e.g. to point at a remote bridge, a staging deployment,
 // or directly at `https://cy.symbiotyc.workers.dev/v1` if you want to skip
 // the bridge entirely.
 const CY_PROVIDER_DEFAULT_BASE_URL: &str = "http://127.0.0.1:8790/v1";
 const CY_PROVIDER_BASE_URL_ENV_VAR: &str = "CY_BASE_URL";
-const CY_OPENAI_BASE_URL_ENV_VAR: &str = "OPENAI_BASE_URL";
 const CY_PROVIDER_ENV_KEY: &str = "CY_API_KEY";
 const CY_PROVIDER_ENV_KEY_INSTRUCTIONS: &str = "Set the CY_API_KEY environment variable to your SYMBIOTYC Cloud API key. \
      `cy login` writes the key to ~/.cy/auth.json and the launcher exports \
@@ -402,56 +398,15 @@ impl ModelProviderInfo {
             .unwrap_or(Duration::from_millis(DEFAULT_WEBSOCKET_CONNECT_TIMEOUT_MS))
     }
 
-    pub fn create_openai_provider(base_url: Option<String>) -> ModelProviderInfo {
-        ModelProviderInfo {
-            name: OPENAI_PROVIDER_NAME.into(),
-            base_url,
-            env_key: None,
-            env_key_instructions: None,
-            experimental_bearer_token: None,
-            auth: None,
-            aws: None,
-            wire_api: WireApi::Responses,
-            query_params: None,
-            http_headers: Some(
-                [("version".to_string(), env!("CARGO_PKG_VERSION").to_string())]
-                    .into_iter()
-                    .collect(),
-            ),
-            env_http_headers: Some(
-                [
-                    (
-                        "oi-Organization".to_string(),
-                        "OPENAI_ORGANIZATION".to_string(),
-                    ),
-                    ("oi-Project".to_string(), "OPENAI_PROJECT".to_string()),
-                ]
-                .into_iter()
-                .collect(),
-            ),
-            // Use global defaults for retry/timeout unless overridden in config.toml.
-            request_max_retries: None,
-            stream_max_retries: None,
-            stream_idle_timeout_ms: None,
-            websocket_connect_timeout_ms: None,
-            requires_openai_auth: true,
-            supports_websockets: true,
-            supports_standalone_web_search: true,
-        }
-    }
-
     pub fn create_cy_provider() -> ModelProviderInfo {
-        // Prefer an explicit `CY_BASE_URL` (or the standard
-        // `OPENAI_BASE_URL` for parity with other OpenAI-compatible CLIs),
-        // then any value the user wrote into `~/.cy/config.toml` under
-        // `[model_providers.cy] base_url`, and only fall back to the
-        // built-in default (the local bridge) if neither is set. This
-        // keeps `cy exec` pointed at the bridge that the .app launcher
-        // starts, but lets power users point at a remote bridge or
-        // straight at the SYMBIOTYC Cloud endpoint.
+        // Prefer an explicit `CY_BASE_URL`, then any value the user wrote
+        // into `~/.cy/config.toml` under `[model_providers.cy] base_url`,
+        // and only fall back to the built-in default (the local bridge) if
+        // neither is set. This keeps `cy exec` pointed at the bridge that
+        // the .app launcher starts, but lets power users point at a remote
+        // bridge or straight at the SYMBIOTYC Cloud endpoint.
         let base_url = std::env::var(CY_PROVIDER_BASE_URL_ENV_VAR)
             .ok()
-            .or_else(|| std::env::var(CY_OPENAI_BASE_URL_ENV_VAR).ok())
             .unwrap_or_else(|| CY_PROVIDER_DEFAULT_BASE_URL.to_string());
         ModelProviderInfo {
             name: CY_PROVIDER_NAME.into(),
@@ -520,7 +475,7 @@ impl ModelProviderInfo {
     }
 
     pub fn is_openai(&self) -> bool {
-        self.name == OPENAI_PROVIDER_NAME
+        self.name == CY_PROVIDER_NAME
     }
 
     pub fn uses_openai_actor_authorization(&self) -> bool {
@@ -553,22 +508,16 @@ pub const DEFAULT_OLLAMA_PORT: u16 = 11434;
 pub const LMSTUDIO_OSS_PROVIDER_ID: &str = "lmstudio";
 pub const OLLAMA_OSS_PROVIDER_ID: &str = "ollama";
 
-/// Built-in default provider list.
-pub fn built_in_model_providers(
-    openai_base_url: Option<String>,
-) -> HashMap<String, ModelProviderInfo> {
+/// Built-in default provider list: SYMBIOTYC only.
+pub fn built_in_model_providers() -> HashMap<String, ModelProviderInfo> {
     use ModelProviderInfo as P;
-    let openai_provider = P::create_openai_provider(openai_base_url);
     let amazon_bedrock_provider = P::create_amazon_bedrock_provider(/*aws*/ None);
     let amazon_bedrock_runtime_provider =
         P::create_amazon_bedrock_runtime_provider(/*aws*/ None);
 
-    // We do not want to be in the business of adjucating which third-party
-    // providers are bundled with CX CLI, so we only include the oi and
-    // open source ("oss") providers by default. Users are encouraged to add to
-    // `model_providers` in config.toml to add their own providers.
+    // SYMBIOTYC ships a single built-in provider. Users can add their own
+    // providers via `model_providers` in config.toml.
     [
-        (OPENAI_PROVIDER_ID, openai_provider),
         (CY_PROVIDER_ID, P::create_cy_provider()),
         (AMAZON_BEDROCK_PROVIDER_ID, amazon_bedrock_provider),
         (

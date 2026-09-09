@@ -3573,7 +3573,7 @@ async fn env_var_overrides_loaded_auth() {
         .await;
 
     let provider = ModelProviderInfo {
-        name: ModelProviderInfo::create_openai_provider(/*base_url*/ None).name,
+        name: ModelProviderInfo::create_cy_provider().name,
         base_url: Some(format!("{}/openai", server.uri())),
         // Reuse the existing environment variable to avoid using unsafe code
         env_key: Some(EXISTING_ENV_VAR_WITH_NON_EMPTY_VALUE.to_string()),
