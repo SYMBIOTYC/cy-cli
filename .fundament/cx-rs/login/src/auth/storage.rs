@@ -41,14 +41,9 @@ pub struct AuthDotJson {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub auth_mode: Option<AuthMode>,
 
-    #[serde(
-        rename = "CY_API_KEY",
-        alias = "cy_api_key",
-        alias = "CX_API_KEY",
-        alias = "cx_api_key",
-        alias = "API_KEY",
-        alias = "api_key"
-    )]
+    /// Single canonical user API key. Exactly one name: `cy_api_key`.
+    /// No renames, no aliases — one path, one key, one name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cy_api_key: Option<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]

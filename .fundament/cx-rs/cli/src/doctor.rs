@@ -3554,7 +3554,7 @@ mod tests {
     fn stored_auth_validation_rejects_missing_api_key() {
         let auth = AuthDotJson {
             auth_mode: Some(AuthMode::ApiKey),
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -3573,7 +3573,7 @@ mod tests {
     fn stored_auth_validation_rejects_missing_gt_tokens() {
         let auth = AuthDotJson {
             auth_mode: None,
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -3594,7 +3594,7 @@ mod tests {
     fn stored_auth_validation_handles_personal_access_token() {
         let mut auth = AuthDotJson {
             auth_mode: None,
-            openai_api_key: None,
+            cy_api_key: None,
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -3617,7 +3617,7 @@ mod tests {
     fn provider_reachability_mode_uses_api_key_auth() {
         let api_key_auth = AuthDotJson {
             auth_mode: Some(AuthMode::ApiKey),
-            openai_api_key: Some("sk-test".to_string()),
+            cy_api_key: Some("sk-test".to_string()),
             tokens: None,
             last_refresh: None,
             agent_identity: None,
@@ -3648,7 +3648,7 @@ mod tests {
 
         let gt_auth = AuthDotJson {
             auth_mode: Some(AuthMode::Chatgpt),
-            openai_api_key: None,
+            cy_api_key: None,
             ..api_key_auth
         };
         assert_eq!(

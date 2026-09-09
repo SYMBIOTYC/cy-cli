@@ -95,7 +95,7 @@ fn login_with_api_key_overwrites_existing_auth_json() {
     let dir = tempdir().unwrap();
     let auth_path = dir.path().join("auth.json");
     let stale_auth = json!({
-        "CY_API_KEY": "sk-old",
+        "cy_api_key": "sk-old",
         "tokens": {
             "id_token": "stale.header.payload",
             "access_token": "stale-access",
@@ -1078,7 +1078,7 @@ async fn loads_api_key_from_auth_json() {
     let auth_file = dir.path().join("auth.json");
     std::fs::write(
         auth_file,
-        r#"{"CY_API_KEY":"sk-test-key","tokens":null,"last_refresh":null}"#,
+        r#"{"cy_api_key":"sk-test-key","tokens":null,"last_refresh":null}"#,
     )
     .unwrap();
 
@@ -1718,7 +1718,7 @@ fn write_auth_file(params: AuthFileParams, cx_home: &Path) -> std::io::Result<St
     let fake_jwt = fake_jwt_for_auth_file_params(&params)?;
     let auth_file = get_auth_file(cx_home);
     let auth_json_data = json!({
-        "CY_API_KEY": params.cy_api_key,
+        "cy_api_key": params.cy_api_key,
         "tokens": {
             "id_token": fake_jwt,
             "access_token": "test-access-token",

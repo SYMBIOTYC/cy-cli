@@ -698,11 +698,7 @@ fn read_cy_auth_json_key() -> Option<String> {
     let path = home.join(".cy").join("auth.json");
     let bytes = std::fs::read(&path).ok()?;
     let value: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
-    let key = value
-        .get("cy_api_key")
-        .or_else(|| value.get("openai_api_key"))?
-        .as_str()?
-        .trim();
+    let key = value.get("cy_api_key")?.as_str()?.trim();
     if key.is_empty() {
         None
     } else {
