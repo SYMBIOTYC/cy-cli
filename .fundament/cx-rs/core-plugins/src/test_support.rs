@@ -27,7 +27,6 @@ use cx_login::CodexAuth;
 use cx_login::ExternalAuth;
 use cx_login::ExternalAuthFuture;
 use cx_login::ExternalAuthRefreshContext;
-use cx_login::auth::BedrockApiKeyAuth;
 use cx_login::test_support::auth_manager_from_optional_auth;
 use cx_protocol::auth::AuthMode;
 use cx_protocol::protocol::Product;
@@ -110,10 +109,6 @@ fn test_cx_auth(auth_mode: Option<AuthMode>) -> Option<CodexAuth> {
         )
         .expect("test gt tokens should parse"),
         AuthMode::Headers => CodexAuth::Headers(AuthHeaders::new(http::HeaderMap::new())),
-        AuthMode::BedrockApiKey => CodexAuth::BedrockApiKey(BedrockApiKeyAuth {
-            api_key: "test-api-key".to_string(),
-            region: "us-east-1".to_string(),
-        }),
         AuthMode::AgentIdentity | AuthMode::PersonalAccessToken => {
             panic!("test auth mode requires a purpose-built CodexAuth")
         }

@@ -16,15 +16,11 @@ use cx_login::auth::AgentIdentityAuth;
 use cx_login::auth::AgentIdentityAuthError;
 use cx_login::auth::AgentIdentityAuthPolicy;
 use cx_model_provider_info::ModelProviderInfo;
-use cx_protocol::error::CxErr;
 use cx_protocol::protocol::SessionSource;
 use http::HeaderMap;
 use http::HeaderValue;
 
 use crate::bearer_auth_provider::BearerAuthProvider;
-
-const BEDROCK_API_KEY_UNSUPPORTED_MESSAGE: &str =
-    "Bedrock API key auth is only supported by the Amazon Bedrock model provider";
 
 #[derive(Clone, Debug)]
 pub struct ProviderAuthScope {
@@ -206,12 +202,6 @@ pub(crate) fn resolve_provider_auth(
         return Ok(unauthenticated_auth_provider());
     }
 
-    if matches!(auth, Some(CodexAuth::BedrockApiKey(_))) {
-        return Err(CxErr::UnsupportedOperation(
-            BEDROCK_API_KEY_UNSUPPORTED_MESSAGE.to_string(),
-        ));
-    }
-
     Ok(match auth {
         Some(auth) => auth_provider_from_auth(auth),
         None => unauthenticated_auth_provider(),
@@ -307,7 +297,6 @@ pub fn auth_provider_from_auth(auth: &CodexAuth) -> SharedAuthProvider {
             Arc::new(AgentIdentityAuthProvider { auth: auth.clone() })
         }
         CodexAuth::Headers(auth) => Arc::new(HeaderAuthProvider { auth: auth.clone() }),
-        CodexAuth::BedrockApiKey(_) => unreachable!("{BEDROCK_API_KEY_UNSUPPORTED_MESSAGE}"),
         CodexAuth::ApiKey(_)
         | CodexAuth::Chatgpt(_)
         | CodexAuth::ChatgptAuthTokens(_)

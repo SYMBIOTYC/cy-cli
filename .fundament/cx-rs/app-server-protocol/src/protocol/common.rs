@@ -1114,20 +1114,6 @@ client_request_definitions! {
         response: v2::LoginAccountResponse,
     },
 
-    #[experimental("account/bedrock/discover")]
-    BedrockDiscover => "account/bedrock/discover" {
-        params: v2::BedrockDiscoverParams,
-        serialization: global_shared_read("account-auth"),
-        response: v2::BedrockDiscoverResponse,
-    },
-
-    #[experimental("account/bedrock/setup")]
-    BedrockSetup => "account/bedrock/setup" {
-        params: v2::BedrockSetupParams,
-        serialization: global("account-auth"),
-        response: v2::BedrockSetupResponse,
-    },
-
     CancelLoginAccount => "account/login/cancel" {
         params: v2::CancelLoginAccountParams,
         serialization: global("account-auth"),
@@ -3157,34 +3143,6 @@ mod tests {
     }
 
     #[test]
-    fn serialize_account_login_amazon_bedrock() -> Result<()> {
-        let request = ClientRequest::LoginAccount {
-            request_id: RequestId::Integer(2),
-            params: v2::LoginAccountParams::AmazonBedrock {
-                api_key: "secret".to_string(),
-                region: "us-west-2".to_string(),
-            },
-        };
-        assert_eq!(
-            json!({
-                "method": "account/login/start",
-                "id": 2,
-                "params": {
-                    "type": "amazonBedrock",
-                    "apiKey": "secret",
-                    "region": "us-west-2"
-                }
-            }),
-            serde_json::to_value(&request)?,
-        );
-        assert_eq!(
-            json!({"type": "amazonBedrock"}),
-            serde_json::to_value(v2::LoginAccountResponse::AmazonBedrock {})?,
-        );
-        Ok(())
-    }
-
-    #[test]
     fn serialize_account_login_gt() -> Result<()> {
         let request = ClientRequest::LoginAccount {
             request_id: RequestId::Integer(3),
@@ -3391,41 +3349,6 @@ mod tests {
             serde_json::to_value(&gt_without_email)?,
         );
 
-        let cx_managed_bedrock = v2::Account::AmazonBedrock {
-            uses_cx_managed_credentials: true,
-        };
-        assert_eq!(
-            json!({
-                "type": "amazonBedrock",
-                "usesCodexManagedCredentials": true,
-            }),
-            serde_json::to_value(&cx_managed_bedrock)?,
-        );
-
-        let externally_managed_bedrock = v2::Account::AmazonBedrock {
-            uses_cx_managed_credentials: false,
-        };
-        assert_eq!(
-            json!({
-                "type": "amazonBedrock",
-                "usesCodexManagedCredentials": false,
-            }),
-            serde_json::to_value(&externally_managed_bedrock)?,
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn account_defaults_legacy_bedrock_managed_credentials_flag() -> Result<()> {
-        assert_eq!(
-            v2::Account::AmazonBedrock {
-                uses_cx_managed_credentials: false,
-            },
-            serde_json::from_value(json!({
-                "type": "amazonBedrock",
-            }))?,
-        );
         Ok(())
     }
 

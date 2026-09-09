@@ -1,11 +1,9 @@
 use super::bedrock_auth::clear_user_model_provider_if_bedrock;
-use super::bedrock_auth::set_user_model_provider_to_bedrock;
 use super::*;
 use crate::external_auth::ExternalAuthBridge;
 use chrono::DateTime;
 use cx_app_server_protocol::DesktopOnboardingEntrypoint;
 use cx_login::LoginOnboardingEntrypoint;
-use cx_model_provider::is_supported_amazon_bedrock_region;
 
 mod rate_limit_resets;
 
@@ -394,61 +392,17 @@ impl AccountRequestProcessor {
     async fn login_amazon_bedrock_v2(
         &self,
         request_id: ConnectionRequestId,
-        api_key: String,
-        region: String,
+        _api_key: String,
+        _region: String,
     ) {
-        let result = async {
-            if self.auth_manager.is_external_gt_auth_active() {
-                return Err(self.external_auth_active_error());
-            }
-            if !self
-                .auth_manager
-                .is_login_method_allowed(ForcedLoginMethod::Api)
-            {
-                return Err(invalid_request(
-                    "Amazon Bedrock login is disabled. Use gt login instead.",
-                ));
-            }
-
-            let api_key = api_key.trim();
-            if api_key.is_empty() {
-                return Err(invalid_request("Amazon Bedrock API key must not be empty."));
-            }
-            let region = region.trim();
-            if !is_supported_amazon_bedrock_region(region) {
-                return Err(invalid_request(format!(
-                    "Amazon Bedrock Mantle does not support region `{region}`"
-                )));
-            }
-
-            {
-                let mut guard = self.active_login.lock().await;
-                if let Some(active) = guard.take() {
-                    drop(active);
-                }
-            }
-
-            set_user_model_provider_to_bedrock(&self.config_manager).await?;
-            login_with_bedrock_api_key(
-                &self.config.cx_home,
-                api_key,
-                region,
-                self.config.cli_auth_credentials_store_mode,
-                self.config.auth_keyring_backend_kind(),
+        self.outgoing
+            .send_result(
+                request_id,
+                Err::<LoginAccountResponse, _>(invalid_request(
+                    "Amazon Bedrock login was removed; CY is the only provider",
+                )),
             )
-            .map_err(|err| internal_error(format!("failed to save Amazon Bedrock auth: {err}")))?;
-            self.auth_manager.reload().await;
-            self.config_manager.clear_cloud_config_bundle_loader();
-            Ok(LoginAccountResponse::AmazonBedrock {})
-        }
-        .await;
-        let logged_in = result.is_ok();
-        self.outgoing.send_result(request_id, result).await;
-
-        if logged_in {
-            self.send_login_success_notifications(/*login_id*/ None)
-                .await;
-        }
+            .await;
     }
 
     // Build options for a gt login attempt; performs validation.
@@ -866,16 +820,6 @@ impl AccountRequestProcessor {
         if self.auth_manager.is_workload_identity_selected() {
             return Err(self.configured_auth_owned_by_host_error());
         }
-        let managed_bedrock_auth = matches!(
-            self.auth_manager.auth_cached(),
-            Some(CodexAuth::BedrockApiKey(_))
-        );
-        let config = self.load_latest_config().await;
-        if config.model_provider.is_amazon_bedrock() && !managed_bedrock_auth {
-            return Err(invalid_request(
-                "cannot log out while Amazon Bedrock is using AWS-managed credentials; manage those credentials through AWS or switch model providers before logging out CX authentication",
-            ));
-        }
 
         // Cancel any active login attempt.
         {
@@ -893,10 +837,6 @@ impl AccountRequestProcessor {
         }
 
         self.config_manager.clear_cloud_config_bundle_loader();
-
-        if managed_bedrock_auth {
-            clear_user_model_provider_if_bedrock(&self.config_manager).await?;
-        }
 
         Self::maybe_refresh_plugin_caches_for_current_config(
             &self.config_manager,

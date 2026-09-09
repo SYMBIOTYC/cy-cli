@@ -29,8 +29,6 @@ use crate::types::Tui;
 use crate::types::UriBasedFileOpener;
 use crate::types::WindowsToml;
 use cx_features::FeaturesToml;
-use cx_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID;
-use cx_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID;
 use cx_model_provider_info::ModelProviderInfo;
 use cx_protocol::config_types::AutoCompactTokenLimitScope;
 use cx_protocol::config_types::ForcedLoginMethod;
@@ -55,10 +53,7 @@ use serde::Serialize;
 use serde::de::Error as SerdeError;
 use serde_json::Value as JsonValue;
 
-const RESERVED_MODEL_PROVIDER_IDS: [&str; 2] = [
-    AMAZON_BEDROCK_PROVIDER_ID,
-    AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
-];
+const RESERVED_MODEL_PROVIDER_IDS: [&str; 0] = [];
 
 pub const DEFAULT_PROJECT_DOC_MAX_BYTES: usize = 32 * 1024;
 
@@ -873,12 +868,7 @@ pub fn validate_reserved_model_provider_ids(
 ) -> Result<(), String> {
     let mut conflicts = model_providers
         .keys()
-        .filter(|key| {
-            !matches!(
-                key.as_str(),
-                AMAZON_BEDROCK_PROVIDER_ID | AMAZON_BEDROCK_RUNTIME_PROVIDER_ID
-            ) && RESERVED_MODEL_PROVIDER_IDS.contains(&key.as_str())
-        })
+        .filter(|key| RESERVED_MODEL_PROVIDER_IDS.contains(&key.as_str()))
         .map(|key| format!("`{key}`"))
         .collect::<Vec<_>>();
     conflicts.sort_unstable();
@@ -898,21 +888,15 @@ pub fn validate_model_providers(
 ) -> Result<(), String> {
     validate_reserved_model_provider_ids(model_providers)?;
     for (key, provider) in model_providers {
-        if !matches!(
-            key.as_str(),
-            AMAZON_BEDROCK_PROVIDER_ID | AMAZON_BEDROCK_RUNTIME_PROVIDER_ID
-        ) {
-            if provider.aws.is_some() {
-                return Err(format!(
-                    "model_providers.{key}: provider aws is only supported for \
-`{AMAZON_BEDROCK_PROVIDER_ID}` or `{AMAZON_BEDROCK_RUNTIME_PROVIDER_ID}`"
-                ));
-            }
-            if provider.name.trim().is_empty() {
-                return Err(format!(
-                    "model_providers.{key}: provider name must not be empty"
-                ));
-            }
+        if provider.aws.is_some() {
+            return Err(format!(
+                "model_providers.{key}: provider aws is not supported"
+            ));
+        }
+        if provider.name.trim().is_empty() {
+            return Err(format!(
+                "model_providers.{key}: provider name must not be empty"
+            ));
         }
         provider
             .validate()
@@ -931,10 +915,6 @@ where
     validate_model_providers(&model_providers).map_err(serde::de::Error::custom)?;
     Ok(model_providers)
 }
-
-#[cfg(test)]
-#[path = "bedrock_runtime_tests.rs"]
-mod bedrock_runtime_tests;
 
 #[cfg(test)]
 mod tests {
@@ -987,20 +967,4 @@ mod tests {
         assert!(message.contains("comma-separated strings are not supported"));
     }
 
-    #[test]
-    fn amazon_bedrock_auth_command_must_not_be_empty() {
-        let err = toml::from_str::<ConfigToml>(
-            r#"
-[model_providers.amazon-bedrock.auth]
-command = "   "
-"#,
-        )
-        .expect_err("empty Amazon Bedrock auth command should be rejected");
-
-        assert!(
-            err.to_string().contains(
-                "model_providers.amazon-bedrock: provider auth.command must not be empty"
-            )
-        );
     }
-}

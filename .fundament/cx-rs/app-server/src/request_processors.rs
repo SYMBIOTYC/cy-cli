@@ -410,7 +410,6 @@ use cx_login::ServerOptions as LoginServerOptions;
 use cx_login::ShutdownHandle;
 use cx_login::complete_device_code_login;
 use cx_login::login_with_api_key;
-use cx_login::login_with_bedrock_api_key;
 use cx_login::oauth_client_id;
 use cx_login::request_device_code;
 use cx_login::run_login_server;

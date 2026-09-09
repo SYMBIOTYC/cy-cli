@@ -55,22 +55,6 @@ const CY_PROVIDER_ENV_KEY: &str = "CY_API_KEY";
 const CY_PROVIDER_ENV_KEY_INSTRUCTIONS: &str = "Set the CY_API_KEY environment variable to your SYMBIOTYC Cloud API key. \
      `cy login` writes the key to ~/.cy/auth.json and the launcher exports \
      it before starting the TUI or the bridge.";
-const AMAZON_BEDROCK_PROVIDER_NAME: &str = "Amazon Bedrock";
-pub const AMAZON_BEDROCK_PROVIDER_ID: &str = "amazon-bedrock";
-const AMAZON_BEDROCK_RUNTIME_PROVIDER_NAME: &str = "Amazon Bedrock Runtime";
-pub const AMAZON_BEDROCK_RUNTIME_PROVIDER_ID: &str = "amazon-bedrock-runtime";
-pub const AMAZON_BEDROCK_GPT_5_5_MODEL_ID: &str = "openai.gpt-5.5";
-pub const AMAZON_BEDROCK_GPT_5_4_MODEL_ID: &str = "openai.gpt-5.4";
-pub const AMAZON_BEDROCK_GPT_5_6_SOL_MODEL_ID: &str = "openai.gpt-5.6-sol";
-pub const AMAZON_BEDROCK_GPT_5_6_TERRA_MODEL_ID: &str = "openai.gpt-5.6-terra";
-pub const AMAZON_BEDROCK_GPT_5_6_LUNA_MODEL_ID: &str = "openai.gpt-5.6-luna";
-pub const AMAZON_BEDROCK_RUNTIME_GLOBAL_GPT_5_6_TERRA_MODEL_ID: &str =
-    "global.openai.gpt-5.6-terra";
-pub const AMAZON_BEDROCK_RUNTIME_GLOBAL_GPT_5_6_LUNA_MODEL_ID: &str = "global.openai.gpt-5.6-luna";
-pub const AMAZON_BEDROCK_DEFAULT_BASE_URL: &str =
-    "https://bedrock-mantle.us-east-1.api.aws/openai/v1";
-const AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_HEADER: &str = "x-amzn-mantle-client-agent";
-const AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_VALUE: &str = "cx";
 const CHAT_WIRE_API_REMOVED_ERROR: &str = "`wire_api = \"chat\"` is no longer supported.\nHow to fix: set `wire_api = \"responses\"` in your provider config.\nMore info: https://github.com/SYMBIOTYC/cy-cli/discussions/7782";
 pub const LEGACY_OLLAMA_CHAT_PROVIDER_ID: &str = "ollama-chat";
 pub const OLLAMA_CHAT_PROVIDER_REMOVED_ERROR: &str = "`ollama-chat` is no longer supported.\nHow to fix: replace `ollama-chat` with `ollama` in `model_provider`, `oss_provider`, or `--local-provider`.\nMore info: https://github.com/SYMBIOTYC/cy-cli/discussions/7782";
@@ -430,71 +414,8 @@ impl ModelProviderInfo {
         }
     }
 
-    pub fn create_amazon_bedrock_provider(
-        aws: Option<ModelProviderAwsAuthInfo>,
-    ) -> ModelProviderInfo {
-        ModelProviderInfo {
-            name: AMAZON_BEDROCK_PROVIDER_NAME.into(),
-            // The runtime provider derives the regional Mantle endpoint when
-            // this is unset. A configured value is therefore unambiguously an
-            // endpoint override.
-            base_url: None,
-            env_key: None,
-            env_key_instructions: None,
-            experimental_bearer_token: None,
-            auth: None,
-            aws: Some(aws.unwrap_or(ModelProviderAwsAuthInfo {
-                profile: None,
-                region: None,
-                auth_refresh: None,
-            })),
-            wire_api: WireApi::Responses,
-            query_params: None,
-            http_headers: Some(HashMap::from([(
-                AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_HEADER.to_string(),
-                AMAZON_BEDROCK_MANTLE_CLIENT_AGENT_VALUE.to_string(),
-            )])),
-            env_http_headers: None,
-            request_max_retries: None,
-            stream_max_retries: None,
-            stream_idle_timeout_ms: None,
-            websocket_connect_timeout_ms: None,
-            requires_openai_auth: false,
-            supports_websockets: false,
-            supports_standalone_web_search: false,
-        }
-    }
-
-    pub fn create_amazon_bedrock_runtime_provider(
-        aws: Option<ModelProviderAwsAuthInfo>,
-    ) -> ModelProviderInfo {
-        let mut provider = Self::create_amazon_bedrock_provider(aws);
-        provider.name = AMAZON_BEDROCK_RUNTIME_PROVIDER_NAME.into();
-        provider.http_headers = None;
-        provider
-    }
-
     pub fn is_openai(&self) -> bool {
         self.name == CY_PROVIDER_NAME
-    }
-
-    pub fn uses_openai_actor_authorization(&self) -> bool {
-        !self.requires_openai_auth
-            && self.http_headers.as_ref().is_some_and(|headers| {
-                headers.iter().any(|(name, value)| {
-                    name.eq_ignore_ascii_case(OPENAI_ACTOR_AUTHORIZATION_HEADER)
-                        && !value.trim().is_empty()
-                })
-            })
-    }
-
-    pub fn is_amazon_bedrock(&self) -> bool {
-        self.name == AMAZON_BEDROCK_PROVIDER_NAME
-            || self.name == AMAZON_BEDROCK_RUNTIME_PROVIDER_NAME
-    }
-
-    pub fn is_amazon_bedrock_runtime(&self) -> bool {
-        self.name == AMAZON_BEDROCK_RUNTIME_PROVIDER_NAME
     }
 
     pub fn has_command_auth(&self) -> bool {
@@ -505,67 +426,24 @@ impl ModelProviderInfo {
 /// Built-in default provider list: SYMBIOTYC only.
 pub fn built_in_model_providers() -> HashMap<String, ModelProviderInfo> {
     use ModelProviderInfo as P;
-    let amazon_bedrock_provider = P::create_amazon_bedrock_provider(/*aws*/ None);
-    let amazon_bedrock_runtime_provider =
-        P::create_amazon_bedrock_runtime_provider(/*aws*/ None);
 
     // SYMBIOTYC ships a single built-in provider. Users can add their own
     // providers via `model_providers` in config.toml.
-    [
-        (CY_PROVIDER_ID, P::create_cy_provider()),
-        (AMAZON_BEDROCK_PROVIDER_ID, amazon_bedrock_provider),
-        (
-            AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
-            amazon_bedrock_runtime_provider,
-        ),
-    ]
-    .into_iter()
-    .map(|(k, v)| (k.to_string(), v))
-    .collect()
+    [(CY_PROVIDER_ID, P::create_cy_provider())]
+        .into_iter()
+        .map(|(k, v)| (k.to_string(), v))
+        .collect()
 }
 
 /// Merge configured providers into the built-in provider catalog.
 ///
-/// Configured providers extend the built-in set. Built-in providers are not
-/// generally overridable, but built-in Amazon Bedrock providers allow the user
-/// to customize their endpoint, authentication, headers, and AWS settings.
+/// Configured providers extend the built-in set.
 pub fn merge_configured_model_providers(
     mut model_providers: HashMap<String, ModelProviderInfo>,
     configured_model_providers: HashMap<String, ModelProviderInfo>,
 ) -> Result<HashMap<String, ModelProviderInfo>, String> {
-    for (key, mut provider) in configured_model_providers {
-        if matches!(
-            key.as_str(),
-            AMAZON_BEDROCK_PROVIDER_ID | AMAZON_BEDROCK_RUNTIME_PROVIDER_ID
-        ) {
-            let base_url_override = provider.base_url.take();
-            let auth_override = provider.auth.take();
-            let aws_override = provider.aws.take();
-            let http_headers_override = provider.http_headers.take();
-            if provider != ModelProviderInfo::default() {
-                return Err(format!(
-                    "model_providers.{key} only supports changing \
-`base_url`, `auth`, `http_headers`, `aws.profile`, `aws.region`, and `aws.auth_refresh`; \
-other non-default provider fields are not supported"
-                ));
-            }
-
-            if let Some(built_in_provider) = model_providers.get_mut(&key) {
-                built_in_provider.base_url = base_url_override;
-                built_in_provider.auth = auth_override;
-                if let Some(aws_override) = aws_override {
-                    built_in_provider.aws = Some(aws_override);
-                }
-                if let Some(http_headers_override) = http_headers_override {
-                    built_in_provider
-                        .http_headers
-                        .get_or_insert_default()
-                        .extend(http_headers_override);
-                }
-            }
-        } else {
-            model_providers.entry(key).or_insert(provider);
-        }
+    for (key, provider) in configured_model_providers {
+        model_providers.entry(key).or_insert(provider);
     }
 
     Ok(model_providers)

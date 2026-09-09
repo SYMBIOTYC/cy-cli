@@ -1412,7 +1412,6 @@ fn stored_auth_mode(auth: &cx_login::AuthDotJson) -> &'static str {
         AuthMode::Headers => "headers",
         AuthMode::AgentIdentity => "agent_identity",
         AuthMode::PersonalAccessToken => "personal_access_token",
-        AuthMode::BedrockApiKey => "bedrock_api_key",
     }
 }
 
@@ -1422,8 +1421,6 @@ fn stored_auth_mode_value(auth: &AuthDotJson) -> AuthMode {
     }
     if auth.personal_access_token.is_some() {
         AuthMode::PersonalAccessToken
-    } else if auth.bedrock_api_key.is_some() {
-        AuthMode::BedrockApiKey
     } else if auth.cy_api_key.is_some() {
         AuthMode::ApiKey
     } else {
@@ -1499,11 +1496,6 @@ fn stored_auth_issues(
                 .is_none_or(|token| token.trim().is_empty())
             {
                 issues.push("personal access token auth is missing a personal access token");
-            }
-        }
-        AuthMode::BedrockApiKey => {
-            if auth.bedrock_api_key.is_none() {
-                issues.push("Bedrock API key auth is missing a Bedrock API key");
             }
         }
     }
@@ -2491,7 +2483,6 @@ fn auth_mode_name(auth: &CodexAuth) -> &'static str {
         AuthMode::Headers => "headers",
         AuthMode::AgentIdentity => "agent_identity",
         AuthMode::PersonalAccessToken => "personal_access_token",
-        AuthMode::BedrockApiKey => "bedrock_api_key",
     }
 }
 
@@ -2635,7 +2626,7 @@ fn provider_auth_reachability_mode_from_auth(
         return ProviderAuthReachabilityMode::Chatgpt;
     }
     match stored_auth.map(stored_auth_mode_value) {
-        Some(AuthMode::ApiKey | AuthMode::BedrockApiKey) => ProviderAuthReachabilityMode::ApiKey,
+        Some(AuthMode::ApiKey) => ProviderAuthReachabilityMode::ApiKey,
         Some(
             AuthMode::Chatgpt
             | AuthMode::ChatgptAuthTokens
@@ -3557,7 +3548,6 @@ mod tests {
             last_refresh: None,
             agent_identity: None,
             personal_access_token: None,
-            bedrock_api_key: None,
         };
 
         assert_eq!(
@@ -3576,7 +3566,6 @@ mod tests {
             last_refresh: None,
             agent_identity: None,
             personal_access_token: None,
-            bedrock_api_key: None,
         };
 
         assert_eq!(
@@ -3597,7 +3586,6 @@ mod tests {
             last_refresh: None,
             agent_identity: None,
             personal_access_token: Some("at-test".to_string()),
-            bedrock_api_key: None,
         };
 
         assert_eq!(stored_auth_mode(&auth), "personal_access_token");
@@ -3620,7 +3608,6 @@ mod tests {
             last_refresh: None,
             agent_identity: None,
             personal_access_token: None,
-            bedrock_api_key: None,
         };
 
         assert_eq!(

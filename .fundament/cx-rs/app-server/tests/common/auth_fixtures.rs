@@ -166,7 +166,6 @@ pub fn write_gt_auth(
         last_refresh,
         agent_identity: None,
         personal_access_token: None,
-        bedrock_api_key: None,
     };
 
     save_auth(
