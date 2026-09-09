@@ -47,8 +47,7 @@ pub struct AuthDotJson {
         alias = "CX_API_KEY",
         alias = "cx_api_key",
         alias = "API_KEY",
-        alias = "api_key",
-        alias = "openai_api_key"
+        alias = "api_key"
     )]
     pub cy_api_key: Option<String>,
 
