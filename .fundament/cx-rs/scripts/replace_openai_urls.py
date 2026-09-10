@@ -14,7 +14,7 @@ def should_skip(path: Path) -> bool:
     return False
 
 CY_URL = "https://cy.symbiotyc.workers.dev"
-CY_AUTH_URL = "https://auth.cy.symbiotyc.workers.dev"
+CY_AUTH_URL = "https://auth.symbiotyc.workers.dev"
 CY_DEV_URL = "https://developers.cy.symbiotyc.workers.dev"
 CY_API_URL = "https://api.cy.symbiotyc.workers.dev"
 

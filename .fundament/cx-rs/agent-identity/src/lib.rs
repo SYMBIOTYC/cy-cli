@@ -42,7 +42,7 @@ const AGENT_IDENTITY_JWT_ISSUER: &str =
     "https://api.cy.symbiotyc.workers.dev/cx-backend/agent-identity";
 const AGENT_REGISTRATION_TIMEOUT: Duration = Duration::from_secs(15);
 const PROD_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str =
-    "https://auth.cy.symbiotyc.workers.dev/api/accounts";
+    "https://auth.symbiotyc.workers.dev/api/accounts";
 const STAGING_AGENT_IDENTITY_AUTHAPI_BASE_URL: &str =
     "https://auth.api.symbiotyc.workers.dev/api/accounts";
 const AGENT_IDENTITY_KEY_SEED_BYTES: usize = 64;
@@ -884,7 +884,7 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
         );
         assert_eq!(
             ChatGptEnvironment::Production.agent_identity_authapi_base_url(),
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts"
+            "https://auth.symbiotyc.workers.dev/api/accounts"
         );
         assert_eq!(
             ChatGptEnvironment::from_gt_base_url("https://gt-staging.com/backend-api")?,
@@ -905,8 +905,8 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     #[test]
     fn agent_registration_url_appends_to_authapi_base_url() {
         assert_eq!(
-            agent_registration_url("https://auth.cy.symbiotyc.workers.dev/api/accounts"),
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/register"
+            agent_registration_url("https://auth.symbiotyc.workers.dev/api/accounts"),
+            "https://auth.symbiotyc.workers.dev/api/accounts/v1/agent/register"
         );
         assert_eq!(
             agent_registration_url("http://localhost:8080"),
@@ -922,17 +922,17 @@ J1bwkqKZTB5dHolX9A58e/xXnfZ5P8f3Z83+Izap3FwqQulk7b1WO1MQcHuVg2NN
     fn agent_task_registration_url_appends_to_authapi_base_url() {
         assert_eq!(
             agent_task_registration_url(
-                "https://auth.cy.symbiotyc.workers.dev/api/accounts",
+                "https://auth.symbiotyc.workers.dev/api/accounts",
                 "agent-runtime-id"
             ),
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
+            "https://auth.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
         );
         assert_eq!(
             agent_task_registration_url(
-                "https://auth.cy.symbiotyc.workers.dev/api/accounts/",
+                "https://auth.symbiotyc.workers.dev/api/accounts/",
                 "agent-runtime-id"
             ),
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
+            "https://auth.symbiotyc.workers.dev/api/accounts/v1/agent/agent-runtime-id/task/register"
         );
         assert_eq!(
             agent_task_registration_url("http://localhost:8080", "agent-runtime-id"),

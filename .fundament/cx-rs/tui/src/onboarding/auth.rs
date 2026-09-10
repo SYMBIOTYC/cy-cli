@@ -1018,7 +1018,7 @@ mod tests {
     use tempfile::TempDir;
 
     const PRODUCTION_LENGTH_AUTH_URL: &str = concat!(
-        "https://auth.cy.symbiotyc.workers.dev/oauth/authorize?",
+        "https://auth.symbiotyc.workers.dev/oauth/authorize?",
         "response_type=code&",
         "client_id=app_EMoamEEZ73f0CkXaXp7hrann&",
         "redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback&",

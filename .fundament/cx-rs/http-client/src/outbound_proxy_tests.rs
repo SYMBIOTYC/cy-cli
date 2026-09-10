@@ -648,12 +648,12 @@ fn no_proxy_matches_exact_suffix_wildcard_and_port() {
 
 #[test]
 fn system_proxy_cache_key_preserves_url_specific_pac_decisions() {
-    let request_url = "https://auth.cy.symbiotyc.workers.dev/oauth/token?access_token=secret";
+    let request_url = "https://auth.symbiotyc.workers.dev/oauth/token?access_token=secret";
     let cache_key = system_proxy_cache_key(request_url);
 
     assert_ne!(
         cache_key,
-        system_proxy_cache_key("https://auth.cy.symbiotyc.workers.dev/oauth/revoke")
+        system_proxy_cache_key("https://auth.symbiotyc.workers.dev/oauth/revoke")
     );
     assert!(!cache_key.contains(request_url));
 }

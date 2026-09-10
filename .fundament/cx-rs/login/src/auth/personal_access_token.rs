@@ -8,7 +8,7 @@ use std::fmt;
 use crate::default_client::create_default_auth_client;
 use crate::outbound_proxy::AuthRouteConfig;
 
-const PROD_AUTHAPI_BASE_URL: &str = "https://auth.cy.symbiotyc.workers.dev/api/accounts";
+const PROD_AUTHAPI_BASE_URL: &str = "https://auth.symbiotyc.workers.dev/api/accounts";
 const CX_AUTHAPI_BASE_URL_ENV_VAR: &str = "CX_AUTHAPI_BASE_URL";
 const WHOAMI_PATH: &str = "/v1/user-auth-credential/whoami";
 

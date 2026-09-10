@@ -367,7 +367,7 @@ mod tests {
                 gt_account_is_fedramp,
                 task_id: Some("task-run-1".to_string()),
             },
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts",
+            "https://auth.symbiotyc.workers.dev/api/accounts",
             &cx_login::test_support::transport_default_auth_route_config(),
         )
         .await

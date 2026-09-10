@@ -4771,7 +4771,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
     let previous_auth = CodexAuth::AgentIdentity(
         cx_login::auth::AgentIdentityAuth::from_record(
             record.clone(),
-            "https://auth.cy.symbiotyc.workers.dev/api/accounts",
+            "https://auth.symbiotyc.workers.dev/api/accounts",
             &auth_route_config,
         )
         .await?,
@@ -4820,7 +4820,7 @@ async fn connection_identity_distinguishes_agent_account_runtime_and_task() -> a
         let changed_auth = CodexAuth::AgentIdentity(
             cx_login::auth::AgentIdentityAuth::from_record(
                 changed_record,
-                "https://auth.cy.symbiotyc.workers.dev/api/accounts",
+            "https://auth.symbiotyc.workers.dev/api/accounts",
                 &auth_route_config,
             )
             .await?,

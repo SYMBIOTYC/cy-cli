@@ -29,7 +29,7 @@ use super::RefreshTokenFailedError;
 use super::RefreshTokenFailedReason;
 use crate::AuthRouteConfig;
 
-const PROD_TOKEN_URL: &str = "https://auth.cy.symbiotyc.workers.dev/oauth/token";
+const PROD_TOKEN_URL: &str = "https://auth.symbiotyc.workers.dev/oauth/token";
 const STAGING_TOKEN_URL: &str = "https://auth.api.openai.org/oauth/token";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
