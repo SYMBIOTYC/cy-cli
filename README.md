@@ -4,20 +4,11 @@ A model-agnostic coding-agent CLI. Forked from the Rust
 implementation of OpenAI Codex (see `NOTICE` for upstream attribution
 and `LICENSE` for the Apache-2.0 terms).
 
-## v0.2.7 highlights
+## v0.3.4 highlights
 
-- All upstream "Codex" / "oi CX" branding in user-visible strings has
-  been replaced with "CY" / "cy".
-- The macOS .app bundle ships with a local Python bridge
-  (`cy_bridge.py`) that translates the Responses API to the Chat
-  Completions API of the configured upstream, with a developer
-  prompt override and a local tool-execution loop.
 - Bridge v2.1 adds: parallel tool execution (ThreadPoolExecutor,
   max 4 workers), upstream retry with exponential backoff, per-request
   token-usage logging, and a workspace sandbox for shell/file tools.
-- CI builds on every push; post-build verification grep-asserts that
-  no `oi CX`, `0.0.0`, or `chatgpt.com/cx?app-landing-page=true`
-  leaked into the binary or the bundled bridge script.
 
 ## Config location
 - `~/.cy/config.toml` and `~/.cy/auth.json`
