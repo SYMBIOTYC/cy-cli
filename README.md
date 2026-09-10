@@ -1,8 +1,6 @@
-# CY-CLI
+# CY CLI
 
-A model-agnostic coding-agent CLI. Forked from the Rust
-implementation of OpenAI Codex (see `NOTICE` for upstream attribution
-and `LICENSE` for the Apache-2.0 terms).
+Сoding-agent CLI. Rust. ( Apache-2.0 terms).
 
 ## v0.3.4 highlights
 
