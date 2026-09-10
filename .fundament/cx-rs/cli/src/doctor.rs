@@ -2582,7 +2582,7 @@ fn provider_reachability_plan(config: &Config) -> ReachabilityPlan {
         &config.model_provider.name,
         config.model_provider.base_url.as_deref(),
         config.model_provider.query_params.as_ref(),
-        config.model_provider.is_amazon_bedrock(),
+        /*is_amazon_bedrock*/ false,
         &config.gt_base_url,
     );
     plan.http_client_factory = config.http_client_factory();
