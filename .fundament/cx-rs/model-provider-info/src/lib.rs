@@ -461,13 +461,21 @@ mod tests;
 fn read_cy_auth_json_key() -> Option<String> {
     use std::path::PathBuf;
 
-    let home = std::env::var_os("CY_HOME").map(PathBuf::from).or_else(|| {
-        std::env::var_os("HOME")
-            .or_else(|| std::env::var_os("USERPROFILE"))
-            .map(PathBuf::from)
-    })?;
-    let path = home.join(".cy").join("auth.json");
-    let bytes = std::fs::read(&path).ok()?;
+    let cy_home = std::env::var_os("CY_HOME");
+    let home = cy_home
+        .as_ref()
+        .map(PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME")
+                .or_else(|| std::env::var_os("USERPROFILE"))
+                .map(PathBuf::from)
+        })?;
+    let path = if cy_home.is_some() {
+        home.join("auth.json")
+    } else {
+        home.join(".cy").join("auth.json")
+    };
+    let bytes = std::fs::read(path).ok()?;
     let value: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
     let key = value.get("cy_api_key")?.as_str()?.trim();
     if key.is_empty() {
