@@ -871,7 +871,11 @@ impl App {
                     width: 5.min(area.width),
                     height: 3.min(area.height),
                 };
-                crate::hex_morph::render_hex_morph(morph_area, frame.buffer);
+                crate::hex_morph::render_hex_morph(
+                    morph_area,
+                    frame.buffer,
+                    self.chat_widget.is_agent_turn_running(),
+                );
                 self.chat_widget.note_rendered_width(area.width);
                 if let Some((x, y)) = chat_widget.cursor_pos(area) {
                     frame.set_cursor_style(chat_widget.cursor_style(area));

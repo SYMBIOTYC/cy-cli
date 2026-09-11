@@ -1,7 +1,8 @@
-//! SYMBIOTYC hexagon morph animation for the top-right corner.
+//! SYMBIOTYC hexagon indicator for the top-right corner.
 //!
-//! Smoothly morphs between a square and a hexagon shape, rendered in black/pink.
-//! The animation loops continuously with a gentle easing curve.
+//! - Dimmed quietly when the model is idle.
+//! - Leans ±30° (row shear in a 3×3 grid) every 3-10 seconds while thinking.
+//! - Occasional random pink flash.
 
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
@@ -9,68 +10,94 @@ use ratatui::style::Color;
 use ratatui::style::Style;
 use ratatui::text::Span;
 
-/// Animation duration for one full morph cycle (square → hex → square).
-const MORPH_CYCLE_MS: u64 = 4000;
+const GRID_W: usize = 3;
+const GRID_H: usize = 3;
 
-/// Get the current morph progress (0.0 = square, 1.0 = hex).
-fn morph_progress() -> f32 {
-    let ms = std::time::SystemTime::now()
+const ROT_MIN_MS: u64 = 3000;
+const ROT_MAX_MS: u64 = 10000;
+
+fn time_ms() -> u64 {
+    std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
-        .as_millis() as u64;
-    let t_raw = (ms % MORPH_CYCLE_MS) as f32 / MORPH_CYCLE_MS as f32;
-    // Smooth easing: sin wave mapped to 0..1
-    (t_raw * std::f32::consts::PI).sin() * 0.5 + 0.5
+        .as_millis() as u64
 }
 
-/// Build a single frame of the morph animation as a 5×3 char grid.
-fn build_morph_frame(t: f32) -> [[char; 5]; 3] {
-    let mut grid = [[' '; 5]; 3];
+fn xorshift32(seed: u64) -> u32 {
+    let mut s = seed;
+    s ^= s << 13;
+    s ^= s >> 7;
+    s ^= s << 17;
+    (s as u32).wrapping_mul(0x9E3779B9)
+}
 
-    let top_indent = t;
-    let bot_indent = t;
+fn build_frame(thinking: bool) -> ([[char; GRID_W]; GRID_H], bool, bool) {
+    let ms = time_ms();
 
-    // Row 0: top edge
-    let tl = (top_indent * 1.0) as usize;
-    let tr = 4 - (top_indent * 1.0) as usize;
-    for x in tl..=tr {
-        if x == tl || x == tr {
-            grid[0][x] = '█';
-        } else {
-            grid[0][x] = '▄';
+    // Stable rotation interval: changes once per second, varies 3-10s per phase.
+    let sec = ms / 1000;
+    let rot_interval = ROT_MIN_MS + ((sec.wrapping_mul(0x9E3779B9u64)) % (ROT_MAX_MS - ROT_MIN_MS));
+    let rot_phase = (ms / rot_interval) % 3; // 0=center, 1=left, 2=right
+
+    // Random pink flash: rare (1/60 frames ≈ 0.5s at 30fps).
+    let flash = xorshift32(ms / 33) % 60 == 0;
+
+    let dimmed = !thinking;
+
+    let mut grid: [[char; GRID_W]; GRID_H] = [[' '; GRID_W]; GRID_H];
+
+    // Simulate 30° lean by shifting rows: left lean = all cols shift -1,
+    // right lean = all cols shift +1. Out-of-bounds cells are omitted.
+    let col_offset: isize = match rot_phase {
+        1 => -1,
+        2 => 1,
+        _ => 0,
+    };
+
+    for y in 0..GRID_H {
+        for x in 0..GRID_W {
+            let shifted = x as isize + col_offset;
+            if shifted < 0 || shifted >= GRID_W as isize {
+                continue;
+            }
+            grid[y][shifted as usize] = base_hex_char(y, x);
         }
     }
 
-    // Row 1: sides
-    grid[1][0] = '█';
-    grid[1][4] = '█';
-
-    // Row 2: bottom edge
-    let bl = (bot_indent * 1.0) as usize;
-    let br = 4 - (bot_indent * 1.0) as usize;
-    for x in bl..=br {
-        if x == bl || x == br {
-            grid[2][x] = '█';
-        } else {
-            grid[2][x] = '▀';
-        }
-    }
-
-    grid
+    (grid, dimmed, flash)
 }
 
-/// Render the SYMBIOTYC hexagon morph at the given position in a buffer.
-pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer) {
-    if area.width < 5 || area.height < 3 {
+fn base_hex_char(y: usize, x: usize) -> char {
+    match (y, x) {
+        (0, 1) => '▄',
+        (1, 0) | (1, 2) => '█',
+        (2, 1) => '▀',
+        _ => ' ',
+    }
+}
+
+pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
+    if area.width < 1 || area.height < 1 {
         return;
     }
 
-    let t = morph_progress();
-    let pink = Color::Rgb(255, 0, 128);
-    let style = Style::default().fg(pink);
+    let (grid, dimmed, flash) = build_frame(thinking);
 
-    let rows = build_morph_frame(t);
-    for (y, row) in rows.iter().enumerate() {
+    let color = if flash {
+        Color::Rgb(255, 0, 128)
+    } else if dimmed {
+        Color::DarkGray
+    } else {
+        Color::Rgb(255, 0, 128)
+    };
+
+    let style = if dimmed && !flash {
+        Style::default().fg(color).dim()
+    } else {
+        Style::default().fg(color)
+    };
+
+    for (y, row) in grid.iter().enumerate() {
         if y as u16 >= area.height {
             break;
         }
@@ -95,18 +122,25 @@ mod tests {
     use super::*;
 
     #[test]
-    fn morph_frame_square() {
-        let grid = build_morph_frame(0.0);
-        assert_eq!(grid[0], ['█', '▄', '▄', '▄', '█']);
-        assert_eq!(grid[1], ['█', ' ', ' ', ' ', '█']);
-        assert_eq!(grid[2], ['█', '▀', '▀', '▀', '█']);
+    fn base_hex_shape() {
+        assert_eq!(base_hex_char(0, 0), ' ');
+        assert_eq!(base_hex_char(0, 1), '▄');
+        assert_eq!(base_hex_char(1, 0), '█');
+        assert_eq!(base_hex_char(1, 1), ' ');
+        assert_eq!(base_hex_char(1, 2), '█');
+        assert_eq!(base_hex_char(2, 0), ' ');
+        assert_eq!(base_hex_char(2, 1), '▀');
+        assert_eq!(base_hex_char(2, 2), ' ');
     }
 
     #[test]
-    fn morph_frame_hex() {
-        let grid = build_morph_frame(1.0);
-        assert_eq!(grid[0], [' ', '█', '▄', '█', ' ']);
-        assert_eq!(grid[1], ['█', ' ', ' ', ' ', '█']);
-        assert_eq!(grid[2], [' ', '█', '▀', '█', ' ']);
+    fn build_frame_always_valid() {
+        for thinking in [false, true] {
+            let (grid, _, _) = build_frame(thinking);
+            assert_eq!(grid.len(), GRID_H);
+            for row in &grid {
+                assert_eq!(row.len(), GRID_W);
+            }
+        }
     }
 }
