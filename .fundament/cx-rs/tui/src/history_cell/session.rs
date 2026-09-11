@@ -371,16 +371,7 @@ impl HistoryCell for SessionHeaderHistoryCell {
             make_row(title_spans),
             make_row(Vec::new()),
             make_row(model_spans),
-            make_row(dir_spans),
         ];
-
-        if self.yolo_mode {
-            let permissions_label = format!("{PERMISSIONS_LABEL:<label_width$}");
-            lines.push(make_row(vec![
-                Span::from(format!("{permissions_label} ")).dim(),
-                "YOLO mode".magenta().bold(),
-            ]));
-        }
 
         let lines = lines
             .into_iter()
