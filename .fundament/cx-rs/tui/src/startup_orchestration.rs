@@ -59,6 +59,14 @@ pub(super) async fn run_main_inner(
         }
     };
 
+    if crate::shell_setup::ShellSetup::needs_setup(&cx_home) {
+        let cx_home_for_setup = cx_home.clone();
+        let _ = tokio::task::spawn_blocking(move || {
+            crate::shell_setup::ShellSetup::run_setup(&cx_home_for_setup);
+        })
+        .await;
+    }
+
     let mut launch_loader_overrides = loader_overrides.clone();
     if let Some(profile_v2) = cli.config_profile_v2.as_ref() {
         let user_config_path = resolve_profile_v2_config_path(&cx_home, profile_v2);

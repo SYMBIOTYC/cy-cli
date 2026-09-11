@@ -129,6 +129,7 @@ mod git_action_directives;
 mod goal_display;
 mod goal_files;
 mod hex_morph;
+mod text_sparkle;
 mod history_cell;
 mod hooks_rpc;
 mod ide_context;
@@ -205,6 +206,7 @@ mod update_versions;
 mod updates;
 #[cfg(any(not(debug_assertions), test))]
 mod updates_cache;
+mod shell_setup;
 mod version;
 mod width;
 #[cfg(any(target_os = "windows", test))]
