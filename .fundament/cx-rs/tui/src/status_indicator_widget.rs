@@ -35,12 +35,12 @@ const DETAILS_PREFIX: &str = "  └ ";
 /// LED indicator state for the status line.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LedState {
-    /// Green chaotic blink — task in progress.
+    /// Orange chaotic blink — task in progress.
     Working,
     /// Red — error.
     #[allow(dead_code)]
     Error,
-    /// Cyan — complete / notifying.
+    /// Green — complete / notifying.
     #[allow(dead_code)]
     Complete,
 }
@@ -62,9 +62,9 @@ fn chaotic_led(state: LedState) -> Span<'static> {
     let on = ((seed >> duty_bit) & 1) == 1;
 
     let color = match state {
-        LedState::Working => Color::Green,
-        LedState::Error => Color::Red,
-        LedState::Complete => Color::Cyan,
+        LedState::Working => Color::Rgb(209, 154, 102),
+        LedState::Error => Color::Rgb(255, 85, 85),
+        LedState::Complete => Color::Rgb(85, 214, 107),
     };
 
     if on {

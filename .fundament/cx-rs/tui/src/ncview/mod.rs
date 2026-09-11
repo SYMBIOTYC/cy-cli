@@ -459,7 +459,7 @@ impl NcView {
                 Block::default()
                     .borders(Borders::ALL)
                     .title(" Help (F1) ")
-                    .border_style(Style::default().fg(Color::Cyan)),
+                    .border_style(Style::default().fg(rgb_color((97, 175, 239)))),
             )
             .style(Style::default().bg(Color::Black));
 
@@ -487,7 +487,7 @@ fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, foc
                 .enumerate()
                 .map(|(i, e)| {
                     let style = if i == *selected && focused {
-                        Style::default().bg(Color::Cyan).fg(Color::Black).bold()
+                        Style::default().bg(rgb_color((97, 175, 239))).fg(Color::Black).bold()
                     } else {
                         Style::default()
                     };
@@ -520,9 +520,9 @@ fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, foc
     };
 
     let border_style = if focused {
-        Style::default().fg(Color::Cyan)
+        Style::default().fg(rgb_color((97, 175, 239)))
     } else {
-        Style::default().fg(Color::DarkGray)
+        Style::default().fg(rgb_color((102, 102, 102)))
     };
 
     Paragraph::new(body)
@@ -582,36 +582,36 @@ impl Widget for &NcView {
         let cmd_area = chunks[2];
         let cmd_text = format!("cy > {}", self.cmd_buffer);
         Paragraph::new(cmd_text)
-            .style(Style::default().fg(Color::Cyan))
+            .style(Style::default().fg(rgb_color((97, 175, 239))))
             .block(Block::default().borders(Borders::ALL).title("Command"))
             .render(cmd_area, buf);
 
         // Status bar
         let status_area = chunks[3];
         Paragraph::new(self.status.as_str())
-            .style(Style::default().fg(Color::Yellow).bg(Color::DarkGray))
+            .style(Style::default().fg(rgb_color((209, 154, 102))).bg(rgb_color((102, 102, 102))))
             .render(status_area, buf);
 
         // Function key bar
         let fkey_area = chunks[4];
         let fkeys = Line::from(vec![
-            "F1 Help".bold().cyan(),
-            "  F2 Menu".dark_gray(),
-            "  F3 View".dark_gray(),
-            "  F4 Edit".dark_gray(),
-            "  F5 Copy".dark_gray(),
-            "  F6 Move".dark_gray(),
-            "  F7 MkDir".dark_gray(),
-            "  F8 Del".dark_gray(),
-            "  F9 Menu".dark_gray(),
-            "  F10 Quit".red(),
+            Span::styled("F1 Help", Style::default().fg(rgb_color((97, 175, 239))).bold()),
+            Span::styled("  F2 Menu", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F3 View", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F4 Edit", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F5 Copy", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F6 Move", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F7 MkDir", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F8 Del", Style::default().fg(rgb_color((255, 85, 85)))),
+            Span::styled("  F9 Menu", Style::default().fg(rgb_color((102, 102, 102)))),
+            Span::styled("  F10 Quit", Style::default().fg(rgb_color((255, 85, 85)))),
         ]);
         Paragraph::new(fkeys)
             .style(Style::default().bg(Color::Black))
             .render(fkey_area, buf);
 
         Paragraph::new(format!("chat: {} | {}", self.chat_id, self.status))
-            .style(Style::default().bg(Color::DarkGray).fg(Color::LightCyan))
+            .style(Style::default().bg(rgb_color((102, 102, 102))).fg(rgb_color((97, 175, 239))))
             .render(chunks[3], buf);
     }
 }

@@ -1,8 +1,8 @@
 //! SYMBIOTYC hexagon indicator for the top-right corner.
 //!
 //! - Dimmed quietly when the model is idle.
-//! - Leans ±30° (row shear in a 3×3 grid) every 3-10 seconds while thinking.
-//! - Occasional random pink flash.
+//! - Leans left (row shear in a 3×3 grid) every 3-10 seconds while thinking.
+//! - Occasional random green flash.
 
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
@@ -79,6 +79,12 @@ fn base_hex_char(y: usize, x: usize) -> char {
     }
 }
 
+const BG_DARK: ratatui::style::Color = ratatui::style::Color::Rgb(0, 0, 0);
+const FG_LIGHT: ratatui::style::Color = ratatui::style::Color::Rgb(216, 216, 216);
+const ACCENT_BLUE: ratatui::style::Color = ratatui::style::Color::Rgb(97, 175, 239);
+const ACCENT_GREEN: ratatui::style::Color = ratatui::style::Color::Rgb(85, 214, 107);
+const DIM_GRAY: ratatui::style::Color = ratatui::style::Color::Rgb(102, 102, 102);
+
 pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
     if area.width < 1 || area.height < 1 {
         return;
@@ -87,15 +93,15 @@ pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
     let (grid, dimmed, flash) = build_frame(thinking);
 
     let color = if flash {
-        Color::Rgb(255, 0, 128)
+        ACCENT_GREEN
     } else if dimmed {
-        Color::DarkGray
+        DIM_GRAY
     } else {
-        Color::Rgb(255, 0, 128)
+        ACCENT_BLUE
     };
 
     let style = if dimmed && !flash {
-        Style::default().fg(color).dim()
+        Style::default().fg(color)
     } else {
         Style::default().fg(color)
     };

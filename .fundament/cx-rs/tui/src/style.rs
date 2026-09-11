@@ -9,7 +9,7 @@ use crate::terminal_palette::stdout_color_level;
 use ratatui::style::Color;
 use ratatui::style::Style;
 
-const LIGHT_BG_ACCENT_RGB: (u8, u8, u8) = (0, 95, 135);
+const LIGHT_BG_ACCENT_RGB: (u8, u8, u8) = (97, 175, 239);
 // Decorative table rules should remain visible without competing with cell content.
 const TABLE_SEPARATOR_FG_ALPHA: f32 = 0.20;
 
@@ -51,7 +51,7 @@ pub(crate) fn accent_style_for(terminal_bg: Option<(u8, u8, u8)>) -> Style {
     if terminal_bg.is_some_and(is_light) {
         Style::default().fg(best_color(LIGHT_BG_ACCENT_RGB)).bold()
     } else {
-        Style::default().fg(Color::Cyan).bold()
+        Style::default().fg(rgb_color((97, 175, 239))).bold()
     }
 }
 
@@ -105,8 +105,8 @@ mod tests {
     }
 
     #[test]
-    fn accent_style_uses_cyan_on_dark_or_unknown_backgrounds() {
-        let expected = Style::default().fg(Color::Cyan).bold();
+    fn accent_style_uses_blue_on_dark_or_unknown_backgrounds() {
+        let expected = Style::default().fg(rgb_color((97, 175, 239))).bold();
 
         assert_eq!(accent_style_for(Some((0, 0, 0))), expected);
         assert_eq!(accent_style_for(/*terminal_bg*/ None), expected);
