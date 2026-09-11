@@ -62,19 +62,22 @@ impl StatusState {
 
     fn symbol(self, tick: u64) -> Span<'static> {
         match self {
-            StatusState::Idle => Span::styled("●", Style::default().fg(STATUS_DIM)),
+            StatusState::Idle => Span::styled("⬡", Style::default().fg(STATUS_FG)),
             StatusState::Thinking => {
-                const FRAMES: [char; 4] = ['◐', '◓', '◑', '◒'];
-                let idx = (tick / 6) % FRAMES.len() as u64;
+                const FRAMES: [char; 2] = ['⬡', '⬢'];
+                let idx = (tick / 8) % FRAMES.len() as u64;
                 Span::styled(
                     FRAMES[idx as usize].to_string(),
-                    Style::default().fg(STATUS_PINK).bold(),
+                    Style::default().fg(STATUS_FG).bold(),
                 )
             }
             StatusState::Running => {
-                const FRAMES: [&str; 2] = ["▶", "●"];
-                let idx = (tick / 14) % FRAMES.len() as u64;
-                Span::styled(FRAMES[idx as usize].to_string(), Style::default().fg(STATUS_PINK).bold())
+                const FRAMES: [char; 2] = ['⬡', '⬢'];
+                let idx = (tick / 12) % FRAMES.len() as u64;
+                Span::styled(
+                    FRAMES[idx as usize].to_string(),
+                    Style::default().fg(STATUS_FG).bold(),
+                )
             }
             StatusState::Done => Span::styled("✓", Style::default().fg(STATUS_SUCCESS).bold()),
             StatusState::Error => Span::styled("✕", Style::default().fg(STATUS_ERROR).bold()),
