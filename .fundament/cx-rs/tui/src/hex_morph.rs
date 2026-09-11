@@ -31,13 +31,17 @@ fn xorshift32(seed: u64) -> u32 {
     (s as u32).wrapping_mul(0x9E3779B9)
 }
 
+const THEME_PINK: u8 = 0xFF;
+const THEME_RED: u8 = 0x3D;
+const THEME_MAGENTA: u8 = 0xA8;
+
 fn build_frame(thinking: bool) -> ([[char; GRID_W]; GRID_H], bool, bool) {
     let ms = time_ms();
 
     // Stable rotation interval: changes once per second, varies 3-10s per phase.
     let sec = ms / 1000;
     let rot_interval = ROT_MIN_MS + ((sec.wrapping_mul(0x9E3779B9u64)) % (ROT_MAX_MS - ROT_MIN_MS));
-    let rot_phase = (ms / rot_interval) % 3; // 0=center, 1=left, 2=right
+    let rot_phase = (ms / rot_interval) % 2; // 0=center, 1=shifted
 
     // Random pink flash: rare (1/60 frames ≈ 0.5s at 30fps).
     let flash = xorshift32(ms / 33) % 60 == 0;
@@ -50,7 +54,6 @@ fn build_frame(thinking: bool) -> ([[char; GRID_W]; GRID_H], bool, bool) {
     // right lean = all cols shift +1. Out-of-bounds cells are omitted.
     let col_offset: isize = match rot_phase {
         1 => -1,
-        2 => 1,
         _ => 0,
     };
 

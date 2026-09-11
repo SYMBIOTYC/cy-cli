@@ -864,11 +864,11 @@ impl App {
                 let area = frame.area();
                 rendered_area = area;
                 chat_widget.render(area, frame.buffer);
-                // Render hex morph overlay in the top-right corner (5 cols × 3 rows).
+                // Render hex morph overlay in the top-right corner (3 cols × 3 rows).
                 let morph_area = Rect {
-                    x: area.right().saturating_sub(6),
+                    x: area.right().saturating_sub(3),
                     y: area.y,
-                    width: 5.min(area.width),
+                    width: 3.min(area.width),
                     height: 3.min(area.height),
                 };
                 crate::hex_morph::render_hex_morph(
