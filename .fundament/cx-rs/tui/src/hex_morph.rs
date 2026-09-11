@@ -80,10 +80,10 @@ fn base_hex_char(y: usize, x: usize) -> char {
 }
 
 const BG_DARK: ratatui::style::Color = ratatui::style::Color::Rgb(0, 0, 0);
-const FG_LIGHT: ratatui::style::Color = ratatui::style::Color::Rgb(216, 216, 216);
-const ACCENT_BLUE: ratatui::style::Color = ratatui::style::Color::Rgb(97, 175, 239);
-const ACCENT_GREEN: ratatui::style::Color = ratatui::style::Color::Rgb(85, 214, 107);
-const DIM_GRAY: ratatui::style::Color = ratatui::style::Color::Rgb(102, 102, 102);
+const FG_LIGHT: ratatui::style::Color = ratatui::style::Color::Rgb(234, 232, 230);
+const ACCENT_MUTED: ratatui::style::Color = ratatui::style::Color::Rgb(138, 106, 120);
+const ACCENT_GREEN: ratatui::style::Color = ratatui::style::Color::Rgb(122, 154, 136);
+const DIM_GRAY: ratatui::style::Color = ratatui::style::Color::Rgb(108, 108, 114);
 
 pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
     if area.width < 1 || area.height < 1 {
@@ -97,7 +97,7 @@ pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
     } else if dimmed {
         DIM_GRAY
     } else {
-        ACCENT_BLUE
+        ACCENT_MUTED
     };
 
     let style = if dimmed && !flash {

@@ -459,9 +459,9 @@ impl NcView {
                 Block::default()
                     .borders(Borders::ALL)
                     .title(" Help (F1) ")
-                    .border_style(Style::default().fg(rgb_color((97, 175, 239)))),
+                    .border_style(Style::default().fg(rgb_color((138, 106, 120)))),
             )
-            .style(Style::default().bg(Color::Black));
+            .style(Style::default().bg(Color::Rgb(11, 11, 13)));
 
         // Center the help
         let help_area = Rect {
@@ -487,7 +487,7 @@ fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, foc
                 .enumerate()
                 .map(|(i, e)| {
                     let style = if i == *selected && focused {
-                        Style::default().bg(rgb_color((97, 175, 239))).fg(Color::Black).bold()
+                        Style::default().bg(rgb_color((138, 106, 120))).fg(Color::Rgb(11, 11, 13)).bold()
                     } else {
                         Style::default()
                     };
@@ -520,9 +520,9 @@ fn render_panel_static(content: &PanelContent, area: Rect, buf: &mut Buffer, foc
     };
 
     let border_style = if focused {
-        Style::default().fg(rgb_color((97, 175, 239)))
+        Style::default().fg(rgb_color((138, 106, 120)))
     } else {
-        Style::default().fg(rgb_color((102, 102, 102)))
+        Style::default().fg(rgb_color((108, 108, 114)))
     };
 
     Paragraph::new(body)
@@ -582,29 +582,29 @@ impl Widget for &NcView {
         let cmd_area = chunks[2];
         let cmd_text = format!("cy > {}", self.cmd_buffer);
         Paragraph::new(cmd_text)
-            .style(Style::default().fg(rgb_color((97, 175, 239))))
+            .style(Style::default().fg(rgb_color((138, 106, 120))))
             .block(Block::default().borders(Borders::ALL).title("Command"))
             .render(cmd_area, buf);
 
         // Status bar
         let status_area = chunks[3];
         Paragraph::new(self.status.as_str())
-            .style(Style::default().fg(rgb_color((209, 154, 102))).bg(rgb_color((102, 102, 102))))
+            .style(Style::default().fg(rgb_color((168, 152, 136))).bg(rgb_color((108, 108, 114))))
             .render(status_area, buf);
 
         // Function key bar
         let fkey_area = chunks[4];
         let fkeys = Line::from(vec![
-            Span::styled("F1 Help", Style::default().fg(rgb_color((97, 175, 239))).bold()),
-            Span::styled("  F2 Menu", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F3 View", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F4 Edit", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F5 Copy", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F6 Move", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F7 MkDir", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F8 Del", Style::default().fg(rgb_color((255, 85, 85)))),
-            Span::styled("  F9 Menu", Style::default().fg(rgb_color((102, 102, 102)))),
-            Span::styled("  F10 Quit", Style::default().fg(rgb_color((255, 85, 85)))),
+            Span::styled("F1 Help", Style::default().fg(rgb_color((138, 106, 120))).bold()),
+            Span::styled("  F2 Menu", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F3 View", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F4 Edit", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F5 Copy", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F6 Move", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F7 MkDir", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F8 Del", Style::default().fg(rgb_color((154, 122, 122)))),
+            Span::styled("  F9 Menu", Style::default().fg(rgb_color((108, 108, 114)))),
+            Span::styled("  F10 Quit", Style::default().fg(rgb_color((154, 122, 122)))),
         ]);
         Paragraph::new(fkeys)
             .style(Style::default().bg(Color::Black))

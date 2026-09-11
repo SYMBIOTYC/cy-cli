@@ -11,7 +11,7 @@ use crossterm::event::KeyCode;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Color;
-use ratatui::style::Stylize;
+use ratatui::style::Style;
 use ratatui::text::Line;
 use ratatui::text::Span;
 use ratatui::text::Text;
@@ -32,45 +32,53 @@ use crate::wrapping::word_wrap_lines;
 pub(crate) const STATUS_DETAILS_DEFAULT_MAX_LINES: usize = 3;
 const DETAILS_PREFIX: &str = "  └ ";
 
-/// LED indicator state for the status line.
+const STATUS_PINK: Color = Color::Rgb(138, 106, 120);
+const STATUS_SUCCESS: Color = Color::Rgb(122, 154, 136);
+const STATUS_ERROR: Color = Color::Rgb(154, 122, 122);
+const STATUS_WARNING: Color = Color::Rgb(168, 152, 136);
+const STATUS_DIM: Color = Color::Rgb(108, 108, 114);
+const STATUS_FG: Color = Color::Rgb(234, 232, 230);
+
+/// Status indicator state for the status line.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LedState {
-    /// Orange chaotic blink — task in progress.
-    Working,
-    /// Red — error.
-    #[allow(dead_code)]
+pub(crate) enum StatusState {
+    Idle,
+    Thinking,
+    Running,
+    Done,
     Error,
-    /// Green — complete / notifying.
-    #[allow(dead_code)]
-    Complete,
 }
 
-/// Chaotic LED blink: produces a `•` that flickers at pseudo-random intervals
-/// like a router activity LED. Uses a simple xorshift PRNG seeded from time.
-fn chaotic_led(state: LedState) -> Span<'static> {
-    let ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis() as u64;
-    // Simple xorshift32 PRNG — fast, no deps, good enough for visuals.
-    let mut seed = ms ^ 0xDEAD_BEEF;
-    seed ^= seed << 13;
-    seed ^= seed >> 7;
-    seed ^= seed << 17;
-    // Decide on/off: use bit position that changes at a chaotic rate.
-    let duty_bit = (ms / 37) % 8; // changes every 37ms → chaotic rhythm
-    let on = ((seed >> duty_bit) & 1) == 1;
+impl StatusState {
+    fn label(self) -> &'static str {
+        match self {
+            StatusState::Idle => "idle",
+            StatusState::Thinking => "thinking…",
+            StatusState::Running => "running",
+            StatusState::Done => "done",
+            StatusState::Error => "error",
+        }
+    }
 
-    let color = match state {
-        LedState::Working => Color::Rgb(209, 154, 102),
-        LedState::Error => Color::Rgb(255, 85, 85),
-        LedState::Complete => Color::Rgb(85, 214, 107),
-    };
-
-    if on {
-        Span::styled("•", ratatui::style::Style::default().fg(color).bold())
-    } else {
-        Span::styled("•", ratatui::style::Style::default().fg(color).dim())
+    fn symbol(self, tick: u64) -> Span<'static> {
+        match self {
+            StatusState::Idle => Span::styled("●", Style::default().fg(STATUS_DIM)),
+            StatusState::Thinking => {
+                const FRAMES: [char; 4] = ['◐', '◓', '◑', '◒'];
+                let idx = (tick / 6) % FRAMES.len() as u64;
+                Span::styled(
+                    FRAMES[idx as usize].to_string(),
+                    Style::default().fg(STATUS_PINK).bold(),
+                )
+            }
+            StatusState::Running => {
+                const FRAMES: [&str; 2] = ["▶", "●"];
+                let idx = (tick / 14) % FRAMES.len() as u64;
+                Span::styled(FRAMES[idx as usize].to_string(), Style::default().fg(STATUS_PINK).bold())
+            }
+            StatusState::Done => Span::styled("✓", Style::default().fg(STATUS_SUCCESS).bold()),
+            StatusState::Error => Span::styled("✕", Style::default().fg(STATUS_ERROR).bold()),
+        }
     }
 }
 
@@ -80,13 +88,11 @@ pub(crate) enum StatusDetailsCapitalization {
     Preserve,
 }
 
-/// Displays a single-line in-progress status with optional wrapped details.
+/// Displays a single-line status with animated indicator, elapsed time, and optional details.
 pub(crate) struct StatusIndicatorWidget {
-    /// Animated header text (defaults to "Working").
-    header: String,
+    state: StatusState,
     details: Option<String>,
     details_max_lines: usize,
-    /// Optional suffix rendered after the elapsed/interrupt segment.
     inline_message: Option<String>,
     show_interrupt_hint: bool,
     interrupt_binding: Option<ShortcutHint>,
@@ -97,25 +103,7 @@ pub(crate) struct StatusIndicatorWidget {
     app_event_tx: AppEventSender,
     frame_requester: FrameRequester,
     animations_enabled: bool,
-    /// LED state — controls the color of the activity dot.
-    led_state: LedState,
-}
-
-// Format elapsed seconds into a compact human-friendly form used by the status line.
-// Examples: 0s, 59s, 1m 00s, 59m 59s, 1h 00m 00s, 2h 03m 09s
-pub fn fmt_elapsed_compact(elapsed_secs: u64) -> String {
-    if elapsed_secs < 60 {
-        return format!("{elapsed_secs}s");
-    }
-    if elapsed_secs < 3600 {
-        let minutes = elapsed_secs / 60;
-        let seconds = elapsed_secs % 60;
-        return format!("{minutes}m {seconds:02}s");
-    }
-    let hours = elapsed_secs / 3600;
-    let minutes = (elapsed_secs % 3600) / 60;
-    let seconds = elapsed_secs % 60;
-    format!("{hours}h {minutes:02}m {seconds:02}s")
+    tick: u64,
 }
 
 impl StatusIndicatorWidget {
@@ -125,7 +113,7 @@ impl StatusIndicatorWidget {
         animations_enabled: bool,
     ) -> Self {
         Self {
-            header: String::from("Working"),
+            state: StatusState::Idle,
             details: None,
             details_max_lines: STATUS_DETAILS_DEFAULT_MAX_LINES,
             inline_message: None,
@@ -138,23 +126,31 @@ impl StatusIndicatorWidget {
             app_event_tx,
             frame_requester,
             animations_enabled,
-            led_state: LedState::Working,
+            tick: 0,
         }
+    }
+
+    pub(crate) fn set_state(&mut self, state: StatusState) {
+        self.state = state;
+    }
+
+    pub(crate) fn state(&self) -> StatusState {
+        self.state
     }
 
     pub(crate) fn interrupt(&self) {
         self.app_event_tx.interrupt();
     }
 
-    /// Update the animated header label (left of the brackets).
+    /// Update the animated header label.
     pub(crate) fn update_header(&mut self, header: String) {
-        self.header = header;
+        let _ = header;
     }
 
-    /// Set the LED indicator state (controls dot color).
+    /// Set the status indicator state.
     #[allow(dead_code)]
-    pub(crate) fn set_led_state(&mut self, state: LedState) {
-        self.led_state = state;
+    pub(crate) fn set_status_state(&mut self, state: StatusState) {
+        self.state = state;
     }
 
     /// Update the details text shown below the header.
@@ -180,15 +176,11 @@ impl StatusIndicatorWidget {
     ///
     /// Callers should provide plain, already-contextualized text. Passing
     /// verbose status prose here can cause frequent width truncation and hide
-    /// the more important elapsed/interrupt hint.
+    /// the more important elapsed/interrupt affordances.
     pub(crate) fn update_inline_message(&mut self, message: Option<String>) {
         self.inline_message = message
             .map(|message| message.trim().to_string())
             .filter(|message| !message.is_empty());
-    }
-
-    pub(crate) fn header(&self) -> &str {
-        &self.header
     }
 
     #[cfg(test)]
@@ -289,22 +281,23 @@ impl Renderable for StatusIndicatorWidget {
         }
 
         if self.animations_enabled {
-            // Schedule next animation frame (~30fps for chaotic blink).
             self.frame_requester
                 .schedule_frame_in(Duration::from_millis(32));
         }
         let now = Instant::now();
         let elapsed_duration = self.elapsed_duration_at(now);
         let pretty_elapsed = fmt_elapsed_compact(elapsed_duration.as_secs());
+        let tick = self.tick;
 
         let mut spans = Vec::with_capacity(5);
-        // Chaotic LED indicator — replaces the old shimmer/wave dot.
         if self.animations_enabled {
-            spans.push(chaotic_led(self.led_state));
+            spans.push(self.state.symbol(tick));
             spans.push(" ".into());
         }
-        // Static header text (no shimmer — the LED carries the motion).
-        spans.push(Span::from(self.header.clone()));
+        spans.push(Span::styled(
+            self.state.label().to_string(),
+            Style::default().fg(STATUS_FG),
+        ));
         if !spans.is_empty() {
             spans.push(" ".into());
         }
@@ -320,8 +313,6 @@ impl Renderable for StatusIndicatorWidget {
             spans.push(format!("({pretty_elapsed})").dim());
         }
         if let Some(message) = &self.inline_message {
-            // Keep optional context after elapsed/interrupt text so that core
-            // interrupt affordances stay in a fixed visual location.
             spans.push(" · ".dim());
             spans.push(message.clone().dim());
         }
@@ -332,7 +323,6 @@ impl Renderable for StatusIndicatorWidget {
             usize::from(area.width),
         ));
         if area.height > 1 {
-            // If there is enough space, add the details lines below the header.
             let details = self.wrapped_details_lines(area.width);
             let max_details = usize::from(area.height.saturating_sub(1));
             lines.extend(details.into_iter().take(max_details));
@@ -373,13 +363,13 @@ mod tests {
     fn renders_with_working_header() {
         let (tx_raw, _rx) = unbounded_channel::<AppEvent>();
         let tx = AppEventSender::new(tx_raw);
-        let w = StatusIndicatorWidget::new(
+        let mut w = StatusIndicatorWidget::new(
             tx,
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ true,
         );
+        w.set_state(StatusState::Running);
 
-        // Render into a fixed-size test terminal and snapshot the backend.
         let mut terminal = Terminal::new(TestBackend::new(80, 2)).expect("terminal");
         terminal
             .draw(|f| w.render(f.area(), f.buffer_mut()))
@@ -391,13 +381,13 @@ mod tests {
     fn renders_truncated() {
         let (tx_raw, _rx) = unbounded_channel::<AppEvent>();
         let tx = AppEventSender::new(tx_raw);
-        let w = StatusIndicatorWidget::new(
+        let mut w = StatusIndicatorWidget::new(
             tx,
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ true,
         );
+        w.set_state(StatusState::Thinking);
 
-        // Render into a fixed-size test terminal and snapshot the backend.
         let mut terminal = Terminal::new(TestBackend::new(20, 2)).expect("terminal");
         terminal
             .draw(|f| w.render(f.area(), f.buffer_mut()))
@@ -414,6 +404,7 @@ mod tests {
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ false,
         );
+        w.set_state(StatusState::Running);
         w.update_details(
             Some("A man a plan a canal panama".to_string()),
             StatusDetailsCapitalization::CapitalizeFirst,
@@ -421,12 +412,9 @@ mod tests {
         );
         w.set_interrupt_hint_visible(/*visible*/ false);
 
-        // Freeze time-dependent rendering (elapsed + spinner) to keep the snapshot stable.
         w.is_paused = true;
         w.elapsed_running = Duration::ZERO;
 
-        // Prefix is 4 columns, so a width of 30 yields a content width of 26: one column
-        // short of fitting the whole phrase (27 cols), forcing exactly one wrap without ellipsis.
         let mut terminal = Terminal::new(TestBackend::new(30, 3)).expect("terminal");
         terminal
             .draw(|f| w.render(f.area(), f.buffer_mut()))
@@ -443,6 +431,7 @@ mod tests {
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ false,
         );
+        w.set_state(StatusState::Idle);
         w.is_paused = true;
         w.elapsed_running = Duration::ZERO;
 
@@ -455,7 +444,7 @@ mod tests {
             .map(ratatui::buffer::Cell::symbol)
             .collect::<String>();
 
-        assert!(line.starts_with("Working (0s • esc to interrupt)"));
+        assert!(line.starts_with("idle (0s"));
     }
 
     #[test]
@@ -467,6 +456,7 @@ mod tests {
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ false,
         );
+        w.set_state(StatusState::Error);
         w.set_interrupt_binding(Some(key_hint::plain(KeyCode::F(12)).into()));
         w.is_paused = true;
         w.elapsed_running = Duration::ZERO;
@@ -512,6 +502,7 @@ mod tests {
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ true,
         );
+        w.set_state(StatusState::Thinking);
         w.update_details(
             Some("abcd abcd abcd abcd".to_string()),
             StatusDetailsCapitalization::CapitalizeFirst,
@@ -536,6 +527,7 @@ mod tests {
             crate::tui::FrameRequester::test_dummy(),
             /*animations_enabled*/ true,
         );
+        w.set_state(StatusState::Running);
         w.update_details(
             Some("cargo test -p cx-core and then cargo test -p cx-tui".to_string()),
             StatusDetailsCapitalization::Preserve,
