@@ -16,7 +16,7 @@ const ZSH_SYNTAX_HIGHLIGHTING_REPO: &str =
 const OH_MY_ZSH_INSTALL_URL: &str =
     "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShellSetupOutcome {
     AlreadyDone,
     SkippedUnsupportedShell,

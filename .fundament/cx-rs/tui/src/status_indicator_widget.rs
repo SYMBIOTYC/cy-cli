@@ -11,6 +11,7 @@ use crossterm::event::KeyCode;
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::Color;
+use ratatui::style::Stylize;
 use ratatui::style::Style;
 use ratatui::text::Line;
 use ratatui::text::Span;
@@ -99,6 +100,7 @@ pub(crate) struct StatusIndicatorWidget {
     inline_message: Option<String>,
     show_interrupt_hint: bool,
     interrupt_binding: Option<ShortcutHint>,
+    header: String,
 
     elapsed_running: Duration,
     last_resume_at: Instant,
@@ -122,6 +124,7 @@ impl StatusIndicatorWidget {
             inline_message: None,
             show_interrupt_hint: true,
             interrupt_binding: Some(key_hint::plain(KeyCode::Esc).into()),
+            header: String::new(),
             elapsed_running: Duration::ZERO,
             last_resume_at: Instant::now(),
             is_paused: false,
@@ -147,7 +150,11 @@ impl StatusIndicatorWidget {
 
     /// Update the animated header label.
     pub(crate) fn update_header(&mut self, header: String) {
-        let _ = header;
+        self.header = header;
+    }
+
+    pub(crate) fn header(&self) -> &str {
+        &self.header
     }
 
     /// Set the status indicator state.
@@ -270,6 +277,20 @@ impl StatusIndicatorWidget {
         }
 
         out
+    }
+}
+
+pub fn fmt_elapsed_compact(elapsed_secs: u64) -> String {
+    let hours = elapsed_secs / 3600;
+    let minutes = (elapsed_secs % 3600) / 60;
+    let seconds = elapsed_secs % 60;
+
+    if hours > 0 {
+        format!("{hours}h {minutes:02}m {seconds:02}s")
+    } else if minutes > 0 {
+        format!("{minutes}m {seconds:02}s")
+    } else {
+        format!("{seconds}s")
     }
 }
 
