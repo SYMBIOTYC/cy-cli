@@ -14,6 +14,7 @@
 //! └─────────────────────────────────────────────────────────────┘
 
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crate::terminal_palette::rgb_color;
 use ratatui::prelude::Stylize;
 use ratatui::{
     buffer::Buffer,
