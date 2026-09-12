@@ -8,8 +8,6 @@
 use std::path::PathBuf;
 use std::process::Command as StdCommand;
 
-use crate::legacy_core::config::Config;
-
 const SHELL_SETUP_MARKER: &str = ".shell_setup_done";
 const ZSH_AUTOSUGGESTIONS_REPO: &str =
     "https://github.com/zsh-users/zsh-autosuggestions.git";
