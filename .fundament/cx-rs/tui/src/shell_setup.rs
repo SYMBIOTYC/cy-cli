@@ -5,6 +5,7 @@
 //! syntax-highlighting).  After a successful run a marker file is
 //! written under `cx_home` so the work is performed only once.
 
+use anyhow::Context;
 use std::path::PathBuf;
 use std::process::Command as StdCommand;
 

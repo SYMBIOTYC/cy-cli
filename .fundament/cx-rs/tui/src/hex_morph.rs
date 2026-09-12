@@ -43,13 +43,13 @@ pub(crate) fn render_hex_morph(area: Rect, buf: &mut Buffer, thinking: bool) {
     } else {
         let flash = xorshift32(ms / 33) % 60 == 0;
         let idx = (tick / 8) % 2;
-        let ch = if idx == 0 { '⬡' } else { '⬢' };
+        let ch = if idx == 0 { "⬡" } else { "⬢" };
         let color = if flash {
             ACCENT_GREEN
         } else {
             ACCENT_MUTED
         };
-        (ch.to_string(), color)
+        (ch, color)
     };
 
     let style = Style::default().fg(color);
